@@ -323,7 +323,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName)
                 if (svcName == NULL) {
                     break;
                 }
-                if (strcpy_s(svcName, strlen(serviceName) + 1, serviceName) != EOK) {
+                if (strcpy(svcName, serviceName) != EOK) {
                     HDF_LOGE("%s: string copy fail", __func__);
                     OsalMemFree(svcName);
                     break;
