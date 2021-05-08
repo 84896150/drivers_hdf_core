@@ -23,6 +23,7 @@
 #endif // !S16_MAX
 #endif // INT16_MAX
 
+//获取对齐后的大小
 static inline size_t HdfSbufGetAlignSize(size_t size)
 {
     return (size + HDF_SBUF_ALIGN - 1) & (~(HDF_SBUF_ALIGN - 1));
@@ -159,6 +160,7 @@ static bool HdfSbufWrite(struct HdfSBuf *sbuf, const uint8_t *data, uint32_t siz
     return true;
 }
 
+//从缓存中读取readSize大小的内容放入data中，同时读指针向后移动readSize对齐后的位置
 static bool HdfSbufRead(struct HdfSBuf *sbuf, uint8_t *data, uint32_t readSize)
 {
     if (sbuf == NULL || sbuf->data == NULL || data == NULL) {
@@ -323,6 +325,7 @@ bool HdfSbufReadInt8(struct HdfSBuf *sbuf, int8_t *value)
     return HdfSbufRead(sbuf, (uint8_t *)(value), sizeof(*value));
 }
 
+//从buffer中读取一个字符串
 const char *HdfSbufReadString(struct HdfSBuf *sbuf)
 {
     if (sbuf == NULL || sbuf->data == NULL) {
