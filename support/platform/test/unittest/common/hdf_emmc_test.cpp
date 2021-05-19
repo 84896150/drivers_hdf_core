@@ -56,7 +56,7 @@ static void TestUserEmmcGetCid(void)
 
     EmmcGetHuid(cid, EMMC_CID_LEN);
     for (i = 0; i < EMMC_CID_LEN; i++) {
-        printf("user interface get cid[%d] = 0x%x\n", i, cid[i]);
+        printf("user interface get cid[%u] = 0x%x\n", i, cid[i]);
     }
 }
 
@@ -66,7 +66,7 @@ static void TestUserEmmcGetCid(void)
   * @tc.type: FUNC
   * @tc.require: AR000F5LSD AR000F5LV3
   */
-HWTEST_F(HdfLiteEmmcTest, EmmcGetCid001, TestSize.Level1)
+HWTEST_F(HdfLiteEmmcTest, EmmcGetCid001, TestSize.Level0)
 {
     struct HdfTestMsg msg = {TEST_PAL_EMMC_TYPE, EMMC_GET_CID_01, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
