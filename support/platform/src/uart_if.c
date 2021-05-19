@@ -6,6 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include "uart_if.h"
 #include "securec.h"
 #ifndef __USER__
 #include "devsvc_manager_clnt.h"
@@ -17,7 +18,6 @@
 #ifndef __USER__
 #include "uart_core.h"
 #endif
-#include "uart_if.h"
 
 #define HDF_LOG_TAG uart_if_c
 #define UART_HOST_NAME_LEN 32
@@ -78,12 +78,14 @@ DevHandle UartOpen(uint32_t port)
         return NULL;
     }
     ret = service->dispatcher->Dispatch(&service->object, UART_IO_INIT, NULL, NULL);
+    if (ret != HDF_SUCCESS) {
+        UartPutObjByPointer(handle);
+    }
 #else
     ret = UartHostInit((struct UartHost *)handle);
 #endif
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: UartHostInit error, ret %d", __func__, ret);
-        UartPutObjByPointer(handle);
         return NULL;
     }
 
@@ -106,13 +108,13 @@ void UartClose(DevHandle handle)
         return;
     }
     ret = service->dispatcher->Dispatch(&service->object, UART_IO_DEINIT, NULL, NULL);
+    UartPutObjByPointer(handle);
 #else
     ret = UartHostDeinit((struct UartHost *)handle);
 #endif
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: UartHostDeinit error, ret %d", __func__, ret);
     }
-    UartPutObjByPointer(handle);
 }
 
 #ifdef __USER__
