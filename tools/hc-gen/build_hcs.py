@@ -48,7 +48,7 @@ def exec_command(cmd):
         raise Exception("{} failed, return code is {}".format(cmd, ret_code))
 
 def make_hc_gen(current_dir):
-    exec_command('make', '-C', current_dir)
+    exec_command(['make', '-C', current_dir])
 
 
 def prepare(hc_gen, current_dir):

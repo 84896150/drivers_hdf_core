@@ -47,7 +47,7 @@ bool ByteCodeGen::Output()
 bool ByteCodeGen::Initialize()
 {
     auto opt = Option::Instance();
-    std::string outFileName = opt.GetOutputName();
+    std::string outFileName = Util::File::StripSuffix(opt.GetOutputName());
     if (outFileName.empty()) {
         outFileName = opt.GetSourceNameBase() + ".hcb";
     }
@@ -253,7 +253,7 @@ bool ByteCodeGen::WriteBad()
 bool ByteCodeGen::HexdumpInitialize(FILE *&in, FILE *&out)
 {
     ofs_.close();
-    std::string hexdumpOutName =  Util::File::StripSuffix(outFileName_).append("_hex.c");
+    std::string hexdumpOutName = Util::File::StripSuffix(outFileName_).append("_hex.c");
 
     in = fopen(outFileName_.data(), "rb");
     if (in == nullptr) {
