@@ -102,7 +102,7 @@ bool Parser::ProcessInclude(std::list<std::string> &includeList)
             return false;
         }
 
-        auto includePath = std::move(current_.strval);
+        auto includePath = current_.strval;
         if (includePath.empty()) {
             Logger().Error() << lexer_ << "include invalid file: \'" << includePath << '\'';
             return false;
@@ -115,7 +115,7 @@ bool Parser::ProcessInclude(std::list<std::string> &includeList)
 
         auto includeAbsPath = Util::File::AbsPath(includePath);
         if (includeAbsPath.empty()) {
-            Logger().Error() << lexer_ << "include invalid file: \'" << includePath << '\'';
+            Logger().Error() << lexer_ << "include invalid file: \'" << current_.strval << '\'';
             return false;
         }
 

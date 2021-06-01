@@ -7,6 +7,7 @@
  */
 
 #include <iomanip>
+#include <sstream>
 #include <set>
 #include "ast.h"
 #include "logger.h"
@@ -30,7 +31,6 @@ AstObject::AstObject(std::string name, uint32_t type, uint64_t value) :
     hash_(0),
     integerValue_(value)
 {
-
 }
 
 AstObject::AstObject(std::string name, uint32_t type, std::string value) : AstObject(std::move(name), type, 0)

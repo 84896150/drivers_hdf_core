@@ -9,6 +9,7 @@
 #include "file.h"
 #include <climits>
 #include <cstdlib>
+#include <unistd.h>
 #include "types.h"
 
 using namespace OHOS::Hardware::Util;
@@ -18,6 +19,9 @@ std::string File::AbsPath(const std::string& path)
     char realPath[PATH_MAX];
 #ifdef MINGW32
     char *p = _fullpath(realPath, path.data(), PATH_MAX);
+    if (p != nullptr && access(p, F_OK) != 0) {
+        p = nullptr;
+    }
 #else
     char *p = realpath(path.data(), realPath);
 #endif
