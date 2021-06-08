@@ -311,7 +311,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName)
                 continue;
             }
             if (strcmp(deviceInfo->moduleName, moduleName) == 0) {
-                deviceInfo->isDynamic = true;
+                //deviceInfo->isDynamic = true;
                 deviceNodeInfo->hostId = deviceInfo->hostId;
                 deviceNodeInfo->deviceId = hostClnt->devCount;
                 deviceNodeInfo->policy = deviceInfo->policy;
@@ -329,6 +329,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName)
                     OsalMemFree(svcName);
                     break;
                 }
+                deviceInfo->isDynamic = true; // svcName 内存成功创建, 修改为true
                 deviceNodeInfo->svcName = svcName;
                 HdfSListAdd(hostClnt->deviceInfos, &deviceNodeInfo->node);
                 hostClnt->devCount++;
