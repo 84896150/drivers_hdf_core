@@ -52,7 +52,7 @@ def make_hc_gen(current_dir):
     exec_command(['make', '-C', current_dir, '-j8'])
 
 
-def prepare(hc_gen, current_dir):
+def prepare(current_dir):
     make_hc_gen(current_dir)
 
 
