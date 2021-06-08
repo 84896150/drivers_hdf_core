@@ -49,18 +49,17 @@ def exec_command(cmd):
 
 
 def make_hc_gen(current_dir):
-    exec_command(['make', '-C', current_dir])
+    exec_command(['make', '-C', current_dir, '-j8'])
 
 
-def prepare(hc_gen, current_dir):
-    if not os.path.exists(hc_gen):
-        make_hc_gen(current_dir)
+def prepare(current_dir):
+    make_hc_gen(current_dir)
 
 
 def main(argv):
     current_dir = os.path.split(os.path.realpath(__file__))[0]
     hc_gen = os.path.join(current_dir, 'build', 'hc-gen')
-    
+
     build_hcs_cmd = [hc_gen] + argv[1:]
 
     prepare(hc_gen, current_dir)
@@ -69,4 +68,3 @@ def main(argv):
 
 if __name__ == '__main__':
     sys.exit(main(sys.argv))
-
