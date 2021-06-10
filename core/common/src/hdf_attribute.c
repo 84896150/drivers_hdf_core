@@ -310,8 +310,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName)
             if (deviceInfo->moduleName == NULL) {
                 continue;
             }
-            if (strcmp(deviceInfo->moduleName, moduleName) == 0) {
-                deviceInfo->isDynamic = true;
+            if (strcmp(deviceInfo->moduleName, moduleName) == 0) {                
                 deviceNodeInfo->hostId = deviceInfo->hostId;
                 deviceNodeInfo->deviceId = hostClnt->devCount;
                 deviceNodeInfo->policy = deviceInfo->policy;
@@ -330,6 +329,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName)
                     break;
                 }
                 deviceNodeInfo->svcName = svcName;
+                deviceNodeInfo->isDynamic = true;
                 HdfSListAdd(hostClnt->deviceInfos, &deviceNodeInfo->node);
                 hostClnt->devCount++;
                 return true;
