@@ -104,7 +104,7 @@ int32_t TouchIoctl(InputDevice *inputdev, int32_t cmd, unsigned long arg)
 }
 
 #ifndef CONFIG_DISABLE_POLL
-uint32_t TouchPoll(FAR struct file *filep, InputDevice *inputDev, poll_table *wait)
+uint32_t TouchPoll(struct file *filep, InputDevice *inputDev, poll_table *wait)
 {
     uint32_t pollMask = 0;
     if (filep == NULL || filep->f_vnode == NULL) {
