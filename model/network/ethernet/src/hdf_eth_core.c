@@ -22,7 +22,7 @@ static struct HdfEthChipDriverFactory *HdfEthGetDriverFactory(const char *driver
     }
     initMgr = HdfEthGetChipDriverMgr();
     if (initMgr == NULL) {
-        HDF_LOGE("initMgr is NULL", __func__);
+        HDF_LOGE("%s: initMgr is NULL", __func__);
         return NULL;
     }
     return initMgr->GetEthChipDriverByName(driverName);
@@ -31,7 +31,7 @@ static struct HdfEthChipDriverFactory *HdfEthGetDriverFactory(const char *driver
 static int32_t DeinitEth(struct EthDevice *ethDevice)
 {
     HDF_LOGD("%s enter", __func__);
-    struct HdfEthChipDriverFactory *ethChipDriverFact == NULL;
+    struct HdfEthChipDriverFactory *ethChipDriverFact = NULL;
 
     if (ethDevice == NULL) {
         HDF_LOGE("%s the input ethDevice is NULL!", __func__);
