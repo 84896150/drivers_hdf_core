@@ -27,7 +27,7 @@ typedef enum {
 struct NetDeviceImplOp {
     int32_t (*init)(struct NetDeviceImpl *netDevice);
     int32_t (*deInit)(struct NetDeviceImpl *netDevice);
-    int32_t (*add)(struct NetDeviceImpl *netDevice, Protocol80211IfType ifType);
+    int32_t (*add)(struct NetDeviceImpl *netDevice);
     int32_t (*delete)(struct NetDeviceImpl *netDevice);
     int32_t (*setStatus)(struct NetDeviceImpl *netDevice, NetIfStatus status);
     int32_t (*setLinkStatus)(struct NetDeviceImpl *netDevice, NetIfLinkStatus status);
@@ -40,6 +40,9 @@ struct NetDeviceImplOp {
     int32_t (*dhcpStop)(struct NetDeviceImpl *netDevice);
     int32_t (*dhcpIsBound)(struct NetDeviceImpl *netDevice);
     int32_t (*changeMacAddr)(struct NetDeviceImpl *netDevice);
+    int8_t (*isLinkUp)(struct NetDeviceImpl *netDevice);
+    void (*setDefault)(struct NetDeviceImpl *netDevice);
+    void (*specialProc)(struct NetDeviceImpl *netDevice, Protocol80211IfType ifType);
 };
 
 #endif /* HDF_NET_DEVICE_IMPL_MODULE_H */

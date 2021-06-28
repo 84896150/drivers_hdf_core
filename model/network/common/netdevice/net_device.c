@@ -121,7 +121,7 @@ static struct NetDeviceImpl *GetImplByNetDevice(const struct NetDevice *netDevic
     return ndImpl;
 }
 
-struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetIfCategory ifCategory)
+struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetLinkType type, NetIfCategory ifCategory)
 {
     NetDevice *netDevice = NULL;
     struct NetDeviceImpl *ndImpl = NULL;
@@ -167,6 +167,7 @@ struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetIfCategory 
         DeInitNetDeviceImpl(ndImpl);
         return NULL;
     }
+	netDevice ->LinkLayerType = type;
     HDF_LOGI("Init Net Device success!");
     return netDevice;
 }
@@ -190,7 +191,7 @@ int32_t NetDeviceDeInit(struct NetDevice *netDevice)
     return HDF_SUCCESS;
 }
 
-int32_t NetDeviceAdd(struct NetDevice *netDevice, Protocol80211IfType ifType)
+int32_t NetDeviceAdd(struct NetDevice *netDevice)
 {
     struct NetDeviceImplOp *op = NULL;
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
@@ -204,7 +205,25 @@ int32_t NetDeviceAdd(struct NetDevice *netDevice, Protocol80211IfType ifType)
         HDF_LOGE("%s fail: Impl Add not exist.", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    return op->add(ndImpl, ifType);
+    return op->add(ndImpl);
+}
+
+int32_t NetDevSpecialProc(struct NetDevice *netDevice, Protocol80211IfType ifType)
+{
+    struct NetDeviceImplOp *op = NULL;
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+
+    if (ndImpl == NULL) {
+        HDF_LOGE("%s fail: netDevice not exist!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    op = ndImpl->interFace;
+    if (op == NULL || op->specialProc == NULL) {
+        HDF_LOGE("%s fail: Impl specialProc not exist.", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    op->specialProc(ndImpl, ifType);
+    return HDF_SUCCESS;
 }
 
 int32_t NetDeviceDelete(struct NetDevice *netDevice)
@@ -340,6 +359,7 @@ static int32_t NetIfRxImpl(const struct NetDevice *netDevice, NetBuf *buff, Rece
 int32_t NetIfSetMacAddr(struct NetDevice *netDevice, const unsigned char *macAddr, unsigned char length)
 {
     struct NetDeviceImpl *ndImpl = NULL;
+    HDF_STATUS ret;
     if (macAddr == NULL || length != MAC_ADDR_SIZE) {
         HDF_LOGE("%s fail: input param error!", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -348,6 +368,15 @@ int32_t NetIfSetMacAddr(struct NetDevice *netDevice, const unsigned char *macAdd
         HDF_LOGE("%s fail : memcpy_s fail!", __func__);
         return HDF_FAILURE;
     }
+
+    if (netDevice->netDeviceIf != NULL && netDevice->netDeviceIf->setMacAddr != NULL) {
+        ret = netDevice->netDeviceIf->setMacAddr(netDevice, (void*)macAddr);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s fail : setMacAddr fail!", __func__);
+            return ret;
+        }
+    }
+
     ndImpl = GetImplByNetDevice(netDevice);
     if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->changeMacAddr != NULL) {
         return ndImpl->interFace->changeMacAddr(ndImpl);
@@ -430,6 +459,27 @@ int32_t NetIfDhcpIsBound(const struct NetDevice *netDevice)
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
     if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->dhcpIsBound != NULL) {
         return ndImpl->interFace->dhcpIsBound(ndImpl);
+    }
+    HDF_LOGE("%s: netDevice not init or already free.", __func__);
+    return HDF_ERR_INVALID_PARAM;
+}
+
+int8_t NetIfIsLinkUp(const struct NetDevice *netDevice)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->isLinkUp != NULL) {
+        return ndImpl->interFace->isLinkUp(ndImpl);
+    }
+    HDF_LOGE("%s: netDevice not init or already free.", __func__);
+    return HDF_ERR_INVALID_PARAM;
+}
+
+int32_t NetIfSetDefault(const struct NetDevice *netDevice)
+{
+    struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
+    if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->setDefault != NULL) {
+        ndImpl->interFace->setDefault(ndImpl);
+        return HDF_SUCCESS;
     }
     HDF_LOGE("%s: netDevice not init or already free.", __func__);
     return HDF_ERR_INVALID_PARAM;
