@@ -25,7 +25,7 @@ static bool WiFiNetDeviceTestEnv(void)
             HDF_LOGE("%s: strcpy_s fail", __func__);
             return false;
         }
-        g_netDevice = NetDeviceInit(devName, strlen(devName), LITE_OS);
+        g_netDevice = NetDeviceInit(devName, strlen(devName), WIFI_LINK, LITE_OS);
         if (g_netDevice == NULL) {
             HDF_LOGE("%s fail ", __func__);
             return false;
@@ -62,8 +62,12 @@ int32_t WiFiNetDviceTestAdd(void)
             return HDF_FAILURE;
         }
     }
-    if (NetDeviceAdd(g_netDevice, PROTOCOL_80211_IFTYPE_STATION) != HDF_SUCCESS) {
+    if (NetDeviceAdd(g_netDevice) != HDF_SUCCESS) {
         HDF_LOGE("%s add fail!", __func__);
+        return HDF_FAILURE;
+    }
+    if (NetDevSpecialProc(g_netDevice, PROTOCOL_80211_IFTYPE_STATION) != HDF_SUCCESS) {
+        HDF_LOGE("%s specialProc fail!", __func__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;

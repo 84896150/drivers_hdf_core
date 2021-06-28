@@ -506,6 +506,9 @@ struct NetDeviceInterFace {
     int32_t (*changeMtu)(struct NetDevice *netDev, int32_t newMtu);           /**< Changes the maximum number of
                                                                                * transmission units.
                                                                                */
+    void (*linkStatusChanged)(struct NetDevice *netDev);    /**< Detects the change of
+                                                             * the Ethernet port connection status.
+                                                             */
     ProcessingResult (*specialEtherTypeProcess)(const struct NetDevice *netDev, NetBuf *buff);
                                                                               /**< Performs private processing without
                                                                                * involving network-layer data.
@@ -517,6 +520,7 @@ struct NetDeviceInterFace {
  *
  * @param ifName Indicates the pointer to the network device name.
  * @param len Indicates the length of the network device name.
+ * @param type Indicates the data link type.
  * @param ifCategory Indicates the network port category.
  *
  * @return Returns the structure {@link NetDevice} for the initialized network device if the operation is successful;
@@ -525,7 +529,7 @@ struct NetDeviceInterFace {
  * @since 1.0
  * @version 1.0
  */
-struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetIfCategory ifCategory);
+struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetLinkType type, NetIfCategory ifCategory);
 
 /**
  * @brief Deletes a network device.
@@ -544,6 +548,19 @@ int32_t NetDeviceDeInit(struct NetDevice *netDevice);
  * @brief Adds a network device to a protocol stack.
  *
  * @param netDevice Indicates the pointer to the network device structure obtained during initialization.
+ *
+ * @return Returns <b>0</b> if the operation is successful; returns a negative value representing {@link HDF_STATUS}
+ * if the operation fails.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+int32_t NetDeviceAdd(struct NetDevice *netDevice);
+
+/**
+ * @brief Process a special network device based on the type.
+ *
+ * @param netDevice Indicates the pointer to the network device structure obtained during initialization.
  * @param ifType Indicates the network port type, as enumerated in {@link Protocol80211IfType}.
  *
  * @return Returns <b>0</b> if the operation is successful; returns a negative value representing {@link HDF_STATUS}
@@ -552,7 +569,7 @@ int32_t NetDeviceDeInit(struct NetDevice *netDevice);
  * @since 1.0
  * @version 1.0
  */
-int32_t NetDeviceAdd(struct NetDevice *netDevice, Protocol80211IfType ifType);
+int32_t NetDevSpecialProc(struct NetDevice *netDevice, Protocol80211IfType ifType);
 
 /**
  * @brief Deletes a network device from a protocol stack.
@@ -787,6 +804,30 @@ int32_t NetIfDhcpStop(const struct NetDevice *netDevice);
  * @version 1.0
  */
 int32_t NetIfDhcpIsBound(const struct NetDevice *netDevice);
+
+/**
+ * @brief Check whether the status of the Ethernet port is Up.
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ *
+ * @return Returns <b>1</b> if the status is up; returns a non-one value the status is down.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+int8_t NetIfIsLinkUp(const struct NetDevice *netDevice);
+
+/**
+ * @brief Set a network interface as the default network interface.
+ *
+ * @param netDevice Indicates the pointer to the network device obtained during initialization.
+ *
+ * @return Returns <b>0</b> if the operation is successful; returns a non-zero value otherwise.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+int32_t NetIfSetDefault(const struct NetDevice *netDevice);
 
 #define GET_NET_DEV_FLAGS(dev) ((dev)->flags)
 #define GET_NET_DEV_HEAD_ROOM(dev) ((dev)->neededHeadRoom)
