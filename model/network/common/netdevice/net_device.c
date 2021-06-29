@@ -167,7 +167,7 @@ struct NetDevice *NetDeviceInit(const char *ifName, uint32_t len, NetLinkType ty
         DeInitNetDeviceImpl(ndImpl);
         return NULL;
     }
-	netDevice ->LinkLayerType = type;
+	netDevice->LinkLayerType = type;
     HDF_LOGI("Init Net Device success!");
     return netDevice;
 }
