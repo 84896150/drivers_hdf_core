@@ -57,7 +57,7 @@ struct EthDevice *CreateEthDevice(const struct ConfigEthDevList *configEthDevLis
         OsalMemFree(data);
         return NULL;
     }
-    ethDevice = (struct EthDevice *)OsalMemCalloc(sizeof(*ethDevice));
+    ethDevice = (struct EthDevice *)OsalMemCalloc(sizeof(struct EthDevice));
     if (ethDevice == NULL) {
         HDF_LOGE("%s failed to OsalMemCalloc ethDevice", __func__);
         NetDeviceDeInit(netDevice);
