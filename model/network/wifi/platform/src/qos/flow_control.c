@@ -263,7 +263,7 @@ static FlowControlQueueID GetQueueIdByEtherBuff(const NetBuf *buff)
     }
     len = NetBufGetDataLen(buff);
     if (len < sizeof(struct EtherHeader)) {
-        HDF_LOGE("%s fail : buff->data_len not right!", __func__);
+        HDF_LOGE("%s fail : buff->dataLen not right!", __func__);
         return QUEUE_ID_COUNT;
     }
     header = (struct EtherHeader *)NetBufGetAddress(buff, E_DATA_BUF);

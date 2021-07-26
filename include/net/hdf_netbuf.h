@@ -260,6 +260,20 @@ void *NetBufPush(NetBuf *nb, uint32_t id, uint32_t len);
 void *NetBufPop(NetBuf *nb, uint32_t id, uint32_t len);
 
 /**
+ * @brief Adjusts the mem pointer to hide or reveal headers in the netbuf.
+ *
+ * @param nb Indicates the pointer to the network data buffer.
+ * @param len Number of bytes to increment header size.
+ *
+ * @return Returns the address of the specified buffer segment if the operation is successful;
+ * returns <b>NULL</b> if the buffer segment ID is invalid.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+void *NetBufHeader(NetBuf *nb, int32_t len);
+
+/**
  * @brief Obtains the address of a specified buffer segment in a network data buffer.
  *
  * @param nb Indicates the pointer to the network data buffer.
