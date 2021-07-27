@@ -137,7 +137,6 @@ int32_t GpioCntlrAdd(struct GpioCntlr *cntlr)
         return HDF_ERR_INVALID_PARAM;
      }
     cntlr->start = start;
-    }
     DListHeadInit(&cntlr->list);
     DListInsertTail(&cntlr->list, list);
     GpioCntlrListPut();
