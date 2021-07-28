@@ -14,10 +14,6 @@
 #include "input_i2c_ops.h"
 #include "touch_gt911.h"
 
-#define AXIS_X_MAX 479
-#define AXIS_X_RANGE 0
-#define AXIS_Y_MAX 959
-#define AXIS_Y_RANGE 0
 #define MAX_POINT 5
 
 static int32_t ChipInit(ChipDevice *device)
@@ -189,17 +185,17 @@ static void SetAbility(ChipDevice *device)
         SET_BIT(ABS_MT_POSITION_Y) | SET_BIT(ABS_MT_TRACKING_ID);
     device->driver->inputDev->abilitySet.keyCode[3] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
     device->driver->inputDev->attrSet.axisInfo[ABS_X].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_X].max = AXIS_X_MAX;
-    device->driver->inputDev->attrSet.axisInfo[ABS_X].range = AXIS_X_RANGE;
+    device->driver->inputDev->attrSet.axisInfo[ABS_X].max = device->boardCfg->attr.resolutionX - 1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_X].range = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_Y].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_Y].max = AXIS_Y_MAX;
-    device->driver->inputDev->attrSet.axisInfo[ABS_Y].range = AXIS_Y_RANGE;
+    device->driver->inputDev->attrSet.axisInfo[ABS_Y].max = device->boardCfg->attr.resolutionY - 1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_Y].range = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].max = AXIS_X_MAX;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].range = AXIS_X_RANGE;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].max = device->boardCfg->attr.resolutionX - 1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].range = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].max = AXIS_Y_MAX;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].range = AXIS_Y_RANGE;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].max = device->boardCfg->attr.resolutionY - 1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].range = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_TRACKING_ID].max = MAX_POINT;
 }
 
