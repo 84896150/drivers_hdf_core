@@ -457,13 +457,18 @@ static int32_t TouchGetDeviceStrInfo(TouchDriver *driver, int32_t cmd, struct Hd
 
 static int32_t TouchGetDeviceAttr(TouchDriver *driver, struct HdfSBuf *reply)
 {
+    int32_t ret = 0;
     if (driver->inputDev == NULL) {
         return HDF_FAILURE;
     }
 
     HDF_LOGE("%s: enter", __func__);
     char *tempStr = "main_touch";
-    (void)strncpy_s(driver->inputDev->attrSet.devName, DEV_NAME_LEN, tempStr, strlen(tempStr));
+    ret = strncpy_s(driver->inputDev->attrSet.devName, DEV_NAME_LEN, tempStr, strlen(tempStr));
+    if (ret != 0) {
+        HDF_LOGE("%s: strncpy_s failed", __func__);
+        return HDF_FAILURE;
+    }
 
     if (!HdfSbufWriteBuffer(reply, &driver->inputDev->attrSet, sizeof(DevAttr))) {
         HDF_LOGE("%s: sbuf write dev attr failed", __func__);
