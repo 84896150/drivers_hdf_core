@@ -457,7 +457,7 @@ static int32_t TouchGetDeviceStrInfo(TouchDriver *driver, int32_t cmd, struct Hd
 
 static int32_t TouchGetDeviceAttr(TouchDriver *driver, struct HdfSBuf *reply)
 {
-    int32_t ret = 0;
+    int32_t ret;
     if (driver->inputDev == NULL) {
         return HDF_FAILURE;
     }
