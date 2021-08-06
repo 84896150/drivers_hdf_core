@@ -608,8 +608,8 @@ static void HdfDevListenerThreadDestroy(struct HdfDevListenerThread *thread)
                 HDF_LOGE("%s:failed to exit listener thread with ioctl, will go async way", __func__);
                 return;
             }
-            while (thread->status != LISTENER_EXITED) {
-                OsalUSleep(1);
+            if (thread->status != LISTENER_EXITED) {
+                OsalUSleep(100);
             }
             HDF_LOGI("poll thread exited");
             HdfDevListenerThreadFree(thread);
