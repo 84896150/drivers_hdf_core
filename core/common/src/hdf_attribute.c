@@ -311,7 +311,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName, const voi
                 continue;
             }
             if (strcmp(deviceInfo->moduleName, moduleName) == 0) {
-                deviceInfo->isDynamic = true;
+                //deviceInfo->isDynamic = true;
                 deviceNodeInfo->hostId = deviceInfo->hostId;
                 deviceNodeInfo->deviceId = hostClnt->devCount;
                 deviceNodeInfo->policy = deviceInfo->policy;
@@ -329,6 +329,7 @@ bool HdfDeviceListAdd(const char *moduleName, const char *serviceName, const voi
                     OsalMemFree(svcName);
                     break;
                 }
+                deviceInfo->isDynamic = true; // svcName 内存成功创建, 修改为true
                 deviceNodeInfo->svcName = svcName;
 #ifdef LOSCFG_DRIVERS_HDF_USB_PNP_NOTIFY
                 if (!UsbPnpManagerAddPrivateData(deviceNodeInfo, privateData)) {
