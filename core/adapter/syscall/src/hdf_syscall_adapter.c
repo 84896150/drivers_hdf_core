@@ -610,16 +610,18 @@ static void HdfDevListenerThreadDestroy(struct HdfDevListenerThread *thread)
                 HDF_LOGE("%s:failed to exit listener thread with ioctl, will go async way", __func__);
                 return;
             }
+
             while (thread->status != LISTENER_EXITED && count < TIMEOUT_US) {
                 OsalUSleep(1);
                 count++;
             }
+            if (thread->status == LISTENER_EXITED) {
+                thread->shouldStop = true;
+                HDF_LOGE("OsalUSleep exited");
+            }
             if (count == TIMEOUT_US) {
-                thread->status = false;
-                HDF_LOGI("OsalUSleep Timeout");
-                    if (thread->status == LISTENER_EXITED) {
-                        HDF_LOGI("OsalUSleep exited");
-                    }
+                thread->shouldStop = true;
+                HDF_LOGE("OsalUSleep Timeout");
             }
             HDF_LOGI("poll thread exited");
             HdfDevListenerThreadFree(thread);
