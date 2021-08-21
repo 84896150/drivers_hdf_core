@@ -622,7 +622,6 @@ static int32_t AudioSapmAddRoute(struct AudioCard *audioCard, const struct Audio
         ADM_LOG_ERR("find component fail!");
         return HDF_FAILURE;
     }
-
     path = (struct AudioSapmpath *)OsalMemCalloc(sizeof(struct AudioSapmpath));
     if (path == NULL) {
         ADM_LOG_ERR("malloc path fail!");
