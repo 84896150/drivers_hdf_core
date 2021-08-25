@@ -6,10 +6,10 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include "hdf_sensor_test.h"
 #include <securec.h>
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
-#include "hdf_sensor_test.h"
 #include "osal_math.h"
 #include "osal_time.h"
 #include "sensor_platform_if.h"
