@@ -7,8 +7,8 @@
  */
 
 #include "sensor_config_parser.h"
-#include "securec.h"
 #include "device_resource_if.h"
+#include "securec.h"
 #include "osal_mem.h"
 #include "sensor_platform_if.h"
 

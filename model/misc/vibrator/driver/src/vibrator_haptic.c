@@ -7,8 +7,8 @@
  */
 
 #include "vibrator_haptic.h"
-#include "securec.h"
 #include "device_resource_if.h"
+#include "securec.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "osal_mem.h"

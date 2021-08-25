@@ -7,10 +7,10 @@
  */
 
 #include "sensor_gyro_driver.h"
-#include "securec.h"
 #include "gyro_bmi160.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
+#include "securec.h"
 #include "osal_math.h"
 #include "osal_mem.h"
 #include "sensor_config_controller.h"
