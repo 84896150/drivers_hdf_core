@@ -6,8 +6,6 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "audio_core.h"
-
 #define HDF_LOG_TAG audio_core
 
 AUDIO_LIST_HEAD(daiController);
