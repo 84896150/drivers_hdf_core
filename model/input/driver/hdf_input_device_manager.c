@@ -197,6 +197,7 @@ EXIT:
 #define DEFAULT_CROWN_BUF_PKG_NUM      20
 #define DEFAULT_ENCODER_BUF_PKG_NUM    20
 #define DEFAULT_ROCKER_BUF_PKG_NUM     40
+#define DEFAULT_TRACKBALL_BUF_PKG_NUM  30
 
 static int32_t AllocPackageBuffer(InputDevice *inputDev)
 {
@@ -222,6 +223,9 @@ static int32_t AllocPackageBuffer(InputDevice *inputDev)
             break;
         case INDEV_TYPE_ROCKER:
             pkgNum = DEFAULT_ROCKER_BUF_PKG_NUM;
+            break;
+        case INDEV_TYPE_TRACKBALL:
+            pkgNum = DEFAULT_TRACKBALL_BUF_PKG_NUM;
             break;
         default:
             HDF_LOGE("%s: devType not exist", __func__);
