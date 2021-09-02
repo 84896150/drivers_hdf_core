@@ -352,7 +352,7 @@ static int32_t HidGetDeviceAttr(InputDevice *inputDev, struct HdfSBuf *reply)
 
     HDF_LOGE("%s: enter", __func__);
     ret = strncpy_s(inputDev->attrSet.devName, DEV_NAME_LEN, inputDev->devName, strlen(inputDev->devName));
-    if (ret) {
+    if (ret != 0) {
         HDF_LOGE("%s: copy name from inputDev failed, ret = %d", __func__, ret);
         return HDF_FAILURE;
     }
