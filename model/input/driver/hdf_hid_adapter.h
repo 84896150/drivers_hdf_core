@@ -93,7 +93,7 @@ enum HidType {
 };
 
 void SendInfoToHdf(HidInfo *info);
-void* HidRegisterHdfInputDev(HidInfo *dev);
+void* HidRegisterHdfInputDev(HidInfo *info);
 void HidUnregisterHdfInputDev(const void *inputDev);
 void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t value);
 

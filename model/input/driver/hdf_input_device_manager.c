@@ -251,7 +251,7 @@ static uint32_t AllocDeviceID(InputDevice *inputDev)
     uint32_t idList[MAX_INPUT_DEV_NUM + 1];
     uint32_t id;
     (void)memset_s(idList, (MAX_INPUT_DEV_NUM + 1) * sizeof(uint32_t), 0,
-                            (MAX_INPUT_DEV_NUM + 1) * sizeof(uint32_t));
+        (MAX_INPUT_DEV_NUM + 1) * sizeof(uint32_t));
     while (tmpDev != NULL) {
         if (idList[tmpDev->devId] == 0) {
             idList[tmpDev->devId] = FILLER_FLAG;
