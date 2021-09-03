@@ -149,7 +149,7 @@ static void SetInputDevAbility(InputDevice *inputDev)
     ret = memcpy_s(inputDev->abilitySet.switchCode, len * BITS_TO_LONG(SW_CNT),
         info->switchCode, len * BITS_TO_LONG(SW_CNT));
     MEMCPY_CHECK_RETURN(ret);
-	for (int i = 0; i < BITS_TO_LONG(ABS_CNT); i++) {
+    for (int i = 0; i < BITS_TO_LONG(ABS_CNT); i++) {
         if (inputDev->abilitySet.absCode[i] != 0) {
             ret = memcpy_s(inputDev->attrSet.axisInfo, sizeof(AbsAttr) * ABS_CNT,
                     info->axisInfo, sizeof(AbsAttr) * ABS_CNT);
