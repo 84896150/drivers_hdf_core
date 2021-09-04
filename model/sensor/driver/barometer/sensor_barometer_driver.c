@@ -297,7 +297,8 @@ INIT_EXIT:
     (void)ReleaseSensorBusHandle(&drvData->barometerCfg->busCfg);
 BASE_CONFIG_EXIT:
     drvData->barometerCfg->root = NULL;
-    (void)memset_s(&drvData->barometerCfg->sensorInfo, sizeof(struct SensorBasicInfo), 0, sizeof(struct SensorBasicInfo));
+    (void)memset_s(&drvData->barometerCfg->sensorInfo, sizeof(struct SensorBasicInfo), 0,
+        sizeof(struct SensorBasicInfo));
     (void)memset_s(&drvData->barometerCfg->busCfg, sizeof(struct SensorBusCfg), 0, sizeof(struct SensorBusCfg));
     (void)memset_s(&drvData->barometerCfg->sensorAttr, sizeof(struct SensorAttr), 0, sizeof(struct SensorAttr));
     return NULL;
