@@ -143,7 +143,7 @@ static int32_t SetProximityDisable(void)
     }
 
     ret = SetSensorRegCfgArray(&drvData->proximityCfg->busCfg,
-                                drvData->proximityCfg->regCfgGroup[SENSOR_DISABLE_GROUP]);
+        drvData->proximityCfg->regCfgGroup[SENSOR_DISABLE_GROUP]);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: proximity sensor disable config failed", __func__);
         return ret;
@@ -300,7 +300,7 @@ INIT_EXIT:
 BASE_CONFIG_EXIT:
     drvData->proximityCfg->root = NULL;
     (void)memset_s(&drvData->proximityCfg->sensorInfo, sizeof(struct SensorBasicInfo),
-                    0, sizeof(struct SensorBasicInfo));
+        0, sizeof(struct SensorBasicInfo));
     (void)memset_s(&drvData->proximityCfg->busCfg, sizeof(struct SensorBusCfg), 0, sizeof(struct SensorBusCfg));
     (void)memset_s(&drvData->proximityCfg->sensorAttr, sizeof(struct SensorAttr), 0, sizeof(struct SensorAttr));
     return NULL;
