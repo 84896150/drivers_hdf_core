@@ -211,7 +211,7 @@ static int32_t AssignPfds(struct HdfDevListenerThread *thread, struct pollfd **p
 }
 
 #define POLL_WAIT_TIME_MS 100
-static int32_t HdfDevEventListenTask(void *para)
+static void* HdfDevEventListenTask(void *para)
 {
     struct HdfDevListenerThread *thread = (struct HdfDevListenerThread *)para;
     struct pollfd *pfds = NULL;
