@@ -71,7 +71,7 @@ struct OsalThreadParam {
  * @since 1.0
  * @version 1.0
  */
-typedef int (*OsalThreadEntry)(void *);
+typedef void* (*OsalThreadEntry)(void *);
 
 /**
  * @brief Describes a thread.
