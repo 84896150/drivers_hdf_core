@@ -16,7 +16,6 @@
 #include "device_resource_if.h"
 #include "osal_mem.h"
 #include "osal_mutex.h"
-#include "securec.h"
 
 #ifdef __cplusplus
 #if __cplusplus
