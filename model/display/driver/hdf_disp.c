@@ -12,6 +12,7 @@
 #include "hdf_log.h"
 #include "osal.h"
 
+#define DISP_CMD_NR(n)     ((n) - 1)
 #define OFFSET_TWO_BYTE    16
 static struct DispManager *g_dispManager = NULL;
 static struct PanelManager g_panelManager;
@@ -328,30 +329,32 @@ static int32_t GetInfo(struct HdfDeviceObject *device, struct HdfSBuf *reqData, 
 }
 
 DispCmdHandle g_dispCmdHandle[] = {
-    GetPowerStatus,
     GetInfo,
     SetPowerStatus,
     SetBacklight,
+    GetPowerStatus,
     GetBacklight,
 };
 
 static int32_t DispCmdProcess(struct HdfDeviceObject *device, int32_t cmd, struct HdfSBuf *reqData,
     struct HdfSBuf *rspData)
 {
+    int32_t index = DISP_CMD_NR(cmd);
     int32_t cmdNum = sizeof(g_dispCmdHandle) / sizeof(g_dispCmdHandle[0]);
+
     if (device == NULL || reqData == NULL || rspData == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
-    if (cmd >= cmdNum || cmd < 0) {
-        HDF_LOGE("%s: invalid cmd = %d", __func__, cmd);
+    if (index >= cmdNum || index < 0) {
+        HDF_LOGE("%s: invalid index = %d", __func__, index);
         return HDF_FAILURE;
     }
-    HDF_LOGD("%s: cmd = %d", __func__, cmd);
-    if (g_dispCmdHandle[cmd] == NULL) {
+    HDF_LOGD("%s: index = %d", __func__, index);
+    if (g_dispCmdHandle[index] == NULL) {
         return HDF_FAILURE;
     }
 
-    return g_dispCmdHandle[cmd](device, reqData, rspData);
+    return g_dispCmdHandle[index](device, reqData, rspData);
 }
 
 static int32_t HdfDispDispatch(struct HdfDeviceIoClient *client, int id, struct HdfSBuf *data,
