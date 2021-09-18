@@ -30,7 +30,7 @@ struct HdfOrderedListEntity {
 
 typedef void(*HdfOrderedListEntityDeleter)(struct HdfOrderedListEntity *);
 
-typedef bool (*HdfOrderedListComparer)(long , void *);
+typedef bool (*HdfOrderedListComparer)(long, void *);
 
 void HdfOrderedListInit(struct HdfOrderedList *list);
 
