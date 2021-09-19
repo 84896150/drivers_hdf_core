@@ -31,10 +31,10 @@ struct HdfHdfBlockBuffer *HdfHdfBlockBufferNew(const uint8_t *data, uint16_t siz
     return buffer;
 }
 
-void HdfBlockBufferFree(struct HdfBlockBuffer *buffer)
+void HdfBlockBufferFree(const struct HdfBlockBuffer *buffer)
 {
     if (buffer != NULL) {
-        free(buffer);
+        OsalMemFree(buffer);
     }
 }
 
@@ -152,7 +152,7 @@ bool HdfBlockBufferWriteUint8(struct HdfBlockBuffer *buffer, uint8_t value)
     return false;
 }
 
-bool HdfBlockBufferWriteUint16(struct HdfBlockBuffer *buffer, uint16_t in_value)
+bool HdfBlockBufferWriteUint16(struct HdfBlockBuffer *buffer, uint16_t inValue)
 {
     if (buffer == NULL) {
         return false;

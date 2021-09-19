@@ -28,7 +28,7 @@ struct HdfOrderedListEntity {
     long key;
 };
 
-typedef void(*HdfOrderedListEntityDeleter)(struct HdfOrderedListEntity *);
+typedef void (*HdfOrderedListEntityDeleter)(struct HdfOrderedListEntity *);
 
 typedef bool (*HdfOrderedListComparer)(long, void *);
 
