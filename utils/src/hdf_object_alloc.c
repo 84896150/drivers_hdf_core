@@ -6,9 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_base.h"
-#include "hdf_object_alloc.h"
 #include "hdf_slist.h"
+#include "object_alloc.h"
 #include "osal_mutex.h"
 
 struct HdfChunkLink {
@@ -30,8 +29,7 @@ struct HdfObjectAlloc {
     bool isConstructed;
 };
 static const unsigned int ALIGN_MASK = 3;
-#define ALIGN4(x) (uint32_t)(((uintptr_t)(x) + ALIGN_MASK) & (~ALIGN_MASK))
-
+#define ALIGN4(x) (uint32_t)((((uintptr_t)(x)) + ALIGN_MASK) & (~ALIGN_MASK))
 #define OBJECT_NODE_SIZE sizeof(struct ObjectNode)
 #define OBJECT_CHUNK_COOKIE_SIZE (sizeof(struct ChunkLink) + sizeof(void *))
 

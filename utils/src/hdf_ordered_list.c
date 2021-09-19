@@ -84,8 +84,8 @@ long HdfOrderedListPeekKey(struct HdfOrderedList *list)
     return orderedKey;
 }
 
-struct HdfOrderedListEntity *HdfOrderedListFetch(
-    struct HdfOrderedList *list, long matchKey, HdfOrderedListComparer comparer)
+struct HdfOrderedListEntity *HdfOrderedListFetch(const struct HdfOrderedList *list, long matchKey,
+    HdfOrderedListComparer comparer)
 {
     struct HdfSListIterator it;
     struct HdfOrderedListEntity *matchEntity = NULL;
