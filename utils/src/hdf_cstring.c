@@ -26,13 +26,15 @@ uint32_t HdfStringMakeHashKey(const char *key, uint32_t mask)
 struct HdfCString *HdfCStringObtain(const char *str)
 {
     struct HdfCString *instance = NULL;
+    size_t size;
     if (str != NULL) {
         size_t strLen = strlen(str);
         if (strLen > CSTRING_MAX) {
             return NULL;
+        } else {
+            size = sizeof(struct HdfCString) + strLen + 1;
+            instance = (struct HdfCString *)OsalMemCalloc(size);
         }
-        size_t size = sizeof(struct HdfCString) + strLen + 1;
-        instance = (struct HdfCString *)OsalMemCalloc(size);
         if (instance == NULL) {
             HDF_LOGE("HdfCStringObtain failed, alloc memory failed");
             return NULL;
