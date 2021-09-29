@@ -9,6 +9,7 @@
 #include "audio_core.h"
 
 #define HDF_LOG_TAG audio_core
+// test updae in shanghai
 
 AUDIO_LIST_HEAD(daiController);
 AUDIO_LIST_HEAD(platformController);
