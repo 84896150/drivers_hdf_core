@@ -119,11 +119,6 @@ static int32_t EncoderInit(EncoderDriver *EncoderDrv)
         HDF_LOGE("%s: create timer failed, ret = %d\n", __func__, ret);
         return HDF_FAILURE;
     }
-    ret = OsalTimerStartLoop(&EncoderDrv->timer);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: start timer failed, ret = %d\n", __func__, ret);
-        return HDF_FAILURE;
-    }
 
     ret = GpioRead(gpioClk, &EncoderDrv->encoderClkNowSta);
     if (ret != HDF_SUCCESS) {
@@ -161,13 +156,6 @@ static InputDevice *InputDeviceInstance(EncoderDriver *encoderDrv)
         return NULL;
     }
 
-    ret = OsalMutexInit(&inputDev->mutex);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Init mutex error", __func__);
-        OsalMemFree(inputDev);
-        return NULL;
-    }
-
     inputDev->pvtData = (void *)encoderDrv;
     inputDev->devType = encoderDrv->devType;
     inputDev->hdfDevObj = encoderDrv->encoderCfg->hdfEncoderDev;
@@ -201,6 +189,13 @@ static int32_t RegisterEncoderDevice(EncoderCfg *encoderCfg, struct HdfDeviceObj
     if (ret != HDF_SUCCESS) {
         goto EXIT1;
     }
+
+    ret = OsalTimerStartLoop(&EncoderDrv->timer);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: start timer failed, ret = %d\n", __func__, ret);
+        return HDF_FAILURE;
+    }
+    
     return HDF_SUCCESS;
 
 EXIT1:
