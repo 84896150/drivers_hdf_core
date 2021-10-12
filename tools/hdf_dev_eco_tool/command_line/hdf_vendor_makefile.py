@@ -59,22 +59,6 @@ class HdfVendorMakeFile(object):
         end = '\n# %s end>\n' % module_id
         return begin, end
 
-    # def _create_module(self, module, need_content=True):
-    #     begin, end = self._begin_end(module)
-    #     if not need_content:
-    #         return hdf_utils.SectionContent(begin, '', end)
-    #     vendor_converter = hdf_utils.WordsConverter(self.vendor)
-    #     module_converter = hdf_utils.WordsConverter(module)
-    #     data_model = {
-    #         'module_upper_case': module_converter.upper_case(),
-    #         'module_lower_case': module_converter.lower_case(),
-    #         'vendor_lower_case': vendor_converter.lower_case(),
-    #         'drivers_path': HdfToolSettings().get_drivers_path_adapter()
-    #     }
-    #     template_str = hdf_utils.get_template('hdf_vendor_mk_module.template')
-        # module_item = Template(template_str).safe_substitute(data_model)
-        # return hdf_utils.SectionContent(begin, module_item, end)
-
     def add_module(self, data_model):
         self.contents.append(Template(self.template_str).safe_substitute(data_model))
         hdf_utils.write_file_lines(self.file_path, self.contents)
