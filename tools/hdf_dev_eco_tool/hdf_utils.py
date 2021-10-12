@@ -1,33 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
+# Copyright (c) 2021, Huawei Device Co., Ltd. All rights reserved.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other materials
-#    provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors may be used
-#    to endorse or promote products derived from this software without specific prior written
-#    permission.
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+
 import json
 import os
 import hashlib
@@ -202,9 +206,6 @@ def write_file_lines(file_path, content, code_type="utf-8"):
 
 
 def get_framework_lite_dir(root):
-    """
-    return os.path.join(root, 'drivers', 'hdf', 'lite')
-    """
     return os.path.join(root, 'drivers', 'adapter', 'khdf', 'liteos')
 
 
@@ -227,7 +228,6 @@ def get_vendor_hdf_dir_adapter(root, kernel='liteos'):
 
 
 def get_vendor_lite_mk_path(root):
-    # return os.path.join(get_vendor_hdf_dir(root, vendor), 'hdf_vendor.mk')
     return os.path.join(get_vendor_hdf_dir_adapter(root), 'hdf_lite.mk')
 
 
@@ -236,12 +236,7 @@ def get_vendor_makefile_path(root, kernel):
 
 
 def get_dot_configs_path(root, vendor, board):
-    # relative_path = HdfToolSettings().get_dot_configs(board)
-    # return get_vendor_hdf_dir_adapter(root, relative_path)
-
     path = os.path.join(root, "vendor", vendor, board, 'kernel_configs')
-    # return ([os.path.join(path, i) for i in os.listdir(path)] +
-    #         [os.path.join(root, path) for path in relative_path])
     return [os.path.join(path, i) for i in os.listdir(path)]
 
 
@@ -258,7 +253,6 @@ def get_drv_dir(root, vendor, module, driver):
 
 
 def get_drv_src_dir(root, vendor, module):
-    # return os.path.join(get_drv_dir(root, vendor, module, driver), 'src')
     return get_drv_root_dir(root, vendor, module)
 
 
@@ -327,7 +321,6 @@ def is_commented_line(line, comment_start):
 
 
 def get_vendor_gn_path(root):
-    # return os.path.join(get_vendor_hdf_dir(root, vendor), 'hdf_vendor.mk')
     return os.path.join(get_vendor_hdf_dir_adapter(root), 'BUILD.gn')
 
 
@@ -337,9 +330,9 @@ def get_template_file_path(root, kernel='liteos'):
     return os.path.join(root, relative_path2, template_relative_path)
 
 
-# "hdf_config", "device_info", "device_info.hcs"
 def get_hcs_file_path(root, vendor, board):
-    return os.path.join(root, "vendor", vendor, board, "hdf_config", "device_info", "device_info.hcs")
+    return os.path.join(root, "vendor", vendor, board,
+                        "hdf_config", "device_info", "device_info.hcs")
 
 
 def template_filename_filtrate(dir_path, kernal):
@@ -351,16 +344,16 @@ def template_filename_filtrate(dir_path, kernal):
 
 
 def get_create_model_info(root, create_data):
-    json_type_data = json.loads(create_data)
+    data = json.loads(create_data)
     out_model_list = []
-    if not json_type_data:
+    if not data:
         return []
-    file_key_list = list(list(json_type_data.items())[0][-1].keys())[:-1]
-    for k, v in json_type_data.items():
+    file_key_list = list(list(data.items())[0][-1].keys())[:-1]
+    for k, v in data.items():
         model_file_path = {}
         for key in file_key_list:
             if key.split("_")[-1] == "path":
-                path_dict = json_type_data[k][key]
+                path_dict = data[k][key]
                 if isinstance(path_dict, dict):
                     for k_filename, file_path in path_dict.items():
                         if not os.path.exists(os.path.join(root, file_path)):
