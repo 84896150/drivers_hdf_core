@@ -1,33 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
+# Copyright (c) 2021, Huawei Device Co., Ltd. All rights reserved.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other materials
-#    provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors may be used
-#    to endorse or promote products derived from this software without specific prior written
-#    permission.
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 import os
 
@@ -50,9 +52,10 @@ class HdfCommandHandlerBase(object):
         if self.action_type in self.handlers:
             return self.handlers[self.action_type]()
         else:
-            raise HdfToolException('unknown action_type: "%s" for "%s" cmd' %
-                                   (self.action_type, self.cmd),
-                                   CommandErrorCode.INTERFACE_ERROR)
+            raise HdfToolException(
+                'unknown action_type: "%s" for "%s" cmd' %
+                (self.action_type, self.cmd),
+                CommandErrorCode.INTERFACE_ERROR)
 
     def _get_action_type(self):
         try:
@@ -66,9 +69,9 @@ class HdfCommandHandlerBase(object):
             if not value:
                 raise AttributeError()
         except AttributeError:
-            raise HdfToolException('argument "--%s" is required for "%s" cmd' %
-                                   (arg, self.cmd),
-                                   CommandErrorCode.INTERFACE_ERROR)
+            raise HdfToolException(
+                'argument "--%s" is required for "%s" cmd' %
+                (arg, self.cmd), CommandErrorCode.INTERFACE_ERROR)
 
     def _get_arg(self, arg):
         try:
@@ -78,7 +81,8 @@ class HdfCommandHandlerBase(object):
             return ''
 
     def get_args(self):
-        args = ['vendor_name', 'module_name', 'driver_name', 'board_name', 'kernel_name']
+        args = ['vendor_name', 'module_name',
+                'driver_name', 'board_name', 'kernel_name']
         ret = [self._get_arg('root_dir')]
         for arg in args:
             value = self._get_arg(arg)
@@ -86,20 +90,10 @@ class HdfCommandHandlerBase(object):
                 value = hdf_utils.WordsConverter(value).lower_case()
             ret.append(value)
         return tuple(ret)
-    """
-        def get_args(self):
-        args = ['root_dir', 'vendor_name', 'module_name', 'driver_name', 'board_name', 'kernel_name']
-        ret = {"root": self._get_arg('root_dir')}
-        for arg in args:
-            value = self._get_arg(arg)
-            if value:
-                value = hdf_utils.WordsConverter(value).lower_case()
-            ret[arg.split("_")[0]] = value
-        return ret
-    """
 
     @staticmethod
     def check_path_raise_if_not_exist(full_path):
         if not os.path.exists(full_path):
-            raise HdfToolException('%s not exist' % full_path,
-                                   CommandErrorCode.TARGET_NOT_EXIST)
+            raise HdfToolException(
+                '%s not exist' %
+                full_path, CommandErrorCode.TARGET_NOT_EXIST)
