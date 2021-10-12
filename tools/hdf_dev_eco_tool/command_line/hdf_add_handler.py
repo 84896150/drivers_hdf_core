@@ -1,33 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
+# Copyright (c) 2021, Huawei Device Co., Ltd. All rights reserved.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other materials
-#    provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors may be used
-#    to endorse or promote products derived from this software without specific prior written
-#    permission.
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 import os
 import json
@@ -40,8 +42,6 @@ from .hdf_device_info_hcs import HdfDeviceInfoHcsFile
 from .hdf_vendor_build_file import HdfVendorBuildFile
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_vendor_mk_file import HdfVendorMkFile
-from .hdf_module_kconfig_file import HdfModuleKconfigFile
-from .hdf_module_mk_file import HdfModuleMkFile
 from .hdf_driver_config_file import HdfDriverConfigFile
 from hdf_tool_settings import HdfToolSettings
 from hdf_tool_exception import HdfToolException
@@ -120,7 +120,8 @@ class HdfAddHandler(HdfCommandHandlerBase):
             raise HdfToolException(' framework model path  "%s" not exist' % framework_hdf,
                                    CommandErrorCode.TARGET_NOT_EXIST)
         # 在 framework 目录下创建对应的 module 的文件目录用于存放 .c 驱动文件
-        framework_drv_root_dir = hdf_utils.get_drv_root_dir(root, vendor, module)
+        framework_drv_root_dir = hdf_utils.get_drv_root_dir(root,
+                                                            vendor, module)
         if os.path.exists(framework_drv_root_dir):
             raise HdfToolException('module "%s" already exist' % module,
                                    CommandErrorCode.TARGET_ALREADY_EXIST)
@@ -166,7 +167,6 @@ class HdfAddHandler(HdfCommandHandlerBase):
         config_file_out = {
             'module_name': module,
             'module_path': file_path,
-            # 'module_path': file_path.update({driver_file_path.split("\\")[-1]: driver_file_path}),
             'driver_name': driver_file_path.split("\\")[-1],
             'driver_file_path': driver_file_path,
             'module_level_config_path': model_level_config_file_path
@@ -175,19 +175,23 @@ class HdfAddHandler(HdfCommandHandlerBase):
         config_file_json = json.loads(config_file)
         config_file_json[module] = config_file_out
         if platform.system() == "Windows":
-            config_file_replace = json.dumps(config_file_json, indent=4).replace(root.replace('\\', '\\\\') + '\\\\', "")
-            hdf_utils.write_file(os.path.join('resources', 'create_model.config'), config_file_replace.replace('\\\\', '/'))
+            config_file_replace = json.dumps(config_file_json, indent=4).\
+                replace(root.replace('\\', '\\\\') + '\\\\', "")
+            hdf_utils.write_file(os.path.join('resources', 'create_model.config'),
+                                 config_file_replace.replace('\\\\', '/'))
         if platform.system() == "Linux":
-            config_file_replace = json.dumps(config_file_json, indent=4).replace(root + '/', "")
-            hdf_utils.write_file(os.path.join('resources', 'create_model.config'), config_file_replace)
+            config_file_replace = json.dumps(config_file_json, indent=4).\
+                replace(root + '/', "")
+            hdf_utils.write_file(os.path.join('resources', 'create_model.config'),
+                                 config_file_replace)
         return json.dumps(config_item)
 
-    def _add_module_handler_liteos(self, framework_hdf, adapter_model_path, data_model, converter,  *args_tuple):
+    def _add_module_handler_liteos(self, framework_hdf, adapter_model_path,
+                                   data_model, converter,  *args_tuple):
         root, vendor, module, driver, board, kernel = args_tuple
         liteos_file_path = {}
         liteos_level_config_file_path = {}
         liteos_file_name = ['BUILD.gn', 'Kconfig', 'Makefile']
-        # template_path = os.path.join(adapter_hdf, "tools", "hdf_dev_eco_tool", "resources", "templates", "lite")
         template_path = "/".join([framework_hdf] + ["tools", "hdf_dev_eco_tool", "resources", "templates", "lite"])
         for file_name in liteos_file_name:
             for i in os.listdir(template_path):
@@ -229,14 +233,12 @@ class HdfAddHandler(HdfCommandHandlerBase):
         liteos_level_config_file_path[module + "_dot_configs"] = dot_file_list
         return liteos_file_path, liteos_level_config_file_path
 
-    def _add_module_handler_linux(self, framework_hdf, adapter_model_path, data_model, *args_tuple):
+    def _add_module_handler_linux(self, framework_hdf, adapter_model_path,
+                                  data_model, *args_tuple):
         root, vendor, module, driver, board, kernel = args_tuple
         linux_file_path = {}
         linux_level_config_file_path = {}
-        # linux_file_name = ['built-in.a', 'Kconfig', 'Makefile']
         linux_file_name = ['Kconfig', 'Makefile']
-        # template_path = "/".join([adapter_hdf.strip(kernel)[:-1]] + ["liteos", "tools", "hdf_dev_eco_tool",
-        #                                                           "resources", "templates", "lite"])
         template_path = "/".join([framework_hdf] + ["tools", "hdf_dev_eco_tool", "resources", "templates", "lite"])
         for file_name in linux_file_name:
             for i in hdf_utils.template_filename_filtrate(template_path, kernel):

@@ -1,33 +1,37 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
+# Copyright (c) 2021, Huawei Device Co., Ltd. All rights reserved.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other materials
-#    provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors may be used
-#    to endorse or promote products derived from this software without specific prior written
-#    permission.
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
+
+
 import json
 import os
 import shutil
@@ -38,7 +42,6 @@ from .hdf_command_error_code import CommandErrorCode
 from .hdf_command_handler_base import HdfCommandHandlerBase
 from .hdf_defconfig_patch import HdfDefconfigAndPatch
 from .hdf_device_info_hcs import HdfDeviceInfoHcsFile
-from .hdf_get_handler import HdfGetHandler
 from .hdf_vendor_build_file import HdfVendorBuildFile
 from .hdf_vendor_kconfig_file import HdfVendorKconfigFile
 from .hdf_vendor_makefile import HdfVendorMakeFile
@@ -88,7 +91,8 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
             if key.split("_")[-1] == "name":
                 pass
             elif key == "driver_file_path":
-                driver_file = os.path.join(root, path_value.split(model)[0], model)
+                driver_file = os.path.join(root, path_value.split(model)[0],
+                                           model)
                 if os.path.exists(driver_file):
                     shutil.rmtree(driver_file)
             else:
@@ -166,7 +170,7 @@ class HdfDeleteHandler(HdfCommandHandlerBase):
         data = hdf_utils.read_file(create_file_save_path)
         file_info = json.loads(data)
         model_info = file_info.get(module, None)
-        if model_info == None:
+        if model_info is None:
             raise HdfToolException(' delete model "%s" not exist' % module, CommandErrorCode.TARGET_NOT_EXIST)
         else:
             return self._delete_module(root, module, model_info)
