@@ -65,7 +65,6 @@ class HdfVendorMakeFile(object):
         return self.file_path
 
     def delete_module(self, module):
-        # module_content = self._create_module(module, False)
         module_converter = hdf_utils.WordsConverter(module)
         data_model = {
             'module_upper_case': module_converter.upper_case(),
@@ -75,20 +74,6 @@ class HdfVendorMakeFile(object):
         if delete_template in self.contents:
             self.contents.remove(delete_template)
             hdf_utils.write_file_lines(content=self.contents, file_path=self.file_path)
-        """
-        module_converter = hdf_utils.WordsConverter(module)
-        data_model = {
-            'module_upper_case': module_converter.upper_case(),
-            'module_lower_case': module_converter.lower_case(),
-            'vendor_lower_case': vendor_converter.lower_case(),
-            'drivers_path': HdfToolSettings().get_drivers_path_adapter()
-        }
-        template_str = hdf_utils.get_template('hdf_vendor_mk_module.template')
-        """
-        # old_range = hdf_utils.find_section(self.contents, module_content)
-        # if not old_range:
-        #     return
-        # hdf_utils.delete_and_save(self.contents, self.file_path, old_range)
 
     def rename_vendor(self):
         pattern = r'vendor/([a-zA-Z0-9_\-]+)/'

@@ -202,9 +202,6 @@ def write_file_lines(file_path, content, code_type="utf-8"):
 
 
 def get_framework_lite_dir(root):
-    """
-    return os.path.join(root, 'drivers', 'hdf', 'lite')
-    """
     return os.path.join(root, 'drivers', 'adapter', 'khdf', 'liteos')
 
 
@@ -227,7 +224,6 @@ def get_vendor_hdf_dir_adapter(root, kernel='liteos'):
 
 
 def get_vendor_lite_mk_path(root):
-    # return os.path.join(get_vendor_hdf_dir(root, vendor), 'hdf_vendor.mk')
     return os.path.join(get_vendor_hdf_dir_adapter(root), 'hdf_lite.mk')
 
 
@@ -236,12 +232,7 @@ def get_vendor_makefile_path(root, kernel):
 
 
 def get_dot_configs_path(root, vendor, board):
-    # relative_path = HdfToolSettings().get_dot_configs(board)
-    # return get_vendor_hdf_dir_adapter(root, relative_path)
-
     path = os.path.join(root, "vendor", vendor, board, 'kernel_configs')
-    # return ([os.path.join(path, i) for i in os.listdir(path)] +
-    #         [os.path.join(root, path) for path in relative_path])
     return [os.path.join(path, i) for i in os.listdir(path)]
 
 
@@ -258,7 +249,6 @@ def get_drv_dir(root, vendor, module, driver):
 
 
 def get_drv_src_dir(root, vendor, module):
-    # return os.path.join(get_drv_dir(root, vendor, module, driver), 'src')
     return get_drv_root_dir(root, vendor, module)
 
 
@@ -327,7 +317,6 @@ def is_commented_line(line, comment_start):
 
 
 def get_vendor_gn_path(root):
-    # return os.path.join(get_vendor_hdf_dir(root, vendor), 'hdf_vendor.mk')
     return os.path.join(get_vendor_hdf_dir_adapter(root), 'BUILD.gn')
 
 
@@ -337,7 +326,6 @@ def get_template_file_path(root, kernel='liteos'):
     return os.path.join(root, relative_path2, template_relative_path)
 
 
-# "hdf_config", "device_info", "device_info.hcs"
 def get_hcs_file_path(root, vendor, board):
     return os.path.join(root, "vendor", vendor, board, "hdf_config", "device_info", "device_info.hcs")
 

@@ -86,17 +86,6 @@ class HdfCommandHandlerBase(object):
                 value = hdf_utils.WordsConverter(value).lower_case()
             ret.append(value)
         return tuple(ret)
-    """
-        def get_args(self):
-        args = ['root_dir', 'vendor_name', 'module_name', 'driver_name', 'board_name', 'kernel_name']
-        ret = {"root": self._get_arg('root_dir')}
-        for arg in args:
-            value = self._get_arg(arg)
-            if value:
-                value = hdf_utils.WordsConverter(value).lower_case()
-            ret[arg.split("_")[0]] = value
-        return ret
-    """
 
     @staticmethod
     def check_path_raise_if_not_exist(full_path):
