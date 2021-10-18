@@ -24,6 +24,7 @@ static struct VibratorLinearDriverData *GetLinearVibratorData(void)
     return g_linearVibratorData;
 }
 
+
 static int32_t StartLinearVibrator()
 {
     int32_t ret;
