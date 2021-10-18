@@ -6,6 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+
 #include "sensor_accel_driver.h"
 #include <securec.h>
 #include "hdf_base.h"
