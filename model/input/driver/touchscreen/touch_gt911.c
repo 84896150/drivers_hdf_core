@@ -15,6 +15,7 @@
 #include "touch_gt911.h"
 
 #define MAX_POINT 5
+#define X_OFFSET  1
 
 static int32_t ChipInit(ChipDevice *device)
 {
@@ -81,8 +82,6 @@ static int ChipCleanBuffer(InputI2cClient *i2cClient)
     }
     return ret;
 }
-
-#define X_OFFSET    1
 
 static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum)
 {

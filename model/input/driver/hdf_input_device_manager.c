@@ -14,14 +14,22 @@
 #include "event_hub.h"
 #include "hdf_input_device_manager.h"
 
-#define NODE_MODE            0660
-#define SERVICE_NAME_LEN     24
-#define INPUT_DEV_EXIST      1
-#define INPUT_DEV_NOT_EXIST  0
-#define INPUTDEV_FIRST_ID    1
-#define FILLER_FLAG          1
-#define PLACEHOLDER_LENGTH   2
-#define PLACEHOLDER_LIMIT    10
+#define NODE_MODE                      0660
+#define SERVICE_NAME_LEN               24
+#define INPUT_DEV_EXIST                1
+#define INPUT_DEV_NOT_EXIST            0
+#define INPUTDEV_FIRST_ID              1
+#define FILLER_FLAG                    1
+#define PLACEHOLDER_LENGTH             2
+#define PLACEHOLDER_LIMIT              10
+#define DEFAULT_TOUCH_BUF_PKG_NUM      50
+#define DEFAULT_KEY_BUF_PKG_NUM        10
+#define DEFAULT_MOUSE_BUF_PKG_NUM      30
+#define DEFAULT_KEYBOARD_BUF_PKG_NUM   20
+#define DEFAULT_CROWN_BUF_PKG_NUM      20
+#define DEFAULT_ENCODER_BUF_PKG_NUM    20
+#define DEFAULT_ROCKER_BUF_PKG_NUM     40
+#define DEFAULT_TRACKBALL_BUF_PKG_NUM  30
 
 static InputManager *g_inputManager;
 
@@ -189,15 +197,6 @@ EXIT:
     HotPlugNotify(inputDev, OFFLINE);
     return HDF_SUCCESS;
 }
-
-#define DEFAULT_TOUCH_BUF_PKG_NUM      50
-#define DEFAULT_KEY_BUF_PKG_NUM        10
-#define DEFAULT_MOUSE_BUF_PKG_NUM      30
-#define DEFAULT_KEYBOARD_BUF_PKG_NUM   20
-#define DEFAULT_CROWN_BUF_PKG_NUM      20
-#define DEFAULT_ENCODER_BUF_PKG_NUM    20
-#define DEFAULT_ROCKER_BUF_PKG_NUM     40
-#define DEFAULT_TRACKBALL_BUF_PKG_NUM  30
 
 static int32_t AllocPackageBuffer(InputDevice *inputDev)
 {
