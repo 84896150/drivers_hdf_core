@@ -1642,6 +1642,29 @@ struct HdmiCecMsg {
     uint32_t timeout; /* Indicates the maximum time(in ms) for the peer to reply to a message. */
 };
 
+#define HDMI_CEC_MSG_DATA_ZEROTH_ELEMENT 0
+#define HDMI_CEC_MSG_DATA_FIRST_ELEMENT 1
+#define HDMI_CEC_MSG_DATA_SECOND_ELEMENT 2
+#define HDMI_CEC_MSG_DATA_THIRD_ELEMENT 3
+#define HDMI_CEC_MSG_DATA_FORTH_ELEMENT 4
+#define HDMI_CEC_MSG_DATA_FIFTH_ELEMENT 5
+#define HDMI_CEC_MSG_DATA_SIXTH_ELEMENT 6
+#define HDMI_CEC_MSG_DATA_SEVENTH_ELEMENT 7
+#define HDMI_CEC_MSG_DATA_EIGHTH_ELEMENT 8
+#define HDMI_CEC_MSG_DATA_NINTH_ELEMENT 9
+
+#define DATA_ZEROTH_OFFSET_ELEMENT 0
+#define DATA_FIRST_OFFSET 1
+#define DATA_SECOND_OFFSET 2
+#define DATA_THIRD_OFFSET 3
+#define DATA_FORTH_OFFSET 4
+#define DATA_FIFTH_OFFSET 5
+#define DATA_SIXTH_OFFSET 6
+#define DATA_SEVENTH_OFFSET 7
+#define DATA_EIGHTH_OFFSET 8
+#define DATA_NINTH_OFFSET 9
+#define DATA_TENTH_OFFSET 10
+
 struct HdmiCecInfo {
     uint8_t logAddr;
     uint8_t logAddrType;
