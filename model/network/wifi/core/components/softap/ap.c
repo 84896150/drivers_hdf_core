@@ -17,6 +17,9 @@
 #include "hdf_wlan_utils.h"
 
 #define HDF_LOG_TAG HDF_WIFI_CORE
+#define WPS_RF_24GHZ 0x01
+#define WPS_RF_50GHZ 0x02
+#define WPS_RF_60GHZ 0x04
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,7 +61,6 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
         return HDF_FAILURE;
     }
 
-    apConf.band = IEEE80211_BAND_2GHZ;
     errno_t err = memcpy_s(apConf.ssidConf.ssid, IEEE80211_MAX_SSID_LEN, apSettings->ssid, apSettings->ssidLen);
     if (err != EOK) {
         HDF_LOGE("%s: memcpy_s failed!ret=%d", __func__, err);
@@ -68,6 +70,20 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
     apConf.centerFreq1 = apSettings->freqParams.centerFreq1;
     apConf.channel = apSettings->freqParams.channel;
     apConf.width = apSettings->freqParams.bandwidth;
+    switch (apSettings->band) {
+        case WPS_RF_24GHZ:
+            apConf.band = IEEE80211_BAND_2GHZ;
+            break;
+        case WPS_RF_50GHZ:
+            apConf.band = IEEE80211_BAND_5GHZ;
+            break;
+        case (WPS_RF_24GHZ | WPS_RF_50GHZ):
+            apConf.band = (apConf.centerFreq1 > 2484) ? IEEE80211_BAND_5GHZ : IEEE80211_BAND_2GHZ;
+            break;
+        default:
+            apConf.band = (apConf.centerFreq1 > 2484) ? IEEE80211_BAND_5GHZ : IEEE80211_BAND_2GHZ;
+            break;
+    }
 
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->apOps, ConfigAp);
     ret = chipDriver->apOps->ConfigAp(netDev, &apConf);
@@ -192,6 +208,10 @@ static int32_t WifiCmdSetAp(const RequestContext *context, struct HdfSBuf *reqDa
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->meshSsid), &(apSettings->meshSsidLen))) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "meshSsid");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufWriteUint8(reqData, (const void **)&(apSettings->band))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "band");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
