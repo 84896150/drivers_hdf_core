@@ -254,6 +254,7 @@ typedef struct {
     int32_t centerFreq1;
     int32_t centerFreq2;
     int32_t bandwidth;
+    uint8_t band;
 } WifiFreqParams;
 
 typedef struct {
@@ -282,7 +283,6 @@ typedef struct {
     uint8_t authType;
     size_t meshSsidLen;
     uint8_t *meshSsid;
-    uint8_t band;
 } WifiApSetting;
 
 typedef struct {

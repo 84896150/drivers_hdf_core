@@ -17,9 +17,6 @@
 #include "hdf_wlan_utils.h"
 
 #define HDF_LOG_TAG HDF_WIFI_CORE
-#define WPS_RF_24GHZ 0x01
-#define WPS_RF_50GHZ 0x02
-#define WPS_RF_60GHZ 0x04
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,20 +67,7 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
     apConf.centerFreq1 = apSettings->freqParams.centerFreq1;
     apConf.channel = apSettings->freqParams.channel;
     apConf.width = apSettings->freqParams.bandwidth;
-    switch (apSettings->band) {
-        case WPS_RF_24GHZ:
-            apConf.band = IEEE80211_BAND_2GHZ;
-            break;
-        case WPS_RF_50GHZ:
-            apConf.band = IEEE80211_BAND_5GHZ;
-            break;
-        case (WPS_RF_24GHZ | WPS_RF_50GHZ):
-            apConf.band = (apConf.centerFreq1 > 2484) ? IEEE80211_BAND_5GHZ : IEEE80211_BAND_2GHZ;
-            break;
-        default:
-            apConf.band = (apConf.centerFreq1 > 2484) ? IEEE80211_BAND_5GHZ : IEEE80211_BAND_2GHZ;
-            break;
-    }
+    apConf.band = apSettings->freqParams.band;
 
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->apOps, ConfigAp);
     ret = chipDriver->apOps->ConfigAp(netDev, &apConf);
