@@ -1,33 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
+# Copyright (c) 2021, Huawei Device Co., Ltd. All rights reserved.
 #
-# 1. Redistributions of source code must retain the above copyright notice, this list of
-#    conditions and the following disclaimer.
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
 #
-# 2. Redistributions in binary form must reproduce the above copyright notice, this list
-#    of conditions and the following disclaimer in the documentation and/or other materials
-#    provided with the distribution.
-#
-# 3. Neither the name of the copyright holder nor the names of its contributors may be used
-#    to endorse or promote products derived from this software without specific prior written
-#    permission.
+#  * Redistributions of source code must retain the above copyright
+#    notice, this list of conditions and the following disclaimer.
+#  * Redistributions in binary form must reproduce the above
+#    copyright notice, this list of conditions and the following
+#    disclaimer in the documentation and/or other materials provided
+#    with the distribution.
+#  * Neither the name of Willow Garage, Inc. nor the names of its
+#    contributors may be used to endorse or promote products derived
+#    from this software without specific prior written permission.
 #
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
-# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
-# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
-# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+# LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+# FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+# COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
 import os
 import json
@@ -45,10 +47,11 @@ import hdf_utils
 
 
 class HdfGetHandler(HdfCommandHandlerBase):
+    HDF_VERSION_MAJOR = 0
+    HDF_VERSION_MINOR = 1
+
     def __init__(self, args):
         super(HdfGetHandler, self).__init__()
-        self.HDF_VERSION_MAJOR = 0
-        self.HDF_VERSION_MINOR = 1
         self.cmd = 'get'
         self.handlers = {
             'vendor_list': self._get_vendor_list_handler,
@@ -126,7 +129,8 @@ class HdfGetHandler(HdfCommandHandlerBase):
             module, k_path = item
             if module in modules:
                 models = \
-                    HdfModuleKconfigFile(root, module, k_path).get_models()
+                    HdfModuleKconfigFile(root, module,
+                                         k_path).get_models()
                 drivers[module] = models
         return json.dumps(drivers)
 
@@ -139,8 +143,9 @@ class HdfGetHandler(HdfCommandHandlerBase):
         _, vendor, module, driver, _ = self.get_args()
         drv_dir = hdf_utils.get_drv_dir(root, vendor, module, driver)
         if not os.path.exists(drv_dir):
-            raise HdfToolException('driver directory: %s not exist' % drv_dir,
-                                   CommandErrorCode.TARGET_NOT_EXIST)
+            raise HdfToolException(
+                'driver directory: %s not exist' %
+                drv_dir, CommandErrorCode.TARGET_NOT_EXIST)
         for root_path, dirs, files in os.walk(drv_dir):
             for file in files:
                 if file.endswith('.c'):
@@ -161,41 +166,50 @@ class HdfGetHandler(HdfCommandHandlerBase):
         root, _, _, _, _, _ = self.get_args()
         adapter_framework = hdf_utils.get_vendor_hdf_dir_framework(root=root)
         if not os.path.exists(adapter_framework):
-            raise HdfToolException(' adapter model path  "%s" not exist' % adapter_framework,
-                                   CommandErrorCode.TARGET_NOT_EXIST)
-        create_file_save_path = os.path.join(adapter_framework, "tools", "hdf_dev_eco_tool", "resources", "create_model.config")
+            raise HdfToolException(
+                ' adapter model path  "%s" not exist' %
+                adapter_framework, CommandErrorCode.TARGET_NOT_EXIST)
+        create_file_save_path = os.path.join(
+            adapter_framework, "tools", "hdf_dev_eco_tool",
+            "resources", "create_model.config")
         if not os.path.exists(create_file_save_path):
-            raise HdfToolException('create file config "%s" not exist' % create_file_save_path,
-                                   CommandErrorCode.TARGET_NOT_EXIST)
+            raise HdfToolException(
+                'create file config "%s" not exist' %
+                create_file_save_path, CommandErrorCode.TARGET_NOT_EXIST)
         out_model_list = []
         data = hdf_utils.read_file(create_file_save_path)
-        json_type_data = json.loads(data)
-        if not json_type_data:
+        json_type = json.loads(data)
+        if not json_type:
             return out_model_list
-        file_key_list = list(list(json_type_data.items())[0][-1].keys())[:-1]
-        for k, v in json_type_data.items():
+        file_key_list = list(list(json_type.
+                                  items())[0][-1].keys())[:-1]
+        for k, _ in json_type.items():
             model_file_path = {}
             for key in file_key_list:
                 if key.split("_")[-1] == "path":
-                    path_dict = json_type_data[k][key]
-                    if isinstance(path_dict, dict):
-                        for k_filename, file_path in path_dict.items():
-                            if not os.path.exists(os.path.join(root, file_path)):
-                                model_file_path[k_filename] = " "
-                            else:
-                                model_file_path[k_filename] = path_dict[k_filename]
-                    else:
-                        hcs_file_path = os.path.join(root, path_dict)
-                        if not os.path.exists(hcs_file_path):
-                            model_file_path[key] = " "
-                        else:
-                            model_file_path[key] = path_dict
+                    path_dict = json_type[k][key]
+                    model_file_path = self._model_info(
+                        path_dict, root, model_file_path, key)
             out_model_list.append({k: model_file_path})
         return out_model_list
 
     def __get_version(self):
         version_end = "\nCopyright (c) 2020-2021 Huawei Device Co., Ltd."
         version_head = "hdf_dev_eco_tool version : "
-        return version_head + str(self.HDF_VERSION_MAJOR) + "." + str(self.HDF_VERSION_MINOR) + version_end
+        return version_head + str(self.HDF_VERSION_MAJOR) \
+               + "." + str(self.HDF_VERSION_MINOR) + version_end
 
-
+    def _model_info(self, path_dict, root, model_file_path, key):
+        if isinstance(path_dict, dict):
+            for k_filename, file_path in path_dict.items():
+                if not os.path.exists(os.path.join(root, file_path)):
+                    model_file_path[k_filename] = " "
+                else:
+                    model_file_path[k_filename] = path_dict[k_filename]
+        else:
+            hcs_file_path = os.path.join(root, path_dict)
+            if not os.path.exists(hcs_file_path):
+                model_file_path[key] = " "
+            else:
+                model_file_path[key] = path_dict
+        return model_file_path
