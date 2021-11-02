@@ -23,7 +23,7 @@ static int32_t SensorOpsNop(struct SensorBusCfg *busCfg, struct SensorRegCfg *cf
 
 static int32_t SensorOpsRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
-    uint16_t value = 0;
+    uint32_t value = 0;
     int32_t ret;
 
     ret = ReadSensor(busCfg, cfgItem->regAddr, (uint8_t *)&value, sizeof(value));
@@ -59,16 +59,46 @@ static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *
     value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
     value[SENSOR_VALUE_INDEX] = cfgItem->value;
 
-    switch (calType) {
+    ret = WriteSensor(busCfg, value, sizeof(value));
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "write i2c reg");
+ 
+    return ret;
+}
+
+static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *value, uint32_t valueMask)
+{
+    uint32_t originValue;
+    uint32_t mask;
+    uint32_t tmp;
+
+    mask = GetSensorRegRealValueMask(cfgItem, &originValue, valueMask);
+    switch ((enum SensorCalculateType)cfgItem->calType) {
         case SENSOR_CFG_CALC_TYPE_NONE:
-            ret = WriteSensor(busCfg, value, sizeof(value));
             break;
         case SENSOR_CFG_CALC_TYPE_SET:
+            *value &= ~mask;
+            *value |= (originValue & mask);
+            break;
         case SENSOR_CFG_CALC_TYPE_REVERT:
+            tmp = *value & (~mask);
+            *value = ~(*value & mask);
+            *value = tmp | (*value);
+            break;
         case SENSOR_CFG_CALC_TYPE_XOR:
+            tmp = *value & (~mask);
+            originValue = originValue & mask;
+            *value = *value & mask;
+            *value ^= originValue;
+            *value = tmp | (*value);
+            break;
         case SENSOR_CFG_CALC_TYPE_LEFT_SHIFT:
+            *value = *value << cfgItem->shiftNum;
+            break;
         case SENSOR_CFG_CALC_TYPE_RIGHT_SHIFT:
+            *value = *value >> cfgItem->shiftNum;
+            break;
         default:
+            HDF_LOGE("%s: unsupported cal type", __func__);
             break;
     }
 
@@ -99,30 +129,6 @@ static int32_t SensorOpsReadCheck(struct SensorBusCfg *busCfg, struct SensorRegC
     return HDF_SUCCESS;
 }
 
-static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *value, uint32_t valueMask)
-{
-    uint32_t originValue;
-    uint32_t mask;
-    uint32_t tmp;
-
-    mask = GetSensorRegRealValueMask(cfgItem, &originValue, valueMask);
-    switch ((enum SensorCalculateType)cfgItem->calType) {
-        case SENSOR_CFG_CALC_TYPE_SET:
-            *value &= ~mask;
-            *value |= (originValue & mask);
-            break;
-        case SENSOR_CFG_CALC_TYPE_REVERT:
-            tmp = *value & (~mask);
-            *value = ~(*value & mask);
-            *value = tmp | (*value & mask);
-            break;
-        default:
-            HDF_LOGE("%s: unsupported cal type", __func__);
-            break;
-    }
-    return 0;
-}
-
 static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
     uint32_t value = 0;
@@ -150,12 +156,46 @@ static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct Sensor
     return HDF_SUCCESS;
 }
 
+static int32_t SensorOpsExtBuffRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+{
+    int32_t ret;
+
+    CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
+
+    if (busCfg->busType == SENSOR_BUS_I2C) {
+        ret = ReadSensor(busCfg, cfgItem->regAddr, cfgItem->dataBuff, cfgItem->len);
+        CHECK_PARSER_RESULT_RETURN_VALUE(ret, "read i2c reg"); 
+    }
+
+    return ret;
+}
+
+static int32_t SensorOpsExtBuffWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+{
+    int32_t ret = HDF_FAILURE;
+    uint8_t value[SENSOR_VALUE_BUTT];
+
+    CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
+
+    value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
+    value[SENSOR_VALUE_INDEX] = cfgItem->dataBuff;
+
+    if (busCfg->busType == SENSOR_BUS_I2C) {
+        ret = WriteSensor(busCfg, value, cfgItem->len);
+        CHECK_PARSER_RESULT_RETURN_VALUE(ret, "write i2c reg");
+    }
+
+    return ret;
+}
+
 static struct SensorOpsCall g_doOpsCall[] = {
     { SENSOR_OPS_TYPE_NOP,                         SensorOpsNop },
     { SENSOR_OPS_TYPE_READ,                        SensorOpsRead },
     { SENSOR_OPS_TYPE_WRITE,                       SensorOpsWrite },
     { SENSOR_OPS_TYPE_READ_CHECK,                  SensorOpsReadCheck },
     { SENSOR_OPS_TYPE_UPDATE_BITWISE,              SensorOpsUpdateBitwise },
+    { SENSOR_OPS_TYPE_EXTBUFF_READ,                SensorOpsExtBuffRead },
+    { SENSOR_OPS_TYPE_EXTBUFF_WRITE,               SensorOpsExtBuffWrite },
 };
 
 int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group)

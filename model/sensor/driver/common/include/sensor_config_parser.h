@@ -46,6 +46,7 @@ enum SensorRegCfgIndex {
 };
 
 struct SensorRegCfg {
+    uint8_t *dataBuff;
     uint16_t regAddr;
     uint16_t value;
     uint16_t mask;

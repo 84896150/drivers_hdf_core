@@ -26,6 +26,8 @@ enum SensorOpsType {
     SENSOR_OPS_TYPE_WRITE  = 2,
     SENSOR_OPS_TYPE_READ_CHECK     = 3,
     SENSOR_OPS_TYPE_UPDATE_BITWISE = 4,
+    SENSOR_OPS_TYPE_EXTBUFF_READ   = 5,
+    SENSOR_OPS_TYPE_EXTBUFF_WRITE  = 6,
 };
 
 struct SensorOpsCall {
