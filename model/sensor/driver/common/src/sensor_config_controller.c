@@ -157,7 +157,7 @@ static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct Sensor
 
 static int32_t SensorOpsExtBuffRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
-    int32_t ret;
+    int32_t ret = HDF_FAILURE;
 
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
 
