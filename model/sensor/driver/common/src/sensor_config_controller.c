@@ -52,7 +52,6 @@ static uint32_t GetSensorRegRealValueMask(struct SensorRegCfg *cfgItem, uint32_t
 
 static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
-    uint8_t calType = cfgItem->calType;
     uint8_t value[SENSOR_VALUE_BUTT];
     int32_t ret = HDF_FAILURE;
 
@@ -102,7 +101,7 @@ static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *va
             break;
     }
 
-    return ret;
+    return 0;
 }
 
 static int32_t SensorOpsReadCheck(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
@@ -178,7 +177,7 @@ static int32_t SensorOpsExtBuffWrite(struct SensorBusCfg *busCfg, struct SensorR
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
 
     value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
-    value[SENSOR_VALUE_INDEX] = cfgItem->dataBuff;
+    value[SENSOR_VALUE_INDEX] = *(cfgItem->dataBuff);
 
     if (busCfg->busType == SENSOR_BUS_I2C) {
         ret = WriteSensor(busCfg, value, cfgItem->len);
