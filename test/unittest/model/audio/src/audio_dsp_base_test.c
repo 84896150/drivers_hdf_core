@@ -15,21 +15,18 @@
 
 int32_t DspGetServiceNameTest(void)
 {
+    struct DeviceResourceAttr attr;
+    struct DeviceResourceNode node;
+    struct HdfDeviceObject device;
     if (DspGetServiceName(NULL, NULL) == HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("TestDspGetServiceName fail");
         return HDF_FAILURE;
     }
 
-    struct DeviceResourceAttr attr;
     attr.value = KCONTROL_TEST_SERVICE_NAME;
     attr.name  = "serviceName";
-
-    struct DeviceResourceNode node;
     node.attrData = &attr;
-
-    struct HdfDeviceObject device;
     device.property = &node;
-
     if (DspGetServiceName(&device, NULL) == HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("TestDspGetServiceName fail");
         return HDF_FAILURE;
@@ -40,21 +37,19 @@ int32_t DspGetServiceNameTest(void)
 
 int32_t DspGetDaiNameTest(void)
 {
+    struct DeviceResourceNode node;
+    struct HdfDeviceObject device;
+    struct DeviceResourceAttr attr;
+
     if (DspGetDaiName(NULL, NULL) == HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("TestDspGetDaiName fail");
         return HDF_FAILURE;
     }
 
-    struct DeviceResourceAttr attr;
     attr.value = KCONTROL_TEST_SERVICE_NAME;
     attr.name  = "dspDaiName";
-
-    struct DeviceResourceNode node;
     node.attrData = &attr;
-
-    struct HdfDeviceObject device;
     device.property = &node;
-
     if (DspGetDaiName(&device, NULL) == HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("TestDspGetDaiName fail");
         return HDF_FAILURE;

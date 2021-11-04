@@ -12,6 +12,19 @@
 
 #define HDF_LOG_TAG audio_accessory_base_test
 
+static struct AudioMixerControl g_TestReg = {
+    .min = 0,
+    .max = 0,
+    .platformMax = 0,
+    .mask = 0,
+    .reg = 0,
+    .rreg = 0,
+    .shift= 0,
+    .rshift = 0,
+    .invert = 0,
+    .value = 0,
+};
+
 int32_t AccessoryI2cReadWriteTest(void)
 {
     struct AudioAddrConfig addrConfig;
@@ -28,14 +41,13 @@ int32_t AccessoryI2cReadWriteTest(void)
 
 int32_t AccessoryRegBitsReadTest(void)
 {
-    struct AudioMixerControl reg;
     uint32_t regValue = 0;
 
     if (AccessoryRegBitsRead(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    if (AccessoryRegBitsRead(&reg, &regValue) == HDF_SUCCESS) {
+    if (AccessoryRegBitsRead(&g_TestReg, &regValue) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
@@ -44,9 +56,7 @@ int32_t AccessoryRegBitsReadTest(void)
 
 int32_t AccessoryRegBitsUpdateTest(void)
 {
-    struct AudioMixerControl reg;
-
-    if (AccessoryRegBitsUpdate(reg) == HDF_SUCCESS) {
+    if (AccessoryRegBitsUpdate(g_TestReg) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
@@ -71,6 +81,8 @@ int32_t AcessoryDeviceFrequencyParseTest(void)
 int32_t AccessoryDaiParamsUpdateTest(void)
 {
     struct DaiParamsVal value;
+
+    value.channelVal = 1; // 1 is dma channel
     if (AccessoryDaiParamsUpdate(value) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -80,12 +92,12 @@ int32_t AccessoryDaiParamsUpdateTest(void)
 
 int32_t AccessoryDeviceCfgGetTest(void)
 {
-    if (AccessoryDeviceCfgGet(NULL, NULL) == HDF_SUCCESS) {
-        return HDF_FAILURE;
-    }
 
     struct AccessoryData accessoryData;
     struct AccessoryTransferData accessoryTransferData;
+    if (AccessoryDeviceCfgGet(NULL, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
 
     memset(&accessoryData, 0, sizeof(struct AccessoryData));
     memset(&accessoryTransferData, 0, sizeof(struct AccessoryTransferData));
@@ -106,12 +118,12 @@ int32_t AccessoryDeviceCtrlRegInitTest(void)
 
 int32_t AccessoryDeviceRegReadTest(void)
 {
+    uint32_t val;
+    struct AccessoryDevice codec;
     if (AccessoryDeviceRegRead(NULL, 0, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    uint32_t val;
-    struct AccessoryDevice codec;
     if (AccessoryDeviceRegRead(&codec, 0, &val) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -120,11 +132,11 @@ int32_t AccessoryDeviceRegReadTest(void)
 
 int32_t AccessoryDeviceRegWriteTest(void)
 {
+    struct AccessoryDevice codec;
     if (AccessoryDeviceRegWrite(NULL, 0, 0) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    struct AccessoryDevice codec;
     if (AccessoryDeviceRegWrite(&codec, 0, 0) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }

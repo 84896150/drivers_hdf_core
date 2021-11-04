@@ -14,11 +14,11 @@
 
 int32_t DaiDataFromCardTest(void)
 {
+    struct AudioCard card;
     if (DaiDataFromCard(NULL) != NULL) {
         return HDF_FAILURE;
     }
 
-    struct AudioCard card;
     memset(&card, 0, sizeof(struct AudioCard));
     if (DaiDataFromCard(&card) != NULL) {
         return HDF_FAILURE;
@@ -28,12 +28,12 @@ int32_t DaiDataFromCardTest(void)
 
 int32_t DaiGetConfigInfoTest(void)
 {
+    struct HdfDeviceObject device;
+    struct DaiData data;
     if (DaiGetConfigInfo(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    struct HdfDeviceObject device;
-    struct DaiData data;
     if (DaiGetConfigInfo(&device, &data) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -54,11 +54,11 @@ int32_t DaiCheckSampleRateTest(void)
 
 int32_t DaiSetConfigInfoTest(void)
 {
+    struct DaiData data;
     if (DaiSetConfigInfo(NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    struct DaiData data;
     memset(&data, 0, sizeof(struct DaiData));
     if (DaiSetConfigInfo(&data) == HDF_SUCCESS) {
         return HDF_FAILURE;

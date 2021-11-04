@@ -16,7 +16,6 @@
 int32_t AudioDmaBufAllocTest(void)
 {
     struct PlatformData data;
-    enum AudioStreamType streamType;
 
     memset(&data, 0, sizeof(struct PlatformData));
 
@@ -34,7 +33,6 @@ int32_t AudioDmaBufAllocTest(void)
 int32_t AudioDmaBufFreeTest(void)
 {
     struct PlatformData data;
-    enum AudioStreamType streamType;
 
     memset(&data, 0, sizeof(struct PlatformData));
 
