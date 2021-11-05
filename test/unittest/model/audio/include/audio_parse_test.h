@@ -17,7 +17,8 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-int32_t AudioFillTestConfigData(void);
+int32_t AudioFillConfigDataTest(void);
+int32_t CodecGetRegConfigTest(void);
 
 #ifdef __cplusplus
 #if __cplusplus
