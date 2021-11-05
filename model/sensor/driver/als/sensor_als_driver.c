@@ -247,8 +247,6 @@ static int32_t InitAlsAfterDetected(struct SensorCfgData *config)
 
     if (ParseSensorRegConfig(config) != HDF_SUCCESS) {
         HDF_LOGE("%s: Parse sensor register failed", __func__);
-        (void)DeleteSensorDevice(&config->sensorInfo);
-        ReleaseSensorAllRegConfig(config);
         return HDF_FAILURE;
     }
 
@@ -282,7 +280,7 @@ struct SensorCfgData *AlsCreateCfgData(const struct DeviceResourceNode *node)
     if (DetectSensorDevice(drvData->alsCfg) != HDF_SUCCESS) {
         HDF_LOGI("%s: Als sensor detect device no exist", __func__);
         drvData->detectFlag = false;
-        goto BASE_CONFIG_EXIT;
+        goto INIT_EXIT;
     }
 
     drvData->detectFlag = true;
@@ -294,6 +292,8 @@ struct SensorCfgData *AlsCreateCfgData(const struct DeviceResourceNode *node)
     return drvData->alsCfg;
 
 INIT_EXIT:
+    (void)DeleteSensorDevice(&drvData->alsCfg->sensorInfo);
+    ReleaseSensorAllRegConfig(drvData->alsCfg);
     (void)ReleaseSensorBusHandle(&drvData->alsCfg->busCfg);
 BASE_CONFIG_EXIT:
     drvData->alsCfg->root = NULL;

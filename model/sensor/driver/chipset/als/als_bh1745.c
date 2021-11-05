@@ -218,8 +218,11 @@ void Bh1745ReleaseDriver(struct HdfDeviceObject *device)
     struct Bh1745DrvData *drvData = (struct Bh1745DrvData *)device->service;
     CHECK_NULL_PTR_RETURN(drvData);
 
-    AlsReleaseCfgData(drvData->sensorCfg);
-    drvData->sensorCfg = NULL;
+    if (drvData->sensorCfg != NULL) {
+        AlsReleaseCfgData(drvData->sensorCfg);
+        drvData->sensorCfg = NULL;
+    }
+    
     OsalMemFree(drvData);
 }
 
