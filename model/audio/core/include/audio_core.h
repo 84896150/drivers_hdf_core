@@ -57,7 +57,6 @@ int32_t AudioSetCtrlOpsReg(const struct AudioKcontrol *kcontrol, const struct Au
     const struct AudioMixerControl *mixerCtrl, uint32_t *value);
 int32_t AudioSetCtrlOpsRReg(const struct AudioCtrlElemValue *elemValue,
     struct AudioMixerControl *mixerCtrl, uint32_t *rvalue, bool *updateRReg);
-
 int32_t AudioDaiReadReg(const struct DaiDevice *dai, uint32_t reg, uint32_t *val);
 int32_t AudioDaiWriteReg(const struct DaiDevice *dai, uint32_t reg, uint32_t val);
 
@@ -67,10 +66,8 @@ int32_t AudioAccessoryReadReg(const struct AccessoryDevice *accessory, uint32_t 
 int32_t AudioAccessoryWriteReg(const struct AccessoryDevice *accessory, uint32_t reg, uint32_t val);
 
 int32_t AudioInfoCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemInfo *elemInfo);
-
 int32_t AudioCodecGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);
 int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct AudioCtrlElemValue *elemValue);
-
 int32_t AudioAccessoryGetCtrlOps(const struct AudioKcontrol *kcontrol, struct AudioCtrlElemValue *elemValue);
 int32_t AudioAccessorySetCtrlOps(const struct AudioKcontrol *kcontrol, const struct AudioCtrlElemValue *elemValue);
 
