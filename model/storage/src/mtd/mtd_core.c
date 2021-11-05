@@ -16,7 +16,7 @@
 
 static int32_t MtdDeviceCheckParms(struct MtdDevice *mtdDevice)
 {
-    if (mtdDevice->index < 0) {
+    if (mtdDevice->index < 0 || mtdDevice->index >= MTD_DEVICE_NUM_MAX) {
         HDF_LOGE("%s: invalid index: %d", __func__, mtdDevice->index);
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -96,6 +96,16 @@ static void MtdDeviceUnlockDefault(struct MtdDevice *mtdDevice)
     return;
 }
 
+struct PlatformManager *MtdManagerGet(void)
+{
+    static struct PlatformManager *g_mtdManager = NULL;
+
+    if (g_mtdManager == NULL) {
+        g_mtdManager = PlatformManagerCreate("STORAGE_MTD");
+    }
+    return g_mtdManager;
+}
+
 int32_t MtdDeviceAdd(struct MtdDevice *mtdDevice)
 {
     int32_t ret;
@@ -124,15 +134,25 @@ int32_t MtdDeviceAdd(struct MtdDevice *mtdDevice)
         mtdDevice->ops->unlock = MtdDeviceUnlockDefault;
     }
 
+    mtdDevice->device.manager = MtdManagerGet();
+    mtdDevice->device.magic = mtdDevice->index;
+    ret = PlatformDeviceAdd(&mtdDevice->device);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: mtd device add fail", __func__);
+        return ret;
+    }
+
     MtdDeviceDump(mtdDevice);
 
     ret = MtdCharInit(mtdDevice);
     if (ret != HDF_SUCCESS) {
+        PlatformDeviceDel(&mtdDevice->device);
         return ret;
     }
 
     ret = MtdBlockInit(mtdDevice);
     if (ret != HDF_SUCCESS) {
+        PlatformDeviceDel(&mtdDevice->device);
         return ret;
     }
 
@@ -144,6 +164,7 @@ void MtdDeviceDel(struct MtdDevice *mtdDevice)
     if (mtdDevice != NULL) {
         MtdCharUninit(mtdDevice);
         MtdBlockUninit(mtdDevice);
+        PlatformDeviceDel(&mtdDevice->device);
         (void)OsalMutexDestroy(&mtdDevice->lock);
     }
 }
@@ -186,9 +207,8 @@ static void MtdDumpBuf(uint8_t *buf, size_t len)
 #define MTD_DUMP_LINE_LEN     32
 #define MTD_DUMP_BUF_LEN    (MTD_DUMP_LINE_LEN * MTD_DUMP_SIGLE_WIDTH + 1)
     char lineBuf[MTD_DUMP_BUF_LEN];
-
-    for (idx = 0; idx < len; ) {
-        line = (MTD_DUMP_LINE_LEN <= (len - idx)) ? MTD_DUMP_LINE_LEN : len - idx;
+    for (idx = 0; idx < len;) {
+        line = (MTD_DUMP_LINE_LEN <= (len - idx)) ? MTD_DUMP_LINE_LEN : (len - idx);
         for (i = 0, lidx = 0; i < line; i++, lidx += MTD_DUMP_SIGLE_WIDTH, buf++) {
             ret = snprintf_s(lineBuf + lidx, MTD_DUMP_SIGLE_WIDTH + 1, MTD_DUMP_SIGLE_WIDTH, "%02x", *buf);
             if (ret < 0) {
@@ -359,15 +379,9 @@ static int32_t MtdDeviceWriteReadByPageUnlock(struct MtdDevice *mtdDevice, struc
     off_t eraseOffset;
     struct MtdPage mtdPage;
 
-#ifdef MTD_DEBUG
-    HDF_LOGD("%s: addr=0x%jd, len=%zu, buf=%p, type:%d, withoob:%d, skipbad:%d", __func__,
-        msg->addr, msg->len, msg->buf, msg->type, msg->withOob, msg->skipBad);
-#endif
-
     dataLenLeft = msg->withOob ?
         (msg->len / (mtdDevice->writeSize + mtdDevice->oobSize)) * mtdDevice->writeSize : msg->len;
-
-    for (addr = msg->addr, buf = msg->buf; (dataLenLeft > 0) && addr < mtdDevice->capacity; ) {
+    for (addr = msg->addr, buf = msg->buf; (dataLenLeft > 0) && addr < mtdDevice->capacity;) {
         if (MtdDeviceIsBadBlockUnlocked(mtdDevice, addr)) {
             if (!msg->skipBad) {
                 HDF_LOGE("%s: failed on bad block @0x%jx", __func__, addr);
@@ -378,7 +392,7 @@ static int32_t MtdDeviceWriteReadByPageUnlock(struct MtdDevice *mtdDevice, struc
             continue;
         }
         eraseOffset = addr & (mtdDevice->eraseSize - 1);
-        blockSize = dataLenLeft < (mtdDevice->eraseSize - eraseOffset) ?
+        blockSize = (dataLenLeft < (mtdDevice->eraseSize - eraseOffset)) ?
                     dataLenLeft : (mtdDevice->eraseSize - eraseOffset);
         // no more than one block at once
         mtdPage.type = msg->type;
@@ -389,7 +403,7 @@ static int32_t MtdDeviceWriteReadByPageUnlock(struct MtdDevice *mtdDevice, struc
             if (mtdPage.dataLen > blockSize) {
                 mtdPage.dataLen = blockSize;
             }
-            mtdPage.oobBuf = msg->withOob ? buf + mtdPage.dataLen : NULL;
+            mtdPage.oobBuf = msg->withOob ? (buf + mtdPage.dataLen) : NULL;
             mtdPage.oobLen = msg->withOob ? mtdDevice->oobSize : 0;
             ret = MtdDevicePageTransferUnlocked(mtdDevice, &mtdPage);
             if (ret != HDF_SUCCESS) {
