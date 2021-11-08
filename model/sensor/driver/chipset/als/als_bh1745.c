@@ -190,7 +190,8 @@ int32_t Bh1745InitDriver(struct HdfDeviceObject *device)
     }
 
     drvData->sensorCfg = AlsCreateCfgData(device->property);
-    if (drvData->sensorCfg == NULL) {
+    if (drvData->sensorCfg == NULL || drvData->sensorCfg->root == NULL) {
+        HDF_LOGD("%s: Creating alscfg failed because detection failed", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -222,7 +223,6 @@ void Bh1745ReleaseDriver(struct HdfDeviceObject *device)
         AlsReleaseCfgData(drvData->sensorCfg);
         drvData->sensorCfg = NULL;
     }
-    
     OsalMemFree(drvData);
 }
 
