@@ -349,6 +349,7 @@ void AlsReleaseDriver(struct HdfDeviceObject *device)
     if (drvData->detectFlag && drvData->alsCfg != NULL) {
         AlsReleaseCfgData(drvData->alsCfg);
     }
+    
     OsalMemFree(drvData->alsCfg);
     drvData->alsCfg = NULL;
 
