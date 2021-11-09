@@ -223,6 +223,7 @@ void Bh1745ReleaseDriver(struct HdfDeviceObject *device)
         AlsReleaseCfgData(drvData->sensorCfg);
         drvData->sensorCfg = NULL;
     }
+    
     OsalMemFree(drvData);
 }
 
