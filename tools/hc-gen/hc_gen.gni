@@ -1,0 +1,87 @@
+# Copyright (c) 2013-2019 Huawei Technologies Co., Ltd. All rights reserved.
+# Copyright (c) 2020-2021 Huawei Device Co., Ltd. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without modification,
+# are permitted provided that the following conditions are met:
+#
+# 1. Redistributions of source code must retain the above copyright notice, this list of
+#    conditions and the following disclaimer.
+#
+# 2. Redistributions in binary form must reproduce the above copyright notice, this list
+#    of conditions and the following disclaimer in the documentation and/or other materials
+#    provided with the distribution.
+#
+# 3. Neither the name of the copyright holder nor the names of its contributors may be used
+#    to endorse or promote products derived from this software without specific prior written
+#    permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+# "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+# OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+# WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+# ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+template("hc_gen") {
+  assert(defined(invoker.sources), "sources are must")
+  action_foreach(target_name) {
+    deps = [ "//drivers/framework/tools/hc-gen:build_hc_gen" ]
+    script = "//build/lite/run_shell_cmd.py"
+    sources = invoker.sources
+    if (defined(invoker.hc_gen_hex) && invoker.hc_gen_hex) {
+      hc_flags = [
+        "-b",
+        "-i",
+        "-a",
+      ]
+      output_suffix = "_hex.c"
+      output_suffix2 = ".hcb"
+    } else if (defined(invoker.hc_gen_c) && invoker.hc_gen_c) {
+      hc_flags = [ "-t" ]
+      output_suffix = ".c"
+      output_suffix2 = ".h"
+    } else {
+      hc_flags = []
+      output_suffix = ".hcb"
+    }
+    if (defined(invoker.outputs)) {
+      outputs = invoker.outputs
+    } else {
+      outputs = [ "$target_gen_dir/{{source_name_part}}$output_suffix" ]
+    }
+    if (defined(output_suffix2)) {
+      outputs += [ "$target_gen_dir/{{source_name_part}}$output_suffix2" ]
+    }
+    assert(get_path_info(outputs[0], "file") ==
+               "{{source_name_part}}$output_suffix",
+           "unexpected outputs: " + outputs[0])
+    output_dir = get_path_info(outputs[0], "dir")
+    args = [ rebase_path(get_path_info("//drivers/framework/tools/hc-gen/",
+                                       "out_dir") + "/hc-gen") ]
+    args += hc_flags
+    args += [
+      "-o",
+      rebase_path("$output_dir/{{source_name_part}}"),
+      "{{source}}",
+    ]
+  }
+}
+
+template("hc_gen_c") {
+  hc_gen_c = true
+  hc_gen(target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
+
+template("hc_gen_hex") {
+  hc_gen_hex = true
+  hc_gen(target_name) {
+    forward_variables_from(invoker, "*")
+  }
+}
