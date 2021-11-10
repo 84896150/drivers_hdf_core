@@ -15,7 +15,7 @@
 
 #define COMM_SHIFT_8BIT      (8)
 #define COMM_MASK_FF         (0xFF)
-#define COMM_WAIT_TIMES      (10) // ms
+#define COMM_WAIT_TIMES      (10) // 10ms
 
 #define I2C_REG_LEN         (1)
 #define I2C_REG_MSGLEN      (3)
