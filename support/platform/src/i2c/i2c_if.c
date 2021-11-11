@@ -10,7 +10,7 @@
 #ifndef __USER__
 #include "devsvc_manager_clnt.h"
 #endif
-#include "hdf_base.h"
+
 #ifdef __USER__
 #include "hdf_io_service_if.h"
 #endif
@@ -18,7 +18,6 @@
 #ifndef __USER__
 #include "i2c_core.h"
 #endif
-#include "osal_mem.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG i2c_if

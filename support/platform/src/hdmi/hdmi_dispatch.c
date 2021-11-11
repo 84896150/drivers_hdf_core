@@ -6,10 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdmi_dispatch.h"
 #include "hdf_log.h"
 #include "hdmi_core.h"
-#include "hdmi_if.h"
 
 #define HDF_LOG_TAG hdmi_dispatch_c
 

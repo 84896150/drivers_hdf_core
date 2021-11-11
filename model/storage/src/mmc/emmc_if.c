@@ -7,16 +7,13 @@
  */
 
 #ifndef __USER__
-#include "devsvc_manager_clnt.h"
 #include "mmc_emmc.h"
 #endif
 #include "emmc_if.h"
-#include "hdf_base.h"
 #ifdef __USER__
 #include "hdf_io_service_if.h"
 #endif
 #include "hdf_log.h"
-#include "osal_mem.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG emmc_if_c
