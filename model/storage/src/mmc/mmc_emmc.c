@@ -7,7 +7,6 @@
  */
 
 #include "mmc_emmc.h"
-#include "securec.h"
 
 #define HDF_LOG_TAG mmc_emmc_c
 

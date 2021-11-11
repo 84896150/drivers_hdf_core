@@ -8,7 +8,6 @@
 
 #include "mipi_dsi_core.h"
 #include "hdf_log.h"
-#include "osal_mem.h"
 #include "osal_time.h"
 
 #define HDF_LOG_TAG mipi_dsi_core

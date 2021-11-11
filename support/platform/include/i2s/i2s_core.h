@@ -9,7 +9,6 @@
 #ifndef I2S_CORE_H
 #define I2S_CORE_H
 
-#include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "hdf_dlist.h"
 #include "i2s_if.h"

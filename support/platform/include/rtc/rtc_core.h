@@ -9,7 +9,6 @@
 #ifndef RTC_CORE_H
 #define RTC_CORE_H
 
-#include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "osal_mutex.h"
 #include "rtc_if.h"

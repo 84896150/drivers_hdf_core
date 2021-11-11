@@ -9,8 +9,6 @@
 #include "adc_if.h"
 #include "adc_core.h"
 #include "hdf_log.h"
-#include "osal_mem.h"
-#include "securec.h"
 #define HDF_LOG_TAG adc_if_c
 #define ADC_SERVICE_NAME "HDF_PLATFORM_ADC_MANAGER"
 

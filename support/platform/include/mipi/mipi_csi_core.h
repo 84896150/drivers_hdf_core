@@ -9,10 +9,7 @@
 #ifndef MIPI_CSI_CORE_H
 #define MIPI_CSI_CORE_H
 
-#include "hdf_base.h"
-#include "hdf_device.h"
 #include "hdf_device_desc.h"
-#include "hdf_object.h"
 #include "mipi_csi_if.h"
 #include "osal_mutex.h"
 #include "osal_spinlock.h"

@@ -6,8 +6,6 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "hdf_log.h"
-#include "osal_spinlock.h"
 #include "platform_core.h"
 
 static struct PlatformModuleInfo g_platformModules[] = {

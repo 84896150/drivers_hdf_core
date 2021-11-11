@@ -7,11 +7,8 @@
  */
 
 #include "gpio/gpio_core.h"
-#include "hdf_log.h"
 #include "osal_mem.h"
 #include "plat_log.h"
-#include "platform_core.h"
-#include "securec.h"
 
 #define HDF_LOG_TAG gpio_core
 
