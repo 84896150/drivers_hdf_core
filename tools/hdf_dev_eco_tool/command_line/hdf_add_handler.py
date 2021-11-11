@@ -124,7 +124,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
                 raise HdfToolException(
                     ' framework model path  "%s" not exist' %
                     framework_hdf, CommandErrorCode.TARGET_NOT_EXIST)
-
+            # framework create file .c
             framework_drv_root_dir = hdf_utils.get_drv_root_dir(
                 root, vendor, module)
             if os.path.exists(framework_drv_root_dir):
@@ -132,6 +132,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
                                        CommandErrorCode.TARGET_ALREADY_EXIST)
             os.makedirs(framework_drv_root_dir)
 
+            # create .c template driver file
             state, driver_file_path = self._add_driver_handler(*args_tuple)
             if not state:
                 raise HdfToolException(
@@ -143,6 +144,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
                     ' adapter model path  "%s" not exist' %
                     adapter_hdf, CommandErrorCode.TARGET_NOT_EXIST)
 
+            # create module folder under the adapter path
             adapter_model_path = os.path.join(adapter_hdf, 'model', module)
             if not os.path.exists(adapter_model_path):
                 os.makedirs(adapter_model_path)
@@ -155,6 +157,7 @@ class HdfAddHandler(HdfCommandHandlerBase):
                 "driver_name": driver_name_converter.lower_case()
             }
 
+            # create files in the module under the adapter
             if kernel == 'liteos':
                 file_path, model_level_config_file_path = \
                     self._add_module_handler_liteos(
@@ -221,18 +224,22 @@ class HdfAddHandler(HdfCommandHandlerBase):
                                  out_path, data_model)
                     liteos_file_path[file_name] = out_path
 
+        # Modify Kconfig file
         vendor_k = HdfVendorKconfigFile(root, vendor, kernel, path="")
         vendor_k_path = vendor_k.add_module([module, 'Kconfig'])
         liteos_level_config_file_path[module+"_Kconfig"] = vendor_k_path
 
+        # Modify hdf_lite.mk file
         vendor_mk = HdfVendorMkFile(root, vendor)
         vendor_mk_path = vendor_mk.add_module(module)
         liteos_level_config_file_path[module + "_hdf_lite"] = vendor_mk_path
 
+        # Modify Build.gn file
         vendor_gn = HdfVendorBuildFile(root, vendor)
         vendor_gn_path = vendor_gn.add_module(module)
         liteos_level_config_file_path[module + "Build"] = vendor_gn_path
 
+        # Modify config file
         device_info = HdfDeviceInfoHcsFile(
             root, vendor, module, board, driver, path="")
         hcs_file_path = device_info.add_model_hcs_file_config()
@@ -269,19 +276,23 @@ class HdfAddHandler(HdfCommandHandlerBase):
                                  out_path, data_model)
                     linux_file_path[file_name] = out_path
 
+        # Modify Kconfig file
         vendor_k = HdfVendorKconfigFile(root, vendor, kernel, path="")
         vendor_k_path = vendor_k.add_module([module, 'Kconfig'])
         linux_level_config_file_path[module + "_Kconfig"] = vendor_k_path
 
+        # Modify Makefile file
         vendor_mk = HdfVendorMakeFile(root, vendor, kernel, path='')
         vendor_mk_path = vendor_mk.add_module(data_model)
         linux_level_config_file_path[module + "_Makefile"] = vendor_mk_path
 
+        # device_info.hcs
         device_info = HdfDeviceInfoHcsFile(
             root, vendor, module, board, driver, path="")
         hcs_file_path = device_info.add_model_hcs_file_config()
         linux_file_path["devices_info.hcs"] = hcs_file_path
 
+        # dot_configs config file
         template_string = "CONFIG_DRIVERS_HDF_${module_upper_case}=y\n"
         new_demo_config = Template(template_string).substitute(data_model)
         defconfig_patch = HdfDefconfigAndPatch(
