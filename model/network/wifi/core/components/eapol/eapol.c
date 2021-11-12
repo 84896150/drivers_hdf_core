@@ -241,7 +241,7 @@ void DestroyEapolData(struct NetDevice *netDevice)
     NetBufQueueClear(&eapolData->eapolQueue);
     OsalMemFree(eapolData);
     netDevice->specialProcPriv = NULL;
-    HDF_LOGE("%s success!", __func__);
+    HDF_LOGI("%s success!", __func__);
     return;
 }
 
