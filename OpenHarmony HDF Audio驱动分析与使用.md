@@ -18,6 +18,8 @@ Audio驱动架构组成：
 
 <img src="figures\architecture-of-the-hdf.png"  />
 
+![](figures/architecture-of-the-hdf.png)
+
 驱动架构主要由 Audio HDI，HDI adapter，Audio Interface Lib，ADM（Audio Driver Model，音频驱动模型），Platform Driver 这几部分组成**。** 
 
 **HDI adapter：**实现Audio HAL层驱动（HDI接口适配），给Audio服务（frameworks）提供所需的音频硬件驱动能力接口。包含 Audio Manager、Audio Adapter、 Audio Control、Audio Capture、Audio Render 等接口对象。 
