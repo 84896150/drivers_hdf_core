@@ -16,7 +16,7 @@ Audio驱动框架是基于HDF驱动框架实现。
 
 Audio驱动架构组成：
 
-![](figures\ADM.jpg)
+![](figures/副本.png)
 
 ![](figures/architecture-of-the-hdf.png)
 
@@ -77,11 +77,11 @@ crw-rw---- 1 system system 248,   7 1970-01-01 00:00 hdf_audio_render     //音�
 
 ### 启动流程
 
-![](figures\ADM启动流程图.jpg)
+![](figures/ADM启动流程图.jpg)
 
 
 
-<img src="figures\启动流程图.svg" style="zoom:200%;" />
+<img src="figures/启动流程图.svg" style="zoom:200%;" />
 
 1. 系统启动时audio模块的Platform、Codec、Accessory、Dsp、Dai各个驱动首先被加载，各驱动从各自私有配置文件中获取配置信息，并将获取的配置信息保存到各驱动的Data数据结构中。
 
@@ -95,7 +95,7 @@ crw-rw---- 1 system system 248,   7 1970-01-01 00:00 hdf_audio_render     //音�
 
 ### 播放流程
 
-![](figures\ADM播放流程图.jpg)
+![](figures/ADM播放流程图.jpg)
 
 1. 播放音频时，Interface Lib层通过播放流服务下发Render Open指令，Render Stream Dispatch服务收到指令后分别调用各模块的函数接口对指令进行下发。
 
@@ -113,7 +113,7 @@ crw-rw---- 1 system system 248,   7 1970-01-01 00:00 hdf_audio_render     //音�
 
 ### 控制流程
 
-![](figures\ADM控制流程图.jpg)
+![](figures/ADM控制流程图.jpg)
 
 1. 设置音量，首先Interface Lib层通过控制服务下发获取音量范围指令，Control Dispatch控制服务收到指令后进行解析并调用Codec模块Get函数接口获取可设置音量范围。
 2. Interface Lib层通过控制服务下发设置音量指令，Control Dispatch控制服务收到指令后进行解析并调用Codec模块Set函数接口设置音量。
@@ -122,7 +122,7 @@ crw-rw---- 1 system system 248,   7 1970-01-01 00:00 hdf_audio_render     //音�
 
 1. ADM适配已有平台(hi3516dv300)Codec或Accessory（Smart PA）的驱动开发流程
 
-![](figures\开发流程图1.jpg)
+![](figures/开发流程图1.jpg)
 
 1）根据芯片说明将相关寄存器信息配置到Codec或Smart PA的私有HCS中。
 
@@ -132,7 +132,7 @@ crw-rw---- 1 system system 248,   7 1970-01-01 00:00 hdf_audio_render     //音�
 
 2. ADM适配新平台Audio驱动开发流程
 
-![](figures\开发流程图2.jpg)
+![](figures/开发流程图2.jpg)
 
 在新平台适配Audio驱动需要将Audio相关的Codec（可选）、Dai、DMA、DSP（可选）、Smart PA（可选）驱动进行适配。
 
