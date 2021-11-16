@@ -16,7 +16,7 @@ Audio驱动框架是基于HDF驱动框架实现。
 
 Audio驱动架构组成：
 
-![](figures\ADM启动流程图.jpg)
+![](figures\ADM.jpg)
 
 ![](figures/architecture-of-the-hdf.png)
 
