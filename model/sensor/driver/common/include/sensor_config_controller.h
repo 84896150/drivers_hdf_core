@@ -11,6 +11,8 @@
 
 #include "sensor_config_parser.h"
 
+#define EXTER_JUDGE  5
+
 enum SensorCalculateType {
     SENSOR_CFG_CALC_TYPE_NONE   = 0,
     SENSOR_CFG_CALC_TYPE_SET    = 1,      // To Support:1.Bitwise AND "&"  2.Bitwise OR "|"

@@ -176,8 +176,11 @@ static int32_t SensorOpsExtBuffWrite(struct SensorBusCfg *busCfg, struct SensorR
 
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
 
+    value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
+    value[SENSOR_VALUE_INDEX] = *(buf);
+
     if (busCfg->busType == SENSOR_BUS_I2C) {
-        ret = WriteSensor(busCfg, buf, len);
+        ret = WriteSensor(busCfg, value, len);
         CHECK_PARSER_RESULT_RETURN_VALUE(ret, "write i2c reg");
     }
 
@@ -212,7 +215,7 @@ int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorReg
             HDF_LOGE("%s: cfg item para invalid", __func__);
             break;
         }
-        if (g_doOpsCall[cfgItem->opsType].ops != NULL && buf == NULL && cfgItem->opsType < 5) {
+        if (g_doOpsCall[cfgItem->opsType].ops != NULL && buf == NULL && cfgItem->opsType < EXTER_JUDGE) {
 
             if (g_doOpsCall[cfgItem->opsType].ops(busCfg, cfgItem, NULL, 0) != HDF_SUCCESS) {
                 HDF_LOGE("%s: malloc sensor reg config item data failed", __func__);
@@ -220,7 +223,7 @@ int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorReg
             }
         }
 
-        if (g_doOpsCall[cfgItem->opsType].ops != NULL && buf != NULL && cfgItem->opsType > 4) {
+        if (g_doOpsCall[cfgItem->opsType].ops != NULL && buf != NULL && cfgItem->opsType >= EXTER_JUDGE) {
 
             if (g_doOpsCall[cfgItem->opsType].ops(busCfg, cfgItem, buf, len) != HDF_SUCCESS) {
                 HDF_LOGE("%s: malloc sensor extreg config item data failed", __func__);
