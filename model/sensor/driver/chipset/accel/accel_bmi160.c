@@ -120,7 +120,7 @@ static int32_t InitBmi160(struct SensorCfgData *data)
     int32_t ret;
 
     CHECK_NULL_PTR_RETURN_VALUE(data, HDF_ERR_INVALID_PARAM);
-    ret = SetSensorRegCfgArray(&data->busCfg, data->regCfgGroup[SENSOR_INIT_GROUP]);
+    ret = SetSensorRegCfgArray(&data->busCfg, data->regCfgGroup[SENSOR_INIT_GROUP], NULL, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: BMI160 sensor init config failed", __func__);
         return HDF_FAILURE;

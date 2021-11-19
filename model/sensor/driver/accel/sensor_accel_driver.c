@@ -108,7 +108,7 @@ static int32_t SetAccelEnable(void)
         return HDF_SUCCESS;
     }
 
-    ret = SetSensorRegCfgArray(&drvData->accelCfg->busCfg, drvData->accelCfg->regCfgGroup[SENSOR_ENABLE_GROUP]);
+    ret = SetSensorRegCfgArray(&drvData->accelCfg->busCfg, drvData->accelCfg->regCfgGroup[SENSOR_ENABLE_GROUP], NULL, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Accel sensor enable config failed", __func__);
         return ret;
@@ -143,7 +143,7 @@ static int32_t SetAccelDisable(void)
         return HDF_SUCCESS;
     }
 
-    ret = SetSensorRegCfgArray(&drvData->accelCfg->busCfg, drvData->accelCfg->regCfgGroup[SENSOR_DISABLE_GROUP]);
+    ret = SetSensorRegCfgArray(&drvData->accelCfg->busCfg, drvData->accelCfg->regCfgGroup[SENSOR_DISABLE_GROUP], NULL, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Accel sensor disable config failed", __func__);
         return ret;
