@@ -14,14 +14,14 @@
 
 #define HDF_LOG_TAG    sensor_config_controller_c
 
-static int32_t SensorOpsNop(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+static int32_t SensorOpsNop(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
 {
     (void)busCfg;
     (void)cfgItem;
     return HDF_SUCCESS;
 }
 
-static int32_t SensorOpsRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+static int32_t SensorOpsRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
 {
     uint16_t value = 0;
     int32_t ret;
@@ -50,32 +50,21 @@ static uint32_t GetSensorRegRealValueMask(struct SensorRegCfg *cfgItem, uint32_t
     return mask;
 }
 
-static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
 {
-    uint8_t calType = cfgItem->calType;
     uint8_t value[SENSOR_VALUE_BUTT];
     int32_t ret = HDF_FAILURE;
 
     value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
     value[SENSOR_VALUE_INDEX] = cfgItem->value;
 
-    switch (calType) {
-        case SENSOR_CFG_CALC_TYPE_NONE:
-            ret = WriteSensor(busCfg, value, sizeof(value));
-            break;
-        case SENSOR_CFG_CALC_TYPE_SET:
-        case SENSOR_CFG_CALC_TYPE_REVERT:
-        case SENSOR_CFG_CALC_TYPE_XOR:
-        case SENSOR_CFG_CALC_TYPE_LEFT_SHIFT:
-        case SENSOR_CFG_CALC_TYPE_RIGHT_SHIFT:
-        default:
-            break;
-    }
-
+    ret = WriteSensor(busCfg, value, sizeof(value));
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "write i2c reg");
+ 
     return ret;
 }
 
-static int32_t SensorOpsReadCheck(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+static int32_t SensorOpsReadCheck(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
 {
     uint32_t value = 0;
     uint32_t originValue;
@@ -107,6 +96,8 @@ static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *va
 
     mask = GetSensorRegRealValueMask(cfgItem, &originValue, valueMask);
     switch ((enum SensorCalculateType)cfgItem->calType) {
+        case SENSOR_CFG_CALC_TYPE_NONE:
+            break;
         case SENSOR_CFG_CALC_TYPE_SET:
             *value &= ~mask;
             *value |= (originValue & mask);
@@ -116,14 +107,28 @@ static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *va
             *value = ~(*value & mask);
             *value = tmp | (*value & mask);
             break;
+        case SENSOR_CFG_CALC_TYPE_XOR:
+            tmp = *value & (~mask);
+            originValue = originValue & mask;
+            *value = *value & mask;
+            *value ^= originValue;
+            *value = tmp | (*value);
+            break;
+        case SENSOR_CFG_CALC_TYPE_LEFT_SHIFT:
+            *value = *value << cfgItem->shiftNum;
+            break;
+        case SENSOR_CFG_CALC_TYPE_RIGHT_SHIFT:
+            *value = *value >> cfgItem->shiftNum;
+            break;
         default:
             HDF_LOGE("%s: unsupported cal type", __func__);
             break;
     }
+
     return 0;
 }
 
-static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
+static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
 {
     uint32_t value = 0;
     uint32_t busMask = 0x000000ff;
@@ -150,15 +155,49 @@ static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct Sensor
     return HDF_SUCCESS;
 }
 
+static int32_t SensorOpsExtBuffRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
+{
+    int32_t ret = HDF_FAILURE;
+
+    CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
+
+    if (busCfg->busType == SENSOR_BUS_I2C) {
+        ret = ReadSensor(busCfg, cfgItem->regAddr, buf, len);
+        CHECK_PARSER_RESULT_RETURN_VALUE(ret, "read i2c reg"); 
+    }
+
+    return ret;
+}
+
+static int32_t SensorOpsExtBuffWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem, uint8_t *buf, uint8_t len)
+{
+    int32_t ret = HDF_FAILURE;
+    uint8_t value[SENSOR_VALUE_BUTT];
+
+    CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
+
+    value[SENSOR_ADDR_INDEX] = cfgItem->regAddr;
+    value[SENSOR_VALUE_INDEX] = *(buf);
+
+    if (busCfg->busType == SENSOR_BUS_I2C) {
+        ret = WriteSensor(busCfg, value, len);
+        CHECK_PARSER_RESULT_RETURN_VALUE(ret, "write i2c reg");
+    }
+
+    return ret;
+}
+
 static struct SensorOpsCall g_doOpsCall[] = {
     { SENSOR_OPS_TYPE_NOP,                         SensorOpsNop },
     { SENSOR_OPS_TYPE_READ,                        SensorOpsRead },
     { SENSOR_OPS_TYPE_WRITE,                       SensorOpsWrite },
     { SENSOR_OPS_TYPE_READ_CHECK,                  SensorOpsReadCheck },
     { SENSOR_OPS_TYPE_UPDATE_BITWISE,              SensorOpsUpdateBitwise },
+    { SENSOR_OPS_TYPE_EXTBUFF_READ,                SensorOpsExtBuffRead },
+    { SENSOR_OPS_TYPE_EXTBUFF_WRITE,               SensorOpsExtBuffWrite },
 };
 
-int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group)
+int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group, uint8_t *buf, uint8_t len)
 {
     int32_t num = 0;
     uint32_t count;
@@ -176,12 +215,22 @@ int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorReg
             HDF_LOGE("%s: cfg item para invalid", __func__);
             break;
         }
-        if (g_doOpsCall[cfgItem->opsType].ops != NULL) {
-            if (g_doOpsCall[cfgItem->opsType].ops(busCfg, cfgItem) != HDF_SUCCESS) {
+        if (g_doOpsCall[cfgItem->opsType].ops != NULL && buf == NULL && cfgItem->opsType < EXTER_JUDGE) {
+
+            if (g_doOpsCall[cfgItem->opsType].ops(busCfg, cfgItem, NULL, 0) != HDF_SUCCESS) {
                 HDF_LOGE("%s: malloc sensor reg config item data failed", __func__);
                 return HDF_FAILURE;
             }
         }
+
+        if (g_doOpsCall[cfgItem->opsType].ops != NULL && buf != NULL && cfgItem->opsType >= EXTER_JUDGE) {
+
+            if (g_doOpsCall[cfgItem->opsType].ops(busCfg, cfgItem, buf, len) != HDF_SUCCESS) {
+                HDF_LOGE("%s: malloc sensor extreg config item data failed", __func__);
+                return HDF_FAILURE;
+            }
+        }
+
         if (cfgItem->delay != 0) {
             OsalMDelay(cfgItem->delay);
         }
