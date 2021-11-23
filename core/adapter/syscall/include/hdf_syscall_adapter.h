@@ -20,7 +20,7 @@ struct HdfSyscallAdapter;
 
 enum HdfDevListenerThreadStatus {
     LISTENER_UNINITED = 0,
-    LISTENER_INITED,
+    LISTENER_INITED = 1,
     LISTENER_EXITED,
     LISTENER_STARTED,
     LISTENER_RUNNING,
