@@ -244,26 +244,20 @@ static bool GetDeviceNodeInfo(const struct DeviceResourceNode *deviceNode, struc
     return CheckDeviceInfo(deviceNodeInfo);
 }
 
-struct HdfSList *HdfAttributeManagerGetDeviceList(uint16_t hostId, const char *hostName)
+static struct HdfSList *HdfDeviceListAddOrder(const struct DeviceResourceNode *hostNode, uint16_t hostId)
 {
     uint16_t deviceIdx = 0;
     uint8_t deviceNnodeIdx = 0;
     struct HdfDeviceInfo *deviceNodeInfo = NULL;
-    const struct DeviceResourceNode *hostNode = GetHostNode(hostName);
-    struct HdfSList *deviceList = NULL;
-    const struct DeviceResourceNode *device = NULL;
-    if (hostNode == NULL) {
-        return NULL;
-    }
-    deviceList = (struct HdfSList *)OsalMemCalloc(sizeof(struct HdfSList));
+    const struct DeviceResourceNode *device = hostNode->child;
+    struct HdfSList *deviceList = (struct HdfSList *)OsalMemCalloc(sizeof(struct HdfSList));
     if (deviceList == NULL) {
         return NULL;
     }
-    device = hostNode->child;
+
     while (device != NULL) {
         const struct DeviceResourceNode *deviceNode = device->child;
         while (deviceNode != NULL) {
-            deviceNnodeIdx = 0;
             deviceNodeInfo = HdfDeviceInfoNewInstance();
             if (deviceNodeInfo == NULL) {
                 HdfSListFlush(deviceList, HdfDeviceInfoDelete);
@@ -278,6 +272,7 @@ struct HdfSList *HdfAttributeManagerGetDeviceList(uint16_t hostId, const char *h
                 deviceNode = deviceNode->sibling;
                 continue;
             }
+
             if (!HdfSListAddOrder(deviceList, &deviceNodeInfo->node, HdfDeviceListCompare)) {
                 HDF_LOGE("%s: failed to add device %s", __func__, deviceNodeInfo->svcName);
                 HdfDeviceInfoFreeInstance(deviceNodeInfo);
@@ -297,6 +292,16 @@ struct HdfSList *HdfAttributeManagerGetDeviceList(uint16_t hostId, const char *h
         return NULL;
     }
     return deviceList;
+}
+
+struct HdfSList *HdfAttributeManagerGetDeviceList(uint16_t hostId, const char *hostName)
+{
+    const struct DeviceResourceNode *hostNode = GetHostNode(hostName);
+    if (hostNode == NULL) {
+        return NULL;
+    }
+
+    return HdfDeviceListAddOrder(hostNode, hostId);
 }
 
 bool HdfDeviceListAdd(const char *moduleName, const char *serviceName, const void *privateData)

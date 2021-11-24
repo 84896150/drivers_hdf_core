@@ -15,7 +15,7 @@
 using namespace OHOS::Hardware;
 
 ByteCodeGen::ByteCodeGen(std::shared_ptr<Ast> ast) : Generator(ast),
-    needAlign_(false)
+    needAlign_(false), dummyOutput_(false), writeSize_(0)
 {
 }
 
@@ -253,7 +253,7 @@ bool ByteCodeGen::WriteBad()
 bool ByteCodeGen::HexdumpInitialize(FILE *&in, FILE *&out)
 {
     ofs_.close();
-    std::string hexdumpOutName = Util::File::StripSuffix(outFileName_).append("_hex.c");
+    std::string hexdumpOutName = Util::File::AbsPath(Util::File::StripSuffix(outFileName_).append("_hex.c"));
 
     in = fopen(outFileName_.data(), "rb");
     if (in == nullptr) {
