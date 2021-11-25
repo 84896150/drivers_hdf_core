@@ -31,7 +31,6 @@ static int32_t AdcTestGetConfig(struct AdcTestConfig *config)
     const void *buf = NULL;
     uint32_t len;
 
-    HDF_LOGD("%s: enter", __func__);
     service = HdfIoServiceBind("ADC_TEST");
     if (service == NULL) {
         return HDF_ERR_NOT_SUPPORT;
@@ -77,7 +76,6 @@ struct AdcTester *AdcTesterGet(void)
     static struct AdcTester tester;
     static bool hasInit = false;
 
-    HDF_LOGE("%s: enter", __func__);
     if (hasInit) {
         return &tester;
     }
@@ -92,7 +90,6 @@ struct AdcTester *AdcTesterGet(void)
         return NULL;
     }
     hasInit = true;
-    HDF_LOGI("%s: done", __func__);
     return &tester;
 }
 
@@ -103,7 +100,6 @@ int32_t AdcTestRead(void)
     int32_t ret;
     int i;
 
-    HDF_LOGI("%s: enter", __func__);
     tester = AdcTesterGet();
     if (tester == NULL) {
         HDF_LOGE("%s: get tester failed", __func__);
@@ -118,7 +114,6 @@ int32_t AdcTestRead(void)
         }
     }
 
-    HDF_LOGI("%s: done", __func__);
     return HDF_SUCCESS;
 }
 
@@ -129,7 +124,6 @@ static int AdcTestThreadFunc(void *param)
     int i;
     int32_t ret;
 
-    HDF_LOGI("%s: enter", __func__);
     tester = AdcTesterGet();
     if (tester == NULL) {
         HDF_LOGE("%s: get tester failed", __func__);
@@ -146,7 +140,6 @@ static int AdcTestThreadFunc(void *param)
     }
 
     *((int32_t *)param) = 1;
-    HDF_LOGI("%s: done", __func__);
     return val;
 }
 
@@ -158,7 +151,6 @@ int32_t AdcTestMultiThread(void)
     int32_t count1, count2;
 
     count1 = count2 = 0;
-    HDF_LOGI("%s: enter", __func__);
     ret = OsalThreadCreate(&thread1, (OsalThreadEntry)AdcTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("create test thread1 fail:%d", ret);
@@ -195,7 +187,6 @@ int32_t AdcTestMultiThread(void)
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
-    HDF_LOGI("%s: done", __func__);
     return HDF_SUCCESS;
 }
 
@@ -204,7 +195,6 @@ int32_t AdcTestReliability(void)
     struct AdcTester *tester = NULL;
     uint32_t val;
 
-    HDF_LOGI("%s: enter", __func__);
     tester = AdcTesterGet();
     if (tester == NULL || tester->handle == NULL) {
         return HDF_ERR_INVALID_OBJECT;
@@ -216,7 +206,6 @@ int32_t AdcTestReliability(void)
     (void)AdcRead(tester->handle, tester->config.maxChannel + 1, &val);
     // invalid val pointer
     (void)AdcRead(tester->handle, tester->config.channel, NULL);
-    HDF_LOGI("%s: done", __func__);
     return HDF_SUCCESS;
 }
 
@@ -252,6 +241,6 @@ int32_t AdcTestExecute(int cmd)
     }
 
 __EXIT__:
-    HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    HDF_LOGI("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
     return ret;
 }
