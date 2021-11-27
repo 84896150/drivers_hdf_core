@@ -27,6 +27,132 @@ static struct AlsDrvData *AlsGetDrvData(void)
 }
 
 static struct SensorRegCfgGroupNode *g_regCfgGroup[SENSOR_GROUP_MAX] = { NULL };
+static struct SensorRegCfgGroupNode *g_extendAlsRegCfgGroup[EXTENDED_ALS_GROUP_MAX] = { NULL };
+
+int32_t GetTimeValueByRegValue(uint8_t regValue, struct TimeMap *table, int32_t itemNum)
+{
+    int i;
+    for (i = 0; i < itemNum; i++) {
+        if (regValue == table[i].timeRegValue) {
+            return table[i].timeValue;
+        }
+
+    }
+    return HDF_FAILURE;
+}
+
+int32_t GetRegValueByTimeValue(uint32_t timeValue, struct TimeMap *table, int32_t itemNum)
+{
+    int i;
+    for (i = 0; i < itemNum; i++) {
+        if (timeValue == table[i].timeValue) {
+            return table[i].timeRegValue;
+        }
+    }
+    return HDF_FAILURE;
+}
+
+int32_t GetRegGroupIndexByTimeValue(uint32_t timeValue, struct TimeMap *table, int32_t itemNum)
+{
+    int i;
+    for (i = 0; i < itemNum; i++) {
+        if (timeValue == table[i].timeValue) {
+            return i;
+        }
+    }
+    return HDF_FAILURE;
+}
+
+int32_t GetGainValueByRegValue(uint8_t regValue, struct GainMap *table, int32_t itemNum)
+{
+    int i;
+    for (i = 0; i < itemNum; i++) {
+        if (regValue == table[i].gainRegValue) {
+            return table[i].gainValue;
+        }
+    }
+    return HDF_FAILURE;
+}
+
+static char *g_extendedAlsGroupName[EXTENDED_ALS_GROUP_MAX] = {
+    "time",
+    "gain",
+};
+
+static uint32_t GetExtendedAlsRegGroupNameIndex(const char *name)
+{
+    uint32_t index;
+
+    if (name == NULL) {
+        return EXTENDED_ALS_GROUP_MAX;
+    }
+
+    for (index = 0; index < EXTENDED_ALS_GROUP_MAX; ++index) {
+        if ((g_extendedAlsGroupName[index] != NULL) && (strcmp(name, g_extendedAlsGroupName[index]) == 0)) {
+            break;
+        }
+    }
+
+    return index;
+}
+
+void ReleaseExtendedAlsRegConfig(struct SensorCfgData *config)
+{
+    int32_t index;
+
+    if (config == NULL || config->extendedRegCfgGroup == NULL) {
+        return;
+    }
+
+    for (index = 0; index < EXTENDED_ALS_GROUP_MAX; ++index) {
+        if (config->extendedRegCfgGroup[index] != NULL) {
+            if (config->extendedRegCfgGroup[index]->regCfgItem != NULL) {
+                OsalMemFree(config->extendedRegCfgGroup[index]->regCfgItem);
+                config->extendedRegCfgGroup[index]->regCfgItem = NULL;
+            }
+            OsalMemFree(config->extendedRegCfgGroup[index]);
+            config->extendedRegCfgGroup[index] = NULL;
+        }
+    }
+}
+
+int32_t ParseExtendedAlsRegConfig(struct SensorCfgData *config)
+{
+    int32_t index;
+    struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *extendedRegCfgNode = NULL;
+    const struct DeviceResourceAttr *extendedRegAttr = NULL;
+
+    CHECK_NULL_PTR_RETURN_VALUE(config->root, HDF_ERR_INVALID_PARAM);
+    parser = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    CHECK_NULL_PTR_RETURN_VALUE(parser, HDF_ERR_INVALID_PARAM);
+
+    extendedRegCfgNode = parser->GetChildNode(config->root, "extendAlsRegConfig");
+    CHECK_NULL_PTR_RETURN_VALUE(extendedRegCfgNode, HDF_ERR_INVALID_PARAM);
+
+    DEV_RES_NODE_FOR_EACH_ATTR(extendedRegCfgNode, extendedRegAttr) {
+        if (extendedRegAttr == NULL || extendedRegAttr->name == NULL) {
+            HDF_LOGE("%s:sensor reg node attr is null", __func__);
+            break;
+        }
+        index = GetExtendedAlsRegGroupNameIndex(extendedRegAttr->name);
+        if (index >= EXTENDED_ALS_GROUP_MAX) {
+            HDF_LOGE("%s: get sensor register group index failed", __func__);
+            goto error;
+        }
+
+        if (ParseSensorRegGroup(parser, extendedRegCfgNode, extendedRegAttr->name, &config->extendedRegCfgGroup[index]) != HDF_SUCCESS) {
+            HDF_LOGE("%s: parse sensor register group failed", __func__);
+            goto error;
+        }
+    }
+    return HDF_SUCCESS;
+
+error:
+    ReleaseExtendedAlsRegConfig(config);
+    HDF_LOGE("%s: parse sensor extend register config failed", __func__);
+    return HDF_FAILURE;
+}
 
 int32_t AlsRegisterChipOps(const struct AlsOpsCall *ops)
 {
@@ -247,12 +373,22 @@ static int32_t InitAlsAfterDetected(struct SensorCfgData *config)
 
     if (ParseSensorRegConfig(config) != HDF_SUCCESS) {
         HDF_LOGE("%s: Parse sensor register failed", __func__);
-        (void)DeleteSensorDevice(&config->sensorInfo);
-        ReleaseSensorAllRegConfig(config);
-        return HDF_FAILURE;
+        goto SENSOR_REG_CONFIG_EXIT;
+    }
+
+    if (ParseExtendedAlsRegConfig(config) != HDF_SUCCESS) {
+        HDF_LOGE("%s: Parse sensor extendedRegCfgGroup register failed", __func__);
+        goto EXTENDED_Als_REG_CONFIG_EXIT;
     }
 
     return HDF_SUCCESS;
+
+EXTENDED_Als_REG_CONFIG_EXIT:
+    ReleaseSensorAllRegConfig(config);
+SENSOR_REG_CONFIG_EXIT:
+    (void)DeleteSensorDevice(&config->sensorInfo);
+
+    return HDF_FAILURE;
 }
 
 struct SensorCfgData *AlsCreateCfgData(const struct DeviceResourceNode *node)
@@ -309,6 +445,7 @@ void AlsReleaseCfgData(struct SensorCfgData *alsCfg)
 
     (void)DeleteSensorDevice(&alsCfg->sensorInfo);
     ReleaseSensorAllRegConfig(alsCfg);
+    ReleaseExtendedAlsRegConfig(alsCfg);
     (void)ReleaseSensorBusHandle(&alsCfg->busCfg);
 
     alsCfg->root = NULL;
@@ -335,6 +472,7 @@ int32_t AlsInitDriver(struct HdfDeviceObject *device)
     }
 
     drvData->alsCfg->regCfgGroup = &g_regCfgGroup[0];
+    drvData->alsCfg->extendedRegCfgGroup = &g_extendAlsRegCfgGroup[0];
 
     return HDF_SUCCESS;
 }
