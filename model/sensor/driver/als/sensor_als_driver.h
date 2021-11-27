@@ -46,7 +46,7 @@ enum AlsLightPart {
 struct AlsReportData {
     int32_t als;
     int32_t cct;
-    int32_t ir_data;
+    int32_t irData;
 };
 
 struct TimeMap {
