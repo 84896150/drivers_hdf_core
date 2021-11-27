@@ -71,6 +71,7 @@ struct SensorCfgData {
     struct SensorBasicInfo sensorInfo;
     struct SensorAttr sensorAttr;
     struct SensorRegCfgGroupNode **regCfgGroup;
+    struct SensorRegCfgGroupNode **extendedRegCfgGroup;
     const struct DeviceResourceNode *root;
 };
 
@@ -80,5 +81,7 @@ void ReleaseSensorAllRegConfig(struct SensorCfgData *config);
 int32_t GetSensorBusHandle(struct SensorBusCfg *busCfg);
 int32_t ReleaseSensorBusHandle(struct SensorBusCfg *busCfg);
 int32_t DetectSensorDevice(struct SensorCfgData *config);
+int32_t ParseSensorRegGroup(struct DeviceResourceIface *parser, const struct DeviceResourceNode *regCfgNode,
+    const char *groupName, struct SensorRegCfgGroupNode **groupNode);
 
 #endif /* SENSOR_CONFIG_PARSER_H */

@@ -32,11 +32,11 @@
 /* ALS COEFFICIENT  */
 #define BH1745_COEFFICIENT_RED                       2
 #define BH1745_COEFFICIENT_GREEN                     2
-#define BH1745_COEFFICIENT_RED_LEVEL_0               77300      //7.73 * 10000
-#define BH1745_COEFFICIENT_RED_LEVEL_1               92715		//9.2715 * 10000
-#define BH1745_COEFFICIENT_GREEN_LEVEL_0             131920		//1.3192 * 10000
-#define BH1745_COEFFICIENT_GREEN_LEVEL_1             214770		//2.1477 * 10000
-#define BH1745_COEFFICIENT_JUDGE                     78         //0.78*100
+#define BH1745_COEFFICIENT_RED_LEVEL_0               77300          //7.73 * 10000
+#define BH1745_COEFFICIENT_RED_LEVEL_1               92715	    //9.2715 * 10000
+#define BH1745_COEFFICIENT_GREEN_LEVEL_0             131920	    //1.3192 * 10000
+#define BH1745_COEFFICIENT_GREEN_LEVEL_1             214770	    //2.1477 * 10000
+#define BH1745_COEFFICIENT_JUDGE                     78             //0.78*100
 
 /* ALS TIME */
 #define BH1745_TIME_160MSEC                 160

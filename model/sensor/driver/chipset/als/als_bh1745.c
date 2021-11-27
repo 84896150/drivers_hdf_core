@@ -14,6 +14,11 @@
 #include "sensor_config_controller.h"
 #include "sensor_device_manager.h"
 
+/* IO config for int-pin and I2C-pin */
+#define SENSOR_I2C6_DATA_REG_ADDR 0x114f004c
+#define SENSOR_I2C6_CLK_REG_ADDR  0x114f0048
+#define SENSOR_I2C_REG_CFG        0x403
+
 static struct Bh1745DrvData *g_bh1745DrvData = NULL;
 static uint32_t g_timeMap_flag = 1;
 
@@ -46,40 +51,43 @@ struct Bh1745DrvData *Bh1745GetDrvData(void)
     return g_bh1745DrvData;
 }
 
-/* IO config for int-pin and I2C-pin */
-#define SENSOR_I2C6_DATA_REG_ADDR 0x114f004c
-#define SENSOR_I2C6_CLK_REG_ADDR  0x114f0048
-#define SENSOR_I2C_REG_CFG        0x403
-
 static int32_t DynamicRangCovert(struct SensorCfgData *CfgData, uint32_t *rgbcData)
 {
     uint8_t regValue;
     uint32_t temp;
+    uint8_t timeItemNum;
+    struct SensorRegCfgGroupNode *timeGroupNode;
     enum ExtendedAlsTimeRegGroupIdex index = EXTENDED_ALS_TIME_GROUP_INDEX_0;
 
-    ReadSensorRegCfgArray(&CfgData->busCfg, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP], index, &regValue, sizeof(uint8_t));
-    regValue &= CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->regCfgItem->mask;
-    temp = GetTimeValueByRegValue(regValue, g_timeMap, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum);
-    index = GetRegGroupIndexByTimeValue(temp, g_timeMap, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum);
+    timeGroupNode = CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP];
+    timeItemNum = timeGroupNode->itemNum;
+
+    ReadSensorRegCfgArray(&CfgData->busCfg, timeGroupNode, index, &regValue, sizeof(uint8_t));
+    regValue &= timeGroupNode->regCfgItem->mask;
+
+    temp = GetTimeByRegValue(regValue, g_timeMap, timeItemNum);
+    index = GetRegGroupIndexByTime(temp, g_timeMap, timeItemNum);
     if (index < 0) {
         HDF_LOGE("%s: Index out of range ", __func__);
         return HDF_FAILURE;
     }
 
-    if ((rgbcData[ALS_R] * BH1745_MULTIPLE_100 > BH1745_TIME_MAX || rgbcData[ALS_G] * BH1745_MULTIPLE_100 > BH1745_TIME_MAX ) && temp >= BH1745_TIME_320MSEC) {
+    if ((rgbcData[ALS_R] * BH1745_MULTIPLE_100 > BH1745_TIME_MAX
+         || rgbcData[ALS_G] * BH1745_MULTIPLE_100 > BH1745_TIME_MAX ) && temp >= BH1745_TIME_320MSEC) {
         g_timeMap_flag = 1;
-        index = GetRegGroupIndexByTimeValue(temp, g_timeMap, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum);
+        index = GetRegGroupIndexByTime(temp, g_timeMap, timeItemNum);
         index--;
-        WriteSensorRegCfgArray(&CfgData->busCfg, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP], index, sizeof(uint8_t));
-    }else if ((g_timeMap_flag == 1) && (rgbcData[ALS_R] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN || rgbcData[ALS_G] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN)) {
+        WriteSensorRegCfgArray(&CfgData->busCfg, timeGroupNode, index, sizeof(uint8_t));
+    }else if ((g_timeMap_flag == 1) && (rgbcData[ALS_R] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN
+               || rgbcData[ALS_G] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN)) {
         g_timeMap_flag = 0;
-        index = GetRegGroupIndexByTimeValue(temp, g_timeMap, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum);
+        index = GetRegGroupIndexByTime(temp, g_timeMap, timeItemNum);
         index++;
-        if (index >= CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum) {
+        if (index >= timeItemNum) {
             HDF_LOGE("%s: Index out of range ", __func__);
             return HDF_FAILURE;
         }
-        WriteSensorRegCfgArray(&CfgData->busCfg, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP], index, sizeof(uint8_t));
+        WriteSensorRegCfgArray(&CfgData->busCfg, timeGroupNode, index, sizeof(uint8_t));
     }
     return HDF_SUCCESS;
 }
@@ -91,7 +99,11 @@ static uint32_t CalLux(struct SensorCfgData *CfgData, uint32_t *rgbcData)
     uint8_t timeRegValue;
     uint8_t gainRegvalue;
     uint32_t idex = 1;
-    uint32_t lx_tmp;
+    uint32_t luxTemp;
+    uint8_t timeItemNum;
+    uint8_t gainItemNum;
+    struct SensorRegCfgGroupNode *timeGroupNode;
+    struct SensorRegCfgGroupNode *gainGroupNode;
     enum ExtendedAlsTimeRegGroupIdex timeIndex = EXTENDED_ALS_TIME_GROUP_INDEX_0;
     enum ExtendedAlsGainRegGroupIdex gainIndex = EXTENDED_ALS_GAIN_GROUP_INDEX_0;
 
@@ -103,17 +115,21 @@ static uint32_t CalLux(struct SensorCfgData *CfgData, uint32_t *rgbcData)
         idex = 0;
     }
 
-    lx_tmp = g_red[idex] * rgbcData[ALS_R] + g_green[idex] * rgbcData[ALS_G];
+    luxTemp = g_red[idex] * rgbcData[ALS_R] + g_green[idex] * rgbcData[ALS_G];
+    timeGroupNode = CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP];
+    timeItemNum = timeGroupNode->itemNum;
+    gainGroupNode = CfgData->extendedRegCfgGroup[EXTENDED_ALS_GAIN_GROUP];
+    gainItemNum = gainGroupNode->itemNum;
 
-    ReadSensorRegCfgArray(&CfgData->busCfg, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP], timeIndex, &timeRegValue, sizeof(uint8_t));
-    timeRegValue &= CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->regCfgItem->mask;
-    timeTemp = GetTimeValueByRegValue(timeRegValue, g_timeMap, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum);
+    ReadSensorRegCfgArray(&CfgData->busCfg, timeGroupNode, timeIndex, &timeRegValue, sizeof(uint8_t));
+    timeRegValue &= timeGroupNode->regCfgItem->mask;
+    timeTemp = GetTimeByRegValue(timeRegValue, g_timeMap, timeItemNum);
 
-    ReadSensorRegCfgArray(&CfgData->busCfg, CfgData->extendedRegCfgGroup[EXTENDED_ALS_GAIN_GROUP], gainIndex, &gainRegvalue, sizeof(uint8_t));
-    gainRegvalue &= CfgData->extendedRegCfgGroup[EXTENDED_ALS_GAIN_GROUP]->regCfgItem->mask;
-    gainTemp = GetGainValueByRegValue(gainRegvalue, g_gainMap, CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP]->itemNum);
+    ReadSensorRegCfgArray(&CfgData->busCfg, gainGroupNode, gainIndex, &gainRegvalue, sizeof(uint8_t));
+    gainRegvalue &= gainGroupNode->regCfgItem->mask;
+    gainTemp = GetGainByRegValue(gainRegvalue, g_gainMap, gainItemNum);
 
-    return (((lx_tmp * BH1745_TIME_160MSEC * BH1745_GAIN_16X) / gainTemp) / timeTemp);
+    return (((luxTemp * BH1745_TIME_160MSEC * BH1745_GAIN_16X) / gainTemp) / timeTemp);
 }
 
  static int32_t RawDataConvert(struct SensorCfgData *CfgData, struct AlsReportData *reportData, uint32_t* rgbcData)
@@ -210,8 +226,8 @@ int32_t ReadBh1745Data(struct SensorCfgData *data)
     tmp[ALS_C] = rawData.clear;
 
     RawDataConvert(data, &reportData, tmp);
-    event.dataLen = sizeof(reportData);
-    event.data = (uint8_t *)&reportData;
+    event.dataLen = sizeof(reportData.als);
+    event.data = (uint8_t *)&reportData.als;
     ret = ReportSensorEvent(&event);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: BH1745 report data failed", __func__);

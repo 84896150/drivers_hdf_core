@@ -28,10 +28,20 @@ static struct AlsDrvData *AlsGetDrvData(void)
 
 static struct SensorRegCfgGroupNode *g_regCfgGroup[SENSOR_GROUP_MAX] = { NULL };
 static struct SensorRegCfgGroupNode *g_extendAlsRegCfgGroup[EXTENDED_ALS_GROUP_MAX] = { NULL };
+static char *g_extendedAlsGroupName[EXTENDED_ALS_GROUP_MAX] = {
+    "time",
+    "gain",
+};
 
-int32_t GetTimeValueByRegValue(uint8_t regValue, struct TimeMap *table, int32_t itemNum)
+int32_t GetTimeByRegValue(uint8_t regValue, struct TimeMap *table, int32_t itemNum)
 {
     int i;
+
+    if (table == NULL) {
+        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
+        return HDF_FAILURE;
+    }
+
     for (i = 0; i < itemNum; i++) {
         if (regValue == table[i].timeRegValue) {
             return table[i].timeValue;
@@ -41,9 +51,15 @@ int32_t GetTimeValueByRegValue(uint8_t regValue, struct TimeMap *table, int32_t 
     return HDF_FAILURE;
 }
 
-int32_t GetRegValueByTimeValue(uint32_t timeValue, struct TimeMap *table, int32_t itemNum)
+int32_t GetRegValueByTime(uint32_t timeValue, struct TimeMap *table, int32_t itemNum)
 {
     int i;
+
+    if (table == NULL) {
+        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
+        return HDF_FAILURE;
+    }
+
     for (i = 0; i < itemNum; i++) {
         if (timeValue == table[i].timeValue) {
             return table[i].timeRegValue;
@@ -52,9 +68,15 @@ int32_t GetRegValueByTimeValue(uint32_t timeValue, struct TimeMap *table, int32_
     return HDF_FAILURE;
 }
 
-int32_t GetRegGroupIndexByTimeValue(uint32_t timeValue, struct TimeMap *table, int32_t itemNum)
+int32_t GetRegGroupIndexByTime(uint32_t timeValue, struct TimeMap *table, int32_t itemNum)
 {
     int i;
+
+    if (table == NULL) {
+        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
+        return HDF_FAILURE;
+    }
+
     for (i = 0; i < itemNum; i++) {
         if (timeValue == table[i].timeValue) {
             return i;
@@ -63,9 +85,15 @@ int32_t GetRegGroupIndexByTimeValue(uint32_t timeValue, struct TimeMap *table, i
     return HDF_FAILURE;
 }
 
-int32_t GetGainValueByRegValue(uint8_t regValue, struct GainMap *table, int32_t itemNum)
+int32_t GetGainByRegValue(uint8_t regValue, struct GainMap *table, int32_t itemNum)
 {
     int i;
+
+    if (table == NULL) {
+        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
+        return HDF_FAILURE;
+    }
+
     for (i = 0; i < itemNum; i++) {
         if (regValue == table[i].gainRegValue) {
             return table[i].gainValue;
@@ -73,11 +101,6 @@ int32_t GetGainValueByRegValue(uint8_t regValue, struct GainMap *table, int32_t 
     }
     return HDF_FAILURE;
 }
-
-static char *g_extendedAlsGroupName[EXTENDED_ALS_GROUP_MAX] = {
-    "time",
-    "gain",
-};
 
 static uint32_t GetExtendedAlsRegGroupNameIndex(const char *name)
 {
@@ -138,17 +161,17 @@ int32_t ParseExtendedAlsRegConfig(struct SensorCfgData *config)
         index = GetExtendedAlsRegGroupNameIndex(extendedRegAttr->name);
         if (index >= EXTENDED_ALS_GROUP_MAX) {
             HDF_LOGE("%s: get sensor register group index failed", __func__);
-            goto error;
+            goto ERROR;
         }
 
         if (ParseSensorRegGroup(parser, extendedRegCfgNode, extendedRegAttr->name, &config->extendedRegCfgGroup[index]) != HDF_SUCCESS) {
             HDF_LOGE("%s: parse sensor register group failed", __func__);
-            goto error;
+            goto ERROR;
         }
     }
     return HDF_SUCCESS;
 
-error:
+ERROR:
     ReleaseExtendedAlsRegConfig(config);
     HDF_LOGE("%s: parse sensor extend register config failed", __func__);
     return HDF_FAILURE;
@@ -378,12 +401,12 @@ static int32_t InitAlsAfterDetected(struct SensorCfgData *config)
 
     if (ParseExtendedAlsRegConfig(config) != HDF_SUCCESS) {
         HDF_LOGE("%s: Parse sensor extendedRegCfgGroup register failed", __func__);
-        goto EXTENDED_Als_REG_CONFIG_EXIT;
+        goto EXTENDED_ALS_REG_CONFIG_EXIT;
     }
 
     return HDF_SUCCESS;
 
-EXTENDED_Als_REG_CONFIG_EXIT:
+EXTENDED_ALS_REG_CONFIG_EXIT:
     ReleaseSensorAllRegConfig(config);
 SENSOR_REG_CONFIG_EXIT:
     (void)DeleteSensorDevice(&config->sensorInfo);
