@@ -46,7 +46,6 @@ int32_t GetTimeByRegValue(uint8_t regValue, struct TimeMap *table, int32_t itemN
         if (regValue == table[i].timeRegValue) {
             return table[i].timeValue;
         }
-
     }
     return HDF_FAILURE;
 }
