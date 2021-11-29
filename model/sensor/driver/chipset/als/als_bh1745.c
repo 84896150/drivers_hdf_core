@@ -56,8 +56,8 @@ static int32_t DynamicRangCovert(struct SensorCfgData *CfgData, uint32_t *rgbcDa
     uint8_t regValue;
     uint32_t temp;
     uint8_t timeItemNum;
-    struct SensorRegCfgGroupNode *timeGroupNode;
-    enum ExtendedAlsTimeRegGroupIdex index = EXTENDED_ALS_TIME_GROUP_INDEX_0;
+    struct SensorRegCfgGroupNode *timeGroupNode = NULL;
+    int32_t index = EXTENDED_ALS_TIME_GROUP_INDEX_0;
 
     timeGroupNode = CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP];
     timeItemNum = timeGroupNode->itemNum;
@@ -78,8 +78,8 @@ static int32_t DynamicRangCovert(struct SensorCfgData *CfgData, uint32_t *rgbcDa
         index = GetRegGroupIndexByTime(temp, g_timeMap, timeItemNum);
         index--;
         WriteSensorRegCfgArray(&CfgData->busCfg, timeGroupNode, index, sizeof(uint8_t));
-    }else if ((g_timeMap_flag == 1) && (rgbcData[ALS_R] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN
-               || rgbcData[ALS_G] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN)) {
+    } else if ((g_timeMap_flag == 1) && ((rgbcData[ALS_R] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN)
+                || (rgbcData[ALS_G] * BH1745_MULTIPLE_100 < BH1745_TIME_MIN))) {
         g_timeMap_flag = 0;
         index = GetRegGroupIndexByTime(temp, g_timeMap, timeItemNum);
         index++;
@@ -98,24 +98,24 @@ static uint32_t CalLux(struct SensorCfgData *CfgData, uint32_t *rgbcData)
     uint32_t gainTemp;
     uint8_t timeRegValue;
     uint8_t gainRegvalue;
-    uint32_t idex = 1;
+    uint32_t index = 1;
     uint32_t luxTemp;
     uint8_t timeItemNum;
     uint8_t gainItemNum;
-    struct SensorRegCfgGroupNode *timeGroupNode;
-    struct SensorRegCfgGroupNode *gainGroupNode;
-    enum ExtendedAlsTimeRegGroupIdex timeIndex = EXTENDED_ALS_TIME_GROUP_INDEX_0;
-    enum ExtendedAlsGainRegGroupIdex gainIndex = EXTENDED_ALS_GAIN_GROUP_INDEX_0;
+    struct SensorRegCfgGroupNode *timeGroupNode = NULL;
+    struct SensorRegCfgGroupNode *gainGroupNode = NULL;
+    int32_t timeIndex = EXTENDED_ALS_TIME_GROUP_INDEX_0;
+    int32_t gainIndex = EXTENDED_ALS_GAIN_GROUP_INDEX_0;
 
     if (rgbcData[ALS_G] < 1) {
         return 0;
     }
 
     if (BH1745_MULTIPLE_100 * rgbcData[ALS_C] / rgbcData[ALS_G] < BH1745_COEFFICIENT_JUDGE) {
-        idex = 0;
+        index = 0;
     }
 
-    luxTemp = g_red[idex] * rgbcData[ALS_R] + g_green[idex] * rgbcData[ALS_G];
+    luxTemp = g_red[index] * rgbcData[ALS_R] + g_green[index] * rgbcData[ALS_G];
     timeGroupNode = CfgData->extendedRegCfgGroup[EXTENDED_ALS_TIME_GROUP];
     timeItemNum = timeGroupNode->itemNum;
     gainGroupNode = CfgData->extendedRegCfgGroup[EXTENDED_ALS_GAIN_GROUP];
@@ -139,8 +139,6 @@ static uint32_t CalLux(struct SensorCfgData *CfgData, uint32_t *rgbcData)
     DynamicRangCovert(CfgData, rgbcData);
     return HDF_SUCCESS;
  }
-
-
 
 static int32_t ReadBh1745RawData(struct SensorCfgData *data, struct AlsData *rawData, int64_t *timestamp)
 {

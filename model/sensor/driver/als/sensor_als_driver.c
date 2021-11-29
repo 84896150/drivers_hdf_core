@@ -37,10 +37,7 @@ int32_t GetTimeByRegValue(uint8_t regValue, struct TimeMap *table, int32_t itemN
 {
     int i;
 
-    if (table == NULL) {
-        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
-        return HDF_FAILURE;
-    }
+    CHECK_NULL_PTR_RETURN_VALUE(table, HDF_FAILURE);
 
     for (i = 0; i < itemNum; i++) {
         if (regValue == table[i].timeRegValue) {
@@ -54,10 +51,7 @@ int32_t GetRegValueByTime(uint32_t timeValue, struct TimeMap *table, int32_t ite
 {
     int i;
 
-    if (table == NULL) {
-        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
-        return HDF_FAILURE;
-    }
+    CHECK_NULL_PTR_RETURN_VALUE(table, HDF_FAILURE);
 
     for (i = 0; i < itemNum; i++) {
         if (timeValue == table[i].timeValue) {
@@ -71,10 +65,7 @@ int32_t GetRegGroupIndexByTime(uint32_t timeValue, struct TimeMap *table, int32_
 {
     int i;
 
-    if (table == NULL) {
-        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
-        return HDF_FAILURE;
-    }
+    CHECK_NULL_PTR_RETURN_VALUE(table, HDF_FAILURE);
 
     for (i = 0; i < itemNum; i++) {
         if (timeValue == table[i].timeValue) {
@@ -88,10 +79,7 @@ int32_t GetGainByRegValue(uint8_t regValue, struct GainMap *table, int32_t itemN
 {
     int i;
 
-    if (table == NULL) {
-        HDF_LOGE("%s: The incoming parameter pointer is null", __func__);
-        return HDF_FAILURE;
-    }
+    CHECK_NULL_PTR_RETURN_VALUE(table, HDF_FAILURE);
 
     for (i = 0; i < itemNum; i++) {
         if (regValue == table[i].gainRegValue) {
@@ -105,9 +93,7 @@ static uint32_t GetExtendedAlsRegGroupNameIndex(const char *name)
 {
     uint32_t index;
 
-    if (name == NULL) {
-        return EXTENDED_ALS_GROUP_MAX;
-    }
+    CHECK_NULL_PTR_RETURN_VALUE(name, EXTENDED_ALS_GROUP_MAX);
 
     for (index = 0; index < EXTENDED_ALS_GROUP_MAX; ++index) {
         if ((g_extendedAlsGroupName[index] != NULL) && (strcmp(name, g_extendedAlsGroupName[index]) == 0)) {
@@ -122,9 +108,8 @@ void ReleaseExtendedAlsRegConfig(struct SensorCfgData *config)
 {
     int32_t index;
 
-    if (config == NULL || config->extendedRegCfgGroup == NULL) {
-        return;
-    }
+    CHECK_NULL_PTR_RETURN_VALUE(config);
+    CHECK_NULL_PTR_RETURN_VALUE(config->extendedRegCfgGroup);
 
     for (index = 0; index < EXTENDED_ALS_GROUP_MAX; ++index) {
         if (config->extendedRegCfgGroup[index] != NULL) {

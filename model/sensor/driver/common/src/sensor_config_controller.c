@@ -298,7 +298,7 @@ int32_t ReadSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRe
     CHECK_NULL_PTR_RETURN_VALUE(group, HDF_FAILURE);
     CHECK_NULL_PTR_RETURN_VALUE(group->regCfgItem, HDF_FAILURE);
 
-    if (index >= group->itemNum || index < 0) {
+    if ((index >= group->itemNum) || index < 0) {
         HDF_LOGE("%s: Index is invalid parameter", __func__);
         return HDF_FAILURE;
     }
@@ -319,7 +319,7 @@ int32_t WriteSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorR
     CHECK_NULL_PTR_RETURN_VALUE(group, HDF_FAILURE);
     CHECK_NULL_PTR_RETURN_VALUE(group->regCfgItem, HDF_FAILURE);
 
-    if (index >= group->itemNum || index < 0) {
+    if ((index >= group->itemNum) || index < 0) {
         HDF_LOGE("%s: Index is invalid parameter", __func__);
         return HDF_FAILURE;
     }
