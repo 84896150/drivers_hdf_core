@@ -94,6 +94,7 @@ struct SensorCfgData {
     struct SensorBasicInfo sensorInfo;
     struct SensorAttr sensorAttr;
     struct SensorRegCfgGroupNode **regCfgGroup;
+    struct SensorRegCfgGroupNode **extendedRegCfgGroup;
     const struct DeviceResourceNode *root;
     struct SensorDirection *direction; 
 };
@@ -104,6 +105,8 @@ void ReleaseSensorAllRegConfig(struct SensorCfgData *config);
 int32_t GetSensorBusHandle(struct SensorBusCfg *busCfg);
 int32_t ReleaseSensorBusHandle(struct SensorBusCfg *busCfg);
 int32_t DetectSensorDevice(struct SensorCfgData *config);
+int32_t ParseSensorRegGroup(struct DeviceResourceIface *parser, const struct DeviceResourceNode *regCfgNode,
+    const char *groupName, struct SensorRegCfgGroupNode **groupNode);
 int32_t SensorRawDataToRemapData(struct SensorDirection *direction, int32_t *remapData, uint32_t num);
 void ReleaseSensorDirectionConfig(struct SensorCfgData *config);
 int32_t ParseSensorDirection(struct SensorCfgData *config);
