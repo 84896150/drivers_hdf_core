@@ -108,8 +108,8 @@ void ReleaseExtendedAlsRegConfig(struct SensorCfgData *config)
 {
     int32_t index;
 
-    CHECK_NULL_PTR_RETURN_VALUE(config);
-    CHECK_NULL_PTR_RETURN_VALUE(config->extendedRegCfgGroup);
+    CHECK_NULL_PTR_RETURN(config);
+    CHECK_NULL_PTR_RETURN(config->extendedRegCfgGroup);
 
     for (index = 0; index < EXTENDED_ALS_GROUP_MAX; ++index) {
         if (config->extendedRegCfgGroup[index] != NULL) {
