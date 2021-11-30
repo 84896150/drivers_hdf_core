@@ -45,6 +45,8 @@ int32_t PinCntlrAdd(struct PinCntlr *cntlr)
         return HDF_ERR_INVALID_OBJECT;
     }
 
+    DListHeadInit(&cntlr->list);
+
     if (cntlr->method == NULL) {
         HDF_LOGE("%s: no method supplied!", __func__);
         return HDF_ERR_INVALID_OBJECT;
@@ -58,8 +60,6 @@ int32_t PinCntlrAdd(struct PinCntlr *cntlr)
     OsalSpinInit(&cntlr->spin);
 
     list = PinCntlrListGet();
-
-    DListHeadInit(&cntlr->list);
     DListInsertTail(&cntlr->list, list);
     PinCntlrListPut();
 
