@@ -74,7 +74,9 @@ void PinCntlrRemove(struct PinCntlr *cntlr)
     }
 
     (void)PinCntlrListGet();
-    DListRemove(&cntlr->list);
+    if ((cntlr->list.next != NULL) && (cntlr->list.prev != NULL)) {
+        DListRemove(&cntlr->list);
+    }
     PinCntlrListPut();
     (void)OsalSpinDestroy(&cntlr->spin);
 }
@@ -85,6 +87,11 @@ struct PinDesc *PinCntlrGetPinDescByName(const char *pinName)
     struct PinCntlr *cntlr = NULL;
     struct PinCntlr *tmp = NULL;
     int32_t num;
+
+    if (pinName == NULL) {
+        HDF_LOGE("%s: pinName is NULL!", __func__);
+        return NULL;
+    }
 
     list = PinCntlrListGet();
 
@@ -149,6 +156,11 @@ struct PinCntlr *PinCntlrGetByPin(struct PinDesc *desc)
 static int32_t GetPinIndex(struct PinCntlr *cntlr, struct PinDesc *desc)
 {
     int32_t index, ret;
+
+    if (desc->pinName == NULL) {
+        HDF_LOGE("%s: desc->pinName is NULL!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     for (index = 0; index < cntlr->pinCount; index++) {
         if (cntlr->pins[index].pinName == NULL) {
