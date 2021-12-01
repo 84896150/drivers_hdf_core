@@ -150,6 +150,11 @@ static int32_t GetPinIndex(struct PinCntlr *cntlr, struct PinDesc *desc)
 {
     int32_t index, ret;
 
+    if (desc->pinName == NULL) {
+        HDF_LOGE("%s: desc->pinName is NULL!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     for (index = 0; index < cntlr->pinCount; index++) {
         if (cntlr->pins[index].pinName == NULL) {
             HDF_LOGE("%s: cntlr->pin[index].pinName is NULL!", __func__);
