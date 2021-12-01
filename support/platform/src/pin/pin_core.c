@@ -74,7 +74,9 @@ void PinCntlrRemove(struct PinCntlr *cntlr)
     }
 
     (void)PinCntlrListGet();
-    DListRemove(&cntlr->list);
+    if ((cntlr->list.next != NULL) && (cntlr->list.prev != NULL)) {
+        DListRemove(&cntlr->list);
+    }
     PinCntlrListPut();
     (void)OsalSpinDestroy(&cntlr->spin);
 }
