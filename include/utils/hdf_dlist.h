@@ -80,8 +80,13 @@ static inline bool DListIsEmpty(const struct DListHead *head)
  */
 static inline void DListRemove(struct DListHead *entry)
 {
-    entry->prev->next = entry->next;
-    entry->next->prev = entry->prev;
+    if (entry->prev != NULL) {
+         entry->prev->next = entry->next;
+    }
+
+    if (entry->next != NULL) {
+        entry->next->prev = entry->prev;
+    }
 
     entry->prev = NULL;
     entry->next = NULL;
