@@ -21,16 +21,19 @@ static int suspendCnt = 0;
 #define PM_WAIT_TIME 500
 int32_t HdfPmTest()
 {
+    struct HdfDeviceObject *pm_test_service_obj = NULL;
+    struct HdfDeviceObject *sample_service_obj = NULL;
+
     HDF_LOGI("%s enter!", __func__);
     resumeCnt = 0;
     suspendCnt = 0;
-    struct HdfDeviceObject *sample_service_obj = DevSvcManagerClntGetDeviceObject("sample_service");
+    sample_service_obj = DevSvcManagerClntGetDeviceObject("sample_service");
     if (sample_service_obj == NULL) {
          HDF_LOGE("%s sample_service DeviceObject is null!", __func__);
          return HDF_FAILURE;
     }
 
-    struct HdfDeviceObject *pm_test_service_obj = DevSvcManagerClntGetDeviceObject("pm_test_service");
+    pm_test_service_obj = DevSvcManagerClntGetDeviceObject("pm_test_service");
     if (pm_test_service_obj == NULL) {
          HDF_LOGE("%s pm_test_service DeviceObject is null!", __func__);
          return HDF_FAILURE;
