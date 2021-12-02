@@ -14,11 +14,12 @@
 #include "osal_time.h"
 
 #define HDF_LOG_TAG pm_driver_test
+#define PM_TEST_COUNT 4
+#define PM_WAIT_TIME 500
 
 static int resumeCnt = 0;
 static int suspendCnt = 0;
-#define PM_TEST_COUNT 4
-#define PM_WAIT_TIME 500
+
 int32_t HdfPmTest()
 {
     struct HdfDeviceObject *pm_test_service_obj = NULL;
