@@ -12,6 +12,8 @@
 #include "hdf_device_desc.h"
 #include "pwm_if.h"
 
+int32_t PwmTestExecute(int cmd);
+
 enum PwmTestCmd {
     PWM_SET_PERIOD_TEST = 0,
     PWM_SET_DUTY_TEST,
@@ -21,22 +23,18 @@ enum PwmTestCmd {
     PWM_SET_CONFIG_TEST,
     PWM_GET_CONFIG_TEST,
     PWM_RELIABILITY_TEST,
-    PWM_TEST_ALL,
+    PWM_TEST_CMD_MAX,
 };
 
-struct PwmTest {
-    struct IDeviceIoService service;
-    struct HdfDeviceObject *device;
-    int32_t (*TestEntry)(struct PwmTest *test, int32_t cmd);
+struct PwmTestConfig {
     uint32_t num;
     struct PwmConfig cfg;
     struct PwmConfig originCfg;
-    DevHandle handle;
 };
 
-static inline struct PwmTest *GetPwmTest(void)
-{
-    return (struct PwmTest *)DevSvcManagerClntGetService("PWM_TEST");
-}
+struct PwmTester {
+    struct PwmTestConfig config;
+    DevHandle handle;
+};
 
 #endif /* PWM_TEST_H */
