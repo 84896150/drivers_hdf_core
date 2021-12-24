@@ -58,12 +58,13 @@ static int Ft5336_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
         HDF_LOGI("%s: version = EDT_M06", __func__);
 
         rdbuf[EDT_NAME_LEN - 1] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 2] == '$')
+        if (rdbuf[EDT_NAME_LEN - 2] == '$'){
             rdbuf[EDT_NAME_LEN - 2] = '\0';
-
+        }
         p = strchr(rdbuf, '*');
-        if (p)
+        if (p){
             *p++ = '\0';
+        }
         strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
     } else {
         /* since there are only two versions around (M06, M09) */
@@ -71,9 +72,9 @@ static int Ft5336_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
         HDF_LOGI("%s: version = EDT_M09;", __func__);
 
         error = InputI2cRead(i2cClient, "\xA6", 1, rdbuf, 2);
-        if (error)
+        if (error){
             return error;
-
+        }
         strlcpy(fw_version, rdbuf, 2);
     }
 
@@ -166,8 +167,8 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         frame->fingers[i].x = x;
         frame->fingers[i].y = y;
         frame->fingers[i].trackId = (rdbuf[2] >> 4) & 0x0f;
-        frame->fingers[i].status = rdbuf[0] >> 6;;
-        frame->fingers[i].valid = true;        
+        frame->fingers[i].status = rdbuf[0] >> 6;
+        frame->fingers[i].valid = true;
         frame->definedEvent = frame->fingers[i].status;
 
         if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) && (pointNum == 0)) {
@@ -256,7 +257,6 @@ static void SetAbility(ChipDevice *device)
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_TRACKING_ID].max = MAX_POINT;
 }
 
-
 static struct TouchChipOps g_ft5336ChipOps = {
     .Init = ChipInit,
     .Detect = ChipDetect,
@@ -331,14 +331,15 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     chipDev = ChipDeviceInstance();
     if (chipDev == NULL) {
-        goto EXIT;
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
     usleep_range(5000, 6000);
-    tca6408_output_set_value((0<<6),(1<<6));
+    tca6408_output_set_value( (0<<6) , (1<<6) );
     msleep(300);
-    tca6408_output_set_value((1<<6),(1<<6));
+    tca6408_output_set_value( (1<<6) , (1<<6) );
 
     chipDev->chipCfg = chipCfg;
     chipDev->ops = &g_ft5336ChipOps;
@@ -347,7 +348,7 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     if (RegisterChipDevice(chipDev) != HDF_SUCCESS) {
         HDF_LOGI("%s: fail", __func__);
-        goto EXIT1;
+        OsalMemFree(chipDev);
     }
 
 #if TP_CHANGE_X2Y
