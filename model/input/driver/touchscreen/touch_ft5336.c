@@ -337,7 +337,7 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
     usleep_range(5000, 6000);
-    tca6408_output_set_value(( 0<<6 ),( 1<<6 ));
+    tca6408_output_set_value((0<<6),(1<<6));
     msleep(300);
     tca6408_output_set_value(( 1<<6 ),( 1<<6 ));
 
