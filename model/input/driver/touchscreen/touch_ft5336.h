@@ -2,6 +2,7 @@
 #define TOUCH_FT5x06_H
 
 #define TCA_TP_RST_MASK   (1<<6)
+#define TCA_TP_RSTT_MASK    (0<<6)
 #define WORK_REGISTER_THRESHOLD		0x00
 #define WORK_REGISTER_REPORT_RATE	0x08
 #define WORK_REGISTER_GAIN		0x30
