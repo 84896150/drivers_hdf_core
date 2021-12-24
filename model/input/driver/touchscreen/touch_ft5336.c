@@ -40,7 +40,7 @@ static int Ft5336_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 {
     u8 rdbuf[EDT_NAME_LEN];
     char *p = NULL;
-    int error;
+    int error = 0;
     char fw_version[EDT_NAME_LEN];
 
     memset(rdbuf, 0, sizeof(rdbuf));
@@ -225,8 +225,8 @@ static int32_t ChipDataHandle(ChipDevice *device)
 
     ret = ParsePointData(device, frame, buf, pointNum, device->chipCfg->chipVersion);
     if (ret != HDF_SUCCESS) {
-         OsalMutexUnlock(&device->driver->mutex);
-         return ret;
+        OsalMutexUnlock(&device->driver->mutex);
+        return ret;
     }
     OsalMutexUnlock(&device->driver->mutex);
 
@@ -337,9 +337,9 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
     usleep_range(5000, 6000);
-    tca6408_output_set_value( (0<<6) , (1<<6) );
+    tca6408_output_set_value(( 0<<6 ),( 1<<6 ));
     msleep(300);
-    tca6408_output_set_value( (1<<6) , (1<<6) );
+    tca6408_output_set_value(( 1<<6 ),( 1<<6 ));
 
     chipDev->chipCfg = chipCfg;
     chipDev->ops = &g_ft5336ChipOps;
@@ -367,10 +367,10 @@ EXIT:
     return HDF_FAILURE;
 }
 
-struct HdfDriverEntry g_edtTouchFocalChipEntry = {
+struct HdfDriverEntry g_edttouchfocalchipentry = {
     .moduleVersion = 1,
     .moduleName = "EDT_TOUCH_FT5336",
     .Init = EdtFocalChipInit,
 };
 
-HDF_INIT(g_edtTouchFocalChipEntry);
+HDF_INIT(g_edttouchfocalchipentry);
