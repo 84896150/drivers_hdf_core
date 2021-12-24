@@ -33,16 +33,17 @@ static int32_t ChipSuspend(ChipDevice *device)
 static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 {
     u8 rdbuf[EDT_NAME_LEN];
-    char *p;
-    int error;
+    char *p = NULL;
+    int error = 0;
     char fw_version[EDT_NAME_LEN];
 
     memset(rdbuf, 0, sizeof(rdbuf));
     memset(fw_version, 0, sizeof(fw_version));
 
     error = InputI2cRead(i2cClient, "\xbb", 1, rdbuf, EDT_NAME_LEN - 1);
-    if (error)
+    if (error) {
         return error;
+    }
 
     /* Probe content for something consistent.
      * M06 starts with a response byte.
@@ -53,12 +54,14 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
         HDF_LOGI("%s: version = EDT_M06", __func__);
 
         rdbuf[EDT_NAME_LEN - 1] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 2] == '$')
+        if (rdbuf[EDT_NAME_LEN - 2] == '$') {
             rdbuf[EDT_NAME_LEN - 2] = '\0';
+        }
 
         p = strchr(rdbuf, '*');
-        if (p)
+        if (p) {
             *p++ = '\0';
+        }
         strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
     } else if (!strncasecmp(rdbuf, "EP0", 3)) {
         device->chipCfg->chipVersion = EDT_M12;
@@ -66,27 +69,31 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 
         /* remove last '$' end marker */
         rdbuf[EDT_NAME_LEN - 2] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 3] == '$')
+        if (rdbuf[EDT_NAME_LEN - 3] == '$') {
             rdbuf[EDT_NAME_LEN - 3] = '\0';
+        }
 
         /* look for Version */
         p = strchr(rdbuf, '*');
-        if (p)
+        if (p) {
             *p++ = '\0';
+        }
         strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
     } else {
         device->chipCfg->chipVersion = GENERIC_FT;
         HDF_LOGI("%s: version = GENERIC_FT;", __func__);
 
         error = InputI2cRead(i2cClient, "\xA6", 1, rdbuf, 2);
-        if (error)
+        if (error) {
             return error;
+        }
 
         strlcpy(fw_version, rdbuf, 2);
 
         error = InputI2cRead(i2cClient, "\xA8", 1, rdbuf, 1);
-        if (error)
+        if (error) {
             return error;
+        }
 
         switch (rdbuf[0]) {
             case 0x35: /* EDT EP0350M09 */
@@ -104,8 +111,9 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
                 HDF_LOGI("%s: version = EV_FT;", __func__);
 
                 error = InputI2cRead(i2cClient, "\x53", 1, rdbuf, 1);
-                if (error)
+                if (error) {
                     return error;
+                }
                 strlcpy(fw_version, rdbuf, 1);
                 break;
 
@@ -215,8 +223,9 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         x = get_unaligned_be16(rdbuf) & 0x0fff;
         y = get_unaligned_be16(rdbuf + 2) & 0x0fff;
 
-        if (device->chipCfg->chipVersion == EV_FT)
+        if (device->chipCfg->chipVersion == EV_FT) {
             swap(x, y);
+        }
 
         frame->fingers[i].x = x;
         frame->fingers[i].y = y;
@@ -364,7 +373,8 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     chipDev = ChipDeviceInstance();
     if (chipDev == NULL) {
-        goto EXIT;
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     chipDev->chipCfg = chipCfg;
@@ -375,23 +385,20 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
     if (RegisterChipDevice(chipDev) != HDF_SUCCESS)
     {
         HDF_LOGI("%s: RegisterChipDevice fail", __func__);
-        goto EXIT1;
+    } else {
+        HDF_LOGI("%s: init succ, chipName = %s", __func__, chipCfg->chipName);
+        return HDF_SUCCESS;
     }
 
-    HDF_LOGI("%s: init succ, chipName = %s", __func__, chipCfg->chipName);
-    return HDF_SUCCESS;
-
-EXIT1:
     OsalMemFree(chipDev);
-EXIT:
     FreeChipConfig(chipCfg);
     return HDF_FAILURE;
 }
 
-struct HdfDriverEntry g_edtTouchFocalChipEntry = {
+struct HdfDriverEntry g_edttouchfocalchipentry = {
     .moduleVersion = 1,
     .moduleName = "EDT_TOUCH_FT5X06",
     .Init = EdtFocalChipInit,
 };
 
-HDF_INIT(g_edtTouchFocalChipEntry);
+HDF_INIT(g_edttouchfocalchipentry);
