@@ -10,6 +10,7 @@
 #include "device_resource_if.h"
 #include "hdf_log.h"
 
+#define TEST
 #define HDF_LOG_TAG hcs_config_test
 
 #define DATA_TYPE_NUM_U32 3
