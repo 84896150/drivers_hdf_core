@@ -16,9 +16,9 @@
 #include "event_hub.h"
 
 #define TP_SWAP(x, y)  do {\
-				typeof(x) z = x;\
-				x = y;\
-				y = z; \
+                typeof(x) z = x;\
+                x = y;\
+                y = z; \
 } while (0)
 
 static int32_t ChipInit(ChipDevice *device)
@@ -38,47 +38,47 @@ static int32_t ChipSuspend(ChipDevice *device)
 
 static int Ft5336_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 {
-	u8 rdbuf[EDT_NAME_LEN];
-    char *p;
-	int error;
+    u8 rdbuf[EDT_NAME_LEN];
+    char *p = NULL;
+    int error;
     char fw_version[EDT_NAME_LEN];
 
-	memset(rdbuf, 0, sizeof(rdbuf));
+    memset(rdbuf, 0, sizeof(rdbuf));
 
-	error = InputI2cRead(i2cClient, "\xbb", 1, rdbuf, EDT_NAME_LEN - 1);
-	if (error)
-		return error;
-
+    error = InputI2cRead(i2cClient, "\xbb", 1, rdbuf, EDT_NAME_LEN - 1);
+    if (error){
+        return error;
+    }
     /* Probe content for something consistent.
-	 * M06 starts with a response byte.
-	 * M09/Generic does not provide model number information.
-	 */
-	if (!(strncasecmp(rdbuf + 1, "EP0", 3))) {
+     * M06 starts with a response byte.
+     * M09/Generic does not provide model number information.
+     */
+    if (!(strncasecmp(rdbuf + 1, "EP0", 3))) {
         device->chipCfg->chipVersion = EDT_M06;
         HDF_LOGI("%s: version = EDT_M06", __func__);
 
         rdbuf[EDT_NAME_LEN - 1] = '\0';
-		if (rdbuf[EDT_NAME_LEN - 2] == '$')
-			rdbuf[EDT_NAME_LEN - 2] = '\0';
+        if (rdbuf[EDT_NAME_LEN - 2] == '$')
+            rdbuf[EDT_NAME_LEN - 2] = '\0';
 
-		p = strchr(rdbuf, '*');
-		if (p)
-			*p++ = '\0';
-		strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
-	} else {
-		/* since there are only two versions around (M06, M09) */
-		device->chipCfg->chipVersion = EDT_M09;
+        p = strchr(rdbuf, '*');
+        if (p)
+            *p++ = '\0';
+        strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+    } else {
+        /* since there are only two versions around (M06, M09) */
+        device->chipCfg->chipVersion = EDT_M09;
         HDF_LOGI("%s: version = EDT_M09;", __func__);
 
         error = InputI2cRead(i2cClient, "\xA6", 1, rdbuf, 2);
-		if (error)
-			return error;
+        if (error)
+            return error;
 
-		strlcpy(fw_version, rdbuf, 2);
-	}
+        strlcpy(fw_version, rdbuf, 2);
+    }
 
     HDF_LOGI("%s: fw_version = %s", __func__, fw_version);
-	return 0;
+    return 0;
 }
 
 static int32_t ChipDetect(ChipDevice *device)
@@ -112,33 +112,33 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
     int32_t offset, tplen, crclen;
     int32_t type;
     switch (version) {
-	case EDT_M06:
-		offset = 5; /* where the actual touch data starts */
-		tplen = 4;  /* data comes in so called frames */
-		crclen = 1; /* length of the crc data */
-		break;
+    case EDT_M06:
+        offset = 5; /* where the actual touch data starts */
+        tplen = 4;  /* data comes in so called frames */
+        crclen = 1; /* length of the crc data */
+        break;
 
-	case EDT_M09:
+    case EDT_M09:
         offset = 3;
-		tplen = 6;
-		crclen = 0;
-		break;
+        tplen = 6;
+        crclen = 0;
+        break;
 
-	default:
-		return HDF_FAILURE;
-	}
+    default:
+        return HDF_FAILURE;
+    }
 
     for (i = 0; i < pointNum; i++) {
-		u8 *rdbuf = &buf[i * tplen + offset];
-		
-		type = rdbuf[0] >> 6;
-		/* ignore Reserved events */
-		if (type == TOUCH_EVENT_RESERVED){
+        u8 *rdbuf = &buf[i * tplen + offset];
+        
+        type = rdbuf[0] >> 6;
+        /* ignore Reserved events */
+        if (type == TOUCH_EVENT_RESERVED){
             continue;
         }
 
-		/* M06 sometimes sends bogus coordinates in TOUCH_DOWN */
-		if (version == EDT_M06 && type == TOUCH_EVENT_DOWN){
+        /* M06 sometimes sends bogus coordinates in TOUCH_DOWN */
+        if (version == EDT_M06 && type == TOUCH_EVENT_DOWN){
             continue;
         }
 
@@ -151,26 +151,26 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         y = ((rdbuf[2] << 8) | rdbuf[3]) & 0x0fff;
 
 #if TP_CHANGE_X2Y
-		TP_SWAP(x, y);
+        TP_SWAP(x, y);
 #endif
 
 #if TP_Y_REVERSE_ENABLE
-	    y = device->boardCfg->attr.resolutionY - y;
+        y = device->boardCfg->attr.resolutionY - y;
 #endif
 
 #if TP_X_REVERSE_ENABLE
-		x = device->boardCfg->attr.resolutionX - x;
+        x = device->boardCfg->attr.resolutionX - x;
 #endif
-//	HDF_LOGI("%s : x = %u , y = %u ", __func__, x, y);
+//    HDF_LOGI("%s : x = %u , y = %u ", __func__, x, y);
 
-		frame->fingers[i].x = x;
-		frame->fingers[i].y = y;
-		frame->fingers[i].trackId = (rdbuf[2] >> 4) & 0x0f;
+        frame->fingers[i].x = x;
+        frame->fingers[i].y = y;
+        frame->fingers[i].trackId = (rdbuf[2] >> 4) & 0x0f;
         frame->fingers[i].status = rdbuf[0] >> 6;;
-        frame->fingers[i].valid = true;		
+        frame->fingers[i].valid = true;        
         frame->definedEvent = frame->fingers[i].status;
 
-		if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) && (pointNum == 0)) {
+        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) && (pointNum == 0)) {
             HDF_LOGE("%s: abnormal event data from driver chip", __func__);
             return HDF_FAILURE;
         }
@@ -190,18 +190,18 @@ static int32_t ChipDataHandle(ChipDevice *device)
     FrameData *frame = &device->driver->frameData;
 
     switch (device->chipCfg->chipVersion) {
-	case EDT_M06:
-		reg = 0xf9; /* tell the controller to send touch data */
+    case EDT_M06:
+        reg = 0xf9; /* tell the controller to send touch data */
         ret = InputI2cRead(i2cClient, &reg, 1, buf, POINT_BUFFER_LEN_M06);
-		break;
+        break;
 
-	case EDT_M09:
+    case EDT_M09:
         ret = InputI2cRead(i2cClient, &reg, 1, buf, POINT_BUFFER_LEN_M09);
-		break;
+        break;
 
-	default:
-		return HDF_FAILURE;
-	}
+    default:
+        return HDF_FAILURE;
+    }
     CHIP_CHECK_RETURN(ret);
 
     OsalMutexLock(&device->driver->mutex);
@@ -336,9 +336,9 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     tca6408_output_set_value(TCA_TP_RST_MASK, TCA_TP_RST_MASK);
     usleep_range(5000, 6000);
-	tca6408_output_set_value((0<<6), (1<<6));
-	msleep(300);
-	tca6408_output_set_value((1<<6), (1<<6));
+    tca6408_output_set_value((0<<6),(1<<6));
+    msleep(300);
+    tca6408_output_set_value((1<<6),(1<<6));
 
     chipDev->chipCfg = chipCfg;
     chipDev->ops = &g_ft5336ChipOps;
