@@ -18,7 +18,7 @@
 #define HDF_TEST_SERVICE_NAME    "HDF_TEST"
 #define CHECK_TEST_NULL_PTR_RETURN(ptr) do { \
     if ((ptr) == NULL) { \
-        printf("pointer is null and return\n\r"); \
+        printf("pointer (%s) is null and return\n\r", #ptr); \
         return HDF_FAILURE; \
     } \
 } while (0)

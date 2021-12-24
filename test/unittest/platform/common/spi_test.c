@@ -248,7 +248,7 @@ static int32_t SpiIntTransferTest(struct SpiTest *test)
     g_spiCfg.transferMode = SPI_INTERRUPT_TRANSFER;
     g_spiCfg.bitsPerWord = BITS_PER_WORD_8BITS;
 
-    ret = SpiSetDmaIntMsg(&msg, DMA_TRANSFER_SIZE_TOTAL);
+    ret = SpiSetDmaIntMsg(&msg, 60);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
