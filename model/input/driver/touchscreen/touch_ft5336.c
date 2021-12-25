@@ -359,7 +359,7 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
     chipDev->boardCfg->attr.resolutionY = resolution;
 #endif
 
-    HDF_LOGI("%s: init succ, chipName = %s", __func__, chipCfg->chipName);
+    HDF_LOGI("%s: init succs, chipName = %s", __func__, chipCfg->chipName);
     return HDF_SUCCESS;
 
 EXIT1:
