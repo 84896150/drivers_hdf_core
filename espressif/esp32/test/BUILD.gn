@@ -1,0 +1,82 @@
+# Copyright (c) 2021 HiSilicon (Shanghai) Technologies CO., LIMITED.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//drivers/adapter/khdf/liteos_m/hdf.gni")
+
+HDF_FRAMEWORKS_PATH = "//drivers/framework"
+HDF_TEST_FRAMWORK_ROOT = "$HDF_FRAMEWORKS_PATH/test/unittest"
+
+static_library("hdf_test_drivers") {
+  sources = [
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common/gpio_test.c",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common/i2c_driver_test.c",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common/i2c_test.c",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common/spi_test.c",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common/uart_test.c",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common/pwm_test.c",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/hdf_rtc_entry_test.c",
+    
+  ]
+
+  include_dirs = [
+    "//drivers/framework/ability/sbuf/include",
+    "//drivers/framework/include/platform",
+    "//drivers/framework/include/core",
+    "//drivers/framework/include/osal",
+    "//drivers/framework/include/utils",
+    "//drivers/framework/include/config",
+    "//drivers/framework/include",
+    "//drivers/framework/test/unittest/include",
+    "//drivers/framework/test/unittest/platform/common",
+    "//third_party/bounds_checking_function/include",
+    "//drivers/adapter/khdf/liteos_m/osal/include",
+    "//third_party/musl/porting/liteos_m/kernel/include",
+  ]
+
+  ldflags = [ "-Wl,--whole-archive" ]
+  configs += [ ":test_lite" ]
+  defines = [
+            "CONFIG_DRIVERS_HDF_PLATFORM",
+            "CONFIG_DRIVERS_HDF_PLATFORM_GPIO",
+            "CONFIG_DRIVERS_HDF_PLATFORM_I2C",
+            "CONFIG_DRIVERS_HDF_PLATFORM_SPI",
+            "CONFIG_DRIVERS_HDF_PLATFORM_UART",
+            "CONFIG_DRIVERS_HDF_PLATFORM_RTC",
+            "CONFIG_DRIVERS_HDF_PLATFORM_PWM",
+            ]
+}
+
+config("test_lite") {
+  include_dirs = [
+    "$HDF_FRAMEWORKS_PATH/include",
+    "$HDF_FRAMEWORKS_PATH/include/osal",
+    "$HDF_FRAMEWORKS_PATH/include/utils",
+    "$HDF_FRAMEWORKS_PATH/utils/include",
+    "$HDF_FRAMEWORKS_PATH/include/platform",
+    "$HDF_FRAMEWORKS_PATH/include/core",
+    "$HDF_FRAMEWORKS_PATH/include/config",
+    "$HDF_FRAMEWORKS_PATH/support/platform/include",
+    "$HDF_FRAMEWORKS_PATH/ability/sbuf/include",
+    "$HDF_FRAMEWORKS_PATH/core/host/include",
+    "$HDF_FRAMEWORKS_PATH/core/master/include",
+    "$HDF_FRAMEWORKS_PATH/core/shared/include",
+    "$HDF_FRAMEWORKS_PATH/core/manager/include",
+    "$HDF_FRAMEWORKS_PATH/core/common/include/host",
+    "$HDF_FRAMEWORKS_PATH/core/adapter/vnode/include",
+    "$HDF_FRAMEWORKS_PATH/core/adapter/syscall/include",
+    "$HDF_TEST_FRAMWORK_ROOT/common",
+    "$HDF_TEST_FRAMWORK_ROOT/platform",
+    "$HDF_TEST_FRAMWORK_ROOT/platform/common",
+    "$HDF_TEST_FRAMWORK_ROOT",
+  ]
+}

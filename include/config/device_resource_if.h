@@ -434,8 +434,8 @@ struct DeviceResourceIface *DeviceResourceGetIfaceInstance(DeviceResourceType ty
  * @since 1.0
  * @version 1.0
  */
-#define DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, childNode) \
-    for ((childNode) = (node)->child; (childNode) != NULL; (childNode) = (childNode)->sibling)
+#define DEV_RES_NODE_FOR_EACH_CHILD_NODE(g_node, g_childnode) \
+    for ((g_childnode) = (g_node)->child; (g_childnode) != NULL; (g_childnode) = (g_childnode)->sibling)
 
 #ifdef __cplusplus
 #if __cplusplus
