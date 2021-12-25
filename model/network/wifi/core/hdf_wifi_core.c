@@ -138,6 +138,8 @@ static int32_t HdfWlanGetConfig(const struct HdfDeviceObject *device)
 
 static int32_t HdfWlanPowerOnProcess(struct PowerManager *powerMgr)
 {
+// add by zhaoxc for hdf
+    return HDF_SUCCESS;
     if (powerMgr == NULL) {
         HDF_LOGE("%s:Input is NULL!", __func__);
         return HDF_FAILURE;
@@ -152,6 +154,8 @@ static int32_t HdfWlanPowerOnProcess(struct PowerManager *powerMgr)
 }
 static int32_t HdfWlanResetProcess(struct ResetManager *resetMgr)
 {
+// add by zhaoxc for hdf
+    return HDF_SUCCESS;
     if (resetMgr == NULL) {
         HDF_LOGE("%s:input is NULL!", __func__);
         return HDF_FAILURE;
@@ -450,12 +454,14 @@ static int32_t HdfWlanInitThread(void *para)
         return HDF_SUCCESS;
     }
     for (i = 0; i < devList->deviceListSize; i++) {
+// add by zhaoxc for hdf
+#if 0
         ret = HdfWlanConfigSDIO(devList->deviceInst[i].bus.busIdx);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:HdfWlanConfigSDIO %d failed!ret=%d", __func__, devList->deviceInst[i].bus.busIdx, ret);
             continue;
         }
-
+#endif
         wlanDevice = ProbeDevice(&(devList->deviceInst[i]));
         if (wlanDevice == NULL) {
             HDF_LOGE("%s:Device %d detect failed!", __func__, i);
