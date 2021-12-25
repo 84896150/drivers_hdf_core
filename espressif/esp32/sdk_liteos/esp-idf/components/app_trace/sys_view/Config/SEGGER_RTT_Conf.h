@@ -68,7 +68,7 @@ Revision: $Rev: 5626 $
 #define SEGGER_RTT_CONF_H
 
 #ifdef __IAR_SYSTEMS_ICC__
-  #include <intrinsics.h>
+#include <intrinsics.h>
 #endif
 
 /*********************************************************************

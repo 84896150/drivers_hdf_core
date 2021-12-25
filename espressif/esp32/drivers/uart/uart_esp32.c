@@ -157,7 +157,7 @@ static int32_t setConfig(struct UartHost *host)
     }
 
     if (host->num != UART_NUM_0 &&
-        host->num != UART_NUM_1  )
+        host->num != UART_NUM_1)
     {
         HDF_LOGE("%s: host->num is not %d neither %d.", __func__, UART_NUM_0, UART_NUM_1);
         return HDF_ERR_INVALID_PARAM;

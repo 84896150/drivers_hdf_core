@@ -27,7 +27,7 @@ static bool s_inited;
 
 esp_err_t esp_apptrace_init(void)
 {
-    int res;
+    int res = 0;
     esp_apptrace_hw_t *hw = NULL;
     void *hw_data = NULL;
 
@@ -49,7 +49,7 @@ esp_err_t esp_apptrace_init(void)
     }
 
     // esp_apptrace_init() is called on every core, so initialize trace channel on every core
-    for (int i = 0; i < sizeof(s_trace_channels)/sizeof(s_trace_channels[0]); i++) {
+    for (int i = 0; i < sizeof(s_trace_channels) / sizeof(s_trace_channels[0]); i++) {
         esp_apptrace_channel_t *ch = &s_trace_channels[i];
         if (ch->hw) {
             res = ch->hw->init(ch->hw_data);
@@ -280,7 +280,7 @@ esp_err_t esp_apptrace_write(esp_apptrace_dest_t dest, const void *data, uint32_
 int esp_apptrace_vprintf_to(esp_apptrace_dest_t dest, uint32_t user_tmo, const char *fmt, va_list ap)
 {
     uint16_t nargs = 0;
-    uint8_t *pout, *p = (uint8_t *)fmt;
+    uint8_t *pout = NULL, *p = (uint8_t *)fmt;
     esp_apptrace_tmo_t tmo;
     esp_apptrace_channel_t *ch;
 

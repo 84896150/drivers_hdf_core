@@ -131,7 +131,6 @@
 # define COMPILER_VERSION_PATCH DEC(__ibmxl_modification__)
 # define COMPILER_VERSION_TWEAK DEC(__ibmxl_ptf_fix_level__)
 
-
 #elif defined(__IBMCPP__) && !defined(__COMPILER_VER__) && __IBMCPP__ >= 800
 # define COMPILER_ID "XL"
   /* __IBMCPP__ = VRP */
@@ -195,7 +194,6 @@
 # define COMPILER_VERSION_PATCH DEC(__ARMCC_VERSION    % 10000)
 #endif
 
-
 #elif defined(__clang__) && defined(__apple_build_version__)
 # define COMPILER_ID "AppleClang"
 # if defined(_MSC_VER)
@@ -213,9 +211,9 @@
 
 #elif defined(__clang__) && defined(__ARMCOMPILER_VERSION)
 # define COMPILER_ID "ARMClang"
-  # define COMPILER_VERSION_MAJOR DEC(__ARMCOMPILER_VERSION/1000000)
-  # define COMPILER_VERSION_MINOR DEC(__ARMCOMPILER_VERSION/10000 % 100)
-  # define COMPILER_VERSION_PATCH DEC(__ARMCOMPILER_VERSION     % 10000)
+# define COMPILER_VERSION_MAJOR DEC(__ARMCOMPILER_VERSION/1000000)
+# define COMPILER_VERSION_MINOR DEC(__ARMCOMPILER_VERSION/10000 % 100)
+# define COMPILER_VERSION_PATCH DEC(__ARMCOMPILER_VERSION     % 10000)
 # define COMPILER_VERSION_INTERNAL DEC(__ARMCOMPILER_VERSION)
 
 #elif defined(__clang__)
@@ -280,7 +278,9 @@
 #  define COMPILER_VERSION_MINOR DEC(((__VER__) / 1000) % 1000)
 #  define COMPILER_VERSION_PATCH DEC((__VER__) % 1000)
 #  define COMPILER_VERSION_INTERNAL DEC(__IAR_SYSTEMS_ICC__)
-# elif defined(__VER__) && (defined(__ICCAVR__) || defined(__ICCRX__) || defined(__ICCRH850__) || defined(__ICCRL78__) || defined(__ICC430__) || defined(__ICCRISCV__) || defined(__ICCV850__) || defined(__ICC8051__))
+# elif defined(__VER__) && (defined(__ICCAVR__) || defined(__ICCRX__)
+|| defined(__ICCRH850__) || defined(__ICCRL78__) || defined(__ICC430__)
+|| defined(__ICCRISCV__) || defined(__ICCV850__) || defined(__ICC8051__))
 #  define COMPILER_VERSION_MAJOR DEC((__VER__) / 100)
 #  define COMPILER_VERSION_MINOR DEC((__VER__) - (((__VER__) / 100)*100))
 #  define COMPILER_VERSION_PATCH DEC(__SUBVERSION__)
@@ -598,9 +598,6 @@ char const info_simulate_version[] = {
 char const* info_platform = "INFO" ":" "platform[" PLATFORM_ID "]";
 char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";
 
-
-
-
 #if defined(__INTEL_COMPILER) && defined(_MSVC_LANG) && _MSVC_LANG < 201403L
 #  if defined(__INTEL_CXX11_MODE__)
 #    if defined(__cpp_aggregate_nsdmi)
@@ -619,15 +616,15 @@ char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";
 
 const char* info_language_dialect_default = "INFO" ":" "dialect_default["
 #if CXX_STD > 201703L
-  "20"
+    "20"
 #elif CXX_STD >= 201703L
-  "17"
+    "17"
 #elif CXX_STD >= 201402L
-  "14"
+    "14"
 #elif CXX_STD >= 201103L
-  "11"
+    "11"
 #else
-  "98"
+    "98"
 #endif
 "]";
 

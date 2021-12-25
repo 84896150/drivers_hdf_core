@@ -118,16 +118,16 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 */
 
 typedef struct {
-  char *pBuffer;
-  int   BufferSize;
-  int   Cnt;
+    char *pBuffer;
+    int   BufferSize;
+    int   Cnt;
 } SEGGER_BUFFER_DESC;
 
 typedef struct {
-  int  CacheLineSize;
-  void (*pfDMB)       (void);
-  void (*pfClean)     (void *p, unsigned NumBytes);
-  void (*pfInvalidate)(void *p, unsigned NumBytes);
+    int  CacheLineSize;
+    void (*pfDMB)       (void);
+    void (*pfClean)     (void *p, unsigned NumBytes);
+    void (*pfInvalidate)(void *p, unsigned NumBytes);
 } SEGGER_CACHE_CONFIG;
 
 /*********************************************************************
@@ -137,13 +137,13 @@ typedef struct {
 **********************************************************************
 */
 
-void SEGGER_ARM_memcpy   (void *pDest, const void *pSrc, int NumBytes);
-void SEGGER_memcpy       (void *pDest, const void *pSrc, int NumBytes);
-void SEGGER_memxor       (void *pDest, const void *pSrc, unsigned NumBytes);
-void SEGGER_StoreChar    (SEGGER_BUFFER_DESC *p, char c);
+void SEGGER_ARM_memcpy(void *pDest, const void *pSrc, int NumBytes);
+void SEGGER_memcpy(void *pDest, const void *pSrc, int NumBytes);
+void SEGGER_memxor(void *pDest, const void *pSrc, unsigned NumBytes);
+void SEGGER_StoreChar(SEGGER_BUFFER_DESC *p, char c);
 void SEGGER_PrintUnsigned(SEGGER_BUFFER_DESC *pBufferDesc, U32 v, unsigned Base, int NumDigits);
-void SEGGER_PrintInt     (SEGGER_BUFFER_DESC *pBufferDesc, I32 v, unsigned Base, unsigned NumDigits);
-int  SEGGER_snprintf     (char *pBuffer, int BufferSize, const char *sFormat, ...);
+void SEGGER_PrintInt(SEGGER_BUFFER_DESC *pBufferDesc, I32 v, unsigned Base, unsigned NumDigits);
+int  SEGGER_snprintf(char *pBuffer, int BufferSize, const char *sFormat, ...);
 
 
 #if defined(__cplusplus)

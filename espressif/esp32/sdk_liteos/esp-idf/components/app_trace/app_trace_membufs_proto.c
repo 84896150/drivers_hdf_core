@@ -326,7 +326,7 @@ uint8_t *esp_apptrace_membufs_up_buffer_get(esp_apptrace_membufs_proto_data_t *p
             buf_ptr = esp_apptrace_rb_produce(&proto->rb_pend, ESP_APPTRACE_USR_BLOCK_RAW_SZ(size));
 #endif
             if (buf_ptr == NULL) {
-                int pended_buf;
+                int pended_buf = 0;
                 ESP_APPTRACE_LOGD(" full. Get %d bytes from pend buffer", size);
                 buf_ptr = esp_apptrace_membufs_wait4buf(proto, ESP_APPTRACE_USR_BLOCK_RAW_SZ(size), tmo, &pended_buf);
                 if (buf_ptr && !pended_buf) {
@@ -378,10 +378,11 @@ esp_err_t esp_apptrace_membufs_flush_nolock(esp_apptrace_membufs_proto_data_t *p
                           ESP_APPTRACE_INBLOCK_MARKER(proto), tmo->tmo);
         res = esp_apptrace_membufs_swap_waitus(proto, tmo);
         if (res != ESP_OK) {
-            if (tmo->tmo != ESP_APPTRACE_TMO_INFINITE)
+            if (tmo->tmo != ESP_APPTRACE_TMO_INFINITE) {
                 ESP_APPTRACE_LOGW("Failed to switch to another block in %lld us!", tmo->tmo);
-            else
+            } else {
                 ESP_APPTRACE_LOGE("Failed to switch to another block in %lld us!", tmo->tmo);
+            }
             return res;
         }
     }
