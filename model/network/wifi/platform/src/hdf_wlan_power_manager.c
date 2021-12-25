@@ -40,6 +40,9 @@ struct PowerManagerImpl {
 static int32_t HdfWlanSinglePowerActive(struct HdfConfigWlanPower* powerDate)
 {
     int32_t ret;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (powerDate == NULL) {
         HDF_LOGE("%s:powerDate is NULL", __func__);
         return HDF_FAILURE;
@@ -65,7 +68,8 @@ static int32_t HdfWlanSingleDeActive(struct HdfConfigWlanPower* powerDate)
 {
     int32_t ret;
     uint8_t deActive;
-
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
     if (powerDate == NULL) {
         HDF_LOGE("%s: powerDate is NULL", __func__);
         return HDF_FAILURE;
@@ -88,6 +92,9 @@ static int32_t HdfWlanChipPowerOn(struct PowerManager* powerMgr)
 {
     int32_t ret;
     struct PowerManagerImpl *powerMgrimpl = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (powerMgr == NULL) {
         HDF_LOGE("%s: powerMgr is NULL", __func__);
         return HDF_FAILURE;
@@ -110,6 +117,9 @@ static int32_t HdfWlanChipPowerOff(struct PowerManager* powerMgr)
 {
     int32_t ret;
     struct PowerManagerImpl *powerMgrimpl = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (powerMgr == NULL) {
         HDF_LOGE("%s: powerMgr is NULL", __func__);
         return HDF_FAILURE;
@@ -130,6 +140,8 @@ static int32_t HdfWlanChipPowerOff(struct PowerManager* powerMgr)
 
 int32_t HdfWlanPowerMgrRelease(struct PowerManager* powerMgr)
 {
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
     if (powerMgr == NULL) {
         HDF_LOGW("%s: powerMgr already deinit or input para error ", __func__);
         return HDF_SUCCESS;
