@@ -367,8 +367,7 @@ int32_t Bmp180InitDriver(struct HdfDeviceObject *device)
     }
 
     drvData->sensorCfg = BarometerCreateCfgData(device->property);
-    if (drvData->sensorCfg == NULL || drvData->sensorCfg->root == NULL) {
-        HDF_LOGD("%s: Creating barometercfg failed because detection failed", __func__);
+    if (drvData->sensorCfg == NULL) {
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -396,14 +395,12 @@ void Bmp180ReleaseDriver(struct HdfDeviceObject *device)
     struct Bmp180DrvData *drvData = (struct Bmp180DrvData *)device->service;
     CHECK_NULL_PTR_RETURN(drvData);
 
-    if (drvData->sensorCfg != NULL) { 
-        BarometerReleaseCfgData(drvData->sensorCfg);
-        drvData->sensorCfg = NULL;
-    }
+    BarometerReleaseCfgData(drvData->sensorCfg);
+    drvData->sensorCfg = NULL;
     OsalMemFree(drvData);
 }
 
-struct HdfDriverEntry g_barometerBmp180DevEntry = {
+struct HdfDriverEntry g_barometerbmp180deventry = {
     .moduleVersion = 1,
     .moduleName = "HDF_SENSOR_BAROMETER_BMP180",
     .Bind = Bmp180BindDriver,
@@ -411,4 +408,4 @@ struct HdfDriverEntry g_barometerBmp180DevEntry = {
     .Release = Bmp180ReleaseDriver,
 };
 
-HDF_INIT(g_barometerBmp180DevEntry);
+HDF_INIT(g_barometerbmp180deventry);

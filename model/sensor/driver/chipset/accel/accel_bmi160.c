@@ -187,8 +187,7 @@ int32_t Bmi160InitDriver(struct HdfDeviceObject *device)
     }
 
     drvData->sensorCfg = AccelCreateCfgData(device->property);
-    if (drvData->sensorCfg == NULL || drvData->sensorCfg->root == NULL) {
-        HDF_LOGD("%s: Creating accelcfg failed because detection failed", __func__);
+    if (drvData->sensorCfg == NULL) {
         return HDF_ERR_NOT_SUPPORT;
     }
 
@@ -216,14 +215,12 @@ void Bmi160ReleaseDriver(struct HdfDeviceObject *device)
     struct Bmi160DrvData *drvData = (struct Bmi160DrvData *)device->service;
     CHECK_NULL_PTR_RETURN(drvData);
 
-    if (drvData->sensorCfg != NULL) { 
-        AccelReleaseCfgData(drvData->sensorCfg);
-        drvData->sensorCfg = NULL;
-    }
+    AccelReleaseCfgData(drvData->sensorCfg);
+    drvData->sensorCfg = NULL;
     OsalMemFree(drvData);
 }
 
-struct HdfDriverEntry g_accelBmi160DevEntry = {
+struct HdfDriverEntry g_accelbmi160deventry = {
     .moduleVersion = 1,
     .moduleName = "HDF_SENSOR_ACCEL_BMI160",
     .Bind = Bmi160BindDriver,
@@ -231,4 +228,4 @@ struct HdfDriverEntry g_accelBmi160DevEntry = {
     .Release = Bmi160ReleaseDriver,
 };
 
-HDF_INIT(g_accelBmi160DevEntry);
+HDF_INIT(g_accelbmi160deventry);

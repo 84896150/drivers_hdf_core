@@ -269,6 +269,8 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 
 #if defined(CONFIG_ARCH_SPRD)
     HDF_LOGI("%s: DAYU do not update firmware", __func__);
+#elif defined (CONFIG_ARCH_VIM3L_TOUCH)
+    HDF_LOGI("%s: VIM3L TOUCH do not update firmware", __func__);
 #else
     ret = chipDev->ops->UpdateFirmware(chipDev);
     CHECK_RETURN_VALUE(ret);

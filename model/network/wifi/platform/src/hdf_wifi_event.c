@@ -154,10 +154,11 @@ int32_t HdfWifiEventScanDone(const struct NetDevice *netDev, WifiScanStatus stat
     return ret;
 }
 
-#if (_PRE_OS_VERSION_LITEOS == _PRE_OS_VERSION)
+#if 0
+// #if (_PRE_OS_VERSION_LITEOS == _PRE_OS_VERSION)
 #define DHCP_CHECK_CNT 30
 #define DHCP_CHECK_TIME 1000
-uint32_t g_ipCheckOut = 0;
+uint32_t g_ipcheckout = 0;
 OSAL_DECLARE_TIMER(g_dhcpTimer);
 
 void HdfDhcpResultCheck(uintptr_t para)
@@ -174,7 +175,7 @@ void HdfDhcpResultCheck(uintptr_t para)
         return;
     }
 
-    if (g_ipCheckOut++ > DHCP_CHECK_CNT) {
+    if (g_ipcheckout++ > DHCP_CHECK_CNT) {
         OsalTimerDelete(&g_dhcpTimer);
         return;
     }
@@ -195,7 +196,7 @@ static void HdfStartDhcpClient(const struct NetDevice *netDev)
         OsalTimerDelete(&g_dhcpTimer);
     }
 
-    g_ipCheckOut = 0;
+    g_ipcheckout = 0;
     OsalTimerCreate(&g_dhcpTimer, DHCP_CHECK_TIME, HdfDhcpResultCheck, (uintptr_t)netDev);
     OsalTimerStartLoop(&g_dhcpTimer);
 }
@@ -229,7 +230,8 @@ int32_t HdfWifiEventConnectResult(const struct NetDevice *netDev, const struct C
     ret = HdfWlanSendBroadcastEvent(WIFI_WPA_EVENT_CONNECT_RESULT, data);
     HdfSBufRecycle(data);
 
-#if (_PRE_OS_VERSION_LITEOS == _PRE_OS_VERSION)
+#if 0
+// #if (_PRE_OS_VERSION_LITEOS == _PRE_OS_VERSION)
     if (result->connectStatus == WIFI_HMAC_MGMT_SUCCESS) {
         HdfStartDhcpClient(netDev);
     }
