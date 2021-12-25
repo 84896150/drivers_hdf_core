@@ -1,0 +1,6 @@
+config ARCH_VIM3L_TOUCH
+    bool "config vim3l ft5336 touch"
+        default n
+    help
+      Answer Y to enable config ft5336 touch.
+

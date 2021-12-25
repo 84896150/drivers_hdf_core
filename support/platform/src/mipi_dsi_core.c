@@ -23,6 +23,7 @@ static struct MipiDsiHandle g_mipiDsihandle[MAX_CNTLR_CNT];
 
 int32_t MipiDsiRegisterCntlr(struct MipiDsiCntlr *cntlr, struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: enter!", __func__);
     if (cntlr == NULL) {
         HDF_LOGE("%s: cntlr is NULL.", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -77,6 +78,7 @@ struct MipiDsiCntlr *MipiDsiCntlrFromDevice(struct HdfDeviceObject *device)
 struct MipiDsiCntlr *MipiDsiCntlrOpen(uint8_t number)
 {
     struct MipiDsiCntlr *cntlr = NULL;
+    HDF_LOGI("%s: enter!", __func__);
 
     if (number >= MAX_CNTLR_CNT) {
         HDF_LOGE("%s: invalid number.", __func__);
@@ -115,6 +117,7 @@ void MipiDsiCntlrClose(struct MipiDsiCntlr *cntlr)
 int32_t MipiDsiCntlrSetCfg(struct MipiDsiCntlr *cntlr, struct MipiCfg *cfg)
 {
     int32_t ret;
+    HDF_LOGI("%s: enter!", __func__);
 
     if ((cntlr == NULL) || (cntlr->ops == NULL)) {
         HDF_LOGE("%s: cntlr or ops is NULL.", __func__);
@@ -136,7 +139,9 @@ int32_t MipiDsiCntlrSetCfg(struct MipiDsiCntlr *cntlr, struct MipiCfg *cfg)
     ret =  cntlr->ops->setCntlrCfg(cntlr);
     (void)OsalMutexUnlock(&(cntlr->lock));
 
-    if (ret != HDF_SUCCESS) {
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("%s: success!", __func__);
+    } else {
         HDF_LOGE("%s: failed!", __func__);
     }
 
@@ -254,7 +259,9 @@ int32_t MipiDsiCntlrTx(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *cmd)
     }
     (void)OsalMutexUnlock(&(cntlr->lock));
 
-    if (ret != HDF_SUCCESS) {
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("%s: success!", __func__);
+    } else {
         HDF_LOGE("%s: failed!", __func__);
     }
 
@@ -283,7 +290,9 @@ int32_t MipiDsiCntlrRx(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *cmd, int32
     ret = cntlr->ops->getCmd(cntlr, cmd, readLen, out);
     (void)OsalMutexUnlock(&(cntlr->lock));
 
-    if (ret != HDF_SUCCESS) {
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("%s: success!", __func__);
+    } else {
         HDF_LOGE("%s: failed!", __func__);
     }
 
@@ -308,7 +317,9 @@ int32_t MipiDsiCntlrPowerControl(struct MipiDsiCntlr *cntlr, uint8_t enable)
     ret = cntlr->ops->powerControl(cntlr, enable);
     (void)OsalMutexUnlock(&(cntlr->lock));
 
-    if (ret != HDF_SUCCESS) {
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("%s: success!", __func__);
+    } else {
         HDF_LOGE("%s: failed!", __func__);
     }
 
@@ -333,7 +344,9 @@ int32_t MipiDsiCntlrAttach(struct MipiDsiCntlr *cntlr, uint8_t *name)
     ret = cntlr->ops->attach(cntlr, name);
     (void)OsalMutexUnlock(&(cntlr->lock));
 
-    if (ret != HDF_SUCCESS) {
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("%s: success!", __func__);
+    } else {
         HDF_LOGE("%s: failed!", __func__);
     }
 

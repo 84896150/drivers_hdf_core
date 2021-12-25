@@ -39,8 +39,7 @@ void HdfDeviceConstruct(struct HdfDevice *device)
 void HdfDeviceDestruct(struct HdfDevice *device)
 {
     struct HdfDeviceNode *devNode = NULL;
-    struct HdfDeviceNode *devNodeTmp = NULL;
-    DLIST_FOR_EACH_ENTRY_SAFE(devNode, devNodeTmp, &device->devNodes, struct HdfDeviceNode, entry) {
+    DLIST_FOR_EACH_ENTRY(devNode, &device->devNodes, struct HdfDeviceNode, entry) {
         HdfDeviceNodeDelete(devNode);
     }
     DListHeadInit(&device->devNodes);

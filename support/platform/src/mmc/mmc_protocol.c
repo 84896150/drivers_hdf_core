@@ -530,7 +530,7 @@ static int32_t MmcSendEraseCmd(struct MmcCntlr *cntlr, uint32_t arg)
     }
 
     /* ERASE cmd38 */
-    cmd.cmdCode = MMC_ERASE;
+    cmd.cmdCode = HFW_MMC_ERASE;
     cmd.argument = arg;
     cmd.respType = MMC_RESP_R1 | MMC_CMD_TYPE_AC;
     return MmcSendCmd(cntlr, &cmd, NULL, 1);
