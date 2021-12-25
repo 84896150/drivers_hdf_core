@@ -1,0 +1,26 @@
+root {
+    platform {
+        spi_config {
+            template spi_controller {
+                match_attr = "";
+                busNum = 1;
+                numCs = 1;
+                command_bits = 0;
+                address_bits = 0;
+                dummy_bits = 0;
+                clock_speed_hz = 10000000;
+                duty_cycle_pos = 128;
+                mode = 0;
+                spics_io_num = 10;
+                queue_size = 8;
+                mosi_io_num = 11;
+                miso_io_num = 13;
+                sclk_io_num = 12;
+            }
+
+            spi_controller_0x12070000 :: spi_controller {
+                match_attr = "espressif_esp32c3_spi_1";
+            }
+        }
+    }
+}

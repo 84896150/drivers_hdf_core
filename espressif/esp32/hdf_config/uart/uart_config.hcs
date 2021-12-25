@@ -1,0 +1,29 @@
+root {
+    platform {
+        template uart_controller {
+            match_attr = "";
+            num = 0;
+            baudrate = 115200;
+            fifoRxEn = 1;
+            fifoTxEn = 1;
+            regPbase = 0x12040000;
+            databits = 0;
+            parity = 0;
+            stopbits = 0;
+            rts = 0;
+            cts = 0;
+        }
+        controller_0x12040000 :: uart_controller {
+            num = 0;
+            match_attr = "espressif_esp32c3_uart_0";
+        }
+
+        controller_0x12041000 :: uart_controller {
+            num = 1;
+            baudrate = 9600;
+            regPbase = 0x12041000;
+            interrupt = 40;
+            match_attr = "espressif_esp32c3_uart_1";
+        }
+    }
+}

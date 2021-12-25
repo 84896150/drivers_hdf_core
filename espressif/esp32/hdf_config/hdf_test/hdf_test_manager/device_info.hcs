@@ -1,0 +1,56 @@
+root {
+    device_info {
+        test_host :: host {
+            hostName = "test_host";
+            priority = 180;
+            device_platform_test :: device {
+                gpio_tester :: deviceNode {
+                    policy = 1;
+                    priority = 101;
+                    preload = 0;
+                    permission = 0644;
+                    moduleName = "PLATFORM_GPIO_TEST";
+                    deviceMatchAttr = "GPIO_TEST";
+                    serviceName = "GPIO_TEST";
+                }
+                spi_test :: deviceNode {
+                    policy = 1;
+                    priority = 100;
+                    preload = 0;
+                    permission = 0644;
+                    moduleName = "PLATFORM_SPI_TEST";
+                    serviceName = "SPI_TEST";
+                    deviceMatchAttr = "SPI_TEST";
+                }
+                uart_tester :: deviceNode {
+                    policy = 1;
+                    priority = 100;
+                    preload = 0;
+                    permission = 0644;
+                    moduleName = "PLATFORM_UART_TEST";
+                    serviceName = "UART_TEST";
+                    deviceMatchAttr = "UART_TEST";
+                }
+                i2c_tester :: deviceNode {
+                    policy = 2;
+                    priority = 101;
+                    preload = 0;
+                    permission = 0644;
+                    moduleName = "PLATFORM_I2C_TEST";
+                    deviceMatchAttr = "I2C_TEST";
+                    serviceName = "I2C_TEST";
+                }
+                pwm_test :: deviceNode {
+                    policy = 1;
+                    priority = 110;
+                    preload = 0;
+                    permission = 0644;
+                    moduleName = "PLATFORM_PWM_TEST";
+                    serviceName = "PWM_TEST";
+                    deviceMatchAttr = "PWM_TEST";
+                }
+            }
+        }
+    }
+}
+
