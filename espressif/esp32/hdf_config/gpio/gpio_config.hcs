@@ -1,0 +1,11 @@
+root {
+    platform {
+        gpio_config {
+            controller_0x120b0000 {
+                match_attr = "espressif_esp32c3_gpio";
+                groupNum = 22;
+                bitNum = 1;
+            }
+        }
+    }
+}

@@ -1,0 +1,5 @@
+[mapping:turbox_adapter]
+archive: libturbox_adapter.a
+entries:
+    * (noflash_text)
+    

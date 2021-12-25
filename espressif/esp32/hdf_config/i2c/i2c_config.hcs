@@ -1,0 +1,21 @@
+root {
+    platform {
+        i2c_config {
+            match_attr = "espressif_esp32c3_i2c";
+
+            template i2c_controller {
+                bus = 0;
+                mode = 1;
+                sda_io_num = 6;
+                scl_io_num = 5;
+                sda_pullup_en = 0x1;
+                scl_pullup_en = 0x1;
+                clk_speed = 400000;
+            }
+
+            controller_0x12060000 :: i2c_controller {
+                bus = 0;
+            }
+        }
+    }
+}

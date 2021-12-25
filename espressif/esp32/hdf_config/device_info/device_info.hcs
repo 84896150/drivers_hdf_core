@@ -1,0 +1,169 @@
+ root {
+    device_info {
+        match_attr = "hdf_manager";
+        template host {
+            hostName = "";
+            priority = 100;
+            template device{
+                template deviceNode {
+                    policy = 0;
+                    priority = 100;
+                    preload = 0;
+                    permission = 0664;
+                    moduleName = "";
+                    serviceName = "";
+                    deviceMatchAttr = "";
+                }
+            }
+        }
+        sample_host :: host {
+            hostName = "sample_host";
+            sample_device :: device {
+                device0 :: deviceNode {
+                    policy = 2;
+                    priority = 100;
+                    preload = 1;
+                    permission = 0664;
+                    moduleName = "sample_driver";
+                    serviceName = "sample_service";
+                }
+            }
+        }
+        platform :: host {
+            hostName = "platform_host";
+            priority = 50;
+            device_gpio :: device {
+                device0 :: deviceNode {
+                    policy = 0;
+                    priority = 10;
+                    permission = 0644;
+                    moduleName = "esp32_gpio_driver";
+                    deviceMatchAttr = "espressif_esp32c3_gpio";
+                }
+            }
+            device_uart :: device {
+                device0 :: deviceNode {
+                    policy = 1;
+                    priority = 40;
+                    permission = 0644;
+                    moduleName = "esp32_uart_driver";
+                    serviceName = "HDF_PLATFORM_UART_0";
+                    deviceMatchAttr = "espressif_esp32c3_uart_0";
+                }
+                device1 :: deviceNode {
+                    policy = 2;
+                    priority = 40;
+                    permission = 0644;
+                    moduleName = "esp32_uart_driver";
+                    serviceName = "HDF_PLATFORM_UART_1";
+                    deviceMatchAttr = "espressif_esp32c3_uart_1";
+                }
+            }
+            device_i2c :: device {
+                device0 :: deviceNode {
+                    policy = 2;
+                    priority = 50;
+                    permission = 0644;
+                    moduleName = "HDF_PLATFORM_I2C_MANAGER";
+                    serviceName = "HDF_PLATFORM_I2C_MANAGER";
+                    deviceMatchAttr = "hdf_platform_i2c_manager";
+                }
+                device1 :: deviceNode {
+                    policy = 0;
+                    priority = 55;
+                    permission = 0644;
+                    moduleName = "esp32_i2c_driver";
+                    serviceName = "ESP32C3_I2C_DRIVER";
+                    deviceMatchAttr = "espressif_esp32c3_i2c";
+                }
+            }
+            device_pwm :: device {
+                device0 :: deviceNode {
+                    policy = 1;
+                    priority = 80;
+                    permission = 0644;
+                    moduleName = "esp32_pwm_driver";
+                    serviceName = "HDF_PLATFORM_PWM_0";
+                    deviceMatchAttr = "espressif_esp32c3_pwm_0";
+                }
+                device1 :: deviceNode {
+                    policy = 1;
+                    priority = 80;
+                    permission = 0644;
+                    moduleName = "esp32_pwm_driver";
+                    serviceName = "HDF_PLATFORM_PWM_1";
+                    deviceMatchAttr = "espressif_esp32c3_pwm_1";
+                }
+                device2 :: deviceNode {
+                    policy = 1;
+                    priority = 80;
+                    permission = 0644;
+                    moduleName = "esp32_pwm_driver";
+                    serviceName = "HDF_PLATFORM_PWM_2";
+                    deviceMatchAttr = "espressif_esp32c3_pwm_2";
+                }
+                device3 :: deviceNode {
+                    policy = 1;
+                    priority = 80;
+                    permission = 0644;
+                    moduleName = "esp32_pwm_driver";
+                    serviceName = "HDF_PLATFORM_PWM_3";
+                    deviceMatchAttr = "espressif_esp32c3_pwm_3";
+                }
+                device4 :: deviceNode {
+                    policy = 1;
+                    priority = 80;
+                    permission = 0644;
+                    moduleName = "esp32_pwm_driver";
+                    serviceName = "HDF_PLATFORM_PWM_4";
+                    deviceMatchAttr = "espressif_esp32c3_pwm_4";
+                }
+                device5 :: deviceNode {
+                    policy = 1;
+                    priority = 80;
+                    permission = 0644;
+                    moduleName = "esp32_pwm_driver";
+                    serviceName = "HDF_PLATFORM_PWM_5";
+                    deviceMatchAttr = "espressif_esp32c3_pwm_5";
+                }
+            }
+            device_spi :: device {
+                device0 :: deviceNode {
+                    policy = 1;
+                    priority = 60;
+                    permission = 0644;
+                    moduleName = "esp32_spi_driver";
+                    serviceName = "HDF_PLATFORM_SPI_1";
+                    deviceMatchAttr = "espressif_esp32c3_spi_1";
+                }
+            }
+        }
+        network :: host {
+            hostName = "network_host";
+            device_wifi :: device {
+                device0 :: deviceNode {
+                    policy = 2;
+                    priority = 100;
+                    preload = 0;
+                    permission = 0664;
+                    moduleName = "HDF_WIFI";
+                    deviceMatchAttr = "hdf_wlan_driver";
+                    serviceName = "hdfwifi";
+                }
+            }
+            device_wlan_chips :: device {
+                device0 :: deviceNode {
+                    policy = 0;
+                    preload = 1;
+                    moduleName = "HDF_WLAN_CHIPS";
+                    deviceMatchAttr = "hdf_wlan_chips_esp32c3";
+                    serviceName = "espressif";
+                }
+            }
+        }
+        storage :: host {
+        }
+        media :: host {
+        }
+    }
+}

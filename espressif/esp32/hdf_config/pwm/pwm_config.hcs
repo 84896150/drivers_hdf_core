@@ -1,0 +1,41 @@
+root {
+    platform {
+        pwm_config {
+            template pwm_device {
+                serviceName = "";
+                match_attr = "";
+                num = 0;
+            }
+
+            device_0x12070000 :: pwm_device {
+                match_attr = "espressif_esp32c3_pwm_0";
+                num = 0;
+            }
+
+            device_0x12070020 :: pwm_device {
+                match_attr = "espressif_esp32c3_pwm_1";
+                num = 1;
+            }
+
+            device_0x12070040 :: pwm_device {
+                match_attr = "espressif_esp32c3_pwm_2";
+                num = 2;
+            }
+
+            device_0x12070060 :: pwm_device {
+                match_attr = "espressif_esp32c3_pwm_3";
+                num = 3;
+            }
+
+            device_0x12070080 :: pwm_device {
+                match_attr = "espressif_esp32c3_pwm_4";
+                num = 4;
+            }
+            
+            device_0x12070100 :: pwm_device {
+                match_attr = "espressif_esp32c3_pwm_5";
+                num = 5;
+            }
+        }
+    }
+}
