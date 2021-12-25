@@ -39,6 +39,8 @@ int32_t HdfChipReset(struct ResetManager *resetManager)
 {
     int32_t ret;
     struct ResetManagerImpl *resetMgrImpl = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
     if (resetManager == NULL) {
         HDF_LOGE("%s: resetManager is NULL", __func__);
         return HDF_FAILURE;

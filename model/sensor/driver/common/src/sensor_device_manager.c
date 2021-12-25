@@ -88,16 +88,14 @@ int32_t DeleteSensorDevice(const struct SensorBasicInfo *sensorBaseInfo)
 int32_t ReportSensorEvent(const struct SensorReportEvent *events)
 {
     int32_t ret;
-    struct SensorDevMgrData *manager = NULL;
-    struct HdfSBuf *msg = NULL;
 
     CHECK_NULL_PTR_RETURN_VALUE(events, HDF_ERR_INVALID_PARAM);
 
-    manager = GetSensorDeviceManager();
+    struct SensorDevMgrData *manager = GetSensorDeviceManager();
     CHECK_NULL_PTR_RETURN_VALUE(manager, HDF_ERR_INVALID_PARAM);
 
     (void)OsalMutexLock(&manager->eventMutex);
-    msg = HdfSBufObtain(HDF_SENSOR_EVENT_MAX_BUF);
+    struct HdfSBuf *msg = HdfSBufObtain(HDF_SENSOR_EVENT_MAX_BUF);
     if (msg == NULL) {
         (void)OsalMutexUnlock(&manager->eventMutex);
         return HDF_ERR_INVALID_PARAM;
@@ -130,14 +128,11 @@ EXIT:
 
 static int32_t GetAllSensorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t count = 0;
+    (void)data;
     struct SensorDevInfoNode *pos = NULL;
     struct SensorBasicInfo *sensorInfo = NULL;
-    struct SensorDevMgrData *manager = NULL;
-
-    (void)data;
-
-    manager = GetSensorDeviceManager();
+    struct SensorDevMgrData *manager = GetSensorDeviceManager();
+    int32_t count = 0;
 
     CHECK_NULL_PTR_RETURN_VALUE(reply, HDF_ERR_INVALID_PARAM);
     CHECK_NULL_PTR_RETURN_VALUE(manager, HDF_ERR_INVALID_PARAM);
@@ -308,11 +303,9 @@ static int32_t DispatchSensor(struct HdfDeviceIoClient *client,
 
 int32_t BindSensorDevManager(struct HdfDeviceObject *device)
 {
-    struct SensorDevMgrData *manager = NULL;
-
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
 
-    manager = (struct SensorDevMgrData *)OsalMemCalloc(sizeof(*manager));
+    struct SensorDevMgrData *manager = (struct SensorDevMgrData *)OsalMemCalloc(sizeof(*manager));
     if (manager == NULL) {
         HDF_LOGE("%s: malloc manager fail!", __func__);
         return HDF_ERR_MALLOC_FAIL;
@@ -328,10 +321,8 @@ int32_t BindSensorDevManager(struct HdfDeviceObject *device)
 
 int32_t InitSensorDevManager(struct HdfDeviceObject *device)
 {
-    struct SensorDevMgrData *manager = NULL;
-
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
-    manager = (struct SensorDevMgrData *)device->service;
+    struct SensorDevMgrData *manager = (struct SensorDevMgrData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(manager, HDF_ERR_INVALID_PARAM);
 
     DListHeadInit(&manager->sensorDevInfoHead);
@@ -356,13 +347,11 @@ int32_t InitSensorDevManager(struct HdfDeviceObject *device)
 
 void ReleaseSensorDevManager(struct HdfDeviceObject *device)
 {
-    struct SensorDevInfoNode *pos = NULL;
-    struct SensorDevInfoNode *tmp = NULL;
-    struct SensorDevMgrData *manager = NULL;
-
     CHECK_NULL_PTR_RETURN(device);
 
-    manager = (struct SensorDevMgrData *)device->service;
+    struct SensorDevInfoNode *pos = NULL;
+    struct SensorDevInfoNode *tmp = NULL;
+    struct SensorDevMgrData *manager = (struct SensorDevMgrData *)device->service;
     CHECK_NULL_PTR_RETURN(manager);
 
     DLIST_FOR_EACH_ENTRY_SAFE(pos, tmp, &manager->sensorDevInfoHead, struct SensorDevInfoNode, node) {
@@ -371,7 +360,6 @@ void ReleaseSensorDevManager(struct HdfDeviceObject *device)
     }
 
     OsalMutexDestroy(&manager->mutex);
-    OsalMutexDestroy(&manager->eventMutex);
     OsalMemFree(manager);
     g_sensorDeviceManager = NULL;
 }

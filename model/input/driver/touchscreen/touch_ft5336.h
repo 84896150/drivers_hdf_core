@@ -1,0 +1,46 @@
+#ifndef TOUCH_FT5x06_H
+#define TOUCH_FT5x06_H
+
+#define TCA_TP_RST_MASK   (1<<6)
+#define WORK_REGISTER_THRESHOLD		0x00
+#define WORK_REGISTER_REPORT_RATE	0x08
+#define WORK_REGISTER_GAIN		0x30
+#define WORK_REGISTER_OFFSET		0x31
+#define WORK_REGISTER_NUM_X		0x33
+#define WORK_REGISTER_NUM_Y		0x34
+
+#define M09_REGISTER_THRESHOLD		0x80
+#define M09_REGISTER_GAIN		0x92
+#define M09_REGISTER_OFFSET		0x93
+#define M09_REGISTER_NUM_X		0x94
+#define M09_REGISTER_NUM_Y		0x95
+
+#define NO_REGISTER			0xff
+
+#define WORK_REGISTER_OPMODE		0x3c
+#define FACTORY_REGISTER_OPMODE		0x01
+
+#define TOUCH_EVENT_DOWN		0x00
+#define TOUCH_EVENT_UP			0x01
+#define TOUCH_EVENT_ON			0x02
+#define TOUCH_EVENT_RESERVED		0x03
+
+#define EDT_NAME_LEN			23
+#define EDT_SWITCH_MODE_RETRIES		10
+#define EDT_SWITCH_MODE_DELAY		5 /* msec */
+#define EDT_RAW_DATA_RETRIES		100
+#define EDT_RAW_DATA_DELAY		1000 /* usec */
+
+#define TP_CHANGE_X2Y        0
+#define TP_X_REVERSE_ENABLE     0
+#define TP_Y_REVERSE_ENABLE     0
+
+#define POINT_BUFFER_LEN_M06     26
+#define POINT_BUFFER_LEN_M09     33
+#define MAX_POINT 5
+
+#define EDT_M06 0
+#define EDT_M09 1
+#define GT_FINGER_NUM_MASK    0x0F
+
+#endif
