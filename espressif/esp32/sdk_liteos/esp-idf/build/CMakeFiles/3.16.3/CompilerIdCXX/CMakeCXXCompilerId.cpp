@@ -537,58 +537,58 @@ char const *info_cray = "INFO" ":" "compiler_wrapper[CrayPrgEnv]";
 
 /* Convert integer to hex digit literals.  */
 #define HEX(n)             \
-  ('0' + ((n) >> 28 & 0xF)), \
-  ('0' + ((n) >> 24 & 0xF)), \
-  ('0' + ((n) >> 20 & 0xF)), \
-  ('0' + ((n) >> 16 & 0xF)), \
-  ('0' + ((n) >> 12 & 0xF)), \
-  ('0' + ((n) >> 8  & 0xF)), \
-  ('0' + ((n) >> 4  & 0xF)), \
-  ('0' + ((n)     & 0xF))
+    ('0' + ((n) >> 28 & 0xF)), \
+    ('0' + ((n) >> 24 & 0xF)), \
+    ('0' + ((n) >> 20 & 0xF)), \
+    ('0' + ((n) >> 16 & 0xF)), \
+    ('0' + ((n) >> 12 & 0xF)), \
+    ('0' + ((n) >> 8  & 0xF)), \
+    ('0' + ((n) >> 4  & 0xF)), \
+    ('0' + ((n)     & 0xF))
 
 /* Construct a string literal encoding the version number components. */
 #ifdef COMPILER_VERSION_MAJOR
 char const info_version[] = {
-  'I', 'N', 'F', 'O', ':',
-  'c','o','m','p','i','l','e','r','_','v','e','r','s','i','o','n','[',
-  COMPILER_VERSION_MAJOR,
+    'I', 'N', 'F', 'O', ':',
+    'c','o','m','p','i','l','e','r','_','v','e','r','s','i','o','n','[',
+    COMPILER_VERSION_MAJOR,
 # ifdef COMPILER_VERSION_MINOR
-  '.', COMPILER_VERSION_MINOR,
+    '.', COMPILER_VERSION_MINOR,
 #  ifdef COMPILER_VERSION_PATCH
-   '.', COMPILER_VERSION_PATCH,
+    '.', COMPILER_VERSION_PATCH,
 #   ifdef COMPILER_VERSION_TWEAK
     '.', COMPILER_VERSION_TWEAK,
 #   endif
 #  endif
 # endif
-  ']','\0'};
+    ']','\0'};
 #endif
 
 /* Construct a string literal encoding the internal version number. */
 #ifdef COMPILER_VERSION_INTERNAL
 char const info_version_internal[] = {
-  'I', 'N', 'F', 'O', ':',
-  'c','o','m','p','i','l','e','r','_','v','e','r','s','i','o','n','_',
-  'i','n','t','e','r','n','a','l','[',
-  COMPILER_VERSION_INTERNAL,']','\0'};
+    'I', 'N', 'F', 'O', ':',
+    'c','o','m','p','i','l','e','r','_','v','e','r','s','i','o','n','_',
+    'i','n','t','e','r','n','a','l','[',
+    COMPILER_VERSION_INTERNAL,']','\0'};
 #endif
 
 /* Construct a string literal encoding the version number components. */
 #ifdef SIMULATE_VERSION_MAJOR
 char const info_simulate_version[] = {
-  'I', 'N', 'F', 'O', ':',
-  's','i','m','u','l','a','t','e','_','v','e','r','s','i','o','n','[',
-  SIMULATE_VERSION_MAJOR,
+    'I', 'N', 'F', 'O', ':',
+    's','i','m','u','l','a','t','e','_','v','e','r','s','i','o','n','[',
+    SIMULATE_VERSION_MAJOR,
 # ifdef SIMULATE_VERSION_MINOR
-  '.', SIMULATE_VERSION_MINOR,
+    '.', SIMULATE_VERSION_MINOR,
 #  ifdef SIMULATE_VERSION_PATCH
-   '.', SIMULATE_VERSION_PATCH,
+    '.', SIMULATE_VERSION_PATCH,
 #   ifdef SIMULATE_VERSION_TWEAK
     '.', SIMULATE_VERSION_TWEAK,
 #   endif
 #  endif
 # endif
-  ']','\0'};
+    ']','\0'};
 #endif
 
 /* Construct the string literal in pieces to prevent the source from

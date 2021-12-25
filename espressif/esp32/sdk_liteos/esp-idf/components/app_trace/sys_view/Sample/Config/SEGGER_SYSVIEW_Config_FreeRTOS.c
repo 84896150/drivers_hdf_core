@@ -77,7 +77,6 @@ Revision: $Rev: 3734 $
 #include "esp32c3/clk.h"
 #endif
 
-
 extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
 
 /*********************************************************************
@@ -153,14 +152,14 @@ extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
 
 #ifdef CONFIG_FREERTOS_TICK_SUPPORT_CORETIMER
 #if CONFIG_FREERTOS_CORETIMER_0
-    #define SYSTICK_INTR_ID (ETS_INTERNAL_TIMER0_INTR_SOURCE+ETS_INTERNAL_INTR_SOURCE_OFF)
+#define SYSTICK_INTR_ID (ETS_INTERNAL_TIMER0_INTR_SOURCE+ETS_INTERNAL_INTR_SOURCE_OFF)
 #endif
 #if CONFIG_FREERTOS_CORETIMER_1
-    #define SYSTICK_INTR_ID (ETS_INTERNAL_TIMER1_INTR_SOURCE+ETS_INTERNAL_INTR_SOURCE_OFF)
+#define SYSTICK_INTR_ID (ETS_INTERNAL_TIMER1_INTR_SOURCE+ETS_INTERNAL_INTR_SOURCE_OFF)
 #endif
 
 #elif CONFIG_FREERTOS_SYSTICK_USES_SYSTIMER
-    #define SYSTICK_INTR_ID (ETS_SYSTIMER_TARGET0_EDGE_INTR_SOURCE)
+#define SYSTICK_INTR_ID (ETS_SYSTIMER_TARGET0_EDGE_INTR_SOURCE)
 #endif // CONFIG_FREERTOS_TICK_SUPPORT_CORETIMER
 
 // SystemView is single core specific: it implies that SEGGER_SYSVIEW_LOCK()
@@ -169,7 +168,7 @@ extern const SEGGER_SYSVIEW_OS_API SYSVIEW_X_OS_TraceAPI;
 // everything is fine, so for multi-core env we have to wait on underlying lock forever
 #define SEGGER_LOCK_WAIT_TMO  ESP_APPTRACE_TMO_INFINITE
 
-static esp_apptrace_lock_t s_sys_view_lock = {.mux = portMUX_INITIALIZER_UNLOCKED, .int_state = 0};
+static esp_apptrace_lock_t s_sys_view_lock = {.mux = portMUX_INITIALIZER_UNLOCKED,.int_state = 0};
 
 /*********************************************************************
 *
@@ -183,10 +182,11 @@ static void _cbSendSystemDesc(void) {
     SEGGER_SYSVIEW_SendSysDesc("N="SYSVIEW_APP_NAME",D="SYSVIEW_DEVICE_NAME",C="SYSVIEW_CORE_NAME",O=FreeRTOS");
     snprintf(irq_str, sizeof(irq_str), "I#%d=SysTick", SYSTICK_INTR_ID);
     SEGGER_SYSVIEW_SendSysDesc(irq_str);
-    size_t isr_count = sizeof(esp_isr_names)/sizeof(esp_isr_names[0]);
+    size_t isr_count = sizeof(esp_isr_names) / sizeof(esp_isr_names[0]);
     for (size_t i = 0; i < isr_count; ++i) {
-        if (esp_isr_names[i] == NULL || (ETS_INTERNAL_INTR_SOURCE_OFF + i) == SYSTICK_INTR_ID)
+        if ((esp_isr_names[i] == NULL || (ETS_INTERNAL_INTR_SOURCE_OFF + i) == SYSTICK_INTR_ID)) {
             continue;
+        }
         snprintf(irq_str, sizeof(irq_str), "I#%d=%s", ETS_INTERNAL_INTR_SOURCE_OFF + i, esp_isr_names[i]);
         SEGGER_SYSVIEW_SendSysDesc(irq_str);
     }

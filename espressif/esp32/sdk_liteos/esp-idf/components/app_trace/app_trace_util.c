@@ -15,8 +15,8 @@
 
 #if ESP_APPTRACE_PRINT_LOCK
 static esp_apptrace_lock_t s_log_lock = {
-         .irq_stat = 0,
-         .portmux = portMUX_INITIALIZER_UNLOCKED
+    .irq_stat = 0,
+    .portmux = portMUX_INITIALIZER_UNLOCKED
 };
 #endif
 

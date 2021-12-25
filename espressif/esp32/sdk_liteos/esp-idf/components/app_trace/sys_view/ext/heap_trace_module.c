@@ -27,10 +27,9 @@ static SEGGER_SYSVIEW_MODULE s_esp_sysview_heap_module = {
 
 static bool s_mod_registered;
 
-
 esp_err_t esp_sysview_heap_trace_start(uint32_t tmo)
 {
-    uint32_t tmo_ticks = tmo/(1000*portTICK_PERIOD_MS);
+    uint32_t tmo_ticks = tmo / (1000 * portTICK_PERIOD_MS);
 
     ESP_EARLY_LOGV(TAG, "%s", __func__);
     do {

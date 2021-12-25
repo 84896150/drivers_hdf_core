@@ -18,7 +18,6 @@ extern "C" {
   2 全局变量声明
 **************************************************************************** */
 NetDevice *g_gphdf_netdev;
-extern struct net_device_ops dhd_ops_pri;
 extern struct wiphy* wrap_get_wiphy(void);
 extern struct net_device *get_krn_netdev(void);
 extern struct NetDeviceInterFace *wal_get_net_dev_ops(void);

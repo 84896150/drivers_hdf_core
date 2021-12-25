@@ -77,7 +77,6 @@ Revision: $Rev: 5626 $
 extern "C" {
 #endif
 
-
 /*********************************************************************
 *
 *       Defines, fixed
@@ -187,21 +186,21 @@ extern "C" {
 */
 
 typedef struct {
-  U32          TaskID;
-  const char*  sName;
-  U32          Prio;
-  U32          StackBase;
-  U32          StackSize;
+    U32          TaskID;
+    const char*  sName;
+    U32          Prio;
+    U32          StackBase;
+    U32          StackSize;
 } SEGGER_SYSVIEW_TASKINFO;
 
 typedef struct SEGGER_SYSVIEW_MODULE_STRUCT SEGGER_SYSVIEW_MODULE;
 
 struct SEGGER_SYSVIEW_MODULE_STRUCT {
-  const char*                   sModule;
-        U32                     NumEvents;
-        U32                     EventOffset;
-        void                    (*pfSendModuleDesc)(void);
-        SEGGER_SYSVIEW_MODULE*  pNext;
+    const char*                   sModule;
+    U32                     NumEvents;
+    U32                     EventOffset;
+    void                    (*pfSendModuleDesc)(void);
+    SEGGER_SYSVIEW_MODULE*  pNext;
 };
 
 typedef void (SEGGER_SYSVIEW_SEND_SYS_DESC_FUNC)(void);
@@ -214,8 +213,8 @@ typedef void (SEGGER_SYSVIEW_SEND_SYS_DESC_FUNC)(void);
 */
 
 typedef struct {
-  U64  (*pfGetTime)      (void);
-  void (*pfSendTaskList) (void);
+    U64  (*pfGetTime)      (void);
+    void (*pfSendTaskList) (void);
 } SEGGER_SYSVIEW_OS_API;
 
 /*********************************************************************
@@ -237,17 +236,29 @@ U8 SEGGER_SYSVIEW_Started(void);
 *
 *       Event recording functions
 */
-void SEGGER_SYSVIEW_RecordVoid                    (unsigned int EventId);
-void SEGGER_SYSVIEW_RecordU32                     (unsigned int EventId, U32 Para0);
-void SEGGER_SYSVIEW_RecordU32x2                   (unsigned int EventId, U32 Para0, U32 Para1);
-void SEGGER_SYSVIEW_RecordU32x3                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2);
-void SEGGER_SYSVIEW_RecordU32x4                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3);
-void SEGGER_SYSVIEW_RecordU32x5                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4);
-void SEGGER_SYSVIEW_RecordU32x6                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5);
-void SEGGER_SYSVIEW_RecordU32x7                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6);
-void SEGGER_SYSVIEW_RecordU32x8                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6, U32 Para7);
-void SEGGER_SYSVIEW_RecordU32x9                   (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6, U32 Para7, U32 Para8);
-void SEGGER_SYSVIEW_RecordU32x10                  (unsigned int EventId, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5, U32 Para6, U32 Para7, U32 Para8, U32 Para9);
+void SEGGER_SYSVIEW_RecordVoid(unsigned int EventId);
+void SEGGER_SYSVIEW_RecordU32(unsigned int EventId, U32 Para0);
+void SEGGER_SYSVIEW_RecordU32x2(unsigned int EventId, U32 Para0, U32 Para1);
+void SEGGER_SYSVIEW_RecordU32x3(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2);
+void SEGGER_SYSVIEW_RecordU32x4(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3);
+void SEGGER_SYSVIEW_RecordU32x5(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3, U32 Para4);
+void SEGGER_SYSVIEW_RecordU32x6(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3, U32 Para4, U32 Para5);
+void SEGGER_SYSVIEW_RecordU32x7(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3, U32 Para4, U32 Para5,
+                                U32 Para6);
+void SEGGER_SYSVIEW_RecordU32x8(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3, U32 Para4, U32 Para5,
+                                U32 Para6, U32 Para7);
+void SEGGER_SYSVIEW_RecordU32x9(unsigned int EventId, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3, U32 Para4, U32 Para5,
+                                U32 Para6, U32 Para7, U32 Para8);
+void SEGGER_SYSVIEW_RecordU32x10(unsigned int EventId, U32 Para0, U32 Para1,
+                                 U32 Para2, U32 Para3, U32 Para4, U32 Para5,
+                                 U32 Para6, U32 Para7, U32 Para8, U32 Para9);
 void SEGGER_SYSVIEW_RecordString                  (unsigned int EventId, const char* pString);
 void SEGGER_SYSVIEW_RecordSystime                 (void);
 void SEGGER_SYSVIEW_RecordEnterISR                (U32 IrqId);
@@ -265,8 +276,10 @@ void SEGGER_SYSVIEW_OnTaskStartExec               (U32 TaskId);
 void SEGGER_SYSVIEW_OnTaskStopExec                (void);
 void SEGGER_SYSVIEW_OnTaskStartReady              (U32 TaskId);
 void SEGGER_SYSVIEW_OnTaskStopReady               (U32 TaskId, unsigned int Cause);
-void SEGGER_SYSVIEW_OnUserStart                   (unsigned int UserId);       // Start of user defined event (such as a subroutine to profile)
-void SEGGER_SYSVIEW_OnUserStop                    (unsigned int UserId);       // Start of user defined event
+// Start of user defined event (such as a subroutine to profile)
+void SEGGER_SYSVIEW_OnUserStart                   (unsigned int UserId);
+// Start of user defined event
+void SEGGER_SYSVIEW_OnUserStop                    (unsigned int UserId);
 
 void SEGGER_SYSVIEW_NameResource                  (U32 ResourceId, const char* sName);
 
@@ -288,7 +301,8 @@ U32  SEGGER_SYSVIEW_ShrinkId                      (U32 Id);
 *       Middleware module registration
 */
 void SEGGER_SYSVIEW_RegisterModule                (SEGGER_SYSVIEW_MODULE* pModule);
-void SEGGER_SYSVIEW_RecordModuleDescription       (const SEGGER_SYSVIEW_MODULE* pModule, const char* sDescription);
+void SEGGER_SYSVIEW_RecordModuleDescription       (const SEGGER_SYSVIEW_MODULE* pModule,
+                                                   const char* sDescription);
 void SEGGER_SYSVIEW_SendModule                    (U8 ModuleId);
 void SEGGER_SYSVIEW_SendModuleDescription         (void);
 void SEGGER_SYSVIEW_SendNumModules                (void);

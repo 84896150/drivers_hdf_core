@@ -145,7 +145,6 @@ void SEGGER_PrintUnsigned(SEGGER_BUFFER_DESC *pBufferDesc, U32 v, unsigned Base,
 void SEGGER_PrintInt(SEGGER_BUFFER_DESC *pBufferDesc, I32 v, unsigned Base, unsigned NumDigits);
 int  SEGGER_snprintf(char *pBuffer, int BufferSize, const char *sFormat, ...);
 
-
 #if defined(__cplusplus)
 }                /* Make sure we have C-declarations in C++ programs */
 #endif

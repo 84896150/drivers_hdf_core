@@ -257,32 +257,32 @@ static const U8 _abSync[10] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
 
 #ifdef SEGGER_SYSVIEW_SECTION
 #if (defined __GNUC__)
-__attribute__ ((section (SEGGER_SYSVIEW_SECTION))) static char _UpBuffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
+__attribute__ ((section (SEGGER_SYSVIEW_SECTION))) static char g_up_buffer[SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE != 1)
-__attribute__ ((section (SEGGER_SYSVIEW_SECTION))) static char _DownBuffer[8];
+__attribute__ ((section (SEGGER_SYSVIEW_SECTION))) static char g_down_buffer[8];
 // Small, fixed-size buffer, for back-channel comms
 #endif
 #elif (defined __ICCARM__) || (defined __ICCRX__)
 #pragma location=SEGGER_SYSVIEW_SECTION
-static char _UpBuffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
+static char g_up_buffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
 #pragma location=SEGGER_SYSVIEW_SECTION
-static char _DownBuffer[8];  // Small, fixed-size buffer, for back-channel comms
+static char g_down_buffer[8];  // Small, fixed-size buffer, for back-channel comms
 #elif (defined __CC_ARM)
-__attribute__ ((section (SEGGER_SYSVIEW_SECTION), zero_init)) static char _UpBuffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
+__attribute__ ((section (SEGGER_SYSVIEW_SECTION), zero_init)) static char g_up_buffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE != 1)
-__attribute__ ((section (SEGGER_SYSVIEW_SECTION), zero_init)) static char _DownBuffer[8];
+__attribute__ ((section (SEGGER_SYSVIEW_SECTION), zero_init)) static char g_down_buffer[8];
 // Small, fixed-size buffer, for back-channel comms
 #endif
 #else
-static char _UpBuffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
+static char g_up_buffer  [SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE != 1)
-static char _DownBuffer[8];  // Small, fixed-size buffer, for back-channel comms
+static char g_down_buffer[8];  // Small, fixed-size buffer, for back-channel comms
 #endif
 #endif
 #else
-static char _UpBuffer[SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
+static char g_up_buffer[SEGGER_SYSVIEW_RTT_BUFFER_SIZE];
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE != 1)
-static char _DownBuffer[8];  // Small, fixed-size buffer, for back-channel comms
+static char g_down_buffer[8];  // Small, fixed-size buffer, for back-channel comms
 #endif
 #endif
 
@@ -562,41 +562,41 @@ static int _TrySendOverflowPacket(void) {
  */
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE == 1)
 static void _SendSyncInfo(void) {
-  //
-  // Add sync packet ( 10 * 0x00)
-  // Send system description
-  // Send system time
-  // Send task list
-  // Send module description
-  // Send module information
-  //
-  SEGGER_RTT_WriteWithOverwriteNoLock(CHANNEL_ID_UP, _abSync, 10);
-  SEGGER_SYSVIEW_RecordVoid(SYSVIEW_EVTID_TRACE_START);
-  {
-    U8* pPayload;
-    U8* pPayloadStart;
-    RECORD_START(SEGGER_SYSVIEW_INFO_SIZE + 4 * SEGGER_SYSVIEW_QUANTA_U32);
     //
-    pPayload = pPayloadStart;
-    ENCODE_U32(pPayload, _SYSVIEW_Globals.SysFreq);
-    ENCODE_U32(pPayload, _SYSVIEW_Globals.CPUFreq);
-    ENCODE_U32(pPayload, _SYSVIEW_Globals.RAMBaseAddress);
-    ENCODE_U32(pPayload, SEGGER_SYSVIEW_ID_SHIFT);
-    _SendPacket(pPayloadStart, pPayload, SYSVIEW_EVTID_INIT);
-    RECORD_END();
-  }
-  if (_SYSVIEW_Globals.pfSendSysDesc) {
-    _SYSVIEW_Globals.pfSendSysDesc();
-  }
-  SEGGER_SYSVIEW_RecordSystime();
-  SEGGER_SYSVIEW_SendTaskList();
-  if (_NumModules > 0) {
-    SEGGER_SYSVIEW_SendNumModules();
-    for (int n = 0; n < _NumModules; n++) {
-      SEGGER_SYSVIEW_SendModule(n);
+    // Add sync packet ( 10 * 0x00)
+    // Send system description
+    // Send system time
+    // Send task list
+    // Send module description
+    // Send module information
+    //
+    SEGGER_RTT_WriteWithOverwriteNoLock(CHANNEL_ID_UP, _abSync, 10);
+    SEGGER_SYSVIEW_RecordVoid(SYSVIEW_EVTID_TRACE_START);
+    {
+        U8* pPayload = NULL;
+        U8* pPayloadStart = NULL;
+        RECORD_START(SEGGER_SYSVIEW_INFO_SIZE + 4 * SEGGER_SYSVIEW_QUANTA_U32);
+        //
+        pPayload = pPayloadStart;
+        ENCODE_U32(pPayload, _SYSVIEW_Globals.SysFreq);
+        ENCODE_U32(pPayload, _SYSVIEW_Globals.CPUFreq);
+        ENCODE_U32(pPayload, _SYSVIEW_Globals.RAMBaseAddress);
+        ENCODE_U32(pPayload, SEGGER_SYSVIEW_ID_SHIFT);
+        _SendPacket(pPayloadStart, pPayload, SYSVIEW_EVTID_INIT);
+        RECORD_END();
     }
-    SEGGER_SYSVIEW_SendModuleDescription();
-  }
+    if (_SYSVIEW_Globals.pfSendSysDesc) {
+        _SYSVIEW_Globals.pfSendSysDesc();
+    }
+    SEGGER_SYSVIEW_RecordSystime();
+    SEGGER_SYSVIEW_SendTaskList();
+    if (_NumModules > 0) {
+        SEGGER_SYSVIEW_SendNumModules();
+        for (int n = 0; n < _NumModules; n++) {
+            SEGGER_SYSVIEW_SendModule(n);
+        }
+        SEGGER_SYSVIEW_SendModuleDescription();
+    }
 }
 #endif  // (SEGGER_SYSVIEW_POST_MORTEM_MODE == 1)
 
@@ -628,13 +628,24 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
 #endif
 
 #if (SEGGER_SYSVIEW_USE_STATIC_BUFFER == 0)
-  SEGGER_SYSVIEW_LOCK();
+    SEGGER_SYSVIEW_LOCK();
 #endif
 
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE == 1)
-  if (_SYSVIEW_Globals.EnableState == 0) {
-    goto SendDone;
-  }
+    if (_SYSVIEW_Globals.EnableState == 0) {
+        //
+        // Check if host is sending data which needs to be processed.
+        // Note that since this code is called for every packet, it is very time critical, so we do
+        // only what is really needed here, which is checking if there is any data
+        //
+        if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
+            if (_SYSVIEW_Globals.RecursionCnt == 0) {
+                _SYSVIEW_Globals.RecursionCnt = 1;
+                _HandleIncomingPacket();
+                _SYSVIEW_Globals.RecursionCnt = 0;
+            }
+        }
+    }
 #else
     if (_SYSVIEW_Globals.EnableState == 1) {  // Enabled, no dropped packets remaining
         //
@@ -648,7 +659,7 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
                 // only what is really needed here, which is checking if there is any data
                 //
                 if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
-                    if (_SYSVIEW_Globals.RecursionCnt == 0) {  // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+                    if (_SYSVIEW_Globals.RecursionCnt == 0) {
                         _SYSVIEW_Globals.RecursionCnt = 1;
                         _HandleIncomingPacket();
                         _SYSVIEW_Globals.RecursionCnt = 0;
@@ -708,14 +719,14 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
       //
       // Add sync and system information periodically if we are in post mortem mode
       //
-      if (_SYSVIEW_Globals.RecursionCnt == 0) {   // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+    if (_SYSVIEW_Globals.RecursionCnt == 0) {   // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
         _SYSVIEW_Globals.RecursionCnt = 1;
         if (_SYSVIEW_Globals.PacketCount++ & (1 << SEGGER_SYSVIEW_SYNC_PERIOD_SHIFT)) {
-          _SendSyncInfo();
-          _SYSVIEW_Globals.PacketCount = 0;
+            _SendSyncInfo();
+            _SYSVIEW_Globals.PacketCount = 0;
         }
         _SYSVIEW_Globals.RecursionCnt = 0;
-      }
+    }
       ; // Avoid "label at end of compound statement" error when using static buffer
 #else
         //
@@ -724,7 +735,7 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
         // only what is really needed here, which is checking if there is any data
         //
         if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
-            if (_SYSVIEW_Globals.RecursionCnt == 0) {  // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+            if (_SYSVIEW_Globals.RecursionCnt == 0) {
                 _SYSVIEW_Globals.RecursionCnt = 1;
                 _HandleIncomingPacket();
                 _SYSVIEW_Globals.RecursionCnt = 0;
@@ -743,7 +754,7 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
         // only what is really needed here, which is checking if there is any data
         //
         if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
-            if (_SYSVIEW_Globals.RecursionCnt == 0) {  // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+            if (_SYSVIEW_Globals.RecursionCnt == 0) {
                 _SYSVIEW_Globals.RecursionCnt = 1;
                 _HandleIncomingPacket();
                 _SYSVIEW_Globals.RecursionCnt = 0;
@@ -765,7 +776,7 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
             // only what is really needed here, which is checking if there is any data
             //
             if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
-                if (_SYSVIEW_Globals.RecursionCnt == 0) {  // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+                if (_SYSVIEW_Globals.RecursionCnt == 0) {
                     _SYSVIEW_Globals.RecursionCnt = 1;
                     _HandleIncomingPacket();
                     _SYSVIEW_Globals.RecursionCnt = 0;
@@ -786,7 +797,7 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
             // only what is really needed here, which is checking if there is any data
             //
             if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
-                if (_SYSVIEW_Globals.RecursionCnt == 0) {  // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+                if (_SYSVIEW_Globals.RecursionCnt == 0) {
                     _SYSVIEW_Globals.RecursionCnt = 1;
                     _HandleIncomingPacket();
                     _SYSVIEW_Globals.RecursionCnt = 0;
@@ -846,14 +857,14 @@ static void _SendPacket(U8 *pStartPacket, U8 *pEndPacket, unsigned int EventId) 
   //
   // Add sync and system information periodically if we are in post mortem mode
   //
-  if (_SYSVIEW_Globals.RecursionCnt == 0) {   // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
-    _SYSVIEW_Globals.RecursionCnt = 1;
-    if (_SYSVIEW_Globals.PacketCount++ & (1 << SEGGER_SYSVIEW_SYNC_PERIOD_SHIFT)) {
-      _SendSyncInfo();
-      _SYSVIEW_Globals.PacketCount = 0;
+    if (_SYSVIEW_Globals.RecursionCnt == 0) {
+        _SYSVIEW_Globals.RecursionCnt = 1;
+        if (_SYSVIEW_Globals.PacketCount++ & (1 << SEGGER_SYSVIEW_SYNC_PERIOD_SHIFT)) {
+            _SendSyncInfo();
+            _SYSVIEW_Globals.PacketCount = 0;
+        }
+        _SYSVIEW_Globals.RecursionCnt = 0;
     }
-    _SYSVIEW_Globals.RecursionCnt = 0;
-  }
 SendDone:
   ; // Avoid "label at end of compound statement" error when using static buffer
 #else
@@ -864,7 +875,7 @@ SendDone:
     // only what is really needed here, which is checking if there is any data
     //
     if (SEGGER_RTT_HASDATA(CHANNEL_ID_DOWN)) {
-        if (_SYSVIEW_Globals.RecursionCnt == 0) {  // Avoid uncontrolled nesting. This way, this routine can call itself once, but no more often than that.
+        if (_SYSVIEW_Globals.RecursionCnt == 0) {
             _SYSVIEW_Globals.RecursionCnt = 1;
             _HandleIncomingPacket();
             _SYSVIEW_Globals.RecursionCnt = 0;
@@ -1037,11 +1048,11 @@ static void _PrintUnsigned(SEGGER_SYSVIEW_PRINTF_DESC *pBufferDesc, unsigned int
     // Example: If the output is 345 (Base 10), loop 2 times until Digit is 100.
     //
     while (1) {
-        if (NumDigits > 1u) {  // User specified a min number of digits to print? => Make sure we loop at least that often, before checking anything else (> 1 check avoids problems with NumDigits being signed / unsigned)
+        if (NumDigits > 1u) {
             NumDigits--;
         } else {
             Div = v / Digit;
-            if (Div < Base) {        // Is our divider big enough to extract the highest digit from value? => Done
+            if (Div < Base) {
                 break;
             }
         }
@@ -1111,9 +1122,7 @@ static void _PrintInt(SEGGER_SYSVIEW_PRINTF_DESC *pBufferDesc, int v, unsigned i
     // Print leading spaces if necessary
     //
     if ((((FormatFlags & FORMAT_FLAG_PAD_ZERO) == 0u) || (NumDigits != 0u))
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    && ((FormatFlags
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    & FORMAT_FLAG_LEFT_JUSTIFY)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    == 0u)) {
+        && ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY)== 0u)) {
         if (FieldWidth != 0u) {
             while ((FieldWidth != 0u) && (Width < FieldWidth)) {
                 FieldWidth--;
@@ -1136,11 +1145,8 @@ static void _PrintInt(SEGGER_SYSVIEW_PRINTF_DESC *pBufferDesc, int v, unsigned i
     // Print leading zeros if necessary
     //
     if (((FormatFlags & FORMAT_FLAG_PAD_ZERO) == FORMAT_FLAG_PAD_ZERO)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    && ((FormatFlags
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    & FORMAT_FLAG_LEFT_JUSTIFY)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    == 0u)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    && (NumDigits
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    == 0u)) {
+         && ((FormatFlags & FORMAT_FLAG_LEFT_JUSTIFY) == 0u)
+         && (NumDigits == 0u)) {
         if (FieldWidth != 0u) {
             while ((FieldWidth != 0u) && (Width < FieldWidth)) {
                 FieldWidth--;
@@ -1360,38 +1366,43 @@ static void _VPrintTarget(const char *sFormat, U32 Options, va_list *pParamList)
 void SEGGER_SYSVIEW_Init(U32 SysFreq, U32 CPUFreq, const SEGGER_SYSVIEW_OS_API *pOSAPI,
                          SEGGER_SYSVIEW_SEND_SYS_DESC_FUNC pfSendSysDesc) {
 #ifdef SEGGER_RTT_SECTION
-  //
-  // Explicitly initialize the RTT Control Block if it is in its dedicated section.
-  //
-  SEGGER_RTT_Init();
+    //
+    // Explicitly initialize the RTT Control Block if it is in its dedicated section.
+    //
+    SEGGER_RTT_Init();
 #endif
 #if (SEGGER_SYSVIEW_POST_MORTEM_MODE == 1)
 #if SEGGER_SYSVIEW_RTT_CHANNEL > 0
-  SEGGER_RTT_ConfigUpBuffer(SEGGER_SYSVIEW_RTT_CHANNEL, "SysView", &_UpBuffer[0],   sizeof(_UpBuffer),   SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+    SEGGER_RTT_ConfigUpBuffer(SEGGER_SYSVIEW_RTT_CHANNEL, "SysView", &g_up_buffer[0],   sizeof(g_up_buffer),   SEGGER_RTT_MODE_NO_BLOCK_SKIP);
 #else
-  _SYSVIEW_Globals.UpChannel = SEGGER_RTT_AllocUpBuffer  ("SysView", &_UpBuffer[0],   sizeof(_UpBuffer),   SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+    _SYSVIEW_Globals.UpChannel = SEGGER_RTT_AllocUpBuffer("SysView", &g_up_buffer[0],   sizeof(g_up_buffer),   SEGGER_RTT_MODE_NO_BLOCK_SKIP);
 #endif
-  _SYSVIEW_Globals.RAMBaseAddress   = SEGGER_SYSVIEW_ID_BASE;
-  _SYSVIEW_Globals.LastTxTimeStamp  = SEGGER_SYSVIEW_GET_TIMESTAMP();
-  _SYSVIEW_Globals.pOSAPI           = pOSAPI;
-  _SYSVIEW_Globals.SysFreq          = SysFreq;
-  _SYSVIEW_Globals.CPUFreq          = CPUFreq;
-  _SYSVIEW_Globals.pfSendSysDesc    = pfSendSysDesc;
-  _SYSVIEW_Globals.EnableState      = 0;
-  _SYSVIEW_Globals.PacketCount      = 0;
+    _SYSVIEW_Globals.RAMBaseAddress   = SEGGER_SYSVIEW_ID_BASE;
+    _SYSVIEW_Globals.LastTxTimeStamp  = SEGGER_SYSVIEW_GET_TIMESTAMP();
+    _SYSVIEW_Globals.pOSAPI           = pOSAPI;
+    _SYSVIEW_Globals.SysFreq          = SysFreq;
+    _SYSVIEW_Globals.CPUFreq          = CPUFreq;
+    _SYSVIEW_Globals.pfSendSysDesc    = pfSendSysDesc;
+    _SYSVIEW_Globals.EnableState      = 0;
+    _SYSVIEW_Globals.PacketCount      = 0;
 #else // (SEGGER_SYSVIEW_POST_MORTEM_MODE == 1)
 #if SEGGER_SYSVIEW_RTT_CHANNEL > 0
-    SEGGER_RTT_ConfigUpBuffer(SEGGER_SYSVIEW_RTT_CHANNEL, "SysView", &_UpBuffer[0], sizeof(_UpBuffer),
+    SEGGER_RTT_ConfigUpBuffer(SEGGER_SYSVIEW_RTT_CHANNEL, "SysView", &g_up_buffer[0],
+                              sizeof(g_up_buffer),
                               SEGGER_RTT_MODE_NO_BLOCK_SKIP);
-    SEGGER_RTT_ConfigDownBuffer(SEGGER_SYSVIEW_RTT_CHANNEL, "SysView", &_DownBuffer[0], sizeof(_DownBuffer),
+    SEGGER_RTT_ConfigDownBuffer(SEGGER_SYSVIEW_RTT_CHANNEL, "SysView", &g_down_buffer[0],
+                                sizeof(g_down_buffer),
                                 SEGGER_RTT_MODE_NO_BLOCK_SKIP);
 #else
-  _SYSVIEW_Globals.UpChannel = SEGGER_RTT_AllocUpBuffer  ("SysView", &_UpBuffer[0],   sizeof(_UpBuffer),   SEGGER_RTT_MODE_NO_BLOCK_SKIP);
-  //
-  // TODO: Use SEGGER_RTT_AllocDownBuffer when SystemViewer is able to handle another Down Channel than Up Channel.
-  //
-  _SYSVIEW_Globals.DownChannel = _SYSVIEW_Globals.UpChannel;
-  SEGGER_RTT_ConfigDownBuffer (_SYSVIEW_Globals.DownChannel, "SysView", &_DownBuffer[0], sizeof(_DownBuffer), SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+    _SYSVIEW_Globals.UpChannel = SEGGER_RTT_AllocUpBuffer("SysView", &g_up_buffer[0],
+                                                            sizeof(g_up_buffer),
+                                                            SEGGER_RTT_MODE_NO_BLOCK_SKIP);
+    //
+    // TODO: Use SEGGER_RTT_AllocDownBuffer when SystemViewer is able to handle another Down Channel than Up Channel.
+    //
+    _SYSVIEW_Globals.DownChannel = _SYSVIEW_Globals.UpChannel;
+    SEGGER_RTT_ConfigDownBuffer(_SYSVIEW_Globals.DownChannel, "SysView", &g_down_buffer[0],
+                                 sizeof(g_down_buffer), SEGGER_RTT_MODE_NO_BLOCK_SKIP);
 #endif
     _SYSVIEW_Globals.RAMBaseAddress = SEGGER_SYSVIEW_ID_BASE;
     _SYSVIEW_Globals.LastTxTimeStamp = SEGGER_SYSVIEW_GET_TIMESTAMP();
@@ -1583,7 +1594,8 @@ void SEGGER_SYSVIEW_RecordU32x5(unsigned int EventID, U32 Para0, U32 Para1, U32 
  *    Para4   - The 32-bit parameter encoded to SystemView packet payload.
  *    Para5   - The 32-bit parameter encoded to SystemView packet payload.
  */
-void SEGGER_SYSVIEW_RecordU32x6(unsigned int EventID, U32 Para0, U32 Para1, U32 Para2, U32 Para3, U32 Para4, U32 Para5) {
+void SEGGER_SYSVIEW_RecordU32x6(unsigned int EventID, U32 Para0, U32 Para1,
+                                U32 Para2, U32 Para3, U32 Para4, U32 Para5) {
     U8 *pPayload = NULL;
     U8 *pPayloadStart = NULL;
     RECORD_START(SEGGER_SYSVIEW_INFO_SIZE + 6 * SEGGER_SYSVIEW_QUANTA_U32);
