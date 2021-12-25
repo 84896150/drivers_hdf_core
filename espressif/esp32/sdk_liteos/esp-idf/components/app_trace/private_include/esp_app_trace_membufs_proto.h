@@ -55,13 +55,20 @@ typedef struct {
     esp_apptrace_rb_t                       rb_down;
 } esp_apptrace_membufs_proto_data_t;
 
-esp_err_t esp_apptrace_membufs_init(esp_apptrace_membufs_proto_data_t *proto, const esp_apptrace_mem_block_t blocks_cfg[2]);
-void esp_apptrace_membufs_down_buffer_config(esp_apptrace_membufs_proto_data_t *data, uint8_t *buf, uint32_t size);
-uint8_t *esp_apptrace_membufs_down_buffer_get(esp_apptrace_membufs_proto_data_t *proto, uint32_t *size, esp_apptrace_tmo_t *tmo);
-esp_err_t esp_apptrace_membufs_down_buffer_put(esp_apptrace_membufs_proto_data_t *proto, uint8_t *ptr, esp_apptrace_tmo_t *tmo);
-uint8_t *esp_apptrace_membufs_up_buffer_get(esp_apptrace_membufs_proto_data_t *proto, uint32_t size, esp_apptrace_tmo_t *tmo);
-esp_err_t esp_apptrace_membufs_up_buffer_put(esp_apptrace_membufs_proto_data_t *proto, uint8_t *ptr, esp_apptrace_tmo_t *tmo);
-esp_err_t esp_apptrace_membufs_flush_nolock(esp_apptrace_membufs_proto_data_t *proto, uint32_t min_sz, esp_apptrace_tmo_t *tmo);
+esp_err_t esp_apptrace_membufs_init(esp_apptrace_membufs_proto_data_t *proto,
+                                    const esp_apptrace_mem_block_t blocks_cfg[2]);
+void esp_apptrace_membufs_down_buffer_config(esp_apptrace_membufs_proto_data_t *data,
+                                             uint8_t *buf, uint32_t size);
+uint8_t *esp_apptrace_membufs_down_buffer_get(esp_apptrace_membufs_proto_data_t *proto,
+                                              uint32_t *size, esp_apptrace_tmo_t *tmo);
+esp_err_t esp_apptrace_membufs_down_buffer_put(esp_apptrace_membufs_proto_data_t *proto,
+                                               uint8_t *ptr, esp_apptrace_tmo_t *tmo);
+uint8_t *esp_apptrace_membufs_up_buffer_get(esp_apptrace_membufs_proto_data_t *proto,
+                                            uint32_t size, esp_apptrace_tmo_t *tmo);
+esp_err_t esp_apptrace_membufs_up_buffer_put(esp_apptrace_membufs_proto_data_t *proto,
+                                             uint8_t *ptr, esp_apptrace_tmo_t *tmo);
+esp_err_t esp_apptrace_membufs_flush_nolock(esp_apptrace_membufs_proto_data_t *proto,
+                                            uint32_t min_sz, esp_apptrace_tmo_t *tmo);
 
 #ifdef __cplusplus
 }

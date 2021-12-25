@@ -19,7 +19,6 @@ int32_t WalSetMode(NetDevice *netDev, enum WlanWorkMode iftype)
     return retVal;
 }
 
-
 int32_t WalAddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr,
     struct KeyParams *params)
 {
@@ -78,7 +77,6 @@ int32_t WalGetValidFreqsWithBand(NetDevice *netDev, int32_t band, int32_t *freqs
     return HDF_SUCCESS;
 }
 
-
 int32_t WalGetHwCapability(struct NetDevice *netDev, struct WlanHwCapability **capability)
 {
     HDF_LOGE("%s: start...", __func__);
@@ -109,7 +107,6 @@ int32_t WalAddIf(struct NetDevice *netDev, WifiIfAdd *ifAdd)
     HDF_LOGE("%s: start...", __func__);
     return HDF_SUCCESS;              
 }
-
 
 int32_t WalRemoveIf(struct NetDevice *netDev, WifiIfRemove *ifRemove)
 {

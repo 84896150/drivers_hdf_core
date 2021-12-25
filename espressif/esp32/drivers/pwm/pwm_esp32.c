@@ -92,7 +92,7 @@ int32_t Esp32PwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     return HDF_SUCCESS;
 }
 
-struct PwmMethod g_PwmMethod = {
+struct PwmMethod g_pwm_method = {
     .setConfig = Esp32PwmSetConfig,
     .open = Esp32PwmOpen,
     .close = Esp32PwmClose,
@@ -135,7 +135,7 @@ static int32_t Esp32PwmInit(struct HdfDeviceObject *obj)
     }
     pwm->cfg.number = 0;
     pwm->num = num;
-    pwm->method = &g_PwmMethod;
+    pwm->method = &g_pwm_method;
     pwm->busy = false;
     ret = PwmDeviceAdd(obj, pwm);
     if (ret != HDF_SUCCESS) {
@@ -164,7 +164,7 @@ static void Esp32PwmRelease(struct HdfDeviceObject *obj)
     OsalMemFree(pwm);
 }
 
-struct HdfDriverEntry g_pwmDriverEntry = {
+struct HdfDriverEntry g_pwm_driver_entry = {
     .moduleVersion = 1,
     .Bind = Esp32PwmBind,
     .Init = Esp32PwmInit,
@@ -172,4 +172,4 @@ struct HdfDriverEntry g_pwmDriverEntry = {
     .moduleName = "esp32_pwm_driver",
 };
 
-HDF_INIT(g_pwmDriverEntry);
+HDF_INIT(g_pwm_driver_entry);

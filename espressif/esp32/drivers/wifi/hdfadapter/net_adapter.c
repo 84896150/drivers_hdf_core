@@ -17,13 +17,15 @@ extern "C" {
 /* ****************************************************************************
   2 全局变量声明
 **************************************************************************** */
-NetDevice *gp_hdf_netDev;
+NetDevice *g_gphdf_netdev;
 extern struct net_device_ops dhd_ops_pri;
 extern struct wiphy* wrap_get_wiphy(void);
 extern struct net_device *get_krn_netdev(void);
 extern struct NetDeviceInterFace *wal_get_net_dev_ops(void);
 extern int dhd_netdev_changemtu_wrapper(struct net_device *netdev, int mtu);
-extern struct wireless_dev *wl_cfg80211_add_monitor_if_wrap(struct net_device * netdev, struct wiphy *wiphy, const char *name);
+extern struct wireless_dev *wl_cfg80211_add_monitor_if_wrap(struct net_device * netdev,
+                                                            struct wiphy *wiphy,
+                                                            const char *name);
 /* ****************************************************************************
   2 全局变量定义
 **************************************************************************** */
@@ -126,7 +128,7 @@ ProcessingResult hdf_netdev_specialethertypeprocess(const struct NetDevice *netD
     struct EtherHeader *header = NULL;
     uint16_t etherType;
     const struct Eapol *eapolInstance = NULL;
-    int ret;
+    int ret = 0;
     uint16_t protocol;
 
     HDF_LOGE("%s: start...", __func__);

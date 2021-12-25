@@ -76,25 +76,25 @@ Purpose : Global types
 #define I32   signed long
 
 #ifdef _WIN32
-  //
-  // Microsoft VC6 compiler related
-  //
-  #define U64   unsigned __int64
-  #define U128  unsigned __int128
-  #define I64   __int64
-  #define I128  __int128
-  #if _MSC_VER <= 1200
-    #define U64_C(x) x##UI64
-  #else
-    #define U64_C(x) x##ULL
-  #endif
+//
+// Microsoft VC6 compiler related
+//
+#define U64   unsigned __int64
+#define U128  unsigned __int128
+#define I64   __int64
+#define I128  __int128
+#if _MSC_VER <= 1200
+#define U64_C(x) x##UI64
 #else
-  //
-  // C99 compliant compiler
-  //
-  #define U64   unsigned long long
-  #define I64   signed long long
-  #define U64_C(x) x##ULL
+#define U64_C(x) x##ULL
+#endif
+#else
+//
+// C99 compliant compiler
+//
+#define U64   unsigned long long
+#define I64   signed long long
+#define U64_C(x) x##ULL
 #endif
 
 #endif                      // Avoid multiple inclusion

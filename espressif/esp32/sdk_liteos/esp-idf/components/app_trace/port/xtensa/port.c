@@ -172,15 +172,20 @@
 #define ESP_APPTRACE_TRAX_STAT_REG              ERI_TRAX_TRIGGERPC
 
 #define ESP_APPTRACE_TRAX_BLOCK_LEN_MSK         0x7FFFUL
-#define ESP_APPTRACE_TRAX_BLOCK_LEN(_l_)        ((_l_) & ESP_APPTRACE_TRAX_BLOCK_LEN_MSK)
-#define ESP_APPTRACE_TRAX_BLOCK_LEN_GET(_v_)    ((_v_) & ESP_APPTRACE_TRAX_BLOCK_LEN_MSK)
+#define ESP_APPTRACE_TRAX_BLOCK_LEN(_l_)        \
+    ((_l_) & ESP_APPTRACE_TRAX_BLOCK_LEN_MSK)
+#define ESP_APPTRACE_TRAX_BLOCK_LEN_GET(_v_)    \
+    ((_v_) & ESP_APPTRACE_TRAX_BLOCK_LEN_MSK)
 #define ESP_APPTRACE_TRAX_BLOCK_ID_MSK          0x7FUL
-#define ESP_APPTRACE_TRAX_BLOCK_ID(_id_)        (((_id_) & ESP_APPTRACE_TRAX_BLOCK_ID_MSK) << 15)
-#define ESP_APPTRACE_TRAX_BLOCK_ID_GET(_v_)     (((_v_) >> 15) & ESP_APPTRACE_TRAX_BLOCK_ID_MSK)
+#define ESP_APPTRACE_TRAX_BLOCK_ID(_id_)        \
+    (((_id_) & ESP_APPTRACE_TRAX_BLOCK_ID_MSK) << 15)
+#define ESP_APPTRACE_TRAX_BLOCK_ID_GET(_v_)     \
+    (((_v_) >> 15) & ESP_APPTRACE_TRAX_BLOCK_ID_MSK)
 #define ESP_APPTRACE_TRAX_HOST_DATA             (1 << 22)
 #define ESP_APPTRACE_TRAX_HOST_CONNECT          (1 << 23)
 
-#define ESP_APPTRACE_TRAX_INITED(_hw_)          ((_hw_)->inited & (1 << cpu_hal_get_core_id()))
+#define ESP_APPTRACE_TRAX_INITED(_hw_)          \
+    ((_hw_)->inited & (1 << cpu_hal_get_core_id()))
 
 #if CONFIG_IDF_TARGET_ESP32
 static uint8_t * const s_trax_blocks[] = {
@@ -205,21 +210,27 @@ typedef struct {
     esp_apptrace_membufs_proto_data_t   membufs;
 } esp_apptrace_trax_data_t;
 
-
 static esp_err_t esp_apptrace_trax_init(esp_apptrace_trax_data_t *hw_data);
-static esp_err_t esp_apptrace_trax_flush(esp_apptrace_trax_data_t *hw_data, esp_apptrace_tmo_t *tmo);
-static esp_err_t esp_apptrace_trax_flush_nolock(esp_apptrace_trax_data_t *hw_data, uint32_t min_sz, esp_apptrace_tmo_t *tmo);
-static uint8_t *esp_apptrace_trax_up_buffer_get(esp_apptrace_trax_data_t *hw_data, uint32_t size, esp_apptrace_tmo_t *tmo);
-static esp_err_t esp_apptrace_trax_up_buffer_put(esp_apptrace_trax_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo);
-static void esp_apptrace_trax_down_buffer_config(esp_apptrace_trax_data_t *hw_data, uint8_t *buf, uint32_t size);
-static uint8_t *esp_apptrace_trax_down_buffer_get(esp_apptrace_trax_data_t *hw_data, uint32_t *size, esp_apptrace_tmo_t *tmo);
-static esp_err_t esp_apptrace_trax_down_buffer_put(esp_apptrace_trax_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_trax_flush(esp_apptrace_trax_data_t *hw_data,
+                                         esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_trax_flush_nolock(esp_apptrace_trax_data_t *hw_data,
+                                                uint32_t min_sz, esp_apptrace_tmo_t *tmo);
+static uint8_t *esp_apptrace_trax_up_buffer_get(esp_apptrace_trax_data_t *hw_data,
+                                                uint32_t size, esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_trax_up_buffer_put(esp_apptrace_trax_data_t *hw_data,
+                                                 uint8_t *ptr, esp_apptrace_tmo_t *tmo);
+static void esp_apptrace_trax_down_buffer_config(esp_apptrace_trax_data_t *hw_data,
+                                                 uint8_t *buf, uint32_t size);
+static uint8_t *esp_apptrace_trax_down_buffer_get(esp_apptrace_trax_data_t *hw_data,
+                                                  uint32_t *size, esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_trax_down_buffer_put(esp_apptrace_trax_data_t *hw_data,
+                                                   uint8_t *ptr, esp_apptrace_tmo_t *tmo);
 static bool esp_apptrace_trax_host_is_connected(esp_apptrace_trax_data_t *hw_data);
 static esp_err_t esp_apptrace_trax_buffer_swap_start(uint32_t curr_block_id);
 static esp_err_t esp_apptrace_trax_buffer_swap(uint32_t new_block_id);
-static esp_err_t esp_apptrace_trax_buffer_swap_end(uint32_t new_block_id, uint32_t prev_block_len);
+static esp_err_t esp_apptrace_trax_buffer_swap_end(uint32_t new_block_id,
+                                                   uint32_t prev_block_len);
 static bool esp_apptrace_trax_host_data_pending(void);
-
 
 const static char *TAG = "esp_apptrace";
 
@@ -244,13 +255,20 @@ esp_apptrace_hw_t *esp_apptrace_jtag_hw_get(void **data)
     };
     static esp_apptrace_hw_t s_trax_hw = {
         .init = (esp_err_t (*)(void *))esp_apptrace_trax_init,
-        .get_up_buffer = (uint8_t *(*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_trax_up_buffer_get,
-        .put_up_buffer = (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_trax_up_buffer_put,
-        .flush_up_buffer_nolock = (esp_err_t (*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_trax_flush_nolock,
-        .flush_up_buffer = (esp_err_t (*)(void *, esp_apptrace_tmo_t *))esp_apptrace_trax_flush,
-        .down_buffer_config = (void (*)(void *, uint8_t *, uint32_t ))esp_apptrace_trax_down_buffer_config,
-        .get_down_buffer = (uint8_t *(*)(void *, uint32_t *, esp_apptrace_tmo_t *))esp_apptrace_trax_down_buffer_get,
-        .put_down_buffer = (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_trax_down_buffer_put,
+        .get_up_buffer =
+              (uint8_t *(*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_trax_up_buffer_get,
+        .put_up_buffer =
+              (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_trax_up_buffer_put,
+        .flush_up_buffer_nolock =
+              (esp_err_t (*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_trax_flush_nolock,
+        .flush_up_buffer =
+              (esp_err_t (*)(void *, esp_apptrace_tmo_t *))esp_apptrace_trax_flush,
+        .down_buffer_config =
+              (void (*)(void *, uint8_t *, uint32_t ))esp_apptrace_trax_down_buffer_config,
+        .get_down_buffer =
+              (uint8_t *(*)(void *, uint32_t *, esp_apptrace_tmo_t *))esp_apptrace_trax_down_buffer_get,
+        .put_down_buffer =
+              (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_trax_down_buffer_put,
         .host_is_connected = (bool (*)(void *))esp_apptrace_trax_host_is_connected,
     };
     *data = &s_trax_hw_data;
@@ -260,7 +278,8 @@ esp_apptrace_hw_t *esp_apptrace_jtag_hw_get(void **data)
 #endif
 }
 
-static esp_err_t esp_apptrace_trax_lock(esp_apptrace_trax_data_t *hw_data, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_trax_lock(esp_apptrace_trax_data_t *hw_data,
+                                        esp_apptrace_tmo_t *tmo)
 {
 #if CONFIG_APPTRACE_LOCK_ENABLE
     esp_err_t ret = esp_apptrace_lock_take(&hw_data->lock, tmo);
@@ -353,9 +372,10 @@ static esp_err_t esp_apptrace_trax_init(esp_apptrace_trax_data_t *hw_data)
     return ESP_OK;
 }
 
-static uint8_t *esp_apptrace_trax_up_buffer_get(esp_apptrace_trax_data_t *hw_data, uint32_t size, esp_apptrace_tmo_t *tmo)
+static uint8_t *esp_apptrace_trax_up_buffer_get(esp_apptrace_trax_data_t *hw_data,
+                                                uint32_t size, esp_apptrace_tmo_t *tmo)
 {
-    uint8_t *ptr;
+    uint8_t *ptr = NULL;
 
     if (!ESP_APPTRACE_TRAX_INITED(hw_data)) {
         return NULL;
@@ -374,7 +394,8 @@ static uint8_t *esp_apptrace_trax_up_buffer_get(esp_apptrace_trax_data_t *hw_dat
     return ptr;
 }
 
-static esp_err_t esp_apptrace_trax_up_buffer_put(esp_apptrace_trax_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_trax_up_buffer_put(esp_apptrace_trax_data_t *hw_data,
+                                                 uint8_t *ptr, esp_apptrace_tmo_t *tmo)
 {
     if (!ESP_APPTRACE_TRAX_INITED(hw_data)) {
         return ESP_ERR_INVALID_STATE;
@@ -384,7 +405,8 @@ static esp_err_t esp_apptrace_trax_up_buffer_put(esp_apptrace_trax_data_t *hw_da
     return res;
 }
 
-static void esp_apptrace_trax_down_buffer_config(esp_apptrace_trax_data_t *hw_data, uint8_t *buf, uint32_t size)
+static void esp_apptrace_trax_down_buffer_config(esp_apptrace_trax_data_t *hw_data,
+                                                 uint8_t *buf, uint32_t size)
 {
     if (!ESP_APPTRACE_TRAX_INITED(hw_data)) {
         return;
@@ -392,9 +414,10 @@ static void esp_apptrace_trax_down_buffer_config(esp_apptrace_trax_data_t *hw_da
     esp_apptrace_membufs_down_buffer_config(&hw_data->membufs, buf, size);
 }
 
-static uint8_t *esp_apptrace_trax_down_buffer_get(esp_apptrace_trax_data_t *hw_data, uint32_t *size, esp_apptrace_tmo_t *tmo)
+static uint8_t *esp_apptrace_trax_down_buffer_get(esp_apptrace_trax_data_t *hw_data,
+                                                  uint32_t *size, esp_apptrace_tmo_t *tmo)
 {
-    uint8_t *ptr;
+    uint8_t *ptr = NULL;
 
     if (!ESP_APPTRACE_TRAX_INITED(hw_data)) {
         return NULL;
@@ -413,7 +436,8 @@ static uint8_t *esp_apptrace_trax_down_buffer_get(esp_apptrace_trax_data_t *hw_d
     return ptr;
 }
 
-static esp_err_t esp_apptrace_trax_down_buffer_put(esp_apptrace_trax_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_trax_down_buffer_put(esp_apptrace_trax_data_t *hw_data,
+                                                   uint8_t *ptr, esp_apptrace_tmo_t *tmo)
 {
     if (!ESP_APPTRACE_TRAX_INITED(hw_data)) {
         return ESP_ERR_INVALID_STATE;
@@ -441,7 +465,8 @@ static bool esp_apptrace_trax_host_is_connected(esp_apptrace_trax_data_t *hw_dat
     return eri_read(ESP_APPTRACE_TRAX_CTRL_REG) & ESP_APPTRACE_TRAX_HOST_CONNECT ? true : false;
 }
 
-static esp_err_t esp_apptrace_trax_flush_nolock(esp_apptrace_trax_data_t *hw_data, uint32_t min_sz, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_trax_flush_nolock(esp_apptrace_trax_data_t *hw_data,
+                                                uint32_t min_sz, esp_apptrace_tmo_t *tmo)
 {
     if (!ESP_APPTRACE_TRAX_INITED(hw_data)) {
         return ESP_ERR_INVALID_STATE;
@@ -508,16 +533,15 @@ static esp_err_t esp_apptrace_trax_buffer_swap_start(uint32_t curr_block_id)
         uint32_t acked_block = ESP_APPTRACE_TRAX_BLOCK_ID_GET(ctrl_reg);
         uint32_t host_to_read = ESP_APPTRACE_TRAX_BLOCK_LEN_GET(ctrl_reg);
         if (host_to_read != 0 || acked_block != (curr_block_id & ESP_APPTRACE_TRAX_BLOCK_ID_MSK)) {
-            ESP_APPTRACE_LOGD("HC[%d]: Can not switch %x %d %x %x/%lx", cpu_hal_get_core_id(), ctrl_reg, host_to_read, acked_block,
+            ESP_APPTRACE_LOGD("HC[%d]: Can not switch %x %d %x %x/%lx",
+                              cpu_hal_get_core_id(), ctrl_reg, host_to_read, acked_block,
                 curr_block_id & ESP_APPTRACE_TRAX_BLOCK_ID_MSK, curr_block_id);
             res = ESP_ERR_NO_MEM;
-            goto _on_err;
+            esp_apptrace_trax_buffer_swap_unlock();
+            return res;
         }
     }
     return ESP_OK;
-_on_err:
-    esp_apptrace_trax_buffer_swap_unlock();
-    return res;
 }
 
 static esp_err_t esp_apptrace_trax_buffer_swap_end(uint32_t new_block_id, uint32_t prev_block_len)

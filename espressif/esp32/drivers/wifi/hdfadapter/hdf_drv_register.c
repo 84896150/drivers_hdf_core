@@ -49,7 +49,7 @@ static void HdfWlanEsp32ChipRelease(struct HdfDeviceObject *object)
     HDF_LOGE("%s: Enter ", __func__);
 }
 
-struct HdfDriverEntry g_esp32WifiChipEntry = {
+struct HdfDriverEntry g_esp32_wifi_chip_entry = {
     .moduleVersion = 1,
     .Bind = HdfWlanEsp32DriverBind,
     .Init = HdfWlanEsp32ChipDriverInit,
@@ -57,4 +57,4 @@ struct HdfDriverEntry g_esp32WifiChipEntry = {
     .moduleName = "HDF_WLAN_CHIPS"
 };
 
-HDF_INIT(g_esp32WifiChipEntry);
+HDF_INIT(g_esp32_wifi_chip_entry);

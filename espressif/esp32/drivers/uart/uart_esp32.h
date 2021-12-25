@@ -1,8 +1,6 @@
 #ifndef UART_ESP32_H
 #define UART_ESP32_H
 
-// #include "console.h"
-// #include "poll.h"
 #include "uart_if.h"
 
 #ifdef __cplusplus

@@ -11,7 +11,6 @@
 # define volatile
 #endif
 
-
 /* Version number components: V=Version, R=Revision, P=Patch
    Version date components:   YYYY=Year, MM=Month,   DD=Day  */
 
@@ -132,7 +131,6 @@
 # define COMPILER_VERSION_PATCH DEC(__ibmxl_modification__)
 # define COMPILER_VERSION_TWEAK DEC(__ibmxl_ptf_fix_level__)
 
-
 #elif defined(__IBMC__) && !defined(__COMPILER_VER__) && __IBMC__ >= 800
 # define COMPILER_ID "XL"
   /* __IBMC__ = VRP */
@@ -191,15 +189,15 @@
 #elif defined(__ARMCC_VERSION) && !defined(__clang__)
 # define COMPILER_ID "ARMCC"
 #if __ARMCC_VERSION >= 1000000
-  /* __ARMCC_VERSION = VRRPPPP */
-  # define COMPILER_VERSION_MAJOR DEC(__ARMCC_VERSION/1000000)
-  # define COMPILER_VERSION_MINOR DEC(__ARMCC_VERSION/10000 % 100)
-  # define COMPILER_VERSION_PATCH DEC(__ARMCC_VERSION     % 10000)
+/* __ARMCC_VERSION = VRRPPPP */
+# define COMPILER_VERSION_MAJOR DEC(__ARMCC_VERSION / 1000000)
+# define COMPILER_VERSION_MINOR DEC(__ARMCC_VERSION / 10000 % 100)
+# define COMPILER_VERSION_PATCH DEC(__ARMCC_VERSION     % 10000)
 #else
-  /* __ARMCC_VERSION = VRPPPP */
-  # define COMPILER_VERSION_MAJOR DEC(__ARMCC_VERSION/100000)
-  # define COMPILER_VERSION_MINOR DEC(__ARMCC_VERSION/10000 % 10)
-  # define COMPILER_VERSION_PATCH DEC(__ARMCC_VERSION    % 10000)
+/* __ARMCC_VERSION = VRPPPP */
+# define COMPILER_VERSION_MAJOR DEC(__ARMCC_VERSION / 100000)
+# define COMPILER_VERSION_MINOR DEC(__ARMCC_VERSION / 10000 % 10)
+# define COMPILER_VERSION_PATCH DEC(__ARMCC_VERSION    % 10000)
 #endif
 
 
@@ -220,9 +218,9 @@
 
 #elif defined(__clang__) && defined(__ARMCOMPILER_VERSION)
 # define COMPILER_ID "ARMClang"
-  # define COMPILER_VERSION_MAJOR DEC(__ARMCOMPILER_VERSION/1000000)
-  # define COMPILER_VERSION_MINOR DEC(__ARMCOMPILER_VERSION/10000 % 100)
-  # define COMPILER_VERSION_PATCH DEC(__ARMCOMPILER_VERSION     % 10000)
+# define COMPILER_VERSION_MAJOR DEC(__ARMCOMPILER_VERSION / 1000000)
+# define COMPILER_VERSION_MINOR DEC(__ARMCOMPILER_VERSION / 10000 % 100)
+# define COMPILER_VERSION_PATCH DEC(__ARMCOMPILER_VERSION     % 10000)
 # define COMPILER_VERSION_INTERNAL DEC(__ARMCOMPILER_VERSION)
 
 #elif defined(__clang__)
@@ -271,9 +269,9 @@
 # define COMPILER_ID "ADSP"
 #if defined(__VISUALDSPVERSION__)
   /* __VISUALDSPVERSION__ = 0xVVRRPP00 */
-# define COMPILER_VERSION_MAJOR HEX(__VISUALDSPVERSION__>>24)
-# define COMPILER_VERSION_MINOR HEX(__VISUALDSPVERSION__>>16 & 0xFF)
-# define COMPILER_VERSION_PATCH HEX(__VISUALDSPVERSION__>>8  & 0xFF)
+# define COMPILER_VERSION_MAJOR HEX(__VISUALDSPVERSION__ >> 24)
+# define COMPILER_VERSION_MINOR HEX(__VISUALDSPVERSION__ >> 16 & 0xFF)
+# define COMPILER_VERSION_PATCH HEX(__VISUALDSPVERSION__ >> 8  & 0xFF)
 #endif
 
 #elif defined(__IAR_SYSTEMS_ICC__) || defined(__IAR_SYSTEMS_ICC)
@@ -298,8 +296,8 @@
 #  define COMPILER_VERSION_PATCH DEC(__SDCC_VERSION_PATCH)
 # else
   /* SDCC = VRP */
-#  define COMPILER_VERSION_MAJOR DEC(SDCC/100)
-#  define COMPILER_VERSION_MINOR DEC(SDCC/10 % 10)
+#  define COMPILER_VERSION_MAJOR DEC(SDCC / 100)
+#  define COMPILER_VERSION_MINOR DEC(SDCC / 10 % 10)
 #  define COMPILER_VERSION_PATCH DEC(SDCC    % 10)
 # endif
 
@@ -542,24 +540,24 @@ char const *info_cray = "INFO" ":" "compiler_wrapper[CrayPrgEnv]";
 
 /* Convert integer to decimal digit literals.  */
 #define DEC(n)                   \
-  ('0' + (((n) / 10000000)%10)), \
-  ('0' + (((n) / 1000000)%10)),  \
-  ('0' + (((n) / 100000)%10)),   \
-  ('0' + (((n) / 10000)%10)),    \
-  ('0' + (((n) / 1000)%10)),     \
-  ('0' + (((n) / 100)%10)),      \
-  ('0' + (((n) / 10)%10)),       \
+  ('0' + (((n) / 10000000) % 10)), \
+  ('0' + (((n) / 1000000) % 10)),  \
+  ('0' + (((n) / 100000) % 10)),   \
+  ('0' + (((n) / 10000) % 10)),    \
+  ('0' + (((n) / 1000) % 10)),     \
+  ('0' + (((n) / 100) % 10)),      \
+  ('0' + (((n) / 10) % 10)),       \
   ('0' +  ((n) % 10))
 
 /* Convert integer to hex digit literals.  */
 #define HEX(n)             \
-  ('0' + ((n)>>28 & 0xF)), \
-  ('0' + ((n)>>24 & 0xF)), \
-  ('0' + ((n)>>20 & 0xF)), \
-  ('0' + ((n)>>16 & 0xF)), \
-  ('0' + ((n)>>12 & 0xF)), \
-  ('0' + ((n)>>8  & 0xF)), \
-  ('0' + ((n)>>4  & 0xF)), \
+  ('0' + ((n) >> 28 & 0xF)), \
+  ('0' + ((n) >> 24 & 0xF)), \
+  ('0' + ((n) >> 20 & 0xF)), \
+  ('0' + ((n) >> 16 & 0xF)), \
+  ('0' + ((n) >> 12 & 0xF)), \
+  ('0' + ((n) >> 8  & 0xF)), \
+  ('0' + ((n) >> 4  & 0xF)), \
   ('0' + ((n)     & 0xF))
 
 /* Construct a string literal encoding the version number components. */
@@ -614,9 +612,6 @@ char const info_simulate_version[] = {
 char const* info_platform = "INFO" ":" "platform[" PLATFORM_ID "]";
 char const* info_arch = "INFO" ":" "arch[" ARCHITECTURE_ID "]";
 
-
-
-
 #if !defined(__STDC__)
 # if (defined(_MSC_VER) && !defined(__clang__)) \
   || (defined(__ibmxl__) || defined(__IBMC__))
@@ -645,27 +640,27 @@ int main(argc, argv) int argc; char *argv[];
 int main(int argc, char* argv[])
 # endif
 {
-  int require = 0;
-  require += info_compiler[argc];
-  require += info_platform[argc];
-  require += info_arch[argc];
+    int require = 0;
+    require += info_compiler[argc];
+    require += info_platform[argc];
+    require += info_arch[argc];
 #ifdef COMPILER_VERSION_MAJOR
-  require += info_version[argc];
+    require += info_version[argc];
 #endif
 #ifdef COMPILER_VERSION_INTERNAL
-  require += info_version_internal[argc];
+    require += info_version_internal[argc];
 #endif
 #ifdef SIMULATE_ID
-  require += info_simulate[argc];
+    require += info_simulate[argc];
 #endif
 #ifdef SIMULATE_VERSION_MAJOR
-  require += info_simulate_version[argc];
+    require += info_simulate_version[argc];
 #endif
 #if defined(__CRAYXE) || defined(__CRAYXC)
-  require += info_cray[argc];
+    require += info_cray[argc];
 #endif
-  require += info_language_dialect_default[argc];
-  (void)argv;
-  return require;
+    require += info_language_dialect_default[argc];
+    (void)argv;
+    return require;
 }
 #endif

@@ -73,13 +73,16 @@ typedef struct {
     void *file;
 } esp_apptrace_ftell_args_t;
 
-static esp_err_t esp_apptrace_file_cmd_send(esp_apptrace_dest_t dest, uint8_t cmd, void (*prep_args)(uint8_t *, void *), void *args, uint32_t args_len)
+static esp_err_t esp_apptrace_file_cmd_send(esp_apptrace_dest_t dest, uint8_t cmd,
+                                            void (*prep_args)(uint8_t *, void *),
+                                            void *args, uint32_t args_len)
 {
     esp_err_t ret;
     esp_apptrace_fcmd_hdr_t *hdr;
 
     ESP_EARLY_LOGV(TAG, "%s %d", __func__, cmd);
-    uint8_t *ptr = esp_apptrace_buffer_get(dest, sizeof(*hdr) + args_len, ESP_APPTRACE_TMO_INFINITE); //TODO: finite tmo
+    uint8_t *ptr = esp_apptrace_buffer_get(dest, sizeof(*hdr) + args_len,
+                                           ESP_APPTRACE_TMO_INFINITE); //TODO: finite tmo
     if (ptr == NULL) {
         return ESP_ERR_NO_MEM;
     }
@@ -153,7 +156,7 @@ void *esp_apptrace_fopen(esp_apptrace_dest_t dest, const char *path, const char 
     }
 
     // now read the answer
-    void *resp;
+    void *resp = NULL;
     ret = esp_apptrace_file_rsp_recv(dest, (uint8_t *)&resp, sizeof(resp));
     if (ret != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "Failed to read response (%d)!", ret);
@@ -183,7 +186,7 @@ int esp_apptrace_fclose(esp_apptrace_dest_t dest, void *stream)
     }
 
     // now read the answer
-    int resp;
+    int resp = 0;
     ret = esp_apptrace_file_rsp_recv(dest, (uint8_t *)&resp, sizeof(resp));
     if (ret != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "Failed to read response (%d)!", ret);
@@ -222,7 +225,7 @@ size_t esp_apptrace_fwrite(esp_apptrace_dest_t dest, const void *ptr, size_t siz
     }
 
     // now read the answer
-    size_t resp;
+    size_t resp = 0;
     ret = esp_apptrace_file_rsp_recv(dest, (uint8_t *)&resp, sizeof(resp));
     if (ret != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "Failed to read response (%d)!", ret);
@@ -260,7 +263,7 @@ size_t esp_apptrace_fread(esp_apptrace_dest_t dest, void *ptr, size_t size, size
     }
 
     // now read the answer
-    size_t resp;
+    size_t resp = 0;
     ret = esp_apptrace_file_rsp_recv(dest, (uint8_t *)&resp, sizeof(resp));
     if (ret != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "Failed to read response (%d)!", ret);
@@ -302,7 +305,7 @@ int esp_apptrace_fseek(esp_apptrace_dest_t dest, void *stream, long offset, int 
     }
 
     // now read the answer
-    int resp;
+    int resp = 0;
     ret = esp_apptrace_file_rsp_recv(dest, (uint8_t *)&resp, sizeof(resp));
     if (ret != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "Failed to read response (%d)!", ret);
@@ -332,7 +335,7 @@ int esp_apptrace_ftell(esp_apptrace_dest_t dest, void *stream)
     }
 
     // now read the answer
-    int resp;
+    int resp = 0;
     ret = esp_apptrace_file_rsp_recv(dest, (uint8_t *)&resp, sizeof(resp));
     if (ret != ESP_OK) {
         ESP_EARLY_LOGE(TAG, "Failed to read response (%d)!", ret);

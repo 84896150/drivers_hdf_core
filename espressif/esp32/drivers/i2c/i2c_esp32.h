@@ -7,8 +7,6 @@ extern "C" {
 #endif /* __cplusplus */
 #endif /* __cplusplus */
 
-// TODO:
-
 #ifdef __cplusplus
 #if __cplusplus
 }

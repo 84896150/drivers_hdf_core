@@ -29,12 +29,12 @@ struct Esp32 {
     uint32_t busNum;
     uint32_t numCs;
     uint32_t curCs;
-    uint8_t command_bits;           ///< Default amount of bits in command phase (0-16), used when ``SPI_TRANS_VARIABLE_CMD`` is not used, otherwise ignored.
-    uint8_t address_bits;           ///< Default amount of bits in address phase (0-64), used when ``SPI_TRANS_VARIABLE_ADDR`` is not used, otherwise ignored.
-    uint8_t dummy_bits;             ///< Amount of dummy bits to insert between address and data phase
+    uint8_t command_bits;
+    uint8_t address_bits;
+    uint8_t dummy_bits;
     uint8_t mode;
     uint16_t duty_cycle_pos;
-    int clock_speed_hz;             ///< Clock speed, divisors of 80MHz, in Hz. See ``SPI_MASTER_FREQ_*``.
+    int clock_speed_hz;
     int spics_io_num;
     int queue_size;
     int mosi_io_num;
@@ -198,7 +198,7 @@ static int32_t Esp32SpiTransfer(struct SpiCntlr *cntlr, struct SpiMsg *msg, uint
     spi_dma_chan_t dmaChannel;
     struct SpiDev* spiDev = NULL;
     struct Esp32 *esp32 = NULL;
-    int32_t ret;
+    int32_t ret = 0;
     spi_device_handle_t handle;
 
     if (msg == NULL || cntlr == NULL) {
@@ -351,8 +351,8 @@ static int32_t Esp32SpiDeviceBind(struct HdfDeviceObject *device)
 
 static int32_t Esp32SpiDeviceInit(struct HdfDeviceObject *device)
 {
-    int32_t ret;
-    esp_err_t espRet=ESP_FAIL;
+    int32_t ret = 0;
+    esp_err_t espRet = ESP_FAIL;
     struct SpiCntlr *cntlr = NULL;
     struct Esp32 *esp32 = NULL;
 
@@ -421,7 +421,7 @@ static void Esp32SpiDeviceRelease(struct HdfDeviceObject *device)
     SpiCntlrDestroy(cntlr);
 }
 
-struct HdfDriverEntry g_spiDriverEntry = {
+struct HdfDriverEntry g_spi_driver_entry = {
     .moduleVersion = 1,
     .Bind = Esp32SpiDeviceBind,
     .Init = Esp32SpiDeviceInit,
@@ -429,4 +429,4 @@ struct HdfDriverEntry g_spiDriverEntry = {
     .moduleName = "esp32_spi_driver",
 };
 
-HDF_INIT(g_spiDriverEntry);
+HDF_INIT(g_spi_driver_entry);

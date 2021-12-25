@@ -35,18 +35,23 @@ typedef struct {
 
 static esp_err_t esp_apptrace_riscv_init(esp_apptrace_riscv_data_t *hw_data);
 static esp_err_t esp_apptrace_riscv_flush(esp_apptrace_riscv_data_t *hw_data, esp_apptrace_tmo_t *tmo);
-static esp_err_t esp_apptrace_riscv_flush_nolock(esp_apptrace_riscv_data_t *hw_data, uint32_t min_sz, esp_apptrace_tmo_t *tmo);
-static uint8_t *esp_apptrace_riscv_up_buffer_get(esp_apptrace_riscv_data_t *hw_data, uint32_t size, esp_apptrace_tmo_t *tmo);
-static esp_err_t esp_apptrace_riscv_up_buffer_put(esp_apptrace_riscv_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo);
-static void esp_apptrace_riscv_down_buffer_config(esp_apptrace_riscv_data_t *hw_data, uint8_t *buf, uint32_t size);
-static uint8_t *esp_apptrace_riscv_down_buffer_get(esp_apptrace_riscv_data_t *hw_data, uint32_t *size, esp_apptrace_tmo_t *tmo);
-static esp_err_t esp_apptrace_riscv_down_buffer_put(esp_apptrace_riscv_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_riscv_flush_nolock(esp_apptrace_riscv_data_t *hw_data,
+                                                 uint32_t min_sz, esp_apptrace_tmo_t *tmo);
+static uint8_t *esp_apptrace_riscv_up_buffer_get(esp_apptrace_riscv_data_t *hw_data,
+                                                 uint32_t size, esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_riscv_up_buffer_put(esp_apptrace_riscv_data_t *hw_data,
+                                                  uint8_t *ptr, esp_apptrace_tmo_t *tmo);
+static void esp_apptrace_riscv_down_buffer_config(esp_apptrace_riscv_data_t *hw_data,
+                                                  uint8_t *buf, uint32_t size);
+static uint8_t *esp_apptrace_riscv_down_buffer_get(esp_apptrace_riscv_data_t *hw_data,
+                                                   uint32_t *size, esp_apptrace_tmo_t *tmo);
+static esp_err_t esp_apptrace_riscv_down_buffer_put(esp_apptrace_riscv_data_t *hw_data,
+                                                    uint8_t *ptr, esp_apptrace_tmo_t *tmo);
 static bool esp_apptrace_riscv_host_is_connected(esp_apptrace_riscv_data_t *hw_data);
 static esp_err_t esp_apptrace_riscv_buffer_swap_start(uint32_t curr_block_id);
 static esp_err_t esp_apptrace_riscv_buffer_swap(uint32_t new_block_id);
 static esp_err_t esp_apptrace_riscv_buffer_swap_end(uint32_t new_block_id, uint32_t prev_block_len);
 static bool esp_apptrace_riscv_host_data_pending(void);
-
 
 const static char *TAG = "esp_apptrace";
 
@@ -73,13 +78,20 @@ esp_apptrace_hw_t *esp_apptrace_jtag_hw_get(void **data)
     };
     static esp_apptrace_hw_t s_trace_hw = {
         .init = (esp_err_t (*)(void *))esp_apptrace_riscv_init,
-        .get_up_buffer = (uint8_t *(*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_riscv_up_buffer_get,
-        .put_up_buffer = (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_riscv_up_buffer_put,
-        .flush_up_buffer_nolock = (esp_err_t (*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_riscv_flush_nolock,
-        .flush_up_buffer = (esp_err_t (*)(void *, esp_apptrace_tmo_t *))esp_apptrace_riscv_flush,
-        .down_buffer_config = (void (*)(void *, uint8_t *, uint32_t ))esp_apptrace_riscv_down_buffer_config,
-        .get_down_buffer = (uint8_t *(*)(void *, uint32_t *, esp_apptrace_tmo_t *))esp_apptrace_riscv_down_buffer_get,
-        .put_down_buffer = (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_riscv_down_buffer_put,
+        .get_up_buffer =
+                   (uint8_t *(*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_riscv_up_buffer_get,
+        .put_up_buffer =
+                   (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_riscv_up_buffer_put,
+        .flush_up_buffer_nolock =
+                   (esp_err_t (*)(void *, uint32_t, esp_apptrace_tmo_t *))esp_apptrace_riscv_flush_nolock,
+        .flush_up_buffer =
+                   (esp_err_t (*)(void *, esp_apptrace_tmo_t *))esp_apptrace_riscv_flush,
+        .down_buffer_config =
+                   (void (*)(void *, uint8_t *, uint32_t))esp_apptrace_riscv_down_buffer_config,
+        .get_down_buffer =
+                   (uint8_t *(*)(void *, uint32_t *, esp_apptrace_tmo_t *))esp_apptrace_riscv_down_buffer_get,
+        .put_down_buffer =
+                   (esp_err_t (*)(void *, uint8_t *, esp_apptrace_tmo_t *))esp_apptrace_riscv_down_buffer_put,
         .host_is_connected = (bool (*)(void *))esp_apptrace_riscv_host_is_connected,
     };
     *data = &s_trace_hw_data;
@@ -100,7 +112,7 @@ __attribute__((weak)) int esp_apptrace_advertise_ctrl_block(void *ctrl_block_add
     if (!esp_cpu_in_ocd_debug_mode()) {
         return 0;
     }
-    __asm__ volatile ( \
+    __asm__ volatile( \
         ".option push\n" \
         ".option norvc\n" \
         "mv a0, %[sys_nr]\n" \
@@ -169,7 +181,8 @@ static esp_err_t esp_apptrace_riscv_init(esp_apptrace_riscv_data_t *hw_data)
 #endif
     }
     hw_data->inited |= 1 << core_id;
-    ESP_APPTRACE_LOGI("Apptrace initialized on CPU%d. Tracing control block @ %p.", core_id, &s_tracing_ctrl[core_id]);
+    ESP_APPTRACE_LOGI("Apptrace initialized on CPU%d. Tracing control block @ %p.",
+                      core_id, &s_tracing_ctrl[core_id]);
     s_tracing_ctrl[core_id].mem_blocks = hw_data->membufs.blocks;
     for (int i = 0; i < 2; i++) {
         ESP_APPTRACE_LOGD("Mem buf[%d] %d bytes @ %p (%p/%p)", i,
@@ -183,9 +196,10 @@ static esp_err_t esp_apptrace_riscv_init(esp_apptrace_riscv_data_t *hw_data)
     return ESP_OK;
 }
 
-static uint8_t *esp_apptrace_riscv_up_buffer_get(esp_apptrace_riscv_data_t *hw_data, uint32_t size, esp_apptrace_tmo_t *tmo)
+static uint8_t *esp_apptrace_riscv_up_buffer_get(esp_apptrace_riscv_data_t *hw_data,
+                                                 uint32_t size, esp_apptrace_tmo_t *tmo)
 {
-    uint8_t *ptr;
+    uint8_t *ptr = NULL;
 
     if (!ESP_APPTRACE_RISCV_INITED(hw_data)) {
         return NULL;
@@ -204,7 +218,8 @@ static uint8_t *esp_apptrace_riscv_up_buffer_get(esp_apptrace_riscv_data_t *hw_d
     return ptr;
 }
 
-static esp_err_t esp_apptrace_riscv_up_buffer_put(esp_apptrace_riscv_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_riscv_up_buffer_put(esp_apptrace_riscv_data_t *hw_data,
+                                                  uint8_t *ptr, esp_apptrace_tmo_t *tmo)
 {
     if (!ESP_APPTRACE_RISCV_INITED(hw_data)) {
         return ESP_ERR_INVALID_STATE;
@@ -222,9 +237,10 @@ static void esp_apptrace_riscv_down_buffer_config(esp_apptrace_riscv_data_t *hw_
     esp_apptrace_membufs_down_buffer_config(&hw_data->membufs, buf, size);
 }
 
-static uint8_t *esp_apptrace_riscv_down_buffer_get(esp_apptrace_riscv_data_t *hw_data, uint32_t *size, esp_apptrace_tmo_t *tmo)
+static uint8_t *esp_apptrace_riscv_down_buffer_get(esp_apptrace_riscv_data_t *hw_data,
+                                                   uint32_t *size, esp_apptrace_tmo_t *tmo)
 {
-    uint8_t *ptr;
+    uint8_t *ptr = NULL;
 
     if (!ESP_APPTRACE_RISCV_INITED(hw_data)) {
         return NULL;
@@ -243,7 +259,8 @@ static uint8_t *esp_apptrace_riscv_down_buffer_get(esp_apptrace_riscv_data_t *hw
     return ptr;
 }
 
-static esp_err_t esp_apptrace_riscv_down_buffer_put(esp_apptrace_riscv_data_t *hw_data, uint8_t *ptr, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_riscv_down_buffer_put(esp_apptrace_riscv_data_t *hw_data,
+                                                    uint8_t *ptr, esp_apptrace_tmo_t *tmo)
 {
     if (!ESP_APPTRACE_RISCV_INITED(hw_data)) {
         return ESP_ERR_INVALID_STATE;
@@ -271,7 +288,8 @@ static bool esp_apptrace_riscv_host_is_connected(esp_apptrace_riscv_data_t *hw_d
     return s_tracing_ctrl[cpu_hal_get_core_id()].ctrl & ESP_APPTRACE_RISCV_HOST_CONNECT ? true : false;
 }
 
-static esp_err_t esp_apptrace_riscv_flush_nolock(esp_apptrace_riscv_data_t *hw_data, uint32_t min_sz, esp_apptrace_tmo_t *tmo)
+static esp_err_t esp_apptrace_riscv_flush_nolock(esp_apptrace_riscv_data_t *hw_data,
+                                                 uint32_t min_sz, esp_apptrace_tmo_t *tmo)
 {
     if (!ESP_APPTRACE_RISCV_INITED(hw_data)) {
         return ESP_ERR_INVALID_STATE;
@@ -338,16 +356,15 @@ static esp_err_t esp_apptrace_riscv_buffer_swap_start(uint32_t curr_block_id)
         uint32_t acked_block = ESP_APPTRACE_RISCV_BLOCK_ID_GET(ctrl_reg);
         uint32_t host_to_read = ESP_APPTRACE_RISCV_BLOCK_LEN_GET(ctrl_reg);
         if (host_to_read != 0 || acked_block != (curr_block_id & ESP_APPTRACE_RISCV_BLOCK_ID_MSK)) {
-            ESP_APPTRACE_LOGD("[%d]: Can not switch %x %d %x %x/%lx", cpu_hal_get_core_id(), ctrl_reg, host_to_read, acked_block,
+            ESP_APPTRACE_LOGD("[%d]: Can not switch %x %d %x %x/%lx", cpu_hal_get_core_id(),
+                              ctrl_reg, host_to_read, acked_block,
                 curr_block_id & ESP_APPTRACE_RISCV_BLOCK_ID_MSK, curr_block_id);
             res = ESP_ERR_NO_MEM;
-            goto _on_err;
+            esp_apptrace_riscv_buffer_swap_unlock();
+            return res;
         }
     }
     return ESP_OK;
-_on_err:
-    esp_apptrace_riscv_buffer_swap_unlock();
-    return res;
 }
 
 static esp_err_t esp_apptrace_riscv_buffer_swap_end(uint32_t new_block_id, uint32_t prev_block_len)

@@ -68,60 +68,75 @@ static int32_t getConfigFromHcs(struct UartHost *uartHost, const struct DeviceRe
     iface = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE); 
     if (iface == NULL || iface->GetUint32 == NULL) {
         HDF_LOGE("%s: face is invalid", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
 
     if (iface->GetUint32(node, "num", &uartHost->num, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read num fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "baudrate", &esp32c3DriverData->baudRate, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read baudrate fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     if (iface->GetUint32(node, "databits", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read databits fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.dataBits = tmp;
     if (iface->GetUint32(node, "parity", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read parity fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.parity = tmp;
     if (iface->GetUint32(node, "stopbits", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read stopbits fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.stopBits = tmp;
     if (iface->GetUint32(node, "rts", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read rts fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.rts = tmp;
     if (iface->GetUint32(node, "cts", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read cts fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.cts = tmp;
     if (iface->GetUint32(node, "fifoRxEn", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read fifoRxEn fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.fifoRxEn = tmp;
     if (iface->GetUint32(node, "fifoTxEn", &tmp, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: read fifoTxEn fail", __func__);
-        goto FREE_TRANSFER;
+        (void)OsalMemFree(esp32c3DriverData);
+        uartHost->priv = NULL;
+        return HDF_FAILURE;
     }
     esp32c3DriverData->attr.fifoTxEn = tmp;
 
     uartHost->priv = (void*)esp32c3DriverData;
     return HDF_SUCCESS;
-
-FREE_TRANSFER:
-    (void)OsalMemFree(esp32c3DriverData);
-    uartHost->priv = NULL;
-    return HDF_FAILURE;
 }
 
 static int32_t setConfig(struct UartHost *host)
@@ -293,7 +308,7 @@ static int32_t Esp32UartWrite(struct UartHost *host, uint8_t *data, uint32_t siz
         return HDF_ERR_INVALID_PARAM;
     }
 
-    if ( host->num >= UART_NUM_MAX )
+    if (host->num >= UART_NUM_MAX)
     {
         HDF_LOGE("%s: invalid parameter: host->num(%d) is greater than %d.", __func__, host->num, UART_NUM_MAX);
         return HDF_ERR_INVALID_PARAM;
@@ -307,7 +322,8 @@ static int32_t Esp32UartWrite(struct UartHost *host, uint8_t *data, uint32_t siz
     }
     if (writedSize != (int)size)
     {
-        HDF_LOGE("%s: uart_write_bytes() only writed %d bytes, but %d bytes need to be writed.", __func__, writedSize, size);
+        HDF_LOGE("%s: uart_write_bytes() only writed %d bytes, "
+                "but %d bytes need to be writed.", __func__, writedSize, size);
         return HDF_FAILURE;
     }
 
@@ -339,8 +355,8 @@ static int32_t Esp32UartRead(struct UartHost *host, uint8_t *data, uint32_t size
     readSize = uart_read_bytes(host->num, (void*)data, size, 0U);
     if (0 > readSize)
     {
-         HDF_LOGE("%s: uart_read_bytes() is failed. errno=%d.", __func__, readSize);
-         return HDF_FAILURE;
+        HDF_LOGE("%s: uart_read_bytes() is failed. errno=%d.", __func__, readSize);
+        return HDF_FAILURE;
     }
 
     return readSize;
@@ -355,7 +371,7 @@ static int32_t Esp32UartDeinit(struct UartHost *host)
     }
 
     if (host->num != UART_NUM_0 &&
-        host->num != UART_NUM_1  )
+        host->num != UART_NUM_1)
     {
         HDF_LOGE("%s: host->num is not %d neither %d.", __func__, UART_NUM_0, UART_NUM_1);
         return HDF_ERR_INVALID_PARAM;
@@ -372,7 +388,7 @@ static int32_t Esp32UartInit(struct UartHost *host)
     if (HDF_SUCCESS != setConfig(host))
     {
         HDF_LOGE("%s: Set config failed.", __func__);
-        return HDF_FAILURE;;
+        return HDF_FAILURE;
     }
 
     if (NULL == host)
@@ -395,7 +411,7 @@ static int32_t Esp32UartInit(struct UartHost *host)
     if(ESP_OK != espRet)
     {
         HDF_LOGE("%s: uart_set_pin() is failed.errno=%d.", __func__, espRet);
-        return HDF_FAILURE;;
+        return HDF_FAILURE;
     }
 
     /*install device*/
@@ -408,13 +424,13 @@ static int32_t Esp32UartInit(struct UartHost *host)
     if(ESP_OK != espRet)
     {
         HDF_LOGE("%s: uart_driver_install() is failed.errno=%d.", __func__, espRet);
-        return HDF_FAILURE;;
+        return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
 }
 
-struct UartHostMethod g_UartMethod = {
+struct UartHostMethod g_uart_method = {
     .Init = Esp32UartInit,
     .Deinit = Esp32UartDeinit,
     .Read = Esp32UartRead,
@@ -467,7 +483,7 @@ int32_t Esp32UartDeviceInit(struct HdfDeviceObject *device)
     }
 
     /*给Method赋值,框架才能调用到对应的方法*/
-    host->method = &g_UartMethod;
+    host->method = &g_uart_method;
 
     /*增加设备节点*/
     // UartAddDev(host);
@@ -502,7 +518,7 @@ void Esp32UartDeviceRelease(struct HdfDeviceObject *device)
     UartHostDestroy(host);
 }
 
-struct HdfDriverEntry g_uartDriverEntry = {
+struct HdfDriverEntry g_uart_driver_entry = {
     .moduleVersion = 1,
     .Bind = Esp32UartDeviceBind,
     .Init = Esp32UartDeviceInit,
@@ -510,4 +526,4 @@ struct HdfDriverEntry g_uartDriverEntry = {
     .moduleName = "esp32_uart_driver",
 };
 
-HDF_INIT(g_uartDriverEntry);
+HDF_INIT(g_uart_driver_entry);

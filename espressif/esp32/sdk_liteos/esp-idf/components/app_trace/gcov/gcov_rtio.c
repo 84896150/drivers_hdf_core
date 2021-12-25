@@ -48,7 +48,15 @@ void gcov_dump_task(void *pvParameter)
     if (down_buf == NULL) {
         ESP_EARLY_LOGE(TAG, "Could not allocate memory for the buffer");
         dump_result = ESP_ERR_NO_MEM;
-        goto gcov_exit;
+        ESP_EARLY_LOGV(TAG, "dump_result %d", dump_result);
+        if (running) {
+            *running = false;
+        }
+
+        ESP_EARLY_LOGV(TAG, "%s stack use out %d", __FUNCTION__, uxTaskGetStackHighWaterMark(NULL));
+
+        vTaskDelete(NULL);
+        return;
     }
     ESP_EARLY_LOGV(TAG, "Config apptrace down buf");
     esp_apptrace_down_buffer_config(down_buf, ESP_GCOV_DOWN_BUF_SIZE);
@@ -70,7 +78,6 @@ void gcov_dump_task(void *pvParameter)
         ESP_EARLY_LOGE(TAG, "Failed to send files transfer stop cmd (%d)!", dump_result);
     }
 
-gcov_exit:
     ESP_EARLY_LOGV(TAG, "dump_result %d", dump_result);
     if (running) {
         *running = false;
@@ -84,7 +91,9 @@ gcov_exit:
 void gcov_create_task(void *arg)
 {
     ESP_EARLY_LOGV(TAG, "%s", __FUNCTION__);
-    xTaskCreatePinnedToCore(&gcov_dump_task, "gcov_dump_task", 2048, (void *)&s_gcov_task_running, configMAX_PRIORITIES - 1, NULL, 0);
+    xTaskCreatePinnedToCore(&gcov_dump_task, "gcov_dump_task", 2048,
+                            (void *)&s_gcov_task_running,
+                            configMAX_PRIORITIES - 1, NULL, 0);
 }
 
 void gcov_create_task_tick_hook(void)

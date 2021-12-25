@@ -14,7 +14,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #if ESP_APPTRACE_PRINT_LOCK
-static esp_apptrace_lock_t s_log_lock = {.irq_stat = 0, .portmux = portMUX_INITIALIZER_UNLOCKED};
+static esp_apptrace_lock_t s_log_lock = {
+         .irq_stat = 0,
+         .portmux = portMUX_INITIALIZER_UNLOCKED
+};
 #endif
 
 int esp_apptrace_log_lock(void)
@@ -31,7 +34,7 @@ int esp_apptrace_log_lock(void)
 
 void esp_apptrace_log_unlock(void)
 {
- #if ESP_APPTRACE_PRINT_LOCK
+#if ESP_APPTRACE_PRINT_LOCK
     esp_apptrace_lock_give(&s_log_lock);
 #endif
 }
@@ -57,7 +60,7 @@ esp_err_t esp_apptrace_tmo_check(esp_apptrace_tmo_t *tmo)
 
 esp_err_t esp_apptrace_lock_take(esp_apptrace_lock_t *lock, esp_apptrace_tmo_t *tmo)
 {
-    int res;
+    int res = 0;
 
     while (1) {
         // do not overwrite lock->int_state before we actually acquired the mux

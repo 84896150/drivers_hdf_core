@@ -78,25 +78,25 @@ extern "C" {     /* Make sure we have C-declarations in C++ programs */
 */
 
 #ifndef INLINE
-  #ifdef _WIN32
-    //
-    // Microsoft VC6 and newer.
-    // Force inlining without cost checking.
-    //
-    #define INLINE  __forceinline
-  #else
-    #if (defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__) || defined(__RX) || defined(__ICCRX__))
-      //
-      // Other known compilers.
-      //
-      #define INLINE  inline
-    #else
-      //
-      // Unknown compilers.
-      //
-      #define INLINE
-    #endif
-  #endif
+#ifdef _WIN32
+//
+// Microsoft VC6 and newer.
+// Force inlining without cost checking.
+//
+#define INLINE  __forceinline
+#else
+#if (defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__) || defined(__RX) || defined(__ICCRX__))
+//
+// Other known compilers.
+//
+#define INLINE  inline
+#else
+//
+// Unknown compilers.
+//
+#define INLINE
+#endif
+#endif
 #endif
 
 /*********************************************************************
@@ -124,10 +124,10 @@ typedef struct {
 } SEGGER_BUFFER_DESC;
 
 typedef struct {
-  int  CacheLineSize;                                // 0: No Cache. Most Systems such as ARM9 use a 32 bytes cache line size.
-  void (*pfDMB)       (void);                        // Optional DMB function for Data Memory Barrier to make sure all memory operations are completed.
-  void (*pfClean)     (void *p, unsigned NumBytes);  // Optional clean function for cached memory.
-  void (*pfInvalidate)(void *p, unsigned NumBytes);  // Optional invalidate function for cached memory.
+  int  CacheLineSize;
+  void (*pfDMB)       (void);
+  void (*pfClean)     (void *p, unsigned NumBytes);
+  void (*pfInvalidate)(void *p, unsigned NumBytes);
 } SEGGER_CACHE_CONFIG;
 
 /*********************************************************************

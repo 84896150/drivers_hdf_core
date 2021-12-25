@@ -78,7 +78,7 @@ static int32_t Esp32GpioWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t v
 
 static int32_t Esp32GpioRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
-    int valCur;
+    int valCur = 0;
 
     if (cntlr == NULL || cntlr->priv == NULL) {
         HDF_LOGE("%s: cntlr or priv is NULL", __func__);
@@ -87,7 +87,7 @@ static int32_t Esp32GpioRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *v
     valCur = gpio_get_level(gpio);
     if (valCur == 1) {
         *val = GPIO_VAL_HIGH;
-    } else if (valCur == 0 ){
+    } else if (valCur == 0){
         *val = GPIO_VAL_LOW;
     }
 
@@ -96,16 +96,17 @@ static int32_t Esp32GpioRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *v
 
 static int32_t Esp32GpioSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t dir)
 {
-    int mode ;
+    int mode = 0;
 
     HDF_LOGE("%s: start", __func__);
     if (cntlr == NULL || cntlr->priv == NULL) {
         HDF_LOGE("%s: cntlr or priv is NULL", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-     if (dir == GPIO_DIR_IN) {
+
+    if (dir == GPIO_DIR_IN) {
         mode = GPIO_MODE_INPUT;
-    } else if (dir == GPIO_DIR_OUT ){
+    } else if (dir == GPIO_DIR_OUT){
         mode = GPIO_MODE_OUTPUT;
     }
     gpio_direct[gpio] = dir;
@@ -117,7 +118,7 @@ static int32_t Esp32GpioSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t 
 
 static int32_t Esp32GpioGetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *dir) 
 {
-    unsigned char direct;
+    unsigned char direct = 0;
 
     HDF_LOGE("%s: start", __func__);
     if (cntlr == NULL || cntlr->priv == NULL) {
@@ -160,7 +161,7 @@ static int32_t Esp32GpioSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t 
     GpioIrqFunc func, void *arg)
 {
     (void)func;
-    int ret;
+    int ret = 0;
 
     if (cntlr == NULL || cntlr->priv == NULL) {
         HDF_LOGE("%s: cntlr or priv is NULL", __func__);
@@ -186,7 +187,7 @@ static int32_t Esp32GpioSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t 
 
 static int32_t Esp32GpioUnsetIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
-    uint32_t gpio_intr_status;
+    uint32_t gpio_intr_status = 0;
 
     if (cntlr == NULL || cntlr->priv == NULL) {
         HDF_LOGE("%s: cntlr or priv is NULL", __func__);
@@ -251,7 +252,7 @@ static int32_t Esp32GpioBind(struct HdfDeviceObject *device)
 
 static void Esp32GpioRleaseCntlrMem(struct Esp32GpioCntlr *esp32)
 {
-    uint16_t i;
+    uint16_t i = 0;
 
     if (esp32 == NULL) {
         return;
@@ -267,7 +268,7 @@ static void Esp32GpioRleaseCntlrMem(struct Esp32GpioCntlr *esp32)
 
 static int32_t Esp32GpioReadDrs(struct Esp32GpioCntlr *esp32, const struct DeviceResourceNode *node)
 {
-    int32_t ret;
+    int32_t ret = 0;
     struct DeviceResourceIface *drsOps = NULL;
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
@@ -294,7 +295,7 @@ static int32_t Esp32GpioReadDrs(struct Esp32GpioCntlr *esp32, const struct Devic
 static int32_t Esp32GpioInit(struct HdfDeviceObject *device)
 {
     // Binding g_method and g_lockOps
-    int32_t ret;
+    int32_t ret = 0;
     struct Esp32GpioCntlr *esp32 = &g_esp32_gpio;
 
     HDF_LOGI("%s: Enter", __func__);
@@ -307,7 +308,7 @@ static int32_t Esp32GpioInit(struct HdfDeviceObject *device)
         HDF_LOGE("%s: read drs fail:%d", __func__, ret);
         return ret;
     }
-    esp32->cntlr.count = esp32->groupNum * esp32->bitNum;;
+    esp32->cntlr.count = esp32->groupNum * esp32->bitNum;
     esp32->cntlr.priv = (void *)device->property;
     esp32->cntlr.ops = &g_GpioMethod;
     esp32->cntlr.device = device;
@@ -341,11 +342,11 @@ static void Esp32GpioRelease(struct HdfDeviceObject *device)
     
 }
 
-struct HdfDriverEntry g_gpioDriverEntry = {
+struct HdfDriverEntry g_gpio_driver_entry = {
     .moduleVersion = 1,
     .Bind = Esp32GpioBind,
     .Init = Esp32GpioInit,
     .Release = Esp32GpioRelease,
     .moduleName = "esp32_gpio_driver",
 };
-HDF_INIT(g_gpioDriverEntry);
+HDF_INIT(g_gpio_driver_entry);
