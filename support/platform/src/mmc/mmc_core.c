@@ -979,15 +979,15 @@ int32_t MmcDeviceAdd(struct MmcDevice *mmc)
     if (mmc->secSize == 0) {
         mmc->secSize = MMC_SEC_SIZE;
     } else {
-        HDF_LOGE("MmcDeviceAdd: invalid sector size:%u", mmc->secSize);
+        HDF_LOGE("MmcDeviceAdd: invalid sector size:%lu", mmc->secSize);
         return HDF_ERR_INVALID_PARAM;
     }
     if (mmc->type != MMC_DEV_SDIO && mmc->capacity == 0) {
-        HDF_LOGE("MmcDeviceAdd: invalid capacity:%u", mmc->capacity);
+        HDF_LOGE("MmcDeviceAdd: invalid capacity:%lu", mmc->capacity);
         return HDF_ERR_INVALID_PARAM;
     }
     if (mmc->type != MMC_DEV_SDIO && mmc->eraseSize == 0) {
-        HDF_LOGE("MmcDeviceAdd: invalid erase size:%u", mmc->eraseSize);
+        HDF_LOGE("MmcDeviceAdd: invalid erase size:%lu", mmc->eraseSize);
         return HDF_ERR_INVALID_PARAM;
     }
     mmc->device.magic = mmc->cntlr->device.magic + MMC_CNTLR_NR_MAX;

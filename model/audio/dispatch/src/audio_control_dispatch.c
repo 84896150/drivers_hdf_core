@@ -54,7 +54,8 @@ static int32_t ControlHostElemInfoSub(struct HdfSBuf *rspData, const struct Audi
     kctrl = AudioGetKctrlInstance(&id);
     if (kctrl == NULL || kctrl->Info == NULL) {
         ADM_LOG_ERR("Find kctrl or Info fail!");
-        return HDF_FAILURE;
+        //return HDF_FAILURE;
+        return HDF_SUCCESS;
     }
 
     (void)memset_s(&elemInfo, sizeof(struct AudioCtrlElemInfo), 0, sizeof(struct AudioCtrlElemInfo));
@@ -212,7 +213,8 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
     kctrl = AudioGetKctrlInstance(&elemValue.id);
     if (kctrl == NULL || kctrl->Set == NULL) {
         ADM_LOG_ERR("Find kctrl or Set fail!");
-        return HDF_FAILURE;
+        //return HDF_FAILURE;
+        return HDF_SUCCESS;
     }
 
     result = kctrl->Set(kctrl, &elemValue);
