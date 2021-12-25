@@ -124,8 +124,8 @@ enum MmcCmdCode {
                              * sets the address of the last erase group within a continuous
                              * range to be selected for erase.
                              */
-    MMC_ERASE = 38,   /* erases all previously selected write blocks. */
-    MMC_FAST_IO = 39, /*
+    HFW_MMC_ERASE = 38,   /* erases all previously selected write blocks. */
+    HFW_MMC_FAST_IO = 39, /*
                        * used to write and read 8 bit (register) data fields. The command addresses a card and
                        * a register and provides the data for writing if the write flag is set. The R4 response
                        * contains data read from the addressed register. This command accesses application

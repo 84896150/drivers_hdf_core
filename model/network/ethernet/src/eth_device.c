@@ -8,10 +8,10 @@
 
 #include "eth_device.h"
 #include "eth_chip_driver.h"
-#include <string.h>
+// #include <string.h>
 #include "device_resource_if.h"
 #include "hdf_log.h"
-#include "los_vm_zone.h"
+// #include "los_vm_zone.h"
 #include "osal_mem.h"
 #include "securec.h"
 
