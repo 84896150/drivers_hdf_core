@@ -176,11 +176,11 @@ FAIL:
     OsalMemFree(blPwmDev);
     return HDF_FAILURE;
 }
- 
-struct HdfDriverEntry g_pwmBlDevEntry = {
+
+struct HdfDriverEntry g_pwmbldeventry = {
     .moduleVersion = 1,
     .moduleName = "PWM_BL",
     .Init = BlPwmEntryInit,
 };
 
-HDF_INIT(g_pwmBlDevEntry);
+HDF_INIT(g_pwmbldeventry);

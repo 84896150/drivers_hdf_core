@@ -220,7 +220,7 @@ void Bmi160ReleaseDriver(struct HdfDeviceObject *device)
     OsalMemFree(drvData);
 }
 
-struct HdfDriverEntry g_accelBmi160DevEntry = {
+struct HdfDriverEntry g_accelbmi160deventry = {
     .moduleVersion = 1,
     .moduleName = "HDF_SENSOR_ACCEL_BMI160",
     .Bind = Bmi160BindDriver,
@@ -228,4 +228,4 @@ struct HdfDriverEntry g_accelBmi160DevEntry = {
     .Release = Bmi160ReleaseDriver,
 };
 
-HDF_INIT(g_accelBmi160DevEntry);
+HDF_INIT(g_accelbmi160deventry);

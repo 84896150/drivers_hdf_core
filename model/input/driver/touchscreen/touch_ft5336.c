@@ -349,6 +349,8 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
     if (RegisterChipDevice(chipDev) != HDF_SUCCESS) {
         HDF_LOGI("%s: fail", __func__);
         OsalMemFree(chipDev);
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
 #if TP_CHANGE_X2Y

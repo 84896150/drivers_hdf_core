@@ -351,7 +351,7 @@ break;
     }
     if (cnt == tmpChipList->chipInstSize || cnt == WLAN_MAX_CHIP_NUM) {
         HDF_LOGE("%s: NO sdio card detected!", __func__);
-		// add by zhaoxc for hdf
+        // add by zhaoxc for hdf
         // SdioClose(handle);
         return NULL;
     }
@@ -373,7 +373,7 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
     handle = HdfGetDevHandle(dev, busCfg);
 // add by zhaoxc for hdf
 return HDF_SUCCESS;
-	
+
     if (handle == NULL) {
         HDF_LOGE("%s: sdio card detected fail!", __func__);
         return HDF_FAILURE;
@@ -398,7 +398,7 @@ return HDF_SUCCESS;
     return ret;
 
 sdioInitFail:
-	// add by zhaoxc for hdf
+    // add by zhaoxc for hdf
     // SdioClose(handle);
     return HDF_FAILURE;
 }

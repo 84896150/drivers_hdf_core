@@ -400,7 +400,7 @@ void Bmp180ReleaseDriver(struct HdfDeviceObject *device)
     OsalMemFree(drvData);
 }
 
-struct HdfDriverEntry g_barometerBmp180DevEntry = {
+struct HdfDriverEntry g_barometerbmp180deventry = {
     .moduleVersion = 1,
     .moduleName = "HDF_SENSOR_BAROMETER_BMP180",
     .Bind = Bmp180BindDriver,
@@ -408,4 +408,4 @@ struct HdfDriverEntry g_barometerBmp180DevEntry = {
     .Release = Bmp180ReleaseDriver,
 };
 
-HDF_INIT(g_barometerBmp180DevEntry);
+HDF_INIT(g_barometerbmp180deventry);
