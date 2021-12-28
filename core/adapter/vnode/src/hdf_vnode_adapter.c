@@ -314,6 +314,7 @@ static int VNodeAdapterSendDevEventToClient(struct HdfVNodeAdapterClient *vnodeC
 {
     struct HdfDevEvent *event = NULL;
 
+#if 0
     OsalMutexLock(&vnodeClient->mutex);
     if (vnodeClient->status != VNODE_CLIENT_LISTENING) {
         OsalMutexUnlock(&vnodeClient->mutex);
@@ -340,6 +341,33 @@ static int VNodeAdapterSendDevEventToClient(struct HdfVNodeAdapterClient *vnodeC
     wake_up_interruptible(&vnodeClient->pollWait);
     OsalMutexUnlock(&vnodeClient->mutex);
 
+#else
+    OsalMutexTryLock(&vnodeClient->mutex);
+    if (vnodeClient->status != VNODE_CLIENT_LISTENING) {
+        OsalMutexUnlock(&vnodeClient->mutex);
+        return HDF_SUCCESS;
+    }
+    if (vnodeClient->eventQueueSize >= EVENT_QUEUE_MAX) {
+        HdfVnodeAdapterDropOldEventLocked(vnodeClient);
+    }
+    event = OsalMemAlloc(sizeof(struct HdfDevEvent));
+    if (event == NULL) {
+        OsalMutexUnlock(&vnodeClient->mutex);
+        return HDF_DEV_ERR_NO_MEMORY;
+    }
+    event->id = id;
+    event->data = HdfSBufCopy(data);
+    if (event->data == NULL) {
+        OsalMutexUnlock(&vnodeClient->mutex);
+        HDF_LOGE("%s: sbuf oom", __func__);
+        OsalMemFree(event);
+        return HDF_DEV_ERR_NO_MEMORY;
+    }
+    DListInsertTail(&event->listNode, &vnodeClient->eventQueue);
+    vnodeClient->eventQueueSize++;
+    wake_up_interruptible(&vnodeClient->pollWait);
+    OsalMutexUnlock(&vnodeClient->mutex);
+#endif
     return HDF_SUCCESS;
 }
 
@@ -352,7 +380,7 @@ static int HdfVNodeAdapterSendDevEvent(struct HdfVNodeAdapter *adapter, struct H
     if (adapter == NULL || data == NULL || HdfSbufGetDataSize(data) == 0) {
         return HDF_ERR_INVALID_PARAM;
     }
-    OsalMutexLock(&adapter->mutex);
+    // OsalMutexLock(&adapter->mutex);
     DLIST_FOR_EACH_ENTRY(client, &adapter->clientList, struct HdfVNodeAdapterClient, listNode) {
         if (vnodeClient != NULL && client != vnodeClient) {
             continue;
@@ -362,7 +390,7 @@ static int HdfVNodeAdapterSendDevEvent(struct HdfVNodeAdapter *adapter, struct H
             break;
         }
     }
-    OsalMutexUnlock(&adapter->mutex);
+    // OsalMutexUnlock(&adapter->mutex);
     return ret;
 }
 
