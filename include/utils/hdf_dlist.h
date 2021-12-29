@@ -83,8 +83,8 @@ static inline void DListRemove(struct DListHead *entry)
     entry->prev->next = entry->next;
     entry->next->prev = entry->prev;
 
-    entry->prev = NULL;
-    entry->next = NULL;
+    entry->prev = entry;
+    entry->next = entry;
 }
 
 /**
