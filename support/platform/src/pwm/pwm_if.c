@@ -175,6 +175,7 @@ int32_t PwmSetConfig(DevHandle handle, struct PwmConfig *config)
     ret = PwmDeviceSetConfig(handle, config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: PwmSetConfig failed, ret: %d", __func__, ret);
+        return HDF_FAILURE;
     }
 
     HDF_LOGI("%s: success.", __func__);
