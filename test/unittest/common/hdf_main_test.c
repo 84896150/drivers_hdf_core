@@ -14,6 +14,7 @@
 #include "osal_test_entry.h"
 
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM) || defined(CONFIG_DRIVERS_HDF_PLATFORM)
+#include "hdf_platform_core_entry_test.h"
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM_GPIO) || defined(CONFIG_DRIVERS_HDF_PLATFORM_GPIO)
 #include "hdf_gpio_entry_test.h"
 #endif
@@ -43,6 +44,9 @@
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM_SDIO) || defined(CONFIG_DRIVERS_HDF_PLATFORM_SDIO)
 #include "hdf_sdio_entry_test.h"
+#endif
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_PCIE) || defined(CONFIG_DRIVERS_HDF_PLATFORM_PCIE)
+#include "hdf_pcie_entry_test.h"
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM_UART) || defined(CONFIG_DRIVERS_HDF_PLATFORM_UART)
 #include "hdf_uart_entry_test.h"
@@ -89,6 +93,10 @@
 // add submodule entry
 HdfTestFuncList g_hdfTestFuncList[] = {
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM) || defined(CONFIG_DRIVERS_HDF_PLATFORM)
+    { TEST_PAL_EVENT_TYPE, HdfPlatformEventTestEntry },
+    { TEST_PAL_QUEUE_TYPE, HdfPlatformQueueTestEntry },
+    { TEST_PAL_DEVICE_TYPE, HdfPlatformDeviceTestEntry },
+    { TEST_PAL_MANAGER_TYPE, HdfPlatformManagerTestEntry },
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM_GPIO) || defined(CONFIG_DRIVERS_HDF_PLATFORM_GPIO)
     { TEST_PAL_GPIO_TYPE, HdfGpioTestEntry },
 #endif
@@ -133,6 +141,9 @@ HdfTestFuncList g_hdfTestFuncList[] = {
 #endif
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM_SDIO) || defined(CONFIG_DRIVERS_HDF_PLATFORM_SDIO)
     { TEST_PAL_SDIO_TYPE, HdfSdioUnitTestEntry },
+#endif
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_PCIE) || defined(CONFIG_DRIVERS_HDF_PLATFORM_PCIE)
+    { TEST_PAL_PCIE_TYPE, HdfPcieUnitTestEntry },
 #endif
 #if (defined(LOSCFG_STORAGE_EMMC) && defined(LOSCFG_DRIVERS_HDF_PLATFORM_EMMC)) || \
      defined(CONFIG_DRIVERS_HDF_PLATFORM_EMMC)
