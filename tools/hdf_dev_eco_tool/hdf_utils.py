@@ -321,7 +321,8 @@ def is_commented_line(line, comment_start):
 
 
 def get_vendor_gn_path(root):
-    return os.path.join(get_vendor_hdf_dir_adapter(root), 'BUILD.gn')
+    # return os.path.join(get_vendor_hdf_dir_adapter(root), 'BUILD.gn')
+    return os.path.join(get_vendor_hdf_dir_adapter(root), 'model', 'BUILD.gn')
 
 
 def get_template_file_path(root, kernel='liteos'):
@@ -368,3 +369,7 @@ def get_create_model_info(root, create_data):
                         model_file_path[key] = path_dict
         out_model_list.append({k: model_file_path})
     return out_model_list
+
+
+def get_config_config_path(root, kernel):
+    return os.path.join(root, "kernel", kernel, "config", "linux-5.10")
