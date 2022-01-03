@@ -1429,7 +1429,6 @@ void HdmiCntlrClose(struct HdmiCntlr *cntlr)
     }
 
     HdmiInfoFrameDeInit(cntlr);
-    HdmiDdcDeinit(cntlr);
     HdmiScdcDeinit(cntlr);
     HdmiFrlDeinit(cntlr);
     HdmiHdcpDeinit(cntlr);

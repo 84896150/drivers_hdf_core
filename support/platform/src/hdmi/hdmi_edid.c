@@ -1279,6 +1279,7 @@ int32_t HdmiEdidPhase(struct HdmiEdid *edid)
             return ret;
         }
     }
+    edid->edidPhase = true;
     return HDF_SUCCESS;
 }
 
