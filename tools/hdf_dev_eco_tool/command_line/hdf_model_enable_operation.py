@@ -60,11 +60,11 @@ class EnableOperation(object):
                 CommandErrorCode.TARGET_NOT_EXIST)
 
         self.contents_makefile = hdf_utils.read_file_lines(self.makefile_path)
-        # self.build_path = hdf_utils.get_vendor_gn_path(self.root)
-        # if not os.path.exists(self.build_path):
-        #     raise HdfToolException('file: %s not exist' % self.build_path,
-        #                            CommandErrorCode.TARGET_NOT_EXIST)
-        # self.contents_build = hdf_utils.read_file_lines(self.build_path)
+        self.build_path = hdf_utils.get_vendor_gn_path(self.root)
+        if not os.path.exists(self.build_path):
+            raise HdfToolException('file: %s not exist' % self.build_path,
+                                   CommandErrorCode.TARGET_NOT_EXIST)
+        self.contents_build = hdf_utils.read_file_lines(self.build_path)
         self.re_temp2 = r'model/[a-z 0-9]+'
         self.re_temp = r"^group"
 
