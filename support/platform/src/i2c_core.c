@@ -242,7 +242,7 @@ static int32_t I2cTransferRebuildMsgs(struct HdfSBuf *data, struct I2cMsg **ppms
     }
 
     count = len / sizeof(*msgs);
-    PLAT_LOGV("I2cTransferRebuildMsgs: count:%u, len:%u, sizeof(*msgs):%lu",
+    PLAT_LOGV("I2cTransferRebuildMsgs: count:%u, len:%u, sizeof(*msgs):%zu",
         count, len, sizeof(*msgs));
     for (i = 0; i < count; i++) {
         if ((msgs[i].flags & I2C_FLAG_READ) != 0) {

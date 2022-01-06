@@ -18,7 +18,6 @@
 #define WATCHDOG_TEST_CASE_NUM    5
 #define WATCHDOG_TEST_TIMEOUT     2
 #define WATCHDOG_TEST_FEED_TIME   6
-int32_t watchdog_status;
 
 static int32_t WatchdogTestSetUp(struct WatchdogTester *tester)
 {
@@ -82,6 +81,7 @@ static int32_t TestCaseWatchdogSetGetTimeout(struct WatchdogTester *tester)
 static int32_t TestCaseWatchdogStartStop(struct WatchdogTester *tester)
 {
     int32_t ret;
+    int32_t watchdog_status;
 
     ret = WatchdogStart(tester->handle);
     if (ret != HDF_SUCCESS) {
@@ -167,6 +167,7 @@ static int32_t TestCaseWatchdogBark(struct WatchdogTester *tester)
 static int32_t TestCaseWatchdogReliability(struct WatchdogTester *tester)
 {
     uint32_t timeout;
+    int32_t watchdog_status;
 
     HDF_LOGE("%s: test dfr for WatchdogGetStatus ...", __func__);
     /* invalid device handle */
