@@ -18,9 +18,6 @@
 
 using namespace testing::ext;
 
-// static int g_uartFd;
-// static const string HDF_TEST_NAME  = "/dev/hdf_test";
-
 enum HdfLiteUartTestCmd {
     UAER_WRITE_TEST = 0,
     UART_READ_TEST,
