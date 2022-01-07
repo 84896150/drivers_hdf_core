@@ -44,7 +44,7 @@
 #define SENSOR_DATA_WIDTH_8_BIT         8 // 8 bit
 #define SENSOR_CONVERT_UNIT             1000
 #define SENSOR_1K_UNIT                  1024
-#define SENSOR_SPI_MAX_SPEED            115200
+#define SENSOR_SPI_MAX_SPEED            (10 * 1024 * 1024)
 #define SENSOR_SECOND_CONVERT_NANOSECOND    (SENSOR_CONVERT_UNIT * SENSOR_CONVERT_UNIT * SENSOR_CONVERT_UNIT)
 
 #define SENSOR_TIMER_MIN_TIME           20
@@ -72,6 +72,7 @@ struct SensorSpiCfg {
     DevHandle handle;
     uint32_t busNum;
     uint32_t csNum;
+    struct SpiCfg spi;
 };
 
 struct SensorBusCfg {
