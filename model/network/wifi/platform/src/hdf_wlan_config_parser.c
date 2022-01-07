@@ -235,10 +235,11 @@ static int32_t ParseWlanPowerConfig(const struct DeviceResourceNode *node,
         return HDF_FAILURE;
     }
 
-    if (drsOps->GetUint8(node, "gpioId", &primaryPowerConfig->gpioId, 0) != HDF_SUCCESS) {
+    if (drsOps->GetUint16(node, "gpioId", &primaryPowerConfig->gpioId, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: gpioId fail!", __func__);
         return HDF_FAILURE;
     }
+
     if (drsOps->GetUint8(node, "activeLevel", &primaryPowerConfig->activeLevel, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: activeLevel fail!", __func__);
         return HDF_FAILURE;
@@ -300,7 +301,7 @@ static int32_t ParseWlanResetConfig(const struct DeviceResourceNode *node, struc
         return HDF_FAILURE;
     }
 
-    if (drsOps->GetUint8(node, "gpioId", &resetConfig->gpioId, 0) != HDF_SUCCESS) {
+    if (drsOps->GetUint16(node, "gpioId", &resetConfig->gpioId, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: gpioId fail!", __func__);
         return HDF_FAILURE;
     }

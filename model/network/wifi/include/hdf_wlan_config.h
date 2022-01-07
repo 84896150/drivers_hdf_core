@@ -55,8 +55,9 @@ struct HdfConfigWlanModuleConfig {
 struct HdfConfigWlanPower {
     uint8_t powerSeqDelay;
     uint8_t powerType;
-    uint8_t gpioId;
+    uint16_t gpioId;
     uint8_t activeLevel;
+    uint8_t dummy[3];
 };
 
 
@@ -68,9 +69,10 @@ struct HdfConfWlanPowers {
 
 struct HdfConfWlanRest {
     uint8_t resetType;
-    uint8_t gpioId;
+    uint16_t gpioId;
     uint8_t activeLevel;
     uint8_t resetHoldTime;
+    uint8_t dummy[3];
 };
 
 struct HdfConfigWlanBus {
