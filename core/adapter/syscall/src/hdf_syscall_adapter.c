@@ -996,10 +996,12 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
     struct HdfSyscallAdapter *adapter = CONTAINER_OF(service, struct HdfSyscallAdapter, super);
     struct HdfSyscallAdapterGroup *adapterGroup = CONTAINER_OF(group, struct HdfSyscallAdapterGroup, serviceGroup);
 
+    HDF_LOGE("HdfIoServiceGroupAddService 999");
     if (adapter->group != NULL) {
         HDF_LOGE("service already in group");
         return HDF_ERR_DEVICE_BUSY;
     }
+    HDF_LOGE("HdfIoServiceGroupAddService 1004");
 
     if (adapter->thread != NULL) {
         HDF_LOGE("service already has independent thread");
