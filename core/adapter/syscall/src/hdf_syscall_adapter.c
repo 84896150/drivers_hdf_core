@@ -997,8 +997,11 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
     struct HdfSyscallAdapterGroup *adapterGroup = CONTAINER_OF(group, struct HdfSyscallAdapterGroup, serviceGroup);
 
     HDF_LOGE("HdfIoServiceGroupAddService 999");
+    HDF_LOGE("HdfIoServiceGroupAddService 999");
     if (adapter->group != NULL) {
         HDF_LOGE("service already in group");
+        HDF_LOGE("service already in group adapter->group[%{public}p]",adapter->group);
+        HDF_LOGE("service already in group adapterGroup[%{public}p]", adapterGroup);
         return HDF_ERR_DEVICE_BUSY;
     }
     HDF_LOGE("HdfIoServiceGroupAddService 1004");
