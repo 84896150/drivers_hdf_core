@@ -26,11 +26,14 @@ static int32_t GpioTestSetUp(struct GpioTester *tester)
     if (tester == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
+
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     ret = GpioGetDir(tester->gpio, &tester->oldDir);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get old dir fail! ret:%d", __func__, ret);
         return ret;
     }
+#endif
     ret = GpioRead(tester->gpio, &tester->oldVal);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read old val fail! ret:%d", __func__, ret);
@@ -81,6 +84,7 @@ SET_GET_DIR:
         HDF_LOGE("%s: set dir fail! ret:%d", __func__, ret);
         return ret;
     }
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     ret = GpioGetDir(tester->gpio, &dirGet);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get dir fail! ret:%d", __func__, ret);
@@ -90,6 +94,7 @@ SET_GET_DIR:
         HDF_LOGE("%s: set dir:%u, but get:%u", __func__, dirSet, dirGet);
         return HDF_FAILURE;
     }
+#endif
     /* change the value and test one more time */
     if (dirSet == GPIO_DIR_OUT) {
         dirSet = GPIO_DIR_IN;
@@ -157,7 +162,9 @@ static inline void TestHelperGpioInverse(uint16_t gpio, uint16_t mode)
     (void)GpioRead(gpio, &valRead);
     (void)GpioWrite(gpio, (valRead == GPIO_VAL_LOW) ? GPIO_VAL_HIGH : GPIO_VAL_LOW);
     (void)GpioRead(gpio, &valRead);
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     (void)GpioGetDir(gpio, &dir);
+#endif
     HDF_LOGD("%s, gpio:%u, val:%u, dir:%u, mode:%x", __func__, gpio, valRead, dir, mode);
 }
 
@@ -217,7 +224,11 @@ static int32_t TestCaseGpioIrqEdge(struct GpioTester *tester)
 #else
     (void)GpioSetDir(tester->gpioIrq, GPIO_DIR_OUT);
 #endif
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     mode = GPIO_IRQ_TRIGGER_FALLING | GPIO_IRQ_TRIGGER_RISING;
+#else
+    mode = OSAL_IRQF_TRIGGER_HIGH;
+#endif
     return TestCaseGpioIrq(tester, mode, true);
 }
 
@@ -230,7 +241,11 @@ int32_t TestCaseGpioIrqThread(struct GpioTester *tester)
 #else
     (void)GpioSetDir(tester->gpioIrq, GPIO_DIR_OUT);
 #endif
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     mode = GPIO_IRQ_TRIGGER_FALLING | GPIO_IRQ_TRIGGER_RISING | GPIO_IRQ_USING_THREAD;
+#else
+    mode = GPIO_IRQ_TRIGGER_FALLING;
+#endif
     return TestCaseGpioIrq(tester, mode, true);
 }
 
@@ -247,8 +262,10 @@ static int32_t TestCaseGpioReliability(struct GpioTester *tester)
     (void)GpioSetDir(-1, val);             /* invalid gpio number */
     (void)GpioSetDir(tester->gpio, -1);    /* invalid value */
 
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     (void)GpioGetDir(-1, &val);            /* invalid gpio number */
     (void)GpioGetDir(tester->gpio, NULL);  /* invalid pointer */
+#endif
 
     /* invalid gpio number */
     (void)GpioSetIrq(-1, OSAL_IRQF_TRIGGER_RISING, TestCaseGpioIrqHandler, (void *)tester);

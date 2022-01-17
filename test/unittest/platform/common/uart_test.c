@@ -47,10 +47,18 @@ static int32_t UartReadTest(struct UartTest *test)
     return HDF_SUCCESS;
 }
 
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
 #define BAUD_921600 921600
+#else
+#define BAUD_115200 115200
+#endif
 static int32_t UartSetBaudTest(struct UartTest *test)
 {
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     if (UartSetBaud(test->handle, BAUD_921600) != HDF_SUCCESS) {
+#else
+    if (UartSetBaud(test->handle, BAUD_115200) != HDF_SUCCESS) {
+#endif
         HDF_LOGE("%s: error", __func__);
         return HDF_FAILURE;
     }
@@ -130,7 +138,11 @@ static int32_t UartReliabilityTest(struct UartTest *test)
     (void)UartWrite(test->handle, NULL, -1);
     (void)UartRead(test->handle, test->rbuf, test->len);
     (void)UartRead(test->handle, NULL, -1);
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     (void)UartSetBaud(test->handle, BAUD_921600);
+#else
+    (void)UartSetBaud(test->handle, BAUD_115200);
+#endif
     (void)UartSetBaud(test->handle, -1);
     (void)UartGetBaud(test->handle, &baud);
     (void)UartGetBaud(test->handle, NULL);
