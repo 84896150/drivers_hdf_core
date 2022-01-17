@@ -46,10 +46,18 @@ static void SpiTestReleaseHandle(DevHandle handle)
 #define BITS_PER_WORD_DEFAULT    8
 #define BITS_PER_WORD_8BITS      8
 #define BITS_PER_WORD_10BITS     10
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
 #define MAX_SPEED_HZ             10000000
+#else
+#define MAX_SPEED_HZ             500000
+#endif
 
 static struct SpiCfg g_spiCfg = {
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     .mode = SPI_CLK_PHASE | SPI_MODE_LOOP,
+#else
+    .mode = SPI_CLK_PHASE | SPI_CLK_POLARITY,
+#endif
     .bitsPerWord = BITS_PER_WORD_DEFAULT,
     .maxSpeedHz = MAX_SPEED_HZ,
     .transferMode = SPI_POLLING_TRANSFER,
@@ -105,10 +113,12 @@ static int32_t SpiDoTransferTest(struct SpiTest *test, struct SpiCfg *cfg, struc
         return ret;
     }
 
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     ret = SpiCmpMemByBits(msg->wbuf, msg->rbuf, msg->len, g_spiCfg.bitsPerWord);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
+#endif
 
     ret = SpiWrite(test->handle, msg->wbuf, msg->len);
     if (ret != HDF_SUCCESS) {
@@ -147,12 +157,14 @@ static int32_t SpiTransferTest(struct SpiTest *test)
         return ret;
     }
 
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     g_spiCfg.bitsPerWord = BITS_PER_WORD_10BITS;
     ret = SpiDoTransferTest(test, &g_spiCfg, &msg);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail, bitsPerWord = %u, ret = %d", __func__, g_spiCfg.bitsPerWord, ret);
         return ret;
     }
+#endif
 
     return HDF_SUCCESS;
 }
@@ -260,6 +272,7 @@ static int32_t SpiIntTransferTest(struct SpiTest *test)
         return ret;
     }
 
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     g_spiCfg.bitsPerWord = BITS_PER_WORD_10BITS;
     ret = SpiDoTransferTest(test, &g_spiCfg, &msg);
     if (ret != HDF_SUCCESS) {
@@ -267,6 +280,7 @@ static int32_t SpiIntTransferTest(struct SpiTest *test)
         HDF_LOGE("%s: fail, bitsPerWord = %u, ret = %d", __func__, g_spiCfg.bitsPerWord, ret);
         return ret;
     }
+#endif
 
     return HDF_SUCCESS;
 }
@@ -323,9 +337,15 @@ static struct SpiTestFunc g_spiTestFunc[] = {
     {SPI_TRANSFER_TEST, SpiTransferTest},
     {SPI_DMA_TRANSFER_TEST, SpiDmaTransferTest},
     {SPI_INT_TRANSFER_TEST, SpiIntTransferTest},
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
     {SPI_RELIABILITY_TEST, SpiReliabilityTest},
     {SPI_PERFORMANCE_TEST, NULL},
     {SPI_TEST_ALL, SpiTestAll},
+#else
+    {SPI_RELIABILITY_TEST, NULL},
+    {SPI_PERFORMANCE_TEST, NULL},
+    {SPI_TEST_ALL, NULL},
+#endif
 };
 
 static int32_t SpiTestEntry(struct SpiTest *test, int32_t cmd)

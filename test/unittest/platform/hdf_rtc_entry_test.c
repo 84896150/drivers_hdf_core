@@ -14,7 +14,11 @@
 
 #define HDF_LOG_TAG hdf_rtc_entry_test
 
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
 #define RTC_TEST_TIME           60
+#else
+#define RTC_TEST_TIME           1
+#endif
 #define RTC_TEST_TIME_MAX_YEAR  2222
 #define RTC_TEST_TIME_YEAR      2020
 #define RTC_TEST_TIME_MONTH     8
@@ -26,7 +30,11 @@
 #define RTC_TEST_USER_VALUE     0x8
 #define RTC_TEST_USER_MAX_INDEX 8
 #define RTC_TEST_WAIT_TIME_S    3
+#ifndef CONFIG_DRIVERS_S700_HDF_TEST
 #define RTC_TEST_WR_WAIT_MS     30
+#else
+#define RTC_TEST_WR_WAIT_MS     1000
+#endif
 
 DevHandle g_rtcHandle = NULL;
 
