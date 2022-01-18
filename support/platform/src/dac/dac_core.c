@@ -321,6 +321,45 @@ static int32_t DacManagerIoRead(struct HdfSBuf *data, struct HdfSBuf *reply)
     return HDF_SUCCESS;
 }
 
+static int32_t DacManagerIoWrite(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    int32_t ret;
+    uint16_t channel;
+    uint16_t val;
+    uint32_t number;
+    ret = 0;
+
+    if (data == NULL || reply == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (!HdfSbufReadUint32(data, &number)) {
+        return HDF_ERR_IO;
+    }
+
+    if (number < 0 || number >= DAC_DEVICES_MAX) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (!HdfSbufReadUint16(data, &channel)) {
+        HDF_LOGE("%s: read dac channel failed", __func__);
+        return HDF_ERR_IO;
+    }
+
+    if (!HdfSbufReadUint16(data, &val)) {
+        HDF_LOGE("%s: read dac value failed", __func__);
+        return HDF_ERR_IO;
+    }
+
+    ret = DacDeviceWrite(DacManagerFindDevice(number), channel, val);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: write dac failed:%d", __func__, ret);
+        return ret;
+    }
+
+    return ret;
+}
+
 static int32_t DacManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -333,6 +372,8 @@ static int32_t DacManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
             return DacManagerIoClose(data, reply);
         case DAC_IO_READ:
             return DacManagerIoRead(data, reply);
+        case DAC_IO_WRITE:
+            return DacManagerIoWrite(data, reply);
         default:
             ret = HDF_ERR_NOT_SUPPORT;
             break;
