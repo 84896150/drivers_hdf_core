@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -67,6 +67,23 @@ extern "C" {
  * @since 1.0
  */
 #define PWM_ENABLE_STATUS 1
+
+/**
+ * @brief Enumerates PWM I/O commands.
+ *
+ * @since 1.0
+ */
+enum PwmIoCmd {
+    PWM_IO_GET = 0,         /**< Get the PWM device. */
+    PWM_IO_PUT,             /**< Put the PWM device. */
+    PWM_IO_SET_PERIOD,      /**< Set period. */
+    PWM_IO_SET_DUTY,        /**< Set duty. */
+    PWM_IO_SET_POLARITY,    /**< Set polarity. */
+    PWM_IO_ENABLE,          /**< Enable. */
+    PWM_IO_DISABLE,         /**< Disable. */
+    PWM_IO_SET_CONFIG,      /**< Set config. */
+    PWM_IO_GET_CONFIG,      /**< Get config. */
+};
 
 /**
  * @brief Defines the PWM device configuration parameters.

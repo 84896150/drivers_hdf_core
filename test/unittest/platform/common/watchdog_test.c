@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -8,77 +8,125 @@
 
 #include "watchdog_test.h"
 #include "hdf_base.h"
-#include "hdf_device_desc.h"
+#include "hdf_io_service_if.h"
 #include "hdf_log.h"
+#include "osal_mem.h"
 #include "osal_time.h"
+#include "securec.h"
 #include "watchdog_if.h"
 
 #define HDF_LOG_TAG watchdog_test
 
-#define WATCHDOG_TEST_CASE_NUM    5
-#define WATCHDOG_TEST_TIMEOUT     2
-#define WATCHDOG_TEST_FEED_TIME   6
-
 static int32_t g_wdtState = 0;
 
-static int32_t WatchdogTestSetUp(struct WatchdogTester *tester)
+struct WatchdogTestEntry {
+    int cmd;
+    int32_t (*func)(void);
+};
+
+static int32_t WatchdogTestGetTestConfig(struct WatchdogTestConfig *config)
 {
     int32_t ret;
-    
-    if (tester == NULL) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    if (tester->handle == NULL) {
-        ret = WatchdogOpen(0, &tester->handle);
-        if (ret == HDF_ERR_DEVICE_BUSY) {
-            g_wdtState = ret;
-            return HDF_SUCCESS;
-        }
-    }
-    if (tester->handle == NULL) {
-        return HDF_ERR_DEVICE_BUSY;
-    }
-    tester->total = WATCHDOG_TEST_CASE_NUM;
-    tester->fails = 0;
+    struct HdfSBuf *reply = NULL;
+    struct HdfIoService *service = NULL;
+    const void *buf = NULL;
+    uint32_t len;
 
+    HDF_LOGD("%s: enter", __func__);
+    service = HdfIoServiceBind("WATCHDOG_TEST");
+    if (service == NULL) {
+        return HDF_ERR_NOT_SUPPORT;
+    }
+
+    reply = HdfSBufObtain(sizeof(*config) + sizeof(uint64_t));
+    if (reply == NULL) {
+        HDF_LOGE("%s: Failed to obtain reply", __func__);
+        return HDF_ERR_MALLOC_FAIL;
+    }
+
+    ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: Remote dispatch failed", __func__);
+        return ret;
+    }
+
+    if (!HdfSbufReadBuffer(reply, &buf, &len)) {
+        HDF_LOGE("%s: Read buf failed", __func__);
+        HdfSBufRecycle(reply);
+        return HDF_ERR_IO;
+    }
+
+    if (len != sizeof(*config)) {
+        HDF_LOGE("%s: Config size:%zu, read size:%u", __func__, sizeof(*config), len);
+        HdfSBufRecycle(reply);
+        return HDF_ERR_IO;
+    }
+
+    if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
+        HDF_LOGE("%s: Memcpy buf failed", __func__);
+        HdfSBufRecycle(reply);
+        return HDF_ERR_IO;
+    }
+    HdfSBufRecycle(reply);
+    HDF_LOGD("%s: Done", __func__);
     return HDF_SUCCESS;
 }
 
-static void WatchdogTestTearDown(struct WatchdogTester *tester)
+struct WatchdogTester *WatchdogTesterGet(void)
 {
     if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
         HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return;
+        return NULL;
     }
 
-    int ret;
+    int32_t ret;
+    static struct WatchdogTester tester;
+    struct WatchdogTester *temp = NULL;
+    static bool hasInit = false;
 
-    if (tester == NULL || tester->handle == NULL) {
-        return;
+    if (hasInit) {
+        return &tester;
     }
-
-    ret = WatchdogStop(tester->handle);
+    HDF_LOGI("%s: enter", __func__);
+    if (hasInit) {
+        return &tester;
+    }
+    ret = WatchdogTestGetTestConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: stop fail! ret:%d", __func__, ret);
-        return;
+        HDF_LOGE("%s: read config failed:%d", __func__, ret);
+        return NULL;
     }
-
-    WatchdogClose(tester->handle);
-    tester->handle = NULL;
+    temp = &tester;
+    ret = WatchdogOpen(tester.config.id, &temp->handle);
+    if (ret != HDF_SUCCESS) {
+        if (ret == HDF_ERR_DEVICE_BUSY) {
+            g_wdtState = ret;
+        }
+        HDF_LOGE("%s: open watchdog_%d failed:%d", __func__, tester.config.id, ret);
+        return NULL;
+    }
+    hasInit = true;
+    HDF_LOGD("%s: Done", __func__);
+    return &tester;
 }
 
-static int32_t TestCaseWatchdogSetGetTimeout(struct WatchdogTester *tester)
+static int32_t TestCaseWatchdogSetGetTimeout(void)
 {
-    if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
-        HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return HDF_SUCCESS;
+    struct WatchdogTester *tester = NULL;
+    tester = WatchdogTesterGet();
+    if (tester == NULL) {
+        if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
+            HDF_LOGE("%s: DEVICE IS BUSY", __func__);
+            return HDF_SUCCESS;
+        }
+        HDF_LOGE("%s: Get tester failed!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     int32_t ret;
     uint32_t timeoutGet = 0;
-    const uint32_t timeoutSet = WATCHDOG_TEST_TIMEOUT;
 
-    ret = WatchdogSetTimeout(tester->handle, timeoutSet);
+    ret = WatchdogSetTimeout(tester->handle, tester->config.timeoutSet);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set timeout fail! ret:%d", __func__, ret);
         return ret;
@@ -88,19 +136,25 @@ static int32_t TestCaseWatchdogSetGetTimeout(struct WatchdogTester *tester)
         HDF_LOGE("%s: get timeout fail! ret:%d", __func__, ret);
         return ret;
     }
-    if (timeoutSet != timeoutGet) {
-        HDF_LOGE("%s: set:%u, but get:%u", __func__, timeoutSet, timeoutGet);
+    if (tester->config.timeoutSet != timeoutGet) {
+        HDF_LOGE("%s: set:%u, but get:%u", __func__, tester->config.timeoutSet, timeoutGet);
         return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
 }
 
-static int32_t TestCaseWatchdogStartStop(struct WatchdogTester *tester)
+static int32_t TestCaseWatchdogStartStop(void)
 {
-    if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
-        HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return HDF_SUCCESS;
+    struct WatchdogTester *tester = NULL;
+    tester = WatchdogTesterGet();
+    if (tester == NULL) {
+        if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
+            HDF_LOGE("%s: DEVICE IS BUSY", __func__);
+            return HDF_SUCCESS;
+        }
+        HDF_LOGE("%s: Get tester failed!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     int32_t ret;
@@ -111,6 +165,7 @@ static int32_t TestCaseWatchdogStartStop(struct WatchdogTester *tester)
         HDF_LOGE("%s: satrt fail! ret:%d", __func__, ret);
         return ret;
     }
+
     status = WATCHDOG_STOP;
     ret = WatchdogGetStatus(tester->handle, &status);
     if (ret != HDF_SUCCESS) {
@@ -137,15 +192,21 @@ static int32_t TestCaseWatchdogStartStop(struct WatchdogTester *tester)
     return HDF_SUCCESS;
 }
 
-static int32_t TestCaseWatchdogFeed(struct WatchdogTester *tester)
+static int32_t TestCaseWatchdogFeed(void)
 {
-    if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
-        HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return HDF_SUCCESS;
+    struct WatchdogTester *tester = NULL;
+    tester = WatchdogTesterGet();
+    if (tester == NULL) {
+        if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
+            HDF_LOGE("%s: DEVICE IS BUSY", __func__);
+            return HDF_SUCCESS;
+        }
+        HDF_LOGE("%s: Get tester failed!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     int32_t ret;
-    int32_t i;
+    uint32_t i;
 
     ret = WatchdogStart(tester->handle);
     if (ret != HDF_SUCCESS) {
@@ -153,7 +214,7 @@ static int32_t TestCaseWatchdogFeed(struct WatchdogTester *tester)
         return ret;
     }
 
-    for (i = 0; i < WATCHDOG_TEST_FEED_TIME; i++) {
+    for (i = 0; i < tester->config.feedTime; i++) {
         HDF_LOGE("%s: feeding watchdog %d times... ", __func__, i);
         ret = WatchdogFeed(tester->handle);
         if (ret != HDF_SUCCESS) {
@@ -167,11 +228,17 @@ static int32_t TestCaseWatchdogFeed(struct WatchdogTester *tester)
     return HDF_SUCCESS;
 }
 
-static int32_t TestCaseWatchdogBark(struct WatchdogTester *tester)
+static int32_t TestCaseWatchdogBark(void)
 {
-    if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
-        HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return HDF_SUCCESS;
+    struct WatchdogTester *tester = NULL;
+    tester = WatchdogTesterGet();
+    if (tester == NULL) {
+        if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
+            HDF_LOGE("%s: DEVICE IS BUSY", __func__);
+            return HDF_SUCCESS;
+        }
+        HDF_LOGE("%s: Get tester failed!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
     }
 
 #ifdef WATCHDOG_TEST_BARK_RESET
@@ -184,7 +251,7 @@ static int32_t TestCaseWatchdogBark(struct WatchdogTester *tester)
         return ret;
     }
 
-    for (i = 0; i < WATCHDOG_TEST_FEED_TIME; i++) {
+    for (i = 0; i < tester->config.feedTime; i++) {
         HDF_LOGE("%s: watiting dog buck %d times... ", __func__, i);
         OsalSleep(1);
     }
@@ -197,11 +264,17 @@ static int32_t TestCaseWatchdogBark(struct WatchdogTester *tester)
 #endif
 }
 
-static int32_t TestCaseWatchdogReliability(struct WatchdogTester *tester)
+static int32_t TestCaseWatchdogReliability(void)
 {
-    if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
-        HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return HDF_SUCCESS;
+    struct WatchdogTester *tester = NULL;
+    tester = WatchdogTesterGet();
+    if (tester == NULL) {
+        if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
+            HDF_LOGE("%s: DEVICE IS BUSY", __func__);
+            return HDF_SUCCESS;
+        }
+        HDF_LOGE("%s: Get tester failed!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     int32_t status;
@@ -221,7 +294,7 @@ static int32_t TestCaseWatchdogReliability(struct WatchdogTester *tester)
 
     HDF_LOGE("%s: test dfr for WatchdogSet&GetTimeout ...", __func__);
     /* invalid device handle */
-    (void)WatchdogSetTimeout(NULL, WATCHDOG_TEST_TIMEOUT);
+    (void)WatchdogSetTimeout(NULL, tester->config.timeoutSet);
     /* invalid device handle */
     (void)WatchdogGetTimeout(NULL, &timeout);
     /* invalid timeout pointer */
@@ -234,91 +307,34 @@ static int32_t TestCaseWatchdogReliability(struct WatchdogTester *tester)
     return HDF_SUCCESS;
 }
 
-static int32_t WatchdogTestByCmd(struct WatchdogTester *tester, int32_t cmd)
-{
-    if (g_wdtState == HDF_ERR_DEVICE_BUSY) {
-        HDF_LOGE("%s: DEVICE IS BUSY", __func__);
-        return HDF_SUCCESS;
-    }
-
-    int32_t i;
-
-    if (cmd == WATCHDOG_TEST_SET_GET_TIMEOUT) {
-        return TestCaseWatchdogSetGetTimeout(tester);
-    } else if (cmd == WATCHDOG_TEST_START_STOP) {
-        return TestCaseWatchdogStartStop(tester);
-    } else if (cmd == WATCHDOG_TEST_FEED) {
-        return TestCaseWatchdogFeed(tester);
-    } else if (cmd == WATCHDOG_TEST_BARK) {
-        return TestCaseWatchdogBark(tester);
-    } else if (cmd == WATCHDOG_TEST_RELIABILITY) {
-        return TestCaseWatchdogReliability(tester);
-    }
-
-    for (i = 0; i < WATCHDOG_TEST_MAX; i++) {
-        if (WatchdogTestByCmd(tester, i) != HDF_SUCCESS) {
-            tester->fails++;
-        }
-    }
-    HDF_LOGE("%s: **********PASS:%u  FAIL:%u**************\n\n",
-        __func__, tester->total - tester->fails, tester->fails);
-    return (tester->fails > 0) ? HDF_FAILURE : HDF_SUCCESS;
-}
-
-static int32_t WatchdogDoTest(struct WatchdogTester *tester, int32_t cmd)
-{
-    int32_t ret;
-
-    if (tester == NULL) {
-        HDF_LOGE("%s: tester is NULL!", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
-    ret = WatchdogTestSetUp(tester);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: setup fail!", __func__);
-        return ret;
-    }
-
-    ret = WatchdogTestByCmd(tester, cmd);
-
-    WatchdogTestTearDown(tester);
-    return ret;
-}
-
-static int32_t WatchdogTestBind(struct HdfDeviceObject *device)
-{
-    static struct WatchdogTester tester;
-
-    if (device == NULL) {
-        HDF_LOGE("%s: device is null!", __func__);
-        return HDF_ERR_IO;
-    }
-
-    tester.doTest = WatchdogDoTest;
-    device->service = &tester.service;
-    return HDF_SUCCESS;
-}
-
-static int32_t WatchdogTestInit(struct HdfDeviceObject *device)
-{
-    (void)device;
-    return HDF_SUCCESS;
-}
-
-static void WatchdogTestRelease(struct HdfDeviceObject *device)
-{
-    if (device != NULL) {
-        device->service = NULL;
-    }
-    return;
-}
-
-struct HdfDriverEntry g_watchdogTestEntry = {
-    .moduleVersion = 1,
-    .Bind = WatchdogTestBind,
-    .Init = WatchdogTestInit,
-    .Release = WatchdogTestRelease,
-    .moduleName = "PLATFORM_WATCHDOG_TEST",
+static struct WatchdogTestEntry g_entry[] = {
+    { WATCHDOG_TEST_SET_GET_TIMEOUT, TestCaseWatchdogSetGetTimeout},
+    { WATCHDOG_TEST_START_STOP, TestCaseWatchdogStartStop},
+    { WATCHDOG_TEST_FEED, TestCaseWatchdogFeed},
+    { WATCHDOG_TEST_RELIABILITY, TestCaseWatchdogReliability},
+    { WATCHDOG_TEST_BARK, TestCaseWatchdogBark},
 };
-HDF_INIT(g_watchdogTestEntry);
+
+int32_t WatchdogTestExecute(int cmd)
+{
+    uint32_t i;
+    int32_t ret = HDF_ERR_NOT_SUPPORT;
+    
+    if (cmd > WATCHDOG_TEST_MAX) {
+        HDF_LOGE("%s: invalid cmd:%d", __func__, cmd);
+        ret = HDF_ERR_NOT_SUPPORT;
+        goto __EXIT__;
+    }
+
+    for (i = 0; i < sizeof(g_entry) / sizeof(g_entry[0]); i++) {
+        if (g_entry[i].cmd != cmd || g_entry[i].func == NULL) {
+            continue;
+        }
+        ret = g_entry[i].func();
+        break;
+    }
+
+__EXIT__:
+    HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    return ret;    
+}

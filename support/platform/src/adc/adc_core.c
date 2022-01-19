@@ -314,9 +314,36 @@ static int32_t AdcManagerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t AdcManagerIoRead(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    (void)data;
-    (void)reply;
-    return HDF_SUCCESS;
+    int32_t ret;
+    uint32_t number;
+    uint32_t handle;
+    uint32_t channel;
+    uint32_t *val = NULL;
+    if (data == NULL || reply == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+	
+    if (!HdfSbufReadUint32(data, &handle)) {
+        HDF_LOGE("AdcManagerIoRead: read handle fail!");
+        return HDF_ERR_IO;
+    }
+     if (!HdfSbufReadUint32(data, &number)) {
+        HDF_LOGE("AdcManagerIoRead: read handle fail!");
+        return HDF_ERR_IO;
+    }
+    
+     if (!HdfSbufReadUint32(data, &channel)) {
+        HDF_LOGE("AdcManagerIoRead: read handle fail!");
+        return HDF_ERR_IO;
+    }
+    
+    ret = AdcDeviceRead(AdcManagerFindDevice(number), channel, val);
+    if(ret == 0) {
+       HDF_LOGE("AdcManagerIoRead: read val fail!");
+       return HDF_ERR_IO;
+    }
+    
+    return ret;
 }
 
 static int32_t AdcManagerDispatch(struct HdfDeviceIoClient *client, int cmd,

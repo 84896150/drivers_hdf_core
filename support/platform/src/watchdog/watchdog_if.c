@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -7,9 +7,9 @@
  */
 
 #include "watchdog_if.h"
-#include "devsvc_manager_clnt.h"
 #include "hdf_base.h"
 #include "hdf_log.h"
+#include "devsvc_manager_clnt.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "watchdog_core.h"
@@ -19,10 +19,10 @@
 #define WATCHDOG_ID_MAX   8
 #define WATCHDOG_NAME_LEN 32
 
-static struct Watchdog *WatchdogGetById(int16_t wdtId)
+static void *WatchdogGetById(int16_t wdtId)
 {
     char *serviceName = NULL;
-    struct Watchdog *service = NULL;
+    void *obj = NULL;
 
     if (wdtId < 0 || wdtId >= WATCHDOG_ID_MAX) {
         HDF_LOGE("WatchdogGetById: invalid id:%d", wdtId);
@@ -38,12 +38,12 @@ static struct Watchdog *WatchdogGetById(int16_t wdtId)
         OsalMemFree(serviceName);
         return NULL;
     }
-    service = (struct Watchdog *)DevSvcManagerClntGetService(serviceName);
-    if (service == NULL) {
-        HDF_LOGE("WatchdogGetById: get service fail!");
+    obj = (void *)DevSvcManagerClntGetService(serviceName);
+    if (obj == NULL) {
+        HDF_LOGE("WatchdogGetById: get obj fail!");
     }
     OsalMemFree(serviceName);
-    return service;
+    return obj;
 }
 
 int32_t WatchdogOpen(int16_t wdtId, DevHandle *handle)
@@ -68,8 +68,10 @@ int32_t WatchdogOpen(int16_t wdtId, DevHandle *handle)
 
 void WatchdogClose(DevHandle handle)
 {
-    WatchdogReleasePriv((struct WatchdogCntlr *)handle);
-    (void)handle;
+    int32_t ret;
+
+    ret = WatchdogReleasePriv((struct WatchdogCntlr *)handle);
+    HDF_LOGI("%s ret: %d", __func__, ret);
 }
 
 int32_t WatchdogGetStatus(DevHandle handle, int32_t *status)

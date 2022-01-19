@@ -17,7 +17,7 @@
 #define HOST_NAME_LEN 32
 
 struct SpiObject {
-    struct SpiCntlr *cntlr;
+    struct SpiCntlr *cntlr; 
     uint32_t csNum;
 };
 
