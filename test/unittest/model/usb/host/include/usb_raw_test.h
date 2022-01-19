@@ -188,7 +188,7 @@ struct RawWb {
     struct UsbRawRequest *request;
     struct AcmRawDevice *instance;
     uint8_t *buf;
-    int len;
+    uint32_t len;
     int use;
 };
 
@@ -305,7 +305,7 @@ struct UsbHostRequest {
     /* the address of data buffer */
     unsigned char *buffer;
     /* the length of data buffer */
-    int length;
+    uint32_t length;
     /* the actual length of the requested data */
     int actualLength;
     /* the status of the request */
@@ -344,7 +344,7 @@ struct UsbHostRequest {
 struct UsbFillRequestData {
     unsigned char endPoint;
     unsigned char *buffer;
-    int length;
+    uint32_t length;
     int numIsoPackets;
     UsbRawRequestCallback callback;
     void *userData;

@@ -137,7 +137,7 @@ struct AcmWb {
     struct UsbRequest *request;
     struct AcmDevice *instance;
     uint8_t *buf;
-    int len;
+    uint32_t len;
     int use;
 };
 

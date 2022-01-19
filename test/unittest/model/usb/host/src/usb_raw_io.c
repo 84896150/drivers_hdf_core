@@ -164,7 +164,7 @@ void AcmReadBulkCallback(const void *requestArg)
         printf("%s:%d userData(acm) is NULL!", __func__, __LINE__);
         return;
     }
-    size_t size = req->actualLength;
+    size_t size = (size_t)req->actualLength;
 
     switch (req->status) {
         case USB_REQUEST_COMPLETED:
@@ -175,7 +175,6 @@ void AcmReadBulkCallback(const void *requestArg)
             }
             break;
         case USB_REQUEST_CANCELLED:
-            printf("%s: the request is cancelled request:%p\n", __func__, req);
             return;
         default:
             printf("%s: the request is failed\n", __func__);

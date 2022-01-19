@@ -36,7 +36,7 @@ static void AcmReadBulk(struct UsbRequest *req)
     uint32_t size;
     int status = req->compInfo.status;
     size = req->compInfo.actualLength;
-    printf("Bulk status:%d,actualLength:%d\n", status, size);
+    printf("Bulk status:%d,actualLength:%u\n", status, size);
     switch (status) {
         case 0:
             break;
@@ -674,17 +674,17 @@ static int32_t CheckHostSdkIfGetPipe001(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     for (i = 0;  i <= g_acm->dataIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(NULL, g_acm->dataIface->info.curAltSetting, i, &p);
         if (ret < 0) {
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_IN) && (p.pipeType == USB_PIPE_TYPE_BULK)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
-            if (pi) {
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
+            if (pi == NULL) {
                 HDF_LOGE("%s: error", __func__);
-                return HDF_SUCCESS;
+                return HDF_FAILURE;
             }
             p.interfaceId = g_acm->dataIface->info.interfaceIndex;
             *pi = p;
@@ -707,14 +707,14 @@ static int32_t CheckHostSdkIfGetPipe002(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     for (i = 0;  i <= g_acm->dataIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(g_acm->data_devHandle, g_acm->dataIface->info.curAltSetting, i, &p);
         if (ret < 0) {
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_IN) && (p.pipeType == USB_PIPE_TYPE_BULK)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
             if (pi == NULL) {
                 return HDF_FAILURE;
             }
@@ -736,17 +736,17 @@ static int32_t CheckHostSdkIfGetPipe003(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     for (i = 0;  i <= g_acm->dataIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(NULL, g_acm->dataIface->info.curAltSetting, i, &p);
         if (ret < 0) {
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_OUT) && (p.pipeType == USB_PIPE_TYPE_BULK)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
-            if (pi) {
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
+            if (pi == NULL) {
                 HDF_LOGE("%s: error", __func__);
-                return HDF_SUCCESS;
+                return HDF_FAILURE;
             }
             p.interfaceId = g_acm->dataIface->info.interfaceIndex;
             *pi = p;
@@ -769,14 +769,14 @@ static int32_t CheckHostSdkIfGetPipe004(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     for (i = 0;  i <= g_acm->dataIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(g_acm->data_devHandle, g_acm->dataIface->info.curAltSetting, i, &p);
         if (ret < 0) {
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_OUT) && (p.pipeType == USB_PIPE_TYPE_BULK)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
             if (pi == NULL) {
                 return HDF_FAILURE;
             }
@@ -798,14 +798,14 @@ static int32_t CheckHostSdkIfGetPipe005(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     for (i = 0;  i <= g_acm->intIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(NULL, g_acm->intIface->info.curAltSetting, i, &p);
         if (ret < 0) {
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_IN) && (p.pipeType == USB_PIPE_TYPE_INTERRUPT)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
             if (pi == NULL) {
                 return HDF_FAILURE;
             }
@@ -830,14 +830,14 @@ static int32_t CheckHostSdkIfGetPipe006(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     for (i = 0;  i <= g_acm->intIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(g_acm->int_devHandle, g_acm->intIface->info.curAltSetting, i, &p);
         if (ret < 0) {
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_IN) && (p.pipeType == USB_PIPE_TYPE_INTERRUPT)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
             if (pi == NULL) {
                 return HDF_FAILURE;
             }
@@ -859,7 +859,7 @@ static int32_t CheckHostSdkIfGetPipe007(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     g_acm->interfaceIndex = USB_CTRL_INTERFACE_ID;
     for (i = 0;  i <= g_acm->ctrIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(NULL, g_acm->ctrIface->info.curAltSetting, i, &p);
@@ -867,7 +867,7 @@ static int32_t CheckHostSdkIfGetPipe007(void)
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_OUT) && (p.pipeType == USB_PIPE_TYPE_CONTROL)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
             if (pi == NULL) {
                 return HDF_FAILURE;
             }
@@ -892,7 +892,7 @@ static int32_t CheckHostSdkIfGetPipe008(void)
 {
     int ret;
     struct UsbPipeInfo p;
-    int i;
+    uint8_t i;
     g_acm->interfaceIndex = USB_CTRL_INTERFACE_ID;
     for (i = 0;  i <= g_acm->ctrIface->info.pipeNum; i++) {
         ret = UsbGetPipeInfo(g_acm->ctrl_devHandle, g_acm->ctrIface->info.curAltSetting, i, &p);
@@ -900,7 +900,7 @@ static int32_t CheckHostSdkIfGetPipe008(void)
             continue;
         }
         if ((p.pipeDirection == USB_PIPE_DIRECTION_OUT) && (p.pipeType == USB_PIPE_TYPE_CONTROL)) {
-            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(*pi));
+            struct UsbPipeInfo *pi = (struct UsbPipeInfo *)OsalMemCalloc(sizeof(struct UsbPipeInfo));
             if (pi == NULL) {
                 return HDF_FAILURE;
             }
@@ -1151,7 +1151,7 @@ static int32_t CheckHostSdkIfFillIsoRequest001(void)
         parmas.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         parmas.dataReq.numIsoPackets = USB_ISO_PACKAT_CNT;
         parmas.dataReq.directon = USB_REQUEST_DIR_TO_DEVICE;
-        parmas.dataReq.length = size;
+        parmas.dataReq.length = (int)size;
         parmas.dataReq.buffer = (unsigned char *)sendData;
         ret = UsbFillRequest(g_acm->isoReq, g_acm->iso_devHandle, &parmas);
         if (ret) {
@@ -1182,7 +1182,7 @@ static int32_t CheckHostSdkIfFillIsoRequest002(void)
         parmas.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         parmas.dataReq.numIsoPackets = USB_ISO_PACKAT_CNT;
         parmas.dataReq.directon = USB_REQUEST_DIR_TO_DEVICE;
-        parmas.dataReq.length = size;
+        parmas.dataReq.length = (int)size;
         parmas.dataReq.buffer = (unsigned char *)sendData;
         ret = UsbFillRequest(NULL, g_acm->iso_devHandle, &parmas);
         if (ret) {
@@ -1213,7 +1213,7 @@ static int32_t CheckHostSdkIfFillIsoRequest003(void)
         parmas.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         parmas.dataReq.numIsoPackets = USB_ISO_PACKAT_CNT;
         parmas.dataReq.directon = USB_REQUEST_DIR_TO_DEVICE;
-        parmas.dataReq.length = size;
+        parmas.dataReq.length = (int)size;
         parmas.dataReq.buffer = (unsigned char *)sendData;
         ret = UsbFillRequest(g_acm->isoReq, NULL, &parmas);
         if (ret) {
@@ -1244,7 +1244,7 @@ static int32_t CheckHostSdkIfFillIsoRequest004(void)
         parmas.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         parmas.dataReq.numIsoPackets = USB_ISO_PACKAT_CNT;
         parmas.dataReq.directon = USB_REQUEST_DIR_TO_DEVICE;
-        parmas.dataReq.length = size;
+        parmas.dataReq.length = (int)size;
         parmas.dataReq.buffer = (unsigned char *)sendData;
         ret = UsbFillRequest(g_acm->isoReq, g_acm->iso_devHandle, NULL);
         if (ret) {
@@ -1275,7 +1275,7 @@ static int32_t CheckHostSdkIfFillIsoRequest005(void)
         parmas.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         parmas.dataReq.numIsoPackets = USB_ISO_PACKAT_CNT;
         parmas.dataReq.directon = USB_REQUEST_DIR_TO_DEVICE;
-        parmas.dataReq.length = size;
+        parmas.dataReq.length = (int)size;
         parmas.dataReq.buffer = (unsigned char *)sendData;
         ret = UsbFillRequest(NULL, NULL, &parmas);
         if (ret) {
@@ -1306,7 +1306,7 @@ static int32_t CheckHostSdkIfFillIsoRequest006(void)
         parmas.timeout = USB_RAW_REQUEST_TIME_ZERO_MS;
         parmas.dataReq.numIsoPackets = USB_ISO_PACKAT_CNT;
         parmas.dataReq.directon = USB_REQUEST_DIR_TO_DEVICE;
-        parmas.dataReq.length = size;
+        parmas.dataReq.length = (int)size;
         parmas.dataReq.buffer = (unsigned char *)sendData;
         ret = UsbFillRequest(g_acm->isoReq, NULL, NULL);
         if (ret) {
@@ -1390,7 +1390,7 @@ static int32_t CheckHostSdkIfFillRequest001(void)
         readParmas.dataReq.numIsoPackets = 0;
         readParmas.dataReq.directon =
             (UsbRequestDirection)(((uint32_t)g_acm->dataInPipe->pipeDirection >> USB_DIR_OFFSET) & DIRECTION_MASK);
-        readParmas.dataReq.length = g_acm->readSize;
+        readParmas.dataReq.length = (int)g_acm->readSize;
         ret = UsbFillRequest(g_acm->readReq[i], g_acm->data_devHandle, &readParmas);
         if (ret) {
             HDF_LOGE("%s: error", __func__);
@@ -1412,7 +1412,7 @@ static int32_t CheckHostSdkIfFillRequest002(void)
     size = (size > g_acm->writeSize) ? g_acm->writeSize : size;
 
     for (i = 0; i < 1; i++) {
-        g_acm->wb[i].len = size;
+        g_acm->wb[i].len = (int)size;
         ret = memcpy_s(g_acm->wb[i].buf, g_acm->writeSize, sendData, size);
         if (ret) {
             printf("memcpy_s fial");
@@ -1452,7 +1452,7 @@ static int32_t CheckHostSdkIfFillRequest003(void)
     intParmas.dataReq.numIsoPackets = 0;
     intParmas.dataReq.directon = (UsbRequestDirection)(((uint32_t)g_acm->intPipe->pipeDirection >> USB_PIPE_DIR_OFFSET)
         & DIRECTION_MASK);
-    intParmas.dataReq.length = g_acm->intSize;
+    intParmas.dataReq.length = (int)g_acm->intSize;
     intParmas.dataReq.buffer = NULL;
     ret = UsbFillRequest(g_acm->notifyReq, g_acm->int_devHandle, &intParmas);
     if (ret) {
@@ -1570,7 +1570,7 @@ static int32_t CheckHostSdkIfFillRequest005(void)
         readParmas.dataReq.numIsoPackets = 0;
         readParmas.dataReq.directon =
             (UsbRequestDirection)(((uint32_t)g_acm->dataInPipe->pipeDirection >> USB_DIR_OFFSET) & DIRECTION_MASK);
-        readParmas.dataReq.length = g_acm->readSize;
+        readParmas.dataReq.length = (int)g_acm->readSize;
         ret = UsbFillRequest(g_acm->readReq[i], g_acm->data_devHandle, &readParmas);
         if (ret) {
             HDF_LOGE("%s: error", __func__);
@@ -1591,7 +1591,7 @@ static int32_t CheckHostSdkIfFillRequest006(void)
     g_acm->writeSize = g_acm->dataOutPipe->maxPacketSize;
     size = (size > g_acm->writeSize) ? g_acm->writeSize : size;
     for (i = 0; i < ACM_NR; i++) {
-        g_acm->wb[i].len = size;
+        g_acm->wb[i].len = (int)size;
         ret = memcpy_s(g_acm->wb[i].buf, g_acm->writeSize, sendData, size);
         if (ret) {
             printf("memcpy_s fial");
@@ -1631,7 +1631,7 @@ static int32_t CheckHostSdkIfFillRequest007(void)
     intParmas.dataReq.numIsoPackets = 0;
     intParmas.dataReq.directon = (UsbRequestDirection)(((uint32_t)g_acm->intPipe->pipeDirection >> USB_PIPE_DIR_OFFSET)
         & DIRECTION_MASK);
-    intParmas.dataReq.length = g_acm->intSize;
+    intParmas.dataReq.length = (int)g_acm->intSize;
     ret = UsbFillRequest(g_acm->notifyReq, g_acm->int_devHandle, &intParmas);
     if (ret) {
         HDF_LOGE("%s: error", __func__);

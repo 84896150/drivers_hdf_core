@@ -617,7 +617,7 @@ static int Setup(struct AcmDevice *acm, const struct UsbFnCtrlRequest *setup)
             if (length != sizeof(struct UsbCdcLineCoding)) {
                 goto OUT;
             }
-            ret = length;
+            ret = (int)length;
             break;
         case USB_DDK_CDC_REQ_GET_LINE_CODING:
             ret = (length > sizeof(struct UsbCdcLineCoding)) ? \
@@ -640,7 +640,7 @@ static int Setup(struct AcmDevice *acm, const struct UsbFnCtrlRequest *setup)
 OUT:
     ctrlInfo = (struct CtrlInfo *)req->context;
     ctrlInfo->request = setup->request;
-    req->length = ret;
+    req->length = (uint32_t)ret;
     ret = UsbFnSubmitRequestAsync(req);
     return ret;
 }
@@ -795,7 +795,7 @@ int remove_usb_device(void)
     struct UsbFnFuncMgr *funcMgr = NULL;
     struct UsbFnInterfaceMgr *intfMgr = NULL;
     const char *udcName = "100e0000.hidwc3_0";
-    int i = 0;
+    uint8_t i = 0;
     int ret;
 
     device = (struct UsbFnDevice *)UsbFnGetDevice(udcName);

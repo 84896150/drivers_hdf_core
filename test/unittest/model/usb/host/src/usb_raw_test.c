@@ -313,7 +313,7 @@ int32_t CheckRawSdkIfFillIsoRequest001(void)
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
@@ -341,7 +341,7 @@ int32_t CheckRawSdkIfFillIsoRequest002(void)
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
@@ -369,7 +369,7 @@ int32_t CheckRawSdkIfFillIsoRequest003(void)
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
@@ -397,7 +397,7 @@ int32_t CheckRawSdkIfFillIsoRequest004(void)
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
@@ -425,7 +425,7 @@ int32_t CheckRawSdkIfFillIsoRequest005(void)
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
@@ -453,7 +453,7 @@ int32_t CheckRawSdkIfFillIsoRequest006(void)
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
@@ -956,12 +956,12 @@ int32_t CheckRawSdkIfFillBulkRequest001(void)
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
     size = strlen(sendData) + 1;
-    printf("---size:%d\n", size);
+    printf("---size:%u\n", size);
 
     size = (size > rawAcm->dataOutEp.maxPacketSize) ? rawAcm->dataOutEp.maxPacketSize : size;
     for (i = 0; i < 1; i++) {
         struct RawWb *snd = &rawAcm->wb[i];
-        snd->len = size;
+        snd->len = (int)size;
         ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
         if (ret) {
             printf("memcpy_s fial");
@@ -975,7 +975,7 @@ int32_t CheckRawSdkIfFillBulkRequest001(void)
         reqData.timeout       = USB_CTRL_SET_TIMEOUT;
         reqData.buffer        = snd->buf;
         reqData.length        = snd->len;
-        printf("maxPacketSize:%d+snd->request:%p\n", rawAcm->dataOutEp.maxPacketSize, snd->request);
+        printf("maxPacketSize:%d\n", rawAcm->dataOutEp.maxPacketSize);
         ret = UsbRawFillBulkRequest(snd->request, rawAcm->devHandle, &reqData);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
@@ -992,7 +992,7 @@ int32_t CheckRawSdkIfFillBulkRequest002(void)
     int32_t ret;
     int i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->dataInEp.maxPacketSize;
+    uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->dataInEp.addr;
@@ -1017,7 +1017,7 @@ int32_t CheckRawSdkIfFillInterruptRequest001(void)
     struct UsbRawFillRequestData fillRequestData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     fillRequestData.endPoint = rawAcm->notifyEp.addr;
     fillRequestData.length = size;
@@ -1040,7 +1040,7 @@ int32_t CheckRawSdkIfFillInterruptRequest002(void)
     struct UsbRawFillRequestData fillRequestData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     fillRequestData.endPoint = rawAcm->notifyEp.addr;
     fillRequestData.length = size;
@@ -1063,7 +1063,7 @@ int32_t CheckRawSdkIfFillInterruptRequest003(void)
     struct UsbRawFillRequestData fillRequestData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     fillRequestData.endPoint = rawAcm->notifyEp.addr;
     fillRequestData.length = size;
@@ -1086,7 +1086,7 @@ int32_t CheckRawSdkIfFillInterruptRequest004(void)
     struct UsbRawFillRequestData fillRequestData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     fillRequestData.endPoint = rawAcm->notifyEp.addr;
     fillRequestData.length = size;
@@ -1533,7 +1533,7 @@ int32_t CheckRawSdkIfSendBulkRequest001(void)
 
     for (i = 0; i < 1; i++) {
         struct RawWb *snd = &rawAcm->wb[i];
-        snd->len = size;
+        snd->len = (int)size;
         ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
         if (ret) {
             printf("memcpy_s fial");
@@ -1566,7 +1566,7 @@ int32_t CheckRawSdkIfSendBulkRequest002(void)
     int32_t ret;
     int i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->dataInEp.maxPacketSize;
+    uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->dataInEp.addr;
@@ -1594,7 +1594,7 @@ int32_t CheckRawSdkIfSendBulkRequest003(void)
     int32_t ret;
     int i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->dataInEp.maxPacketSize;
+    uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->dataInEp.addr;
@@ -1622,7 +1622,7 @@ int32_t CheckRawSdkIfSendBulkRequest004(void)
     int32_t ret;
     int i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->dataInEp.maxPacketSize;
+    uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->dataInEp.addr;
@@ -1666,7 +1666,7 @@ int32_t CheckRawSdkIfSendInterruptRequest001(void)
     struct UsbRequestData reqData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     reqData.endPoint = rawAcm->notifyEp.addr;
     reqData.length = size;
@@ -1687,7 +1687,7 @@ int32_t CheckRawSdkIfSendInterruptRequest002(void)
     struct UsbRequestData reqData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     reqData.endPoint = rawAcm->notifyEp.addr;
     reqData.length = size;
@@ -1709,7 +1709,7 @@ int32_t CheckRawSdkIfSendInterruptRequest003(void)
     struct UsbRequestData reqData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
 
     reqData.endPoint = rawAcm->notifyEp.addr;
     reqData.length = size;
@@ -1753,7 +1753,7 @@ int32_t CheckRawSdkIfFillBulkRequest003(void)
 
     for (i = 0; i < ACM_NW; i++) {
         struct RawWb *snd = &rawAcm->wb[i];
-        snd->len = size;
+        snd->len = (int)size;
         ret = memcpy_s(snd->buf, rawAcm->dataOutEp.maxPacketSize, sendData, size);
         if (ret) {
             printf("memcpy_s fial");
@@ -1784,7 +1784,7 @@ int32_t CheckRawSdkIfFillBulkRequest004(void)
     int32_t ret;
     int i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->dataInEp.maxPacketSize;
+    uint32_t size = rawAcm->dataInEp.maxPacketSize;
 
     for (i = 0; i < ACM_NW; i++) {
         reqData.endPoint      = rawAcm->dataInEp.addr;
@@ -1808,7 +1808,7 @@ int32_t CheckRawSdkIfFillInterruptRequest005(void)
     struct UsbRawFillRequestData fillRequestData;
     int32_t ret;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
-    int size = rawAcm->notifyEp.maxPacketSize;
+    uint32_t size = rawAcm->notifyEp.maxPacketSize;
     fillRequestData.endPoint = rawAcm->notifyEp.addr;
     fillRequestData.length = size;
     fillRequestData.numIsoPackets = 0;
