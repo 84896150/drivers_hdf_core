@@ -119,9 +119,15 @@ int32_t HwParamsDispatch(const struct AudioCard *audioCard, const struct AudioPc
     }
 
     /* Traverse through each driver method; Enter if you have, if not, exectue in order */
+#if defined(CONFIG_IMX8MM_AUDIO)
+    if (HwCpuDaiDispatch(audioCard, params) ||
+        HwPlatfromDispatch(audioCard, params) ||
+        HwCodecDaiDispatch(audioCard, params)) {
+#else
     if (HwCodecDaiDispatch(audioCard, params) ||
         HwCpuDaiDispatch(audioCard, params) ||
         HwPlatfromDispatch(audioCard, params)) {
+#endif
         ADM_LOG_ERR("hardware params fail.");
         return HDF_FAILURE;
     }

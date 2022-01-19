@@ -62,7 +62,7 @@ static int32_t I2cTestGetConfig(struct I2cTestConfig *config)
     }
 
     if (len != sizeof(*config)) {
-        HDF_LOGE("I2cTestGetConfig: config size:%u, but read size:%u!", sizeof(*config), len);
+        HDF_LOGE("I2cTestGetConfig: config size:%zu, but read size:%u!", sizeof(*config), len);
         HdfSBufRecycle(reply);
         return HDF_ERR_IO;
     }
