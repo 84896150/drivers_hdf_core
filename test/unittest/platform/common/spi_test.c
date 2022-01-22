@@ -76,11 +76,7 @@ struct SpiTester *SpiTesterGet(void)
     int32_t ret;
     static struct SpiTester tester;
     struct SpiDevInfo info;
-    static bool hasInit = false;
 
-    if (hasInit) {
-        return &tester;
-    }
     ret = SpiTestGetConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read config failed:%d", __func__, ret);
@@ -88,13 +84,17 @@ struct SpiTester *SpiTesterGet(void)
     }
     info.busNum = tester.config.bus;
     info.csNum = tester.config.cs;
-	tester.handle = SpiOpen(&info);
+    tester.handle = SpiOpen(&info);
     if (tester.handle == NULL) {
         HDF_LOGE("%s: open spi: %u, cs: %u failed!", __func__, tester.config.bus, tester.config.cs);
         return NULL;
     }
-    hasInit = true;
     return &tester;
+}
+
+void SpiTesterPut(struct SpiTester *tester)
+{
+    SpiClose(tester);
 }
 
 #define BITS_PER_WORD_DEFAULT    8
@@ -180,13 +180,15 @@ static int32_t SpiDoTransferTest(struct SpiTester *tester, struct SpiCfg *cfg, s
     return HDF_SUCCESS;
 }
 
-static int32_t SpiTransferTest(void)
+static int32_t SpiTransferTest(struct SpiTester *tester)
 {
     int32_t ret;
     struct SpiMsg msg;
-    struct SpiTester *tester = NULL;
 
-    tester = SpiTesterGet();
+    if (tester == NULL) {
+        HDF_LOGE("%s: get tester failed", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     g_spiCfg.bitsPerWord = BITS_PER_WORD_8BITS;
     g_spiCfg.transferMode = SPI_POLLING_TRANSFER;
@@ -261,13 +263,15 @@ static void SpiUnsetDmaIntMsg(struct SpiMsg *msg)
     }
 }
 
-static int32_t SpiDmaTransferTest(void)
+static int32_t SpiDmaTransferTest(struct SpiTester *tester)
 {
     int32_t ret;
     struct SpiMsg msg;
-    struct SpiTester *tester = NULL;
 
-    tester = SpiTesterGet();
+    if (tester == NULL) {
+        HDF_LOGE("%s: get tester failed", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     g_spiCfg.transferMode = SPI_DMA_TRANSFER;
     g_spiCfg.bitsPerWord = BITS_PER_WORD_8BITS;
@@ -301,13 +305,15 @@ static int32_t SpiDmaTransferTest(void)
     return HDF_SUCCESS;
 }
 
-static int32_t SpiIntTransferTest(void)
+static int32_t SpiIntTransferTest(struct SpiTester *tester)
 {
     int32_t ret;
     struct SpiMsg msg;
-    struct SpiTester *tester = NULL;
 
-    tester = SpiTesterGet();
+    if (tester == NULL) {
+        HDF_LOGE("%s: get tester failed", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     g_spiCfg.transferMode = SPI_INTERRUPT_TRANSFER;
     g_spiCfg.bitsPerWord = BITS_PER_WORD_8BITS;
@@ -336,13 +342,11 @@ static int32_t SpiIntTransferTest(void)
     return HDF_SUCCESS;
 }
 
-static int32_t SpiReliabilityTest(void)
+static int32_t SpiReliabilityTest(struct SpiTester *tester)
 {
     struct SpiCfg cfg = {0};
     struct SpiMsg msg = {0};
-    struct SpiTester *tester = NULL;
 
-    tester = SpiTesterGet();
     if (tester == NULL) {
         HDF_LOGE("%s: get tester failed", __func__);
         return HDF_ERR_INVALID_OBJECT;
@@ -357,14 +361,13 @@ static int32_t SpiReliabilityTest(void)
     (void)SpiRead(tester->handle, tester->config.rbuf, tester->config.len);
     (void)SpiRead(tester->handle, NULL, -1);
 
-    (void)tester;
     HDF_LOGE("%s: success", __func__);
     return HDF_SUCCESS;
 }
 
 struct SpiTestEntry {
     int cmd;
-    int32_t (*func)(void);
+    int32_t (*func)(struct SpiTester *tester);
     const char *name;
 };
 
@@ -379,8 +382,14 @@ static struct SpiTestEntry g_spiTestEntry[] = {
 int32_t SpiTestExecute(int cmd)
 {
     uint32_t i;
-    int32_t ret = HDF_ERR_NOT_SUPPORT;
-    
+    int32_t ret= HDF_ERR_NOT_SUPPORT;
+    struct SpiTester *tester = NULL;
+
+    tester = SpiTesterGet();
+    if (tester == NULL) {
+        HDF_LOGE("%s: get tester failed", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
     if (cmd > SPI_TEST_CMD_MAX) {
         HDF_LOGE("%s: invalid cmd:%d", __func__, cmd);
         ret = HDF_ERR_NOT_SUPPORT;
@@ -391,12 +400,14 @@ int32_t SpiTestExecute(int cmd)
         if (g_spiTestEntry[i].cmd != cmd || g_spiTestEntry[i].func == NULL) {
             continue;
         }
-        ret = g_spiTestEntry[i].func();
+        ret = g_spiTestEntry[i].func(tester);
         break;
     }
 
 __EXIT__:
     HDF_LOGE("[%s][======cmd:%d====ret:%d======]", __func__, cmd, ret);
+    SpiTesterPut(tester);
+
     return ret;    
 }
 

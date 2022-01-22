@@ -16,18 +16,18 @@
 #define HDF_LOG_TAG dac_if_c
 #define DAC_SERVICE_NAME "HDF_PLATFORM_DAC_MANAGER"
 
-static void *DacManagerServiceGet(void)
+static struct HdfIoService *DacManagerServiceGet(void)
 {
-    static void *manager = NULL;
+    static struct HdfIoService *service = NULL;
 
-    if (manager != NULL) {
-        return manager;
+    if (service != NULL) {
+        return service;
     }
-    manager = (void *)HdfIoServiceBind("HDF_PLATFORM_DAC_MANAGER");
-    if (manager == NULL) {
+    service = (struct HdfIoService *)HdfIoServiceBind("HDF_PLATFORM_DAC_MANAGER");
+    if (service == NULL) {
         HDF_LOGE("%s: failed to get dac manager service!", __func__);
     }
-    return manager;
+    return service;
 }
 
 DevHandle DacOpen(uint32_t number)
@@ -38,22 +38,24 @@ DevHandle DacOpen(uint32_t number)
     struct HdfSBuf *reply = NULL;
     uint32_t handle;
 
-    service = (struct HdfIoService *)DacManagerServiceGet();
+    service = DacManagerServiceGet();
     if (service == NULL) {
         return NULL;
     }
     data = HdfSBufObtainDefaultSize();
     if (data == NULL) {
+        HDF_LOGE("DacOpen: malloc data failed!");
         return NULL;
     }
     reply = HdfSBufObtainDefaultSize();
     if (reply == NULL) {
+        HDF_LOGE("DacOpen: malloc reply failed!");
         HdfSBufRecycle(data);
         return NULL;
     }
 
-    if (!HdfSbufWriteUint16(data, (uint16_t)number)) {
-        HDF_LOGE("DacOpen: write number fail!");
+    if (!HdfSbufWriteUint32(data, number)) {
+        HDF_LOGE("DacOpen: write number failed!");
         HdfSBufRecycle(data);
         HdfSBufRecycle(reply);
         return NULL;
@@ -61,21 +63,21 @@ DevHandle DacOpen(uint32_t number)
 
     ret = service->dispatcher->Dispatch(&service->object, DAC_IO_OPEN, data, reply);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("DacOpen: service call open fail:%d", ret);
+        HDF_LOGE("DacOpen: service call open failed:%d", ret);
         HdfSBufRecycle(data);
         HdfSBufRecycle(reply);
         return NULL;
     }
 
     if (!HdfSbufReadUint32(reply, &handle)) {
-        HDF_LOGE("DacOpen: read handle fail!");
+        HDF_LOGE("DacOpen: read handle failed!");
         HdfSBufRecycle(data);
         HdfSBufRecycle(reply);
         return NULL;
     }
     HdfSBufRecycle(data);
     HdfSBufRecycle(reply);
-    return (DevHandle)(uintptr_t)handle;
+    return (DevHandle)handle;
 }
 
 void DacClose(DevHandle handle)
@@ -94,15 +96,15 @@ void DacClose(DevHandle handle)
         return;
     }
 
-    if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("DacClose: write handle fail!");
+    if (!HdfSbufWriteUint32(data, (uint32_t)handle)) {
+        HDF_LOGE("DacClose: write handle failed!");
         HdfSBufRecycle(data);
         return;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, DAC_IO_CLOSE, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("DacClose: close handle fail:%d", ret);
+        HDF_LOGE("DacClose: close handle failed:%d", ret);
     }
     HdfSBufRecycle(data);
 }
@@ -123,27 +125,27 @@ int32_t DacWrite(DevHandle handle, uint32_t channel, uint32_t val)
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
-        HDF_LOGE("DacWrite: write handle fail!");
+    if (!HdfSbufWriteUint32(data, (uint32_t)handle)) {
+        HDF_LOGE("DacWrite: write handle failed!");
         HdfSBufRecycle(data);
         return HDF_ERR_IO;
     }
 
     if (!HdfSbufWriteUint32(data, channel)) {
-        HDF_LOGE("DacWrite: write channel fail!");
+        HDF_LOGE("DacWrite: write channel failed!");
         HdfSBufRecycle(data);
         return HDF_ERR_IO;
     }
 
     if (!HdfSbufWriteUint32(data, val)) {
-        HDF_LOGE("DacWrite: write val fail!");
+        HDF_LOGE("DacWrite: write val failed!");
         HdfSBufRecycle(data);
         return HDF_ERR_IO;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, DAC_IO_WRITE, data, NULL);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("DacWrite: write dac fail:%d", ret);
+        HDF_LOGE("DacWrite: write dac failed:%d", ret);
     }
     HdfSBufRecycle(data);
     return ret;

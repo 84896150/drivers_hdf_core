@@ -66,8 +66,8 @@ void HdfLiteSpiTest::TearDown()
   */
 HWTEST_F(HdfLiteSpiTest, SpiTransferTest001, TestSize.Level1)
 {
-    struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_TRANSFER_TEST, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    //struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_TRANSFER_TEST, -1};
+    //EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
     printf("%s: kernel test done, then for user...\n", __func__);
 
     EXPECT_EQ(0, SpiTestExecute(SPI_TRANSFER_TEST));
@@ -108,8 +108,8 @@ HWTEST_F(HdfLiteSpiTest, SpiTransferTest001, TestSize.Level1)
   */
 HWTEST_F(HdfLiteSpiTest, SpiDmaTransferTest001, TestSize.Level1)
 {
-    struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_DMA_TRANSFER_TEST, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    //struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_DMA_TRANSFER_TEST, -1};
+    //EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
     printf("%s: kernel test done, then for user...\n", __func__);
 
     EXPECT_EQ(0, SpiTestExecute(SPI_DMA_TRANSFER_TEST));
@@ -124,8 +124,8 @@ HWTEST_F(HdfLiteSpiTest, SpiDmaTransferTest001, TestSize.Level1)
   */
 HWTEST_F(HdfLiteSpiTest, SpiIntTransferTest001, TestSize.Level1)
 {
-    struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_INT_TRANSFER_TEST, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    //struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_INT_TRANSFER_TEST, -1};
+    //EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
     printf("%s: kernel test done, then for user...\n", __func__);
 
     EXPECT_EQ(0, SpiTestExecute(SPI_INT_TRANSFER_TEST));
@@ -140,8 +140,8 @@ HWTEST_F(HdfLiteSpiTest, SpiIntTransferTest001, TestSize.Level1)
   */
 HWTEST_F(HdfLiteSpiTest, SpiReliabilityTest001, TestSize.Level1)
 {
-    struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_RELIABILITY_TEST, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    //struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_RELIABILITY_TEST, -1};
+    //EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
     printf("%s: kernel test done, then for user...\n", __func__);
 
     EXPECT_EQ(0, SpiTestExecute(SPI_RELIABILITY_TEST));

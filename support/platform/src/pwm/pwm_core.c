@@ -36,13 +36,14 @@ int32_t PwmDeviceGet(struct PwmDev *pwm)
 
     pwm->busy = true;
     (void)OsalSpinUnlock(&(pwm->lock));
+
     return HDF_SUCCESS;
 }
 
 int32_t PwmDevicePut(struct PwmDev *pwm)
 {
     int32_t ret;
-    
+
     if (pwm == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -57,6 +58,7 @@ int32_t PwmDevicePut(struct PwmDev *pwm)
     (void)OsalSpinLock(&(pwm->lock));
     pwm->busy = false;
     (void)OsalSpinUnlock(&(pwm->lock));
+
     return HDF_SUCCESS;
 }
 
@@ -65,7 +67,7 @@ int32_t PwmDeviceSetPeriod(struct PwmDev *pwm, uint32_t period)
     int32_t ret;
     struct PwmConfig config;
     uint32_t curValue;
-    
+
     if (pwm == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -82,6 +84,7 @@ int32_t PwmDeviceSetPeriod(struct PwmDev *pwm, uint32_t period)
     if (ret == HDF_SUCCESS) {
         HDF_LOGI("%s: success. period: %d -> %d.", __func__, curValue, config.period);
     }
+
     return ret;
 }
 
@@ -90,7 +93,7 @@ int32_t PwmDeviceSetDuty(struct PwmDev *pwm, uint32_t duty)
     int32_t ret;
     struct PwmConfig config;
     uint32_t curValue;
-    
+
     if (pwm == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -107,6 +110,7 @@ int32_t PwmDeviceSetDuty(struct PwmDev *pwm, uint32_t duty)
     if (ret == HDF_SUCCESS) {
         HDF_LOGI("%s: success. duty: %d -> %d.", __func__, curValue, config.duty);
     }
+
     return ret;
 }
 
@@ -115,7 +119,7 @@ int32_t PwmDeviceSetPolarity(struct PwmDev *pwm, uint8_t polarity)
     int32_t ret;
     struct PwmConfig config;
     uint32_t curValue;
-    
+
     if (pwm == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -132,6 +136,7 @@ int32_t PwmDeviceSetPolarity(struct PwmDev *pwm, uint8_t polarity)
     if (ret == HDF_SUCCESS) {
         HDF_LOGI("%s: success. polarity: %d -> %d.", __func__, curValue, config.polarity);
     }
+
     return ret;
 }
 
@@ -140,7 +145,7 @@ int32_t PwmDeviceEnable(struct PwmDev *pwm)
     int32_t ret;
     struct PwmConfig config;
     uint32_t curValue;
-    
+
     if (pwm == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -157,6 +162,7 @@ int32_t PwmDeviceEnable(struct PwmDev *pwm)
     if (ret == HDF_SUCCESS) {
         HDF_LOGI("%s: success. enable: %d -> %d.", __func__, curValue, config.status);
     }
+
     return ret;
 }
 
@@ -165,7 +171,7 @@ int32_t PwmDeviceDisable(struct PwmDev *pwm)
     int32_t ret;
     struct PwmConfig config;
     uint32_t curValue;
-    
+
     if (pwm == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -182,13 +188,14 @@ int32_t PwmDeviceDisable(struct PwmDev *pwm)
     if (ret == HDF_SUCCESS) {
         HDF_LOGI("%s: success. enable: %d -> %d.", __func__, curValue, config.status);
     }
+
     return ret;
 }
 
 int32_t PwmDeviceSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 {
     int32_t ret;
-    
+
     if (pwm == NULL || config == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -212,6 +219,7 @@ int32_t PwmDeviceSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     }
 
     pwm->cfg = *config;
+
     return HDF_SUCCESS;
 }
 
@@ -220,8 +228,8 @@ int32_t PwmDeviceGetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     if (pwm == NULL || config == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
-
     *config = pwm->cfg;
+
     return HDF_SUCCESS;
 }
 
@@ -241,6 +249,7 @@ void *PwmGetPriv(struct PwmDev *pwm)
         HDF_LOGE("%s: pwm is null", __func__);
         return NULL;
     }
+
     return pwm->priv;
 }
 
@@ -253,6 +262,7 @@ static int32_t PwmUserSetPeriod(struct PwmDev *pwm, struct HdfSBuf *data)
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+
     return PwmDeviceSetPeriod(pwm, *period);
 }
 
@@ -265,6 +275,7 @@ static int32_t PwmUserSetDuty(struct PwmDev *pwm, struct HdfSBuf *data)
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+
     return PwmDeviceSetDuty(pwm, *duty);
 }
 
@@ -277,6 +288,7 @@ static int32_t PwmUserSetPolarity(struct PwmDev *pwm, struct HdfSBuf *data)
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+
     return PwmDeviceSetPolarity(pwm, *polarity);
 }
 
@@ -289,6 +301,7 @@ static int32_t PwmUserSetConfig(struct PwmDev *pwm, struct HdfSBuf *data)
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+
     return PwmDeviceSetConfig(pwm, config);
 }
 
@@ -305,6 +318,7 @@ static int32_t PwmUserGetConfig(struct PwmDev *pwm, struct HdfSBuf *reply)
         HDF_LOGE("%s: sbuf write buffer failed", __func__);
         return HDF_ERR_IO;
     }
+
     return HDF_SUCCESS;
 }
 

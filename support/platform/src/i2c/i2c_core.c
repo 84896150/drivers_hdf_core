@@ -374,7 +374,6 @@ static int32_t I2cManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int32_t ret;
-
     switch (cmd) {
         case I2C_IO_OPEN:
             return I2cManagerIoOpen(data, reply);

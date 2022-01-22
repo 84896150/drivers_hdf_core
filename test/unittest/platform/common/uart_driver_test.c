@@ -115,12 +115,14 @@ static int32_t UartTestBind(struct HdfDeviceObject *device)
 
 static int32_t UartTestInit(struct HdfDeviceObject *device)
 {
+    HDF_LOGE("%s: enter", __func__);
     (void)device;
     return HDF_SUCCESS;
 }
 
 static void UartTestRelease(struct HdfDeviceObject *device)
 {
+    HDF_LOGE("%s: enter", __func__);
     if (device != NULL) {
         device->service = NULL;
     }

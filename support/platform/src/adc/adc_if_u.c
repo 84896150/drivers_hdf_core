@@ -12,21 +12,21 @@
 #include "osal_mem.h"
 #include "securec.h"
 
-#define HDF_LOG_TAG adc_if_c
+#define HDF_LOG_TAG adc_if_u_c
 #define ADC_SERVICE_NAME "HDF_PLATFORM_ADC_MANAGER"
 
-static void *AdcManagerGetService(void)
+static struct HdfIoService *AdcManagerGetService(void)
 {
-    static void *manager = NULL;
+    static struct HdfIoService *service = NULL;
 
-    if (manager != NULL) {
-        return manager;
+    if (service != NULL) {
+        return service;
     }
-    manager = (void *)HdfIoServiceBind(ADC_SERVICE_NAME);
-    if (manager == NULL) {
+    service = (struct HdfIoService *)HdfIoServiceBind(ADC_SERVICE_NAME);
+    if (service == NULL) {
         HDF_LOGE("AdcManagerGetService: fail to get adc manager!");
     }
-    return manager;
+    return service;
 }
 
 DevHandle AdcOpen(uint32_t number)
@@ -37,7 +37,7 @@ DevHandle AdcOpen(uint32_t number)
     struct HdfSBuf *reply = NULL;
     uint32_t handle;
 
-    service = (struct HdfIoService *)AdcManagerGetService();
+    service = AdcManagerGetService();
     if (service == NULL) {
         return NULL;
     }
@@ -53,28 +53,26 @@ DevHandle AdcOpen(uint32_t number)
 
     if (!HdfSbufWriteUint32(data, (uint32_t)number)) {
         HDF_LOGE("AdcOpen: write number fail!");
-        HdfSBufRecycle(data);
-        HdfSBufRecycle(reply);
-        return NULL;
+        goto __ERR;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, ADC_IO_OPEN, data, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("AdcOpen: service call open fail:%d", ret);
-        HdfSBufRecycle(data);
-        HdfSBufRecycle(reply);
-        return NULL;
+        goto __ERR;
     }
 
     if (!HdfSbufReadUint32(reply, &handle)) {
         HDF_LOGE("AdcOpen: read handle fail!");
-        HdfSBufRecycle(data);
-        HdfSBufRecycle(reply);
-        return NULL;
+        goto __ERR;
     }
     HdfSBufRecycle(data);
     HdfSBufRecycle(reply);
-    return (DevHandle)(uintptr_t)handle;
+    return (DevHandle)(uint32_t)handle;
+__ERR:
+    HdfSBufRecycle(data);
+    HdfSBufRecycle(reply);
+    return NULL;
 }
 
 void AdcClose(DevHandle handle)
@@ -93,7 +91,7 @@ void AdcClose(DevHandle handle)
         return;
     }
 
-    if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
+    if (!HdfSbufWriteUint32(data, (uint32_t)handle)) {
         HDF_LOGE("AdcClose: write handle fail!");
         HdfSBufRecycle(data);
         return;
@@ -130,34 +128,31 @@ int32_t AdcRead(DevHandle handle, uint32_t channel, uint32_t *val)
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
+    if (!HdfSbufWriteUint32(data, (uint32_t)handle)) {
         HDF_LOGE("AdcRead: write handle fail!");
-        HdfSBufRecycle(data);
-        HdfSBufRecycle(reply);
-        return HDF_ERR_IO;
+	    ret = HDF_ERR_IO;
+        goto __EXIT;
     }
-    if (!HdfSbufWriteUint32(data, (uint16_t)channel)) {
+    if (!HdfSbufWriteUint32(data, (uint32_t)channel)) {
         HDF_LOGE("%s: write adc number failed!", __func__);
-        HdfSBufRecycle(data);
-        HdfSBufRecycle(reply);
-        return HDF_ERR_IO;
+	    ret = HDF_ERR_IO;
+        goto __EXIT;
     }
     ret = service->dispatcher->Dispatch(&service->object, ADC_IO_READ, data, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("AdcRead: failed to send service call:%d", ret);
-        HdfSBufRecycle(data);
-        HdfSBufRecycle(reply);
-        return ret;
+        goto __EXIT;
     }
 
 	if (!HdfSbufReadUint32(reply, val)) {
 	HDF_LOGE("%s: read sbuf failed", __func__);
-	HdfSBufRecycle(data);
-	HdfSBufRecycle(reply);
-	return HDF_ERR_IO;
+	    ret = HDF_ERR_IO;
+        goto __EXIT;
     }
 
-    HdfSBufRecycle(data);
-    HdfSBufRecycle(reply);
-    return HDF_SUCCESS;
+    goto __EXIT;
+__EXIT:
+	HdfSBufRecycle(data);
+	HdfSBufRecycle(reply);
+    return ret;
 }

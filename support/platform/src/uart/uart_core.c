@@ -16,7 +16,7 @@
 int32_t UartHostInit(struct UartHost *host)
 {
     int32_t ret;
-
+HDF_LOGE("%s: enter!", __func__);
     if (host == NULL || host->method == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -31,13 +31,14 @@ int32_t UartHostInit(struct UartHost *host)
             return ret;
         }
     }
+HDF_LOGE("%s: done!", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t UartHostDeinit(struct UartHost *host)
 {
     int32_t ret;
-
+HDF_LOGE("%s: enter!", __func__);
     if (host == NULL || host->method == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -48,6 +49,7 @@ int32_t UartHostDeinit(struct UartHost *host)
         }
     }
     OsalAtomicDec(&host->atom);
+HDF_LOGE("%s: done!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -56,7 +58,7 @@ static int32_t UartUserRead(struct UartHost *host, struct HdfSBuf *reply)
     size_t size;
     int32_t len;
     uint8_t *buf = NULL;
-
+HDF_LOGE("%s: enter!", __func__);
     size = HdfSbufGetCapacity(reply);
     if (size == 0) {
         HDF_LOGE("%s: the size of Sbuf is 0", __func__);
@@ -79,6 +81,7 @@ static int32_t UartUserRead(struct UartHost *host, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
     OsalMemFree(buf);
+HDF_LOGE("%s: done!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -86,11 +89,12 @@ static int32_t UartUserWrite(struct UartHost *host, struct HdfSBuf *data)
 {
     size_t size;
     uint8_t *buf = NULL;
-
+HDF_LOGE("%s: enter!", __func__);
     if (!HdfSbufReadBuffer(data, (const void **)&buf, &size)) {
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+HDF_LOGE("%s: done!", __func__);
     return UartHostWrite(host, buf, size);
 }
 
@@ -98,7 +102,7 @@ static int32_t UartUserGetBaud(struct UartHost *host, struct HdfSBuf *reply)
 {
     int32_t ret;
     uint32_t baudRate;
-
+HDF_LOGE("%s: enter!", __func__);
     ret = UartHostGetBaud(host, &baudRate);
     if (ret != HDF_SUCCESS) {
         return ret;
@@ -107,6 +111,7 @@ static int32_t UartUserGetBaud(struct UartHost *host, struct HdfSBuf *reply)
         HDF_LOGE("%s: sbuf write buffer failed", __func__);
         return HDF_ERR_IO;
     }
+HDF_LOGE("%s: done!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -114,11 +119,12 @@ static int32_t UartUserSetBaud(struct UartHost *host, struct HdfSBuf *data)
 {
     size_t size;
     uint32_t *baudRate = NULL;
-
+HDF_LOGE("%s: enter!", __func__);
     if (!HdfSbufReadBuffer(data, (const void **)&baudRate, &size)) {
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+HDF_LOGE("%s: done!", __func__);
     return UartHostSetBaud(host, *baudRate);
 }
 
@@ -126,7 +132,7 @@ static int32_t UartUserGetAttribute(struct UartHost *host, struct HdfSBuf *reply
 {
     int32_t ret;
     struct UartAttribute attribute;
-
+HDF_LOGE("%s: enter!", __func__);
     ret = UartHostGetAttribute(host, &attribute);
     if (ret != HDF_SUCCESS) {
         return ret;
@@ -135,6 +141,7 @@ static int32_t UartUserGetAttribute(struct UartHost *host, struct HdfSBuf *reply
         HDF_LOGE("%s: sbuf write buffer failed", __func__);
         return HDF_ERR_IO;
     }
+HDF_LOGE("%s: done!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -142,11 +149,12 @@ static int32_t UartUserSetAttribute(struct UartHost *host, struct HdfSBuf *data)
 {
     size_t size;
     struct UartAttribute *attribute = NULL;
-
+HDF_LOGE("%s: enter!", __func__);
     if (!HdfSbufReadBuffer(data, (const void **)&attribute, &size)) {
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+HDF_LOGE("%s: done!", __func__);
     return UartHostSetAttribute(host, attribute);
 }
 
@@ -154,11 +162,12 @@ static int32_t UartUserSetTransMode(struct UartHost *host, struct HdfSBuf *data)
 {
     size_t size;
     enum UartTransMode *mode = NULL;
-
+HDF_LOGE("%s: enter!", __func__);
     if (!HdfSbufReadBuffer(data, (const void **)&mode, &size) || mode == NULL) {
         HDF_LOGE("%s: sbuf read buffer failed", __func__);
         return HDF_ERR_IO;
     }
+HDF_LOGE("%s: done!", __func__);
     return UartHostSetTransMode(host, *mode);
 }
 
@@ -166,7 +175,7 @@ static int32_t UartIoDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct UartHost *host = NULL;
-
+HDF_LOGE("%s: enter!", __func__);
     if (client == NULL) {
         HDF_LOGE("%s: client is NULL", __func__);
         return HDF_ERR_INVALID_OBJECT;
@@ -205,6 +214,7 @@ static int32_t UartIoDispatch(struct HdfDeviceIoClient *client, int cmd,
         default:
             return HDF_ERR_NOT_SUPPORT;
     }
+HDF_LOGE("%s: done!", __func__);
 }
 
 void UartHostDestroy(struct UartHost *host)
@@ -230,7 +240,7 @@ struct UartHost *UartHostCreate(struct HdfDeviceObject *device)
     }
     host->device = device;
     device->service = &(host->service);
-    host->device->service->Dispatch = UartIoDispatch;
+    device->service->Dispatch = UartIoDispatch;
     OsalAtomicSet(&host->atom, 0);
     host->priv = NULL;
     host->method = NULL;

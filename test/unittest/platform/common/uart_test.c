@@ -9,7 +9,6 @@
 #include "uart_test.h"
 #include "device_resource_if.h"
 #include "hdf_base.h"
-//#include "hdf_device_desc.h"
 #include "hdf_io_service_if.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
@@ -79,7 +78,7 @@ struct UartTester *UartTesterGet(void)
         HDF_LOGE("%s: read config failed:%d", __func__, ret);
         return NULL;
     }
-	tester.handle = UartOpen(tester.config.port);
+    tester.handle = UartOpen(tester.config.port);
     if (tester.handle == NULL) {
         HDF_LOGE("%s: open uart port:%u fail!", __func__, tester.config.port);
         return NULL;
@@ -108,7 +107,7 @@ static int32_t UartWriteTest(void)
 }
 
 static int32_t UartReadTest(void)
-{	
+{    
     struct UartTester *tester = NULL;
     int32_t ret;
 
@@ -117,7 +116,7 @@ static int32_t UartReadTest(void)
         HDF_LOGE("%s: get tester failed", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-	ret = UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK);
+    ret = UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK);
     if (UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK) != HDF_SUCCESS) {
         HDF_LOGE("%s: transmode error.", __func__);
         return HDF_FAILURE;
@@ -235,7 +234,7 @@ static int32_t UartSetTransModeTest(void)
         HDF_LOGE("%s: get tester failed", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-	ret = UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK);
+    ret = UartSetTransMode(tester->handle, UART_MODE_RD_NONBLOCK);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set transmode failed", __func__);
         return HDF_FAILURE;

@@ -279,19 +279,28 @@ static int32_t AdcManagerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t number;
 
+    if (data == NULL || reply == NULL) {
+        HDF_LOGE("%s: invalid data or reply!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     if (!HdfSbufReadUint32(data, &number)) {
+        HDF_LOGE("%s: read data failed!", __func__);
         return HDF_ERR_IO;
     }
 
     if (number < 0 || number >= ADC_DEVICES_MAX || reply == NULL) {
+        HDF_LOGE("%s: invalid number!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (AdcDeviceGet(number) == NULL) {
+        HDF_LOGE("%s: get device %u failed", __func__, number);
         return HDF_ERR_NOT_SUPPORT;
     }
 
     if (!HdfSbufWriteUint32(reply, number)) {
+        HDF_LOGE("%s: write reply failed!", __func__);
         return HDF_ERR_IO;
     }
     return HDF_SUCCESS;
@@ -301,11 +310,18 @@ static int32_t AdcManagerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t number;
 
+    if (data == NULL) {
+        HDF_LOGE("%s: invalid data!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     if (!HdfSbufReadUint32(data, &number)) {
+        HDF_LOGE("%s: read data failed!", __func__);
         return HDF_ERR_IO;
     }
 
     if (number < 0 || number >= ADC_DEVICES_MAX) {
+        HDF_LOGE("%s: get device %u failed", __func__, number);
         return HDF_ERR_INVALID_PARAM;
     }
     AdcDevicePut(AdcManagerFindDevice(number));
@@ -320,26 +336,27 @@ static int32_t AdcManagerIoRead(struct HdfSBuf *data, struct HdfSBuf *reply)
     uint32_t channel;
     uint32_t *val = NULL;
     if (data == NULL || reply == NULL) {
+        HDF_LOGE("%s: invalid data or reply!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 	
     if (!HdfSbufReadUint32(data, &handle)) {
-        HDF_LOGE("AdcManagerIoRead: read handle fail!");
+        HDF_LOGE("AdcManagerIoRead: read handle failed!");
         return HDF_ERR_IO;
     }
      if (!HdfSbufReadUint32(data, &number)) {
-        HDF_LOGE("AdcManagerIoRead: read handle fail!");
+        HDF_LOGE("AdcManagerIoRead: read handle failed!");
         return HDF_ERR_IO;
     }
     
      if (!HdfSbufReadUint32(data, &channel)) {
-        HDF_LOGE("AdcManagerIoRead: read handle fail!");
+        HDF_LOGE("AdcManagerIoRead: read handle failed!");
         return HDF_ERR_IO;
     }
     
     ret = AdcDeviceRead(AdcManagerFindDevice(number), channel, val);
     if(ret == 0) {
-       HDF_LOGE("AdcManagerIoRead: read val fail!");
+       HDF_LOGE("AdcManagerIoRead: read val failed!");
        return HDF_ERR_IO;
     }
     
@@ -349,8 +366,7 @@ static int32_t AdcManagerIoRead(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t AdcManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
-
+HDF_LOGE("%s: enter", __func__);
     switch (cmd) {
         case ADC_IO_OPEN:
             return AdcManagerIoOpen(data, reply);
@@ -359,12 +375,16 @@ static int32_t AdcManagerDispatch(struct HdfDeviceIoClient *client, int cmd,
         case ADC_IO_READ:
             return AdcManagerIoRead(data, reply);
         default:
-            ret = HDF_ERR_NOT_SUPPORT;
+            return HDF_ERR_NOT_SUPPORT;
             break;
     }
-    return ret;
+    return HDF_SUCCESS;
 }
-
+static int32_t AdcManagerBind(struct HdfDeviceObject *device)
+{
+    (void)device;
+    return HDF_SUCCESS;
+}
 static int32_t AdcManagerInit(struct HdfDeviceObject *device)
 {
     int32_t ret;
@@ -418,6 +438,7 @@ static void AdcManagerRelease(struct HdfDeviceObject *device)
 
 struct HdfDriverEntry g_adcManagerEntry = {
     .moduleVersion = 1,
+    .Bind = AdcManagerBind,
     .Init = AdcManagerInit,
     .Release = AdcManagerRelease,
     .moduleName = "HDF_PLATFORM_ADC_MANAGER",

@@ -54,7 +54,6 @@ DevHandle PwmOpen(uint32_t num)
         HDF_LOGE("%s: dev is null", __func__);
         return NULL;
     }
-
     
     struct HdfIoService *service = (struct HdfIoService *)pwm;
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {

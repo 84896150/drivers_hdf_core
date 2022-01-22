@@ -12,7 +12,7 @@
 #include "osal_mem.h"
 #include "securec.h"
 
-#define HDF_LOG_TAG spi_if
+#define HDF_LOG_TAG spi_if_u
 #define HOST_NAME_LEN 32
 
 struct SpiObject {
@@ -104,9 +104,7 @@ static inline int32_t SpiMsgReadArray(struct HdfSBuf *reply, struct SpiMsg *msgs
 
 int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
 {
-    uint32_t i;
     int32_t ret;
-    uint32_t recvLen = 0;
     struct HdfSBuf *data = NULL;
     struct HdfSBuf *reply = NULL;
     struct HdfIoService *service = NULL;
@@ -129,10 +127,7 @@ int32_t SpiTransfer(DevHandle handle, struct SpiMsg *msgs, uint32_t count)
         goto __EXIT;
     }
 
-    for (i = 0; i < count; i++) {
-        recvLen += msgs[i].len + sizeof(uint64_t);
-    }
-    reply = HdfSBufObtain(recvLen);
+    reply = HdfSBufObtainDefaultSize();
     if (reply == NULL) {
         HDF_LOGE("%s: failed to obtain reply!", __func__);
         ret = HDF_ERR_MALLOC_FAIL;
@@ -200,16 +195,14 @@ int32_t SpiSetCfg(DevHandle handle, struct SpiCfg *cfg)
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    ret = HdfSbufWriteUint32(data, object->csNum);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SpiOpen: write csNum failed!");
+    if (!HdfSbufWriteUint32(data, object->csNum)) {
+        HDF_LOGE("%s: write csNum failed!", __func__);
         HdfSBufRecycle(data);
         return HDF_FAILURE;
     }
 
-    ret = HdfSbufWriteBuffer(data, cfg, sizeof(*cfg));
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("SpiOpen: write cfg failed!");
+    if (!HdfSbufWriteBuffer(data, cfg, sizeof(*cfg))) {
+        HDF_LOGE("%s: write cfg failed!", __func__);
         HdfSBufRecycle(data);
         return HDF_FAILURE;
     }
@@ -223,9 +216,10 @@ int32_t SpiSetCfg(DevHandle handle, struct SpiCfg *cfg)
     ret = service->dispatcher->Dispatch(&service->object, SPI_IO_SET_CONFIG, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: failed, ret is %d", __func__, ret);
-        OsalMemFree(object);
+        HdfSBufRecycle(data);
         return HDF_ERR_IO;
     }
+        HdfSBufRecycle(data);
 
     return HDF_SUCCESS;
 }
@@ -257,9 +251,10 @@ int32_t SpiGetCfg(DevHandle handle, struct SpiCfg *cfg)
         HdfSBufRecycle(data);
         return HDF_ERR_MALLOC_FAIL;
     }
-    ret = HdfSbufWriteUint32(data, object->csNum);
-    if (ret != HDF_SUCCESS) {
+
+    if (!HdfSbufWriteUint32(data, object->csNum)) {
         HDF_LOGE("SpiOpen: write csNum failed!");
+        ret = HDF_ERR_IO;
         goto __EXIT;
     }
 
@@ -275,8 +270,7 @@ int32_t SpiGetCfg(DevHandle handle, struct SpiCfg *cfg)
         goto __EXIT;
     }
 
-    ret = HdfSbufReadBuffer(reply, &rBuf, &len);
-    if (ret != HDF_SUCCESS) {
+    if (!HdfSbufReadBuffer(reply, &rBuf, &len)) {
         HDF_LOGE("%s: read buffer failed", __func__);
         goto __EXIT;
     }
@@ -326,7 +320,7 @@ void SpiClose(DevHandle handle)
         HDF_LOGE("%s: failed, ret is %d", __func__, ret);
         HdfSBufRecycle(data);
     }
-    OsalMemFree(handle);
+    OsalMemFree(object);
 }
 
 DevHandle SpiOpen(const struct SpiDevInfo *info)
@@ -355,6 +349,7 @@ DevHandle SpiOpen(const struct SpiDevInfo *info)
         HdfSBufRecycle(data);
         return NULL;
     }
+HDF_LOGE("%s: %d", __func__, __LINE__);
     object = (struct SpiObject *)OsalMemCalloc(sizeof(*object));
     if (object == NULL) {
         HDF_LOGE("%s: object malloc failed", __func__);
@@ -370,7 +365,6 @@ DevHandle SpiOpen(const struct SpiDevInfo *info)
     ret = service->dispatcher->Dispatch(&service->object, SPI_IO_OPEN, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: failed, ret is %d", __func__, ret);
-        OsalMemFree(object);
         return NULL;
     }
     object->cntlr = cntlr;

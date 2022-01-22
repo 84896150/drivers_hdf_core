@@ -73,6 +73,7 @@ static int32_t WatchdogTestBind(struct HdfDeviceObject *device)
     int32_t ret;
     static struct IDeviceIoService service;
 
+    HDF_LOGE("%s: enter", __func__);
     if (device == NULL || device->property == NULL) {
         HDF_LOGE("%s: device or config is null!", __func__);
         return HDF_ERR_IO;
