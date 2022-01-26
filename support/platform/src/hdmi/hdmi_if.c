@@ -24,6 +24,8 @@
 
 #ifdef __USER__
 
+#define HDMI_EDID_RAW_DATA_MAX_LEN 512
+
 enum HdmiIoCmd {
     HDMI_CMD_OPEN,
     HDMI_CMD_CLOSE,
@@ -320,6 +322,7 @@ static int32_t HdmiUserGetSinkEdid(DevHandle handle, uint8_t *buffer, uint32_t l
     int32_t ret;
     struct HdfSBuf *reply = NULL;
     struct HdfIoService *service = (struct HdfIoService *)handle;
+    uint32_t length = len;
 
     if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("HdmiUserGetSinkEdid: service is invalid");
@@ -329,7 +332,8 @@ static int32_t HdmiUserGetSinkEdid(DevHandle handle, uint8_t *buffer, uint32_t l
         return HDF_ERR_INVALID_PARAM;
     }
 
-    reply = HdfSBufObtain(len);
+    /* Four bytes are used to store the buffer length, and four bytes are used to align the memory. */
+    reply = HdfSBufObtain(HDMI_EDID_RAW_DATA_MAX_LEN + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("HdmiUserGetSinkEdid: failed to obtain reply");
         ret = HDF_ERR_MALLOC_FAIL;
@@ -339,8 +343,15 @@ static int32_t HdmiUserGetSinkEdid(DevHandle handle, uint8_t *buffer, uint32_t l
     ret = service->dispatcher->Dispatch(&service->object, HDMI_CMD_READ_SINK_EDID, NULL, reply);
     if (ret <= 0) {
         HDF_LOGE("HdmiUserGetSinkEdid: failed to write, ret %d", ret);
-    } else {
-        ret = HdmiGetDataFromReply(reply, buffer, len);
+        goto __EXIT;
+    }
+
+    if ((uint32_t)ret < length) {
+        length = (uint32_t)ret;
+    }
+    ret = HdmiGetDataFromReply(reply, buffer, length);
+    if (ret == HDF_SUCCESS) {
+        ret = (int32_t)length;
     }
 
 __EXIT :

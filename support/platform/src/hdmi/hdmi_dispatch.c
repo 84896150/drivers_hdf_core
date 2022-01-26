@@ -169,7 +169,7 @@ static int32_t HdmiCmdReadSinkEdid(struct HdmiCntlr *cntlr, struct HdfSBuf *data
     }
 
     ret = HdmiCntlrGetSinkEdid(cntlr, edid, HDMI_EDID_TOTAL_SIZE);
-    if (ret != HDF_SUCCESS) {
+    if (ret <= 0) {
         return ret;
     }
 
@@ -178,7 +178,7 @@ static int32_t HdmiCmdReadSinkEdid(struct HdmiCntlr *cntlr, struct HdfSBuf *data
         return HDF_ERR_IO;
     }
 
-    return HDF_SUCCESS;
+    return ret;
 }
 
 static int32_t HdmiCmdInfoFrameSet(struct HdmiCntlr *cntlr, struct HdfSBuf *data, struct HdfSBuf *reply)
