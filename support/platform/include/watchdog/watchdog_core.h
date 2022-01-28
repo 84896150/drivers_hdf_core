@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -102,7 +102,7 @@ int32_t WatchdogCntlrFeed(struct WatchdogCntlr *cntlr);
 
 int32_t WatchdogGetPrivData(struct WatchdogCntlr *cntlr);
 
-void WatchdogReleasePriv(struct WatchdogCntlr *cntlr);
+int32_t WatchdogReleasePriv(struct WatchdogCntlr *cntlr);
 
 #ifdef __cplusplus
 #if __cplusplus

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -9,10 +9,10 @@
 #ifndef PWM_CORE_H
 #define PWM_CORE_H
 
-#include "pwm_if.h"
 #include "hdf_base.h"
 #include "hdf_device_desc.h"
 #include "osal_spinlock.h"
+#include "pwm_if.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -41,8 +41,14 @@ struct PwmDev {
 };
 
 int32_t PwmDeviceGet(struct PwmDev *pwm);
-void PwmDevicePut(struct PwmDev *pwm);
+int32_t PwmDevicePut(struct PwmDev *pwm);
+int32_t PwmDeviceSetPeriod(struct PwmDev *pwm, uint32_t period);
+int32_t PwmDeviceSetDuty(struct PwmDev *pwm, uint32_t duty);
+int32_t PwmDeviceSetPolarity(struct PwmDev *pwm, uint8_t polarity);
+int32_t PwmDeviceEnable(struct PwmDev *pwm);
+int32_t PwmDeviceDisable(struct PwmDev *pwm);
 int32_t PwmDeviceSetConfig(struct PwmDev *pwm, struct PwmConfig *config);
+int32_t PwmDeviceGetConfig(struct PwmDev *pwm, struct PwmConfig *config);
 void *PwmGetPriv(struct PwmDev *pwm);
 int32_t PwmSetPriv(struct PwmDev *pwm, void *priv);
 int32_t PwmDeviceAdd(struct HdfDeviceObject *obj, struct PwmDev *pwm);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -49,6 +49,22 @@ extern "C" {
 enum WatchdogStatus {
     WATCHDOG_STOP,  /**< Stopped */
     WATCHDOG_START, /**< Started */
+};
+
+/**
+ * @brief Enumerates WATCHDOG I/O commands.
+ *
+ * @since 1.0
+ */
+enum WatchdogIoCmd {
+    WATCHDOG_IO_GET_PRIV = 0,    /**< Get the WATCHDOG device priv. */
+    WATCHDOG_IO_RELEASE_PRIV,    /**< Release the WATCHDOG device priv. */
+    WATCHDOG_IO_GET_STATUS,      /**< Get status. */
+    WATCHDOG_IO_START,           /**< Start. */
+    WATCHDOG_IO_STOP,            /**< Stop */
+    WATCHDOG_IO_SET_TIMEOUT,     /**< Set timrout. */
+    WATCHDOG_IO_GET_TIMEOUT,     /**< Get timeout. */
+    WATCHDOG_IO_FEED,            /**< Feed. */
 };
 
 /**
