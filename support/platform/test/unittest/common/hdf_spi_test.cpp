@@ -15,17 +15,9 @@
 #include <unistd.h>
 #include "hdf_uhdf_test.h"
 #include "hdf_io_service_if.h"
+#include "spi_test.h"
 
 using namespace testing::ext;
-
-// pal spi test case number
-enum HdfTestCaseCmd {
-    SPI_TRANSFER_TEST,
-    SPI_DMA_TRANSFER_TEST,
-    SPI_INT_TRANSFER_TEST,
-    SPI_RELIABILITY_TEST,
-    SPI_PERFORMANCE_TEST,
-};
 
 class HdfLiteSpiTest : public testing::Test {
 public:
@@ -76,6 +68,10 @@ HWTEST_F(HdfLiteSpiTest, SpiTransferTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_TRANSFER_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, SpiTestExecute(SPI_TRANSFER_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -114,6 +110,10 @@ HWTEST_F(HdfLiteSpiTest, SpiDmaTransferTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_DMA_TRANSFER_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, SpiTestExecute(SPI_DMA_TRANSFER_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -126,6 +126,10 @@ HWTEST_F(HdfLiteSpiTest, SpiIntTransferTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_INT_TRANSFER_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, SpiTestExecute(SPI_INT_TRANSFER_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -138,4 +142,8 @@ HWTEST_F(HdfLiteSpiTest, SpiReliabilityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_SPI_TYPE, SPI_RELIABILITY_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, SpiTestExecute(SPI_RELIABILITY_TEST));
+    printf("%s: exit!\n", __func__);
 }

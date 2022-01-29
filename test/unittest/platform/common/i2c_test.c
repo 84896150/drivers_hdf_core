@@ -53,6 +53,8 @@ static int32_t I2cTestGetConfig(struct I2cTestConfig *config)
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("I2cTestGetConfig: remote dispatch fail:%d", ret);
+        HdfSbufRecycle(reply);
+        return HDF_ERR_IO;
     }
 
     if (!HdfSbufReadBuffer(reply, &buf, &len)) {
