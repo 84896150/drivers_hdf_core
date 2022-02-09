@@ -22,6 +22,9 @@ static int32_t HdfGetSdioInfo(struct BusDev *dev, struct BusConfig *busCfg)
     int32_t ret;
     struct DevHandle *handle = NULL;
     SdioCommonInfo palSdioCommonInfo;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL || busCfg == NULL || busCfg->busType != BUS_SDIO) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -46,6 +49,8 @@ static int32_t HdfGetSdioInfo(struct BusDev *dev, struct BusConfig *busCfg)
 
 static void HdfSdioReleaseDev(struct BusDev *dev)
 {
+// add by zhaoxc for hdf
+return;
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return;
@@ -62,6 +67,9 @@ static int32_t HdfSdioEnableFunc(struct BusDev *dev)
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -78,6 +86,9 @@ static int32_t HdfSdioDisableFunc(struct BusDev *dev)
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+
+// add by zhaoxc for hdf
+return HDF_SUCCESS;	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -95,6 +106,9 @@ static int32_t HdfSdioCliamIrq(struct BusDev *dev, IrqHandler *handler, void *da
     (void)data;
     int32_t ret;
     struct DevHandle *handle = NULL;
+
+// add by zhaoxc for hdf
+return HDF_SUCCESS;	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -110,6 +124,8 @@ static int32_t HdfSdioCliamIrq(struct BusDev *dev, IrqHandler *handler, void *da
 static void HdfSdioClaimHost(struct BusDev *dev)
 {
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return;	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return;
@@ -121,6 +137,8 @@ static void HdfSdioClaimHost(struct BusDev *dev)
 static void HdfSdioReleaseHost(struct BusDev *dev)
 {
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return;	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return;
@@ -134,6 +152,9 @@ static int32_t HdfSdioReleaseIrq(struct BusDev *dev)
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -150,6 +171,9 @@ static int32_t HdfSdioReset(struct BusDev *dev)
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -166,6 +190,9 @@ static int32_t HdfSdioReadN(struct BusDev *dev, uint32_t addr, uint32_t cnt, uin
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -182,6 +209,9 @@ static int32_t HdfSdioReadFunc0(struct BusDev *dev, uint32_t addr, uint32_t cnt,
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -198,6 +228,9 @@ static int32_t HdfSdioReadSpcReg(struct BusDev *dev, uint32_t addr, uint32_t cnt
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -214,6 +247,9 @@ static int32_t HdfSdioWriteN(struct BusDev *dev, uint32_t addr, uint32_t cnt, ui
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
     if (dev == NULL || buf == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -230,6 +266,9 @@ static int32_t HdfSdioWriteFunc0(struct BusDev *dev, uint32_t addr, uint32_t cnt
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
     if (dev == NULL || buf == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -246,6 +285,9 @@ static int32_t HdfSdioWriteSpcReg(struct BusDev *dev, uint32_t addr, uint32_t cn
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+	
     if (dev == NULL || buf == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -262,6 +304,8 @@ static int32_t HdfSdioSetBlk(struct BusDev *dev, uint32_t blkSize)
 {
     int32_t ret;
     struct DevHandle *handle = NULL;
+// add by zhaoxc for hdf
+return HDF_SUCCESS;	
     if (dev == NULL) {
         HDF_LOGE("%s:input parameter error!", __func__);
         return HDF_FAILURE;
@@ -282,6 +326,7 @@ static struct DevHandle *HdfGetDevHandle(struct BusDev *dev, const struct HdfCon
     struct HdfConfigWlanChipList *tmpChipList = NULL;
 
     struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
+
     if (rootConfig == NULL) {
         HDF_LOGE("%s: NULL ptr!", __func__);
         return NULL;
@@ -292,15 +337,22 @@ static struct DevHandle *HdfGetDevHandle(struct BusDev *dev, const struct HdfCon
         palSdioConfig[cnt].deviceId = tmpChipList->chipInst[cnt].chipSdio.deviceId[0];
         palSdioConfig[cnt].vendorId = tmpChipList->chipInst[cnt].chipSdio.vendorId;
         palSdioConfig[cnt].funcNr = busCfg->funcNum[0];
+// add by zhaoxc for hdf
+#if 1
+HDF_LOGE("%s: sdio card detected!", __func__);
+break;
+#else
         handle = SdioOpen(busCfg->busIdx, &palSdioConfig[cnt]);
         if (handle != NULL) {
             HDF_LOGI("%s: sdio card detected!", __func__);
             break;
         }
+#endif
     }
     if (cnt == tmpChipList->chipInstSize || cnt == WLAN_MAX_CHIP_NUM) {
         HDF_LOGE("%s: NO sdio card detected!", __func__);
-        SdioClose(handle);
+        // add by zhaoxc for hdf
+        // SdioClose(handle);
         return NULL;
     }
     dev->devBase = handle;
@@ -319,6 +371,9 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
         goto sdioInitFail;
     }
     handle = HdfGetDevHandle(dev, busCfg);
+// add by zhaoxc for hdf
+return HDF_SUCCESS;
+
     if (handle == NULL) {
         HDF_LOGE("%s: sdio card detected fail!", __func__);
         return HDF_FAILURE;
@@ -343,12 +398,16 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
     return ret;
 
 sdioInitFail:
-    SdioClose(handle);
+    // add by zhaoxc for hdf
+    // SdioClose(handle);
     return HDF_FAILURE;
 }
 
 static void HdfSetBusOps(struct BusDev *dev)
 {
+// add by zhaoxc for hdf
+return;
+
     dev->ops.getBusInfo = HdfGetSdioInfo;
     dev->ops.deInit = HdfSdioReleaseDev;
     dev->ops.init = HdfSdioInit;
