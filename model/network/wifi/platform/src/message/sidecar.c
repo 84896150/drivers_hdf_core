@@ -76,7 +76,7 @@ int32_t DispatchToMessage(struct HdfDeviceIoClient *client, int id, struct HdfSB
     uint32_t cmd = GetCmd(id);
     MessageContext *context = NULL;
     RemoteService *targetService = NULL;
-
+    HDF_LOGE("%s:xuejianfei_id = %d, serviceId = %u, cmd = %u", __func__, id, serviceId, cmd);
     if (client == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
