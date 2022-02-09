@@ -13,7 +13,7 @@
 #define USED_ATTR __attribute__((used))
 #define HDF_SECTION __attribute__((section(".hdf.driver")))
 #define HDF_DRIVER_INIT(module) \
-    const size_t USED_ATTR module##HdfEntry HDF_SECTION = (size_t)(&(module))
+    static const size_t USED_ATTR module##HdfEntry HDF_SECTION = (size_t)(&(module))
 
 #if (defined(__GNUC__) || defined(__clang__))
 #define HDF_DRIVER_SEC_NAME(type, name) \
