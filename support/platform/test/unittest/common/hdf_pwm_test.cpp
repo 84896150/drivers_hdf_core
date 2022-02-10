@@ -1,27 +1,23 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <cstdint>
+#include <cstdio>
+#include <cstdlib>
+#include <fcntl.h>
 #include <gtest/gtest.h>
+#include <string>
+#include <unistd.h>
 #include "hdf_uhdf_test.h"
+#include "pwm_test.h"
+#include "hdf_io_service_if.h"
 
 using namespace testing::ext;
-
-enum PwmTestCmd {
-    PWM_SET_PERIOD_TEST = 0,
-    PWM_SET_DUTY_TEST,
-    PWM_SET_POLARITY_TEST,
-    PWM_ENABLE_TEST,
-    PWM_DISABLE_TEST,
-    PWM_SET_CONFIG_TEST,
-    PWM_GET_CONFIG_TEST,
-    PWM_RELIABILITY_TEST,
-    PWM_TEST_ALL,
-};
 
 class HdfLitePwmTest : public testing::Test {
 public:
@@ -59,6 +55,10 @@ HWTEST_F(HdfLitePwmTest, PwmSetPeriodTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_PERIOD_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PwmTestExecute(PWM_SET_PERIOD_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -71,6 +71,10 @@ HWTEST_F(HdfLitePwmTest, PwmSetDutyTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_DUTY_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PwmTestExecute(PWM_SET_DUTY_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -83,30 +87,26 @@ HWTEST_F(HdfLitePwmTest, PwmSetPolarityTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = { TEST_PAL_PWM_TYPE, PWM_SET_POLARITY_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PwmTestExecute(PWM_SET_POLARITY_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
-  * @tc.name: PwmSetConfigTest001
+  * @tc.name: PwmSetGetConfigTest001
   * @tc.desc: pwm function test
   * @tc.type: FUNC
   * @tc.require: AR000F868D
   */
-HWTEST_F(HdfLitePwmTest, PwmSetConfigTest001, TestSize.Level1)
+HWTEST_F(HdfLitePwmTest, PwmSetGetConfigTest001, TestSize.Level1)
 {
-    struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_CONFIG_TEST, -1};
+    struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_SET_GET_CONFIG_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
-}
+    printf("%s: kernel test done, then for user...\n", __func__);
 
-/**
-  * @tc.name: PwmGetConfigTest001
-  * @tc.desc: pwm function test
-  * @tc.type: FUNC
-  * @tc.require: AR000F868D
-  */
-HWTEST_F(HdfLitePwmTest, PwmGetConfigTest001, TestSize.Level1)
-{
-    struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_GET_CONFIG_TEST, -1};
-    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    EXPECT_EQ(0, PwmTestExecute(PWM_SET_GET_CONFIG_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -119,6 +119,10 @@ HWTEST_F(HdfLitePwmTest, PwmEnableTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_ENABLE_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PwmTestExecute(PWM_ENABLE_TEST));
+    printf("%s: exit!\n", __func__);
 }
 
 /**
@@ -131,4 +135,8 @@ HWTEST_F(HdfLitePwmTest, PwmDisableTest001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {TEST_PAL_PWM_TYPE, PWM_DISABLE_TEST, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+    printf("%s: kernel test done, then for user...\n", __func__);
+
+    EXPECT_EQ(0, PwmTestExecute(PWM_DISABLE_TEST));
+    printf("%s: exit!\n", __func__);
 }
