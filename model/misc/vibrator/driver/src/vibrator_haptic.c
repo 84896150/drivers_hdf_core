@@ -148,7 +148,7 @@ static uint32_t ProcessHapticTime(struct VibratorHapticData *hapticData)
         return 0;
     }
 
-    if (hapticData->currentSeqIndex % 2 == 0) {
+    if (hapticData->currentSeqIndex % 2 != 0) {
         StartTimeVibrator();
     } else {
         StopVibrator();
