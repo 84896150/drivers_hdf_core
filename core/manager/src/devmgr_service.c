@@ -82,6 +82,7 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
 {
     struct HdfDeviceInfo *deviceInfo = NULL;
     struct DevHostServiceClnt *hostClnt = NULL;
+
     (void)devMgrSvc;
 
     if (serviceName == NULL) {
@@ -106,12 +107,35 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
     return hostClnt->hostService->AddDevice(hostClnt->hostService, deviceInfo);
 }
 
+static int DevmgrServiceStopHost(struct DevHostServiceClnt *hostClnt)
+{
+   struct IDriverInstaller *installer = DriverInstallerGetInstance();
+    bool isHostEmpty = HdfSListIsEmpty(&hostClnt->devices);
+    if (!isHostEmpty) {
+        HDF_LOGI("%{public}s HostEmpty", __func__);
+        return HDF_SUCCESS;
+    }
+    /*
+    hostClnt->hostPid = -1;
+    if (hostClnt->hostService != NULL) {
+        struct DevHostServiceProxy *hostProxy = (struct DevHostServiceProxy *)hostClnt->hostService;
+        DevHostServiceProxyRecycle(hostProxy);
+        hostClnt->hostService = NULL;
+    }
+
+    HdfSListFlush(&hostClnt->devices, DeviceTokenClntDelete);
+    */
+    installer->StopDeviceHost(hostClnt->hostId, hostClnt->hostName);
+    return HDF_SUCCESS;
+}
+
 static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const char *serviceName)
 {
     struct HdfDeviceInfo *deviceInfo = NULL;
     struct DevHostServiceClnt *hostClnt = NULL;
+    int ret;
     (void)devMgrSvc;
-
+HDF_LOGI("%{public}s: %{public}s", __func__, serviceName);
     if (serviceName == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -123,9 +147,15 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
     }
 
     if (hostClnt->hostService == NULL) {
+        HDF_LOGI("%{public}s:unload service %{public}s host null", __func__, serviceName);
         return HDF_FAILURE;
     }
-    return hostClnt->hostService->DelDevice(hostClnt->hostService, deviceInfo->deviceId);
+    ret = hostClnt->hostService->DelDevice(hostClnt->hostService, deviceInfo->deviceId);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGI("%{public}s:unload service %{public}s delDevice failed", __func__, serviceName);
+        return ret;
+    }
+    return DevmgrServiceStopHost(hostClnt);
 }
 
 int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
