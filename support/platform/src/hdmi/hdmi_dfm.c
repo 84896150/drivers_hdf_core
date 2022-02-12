@@ -173,7 +173,7 @@ static void HdmiDfmCaculateVideoBorrowInfo(struct HdmiDfmInfo *info)
     if (info->tBorrow == HDMI_DFM_INVALID_VAL) {
         info->tbBorrow = HDMI_DFM_INVALID_VAL;
     } else {
-        info->tbBorrow = ((int32_t)(info->tBorrow * info->avgTbRate / 100000000000) + 10 - 1) / 10;
+        info->tbBorrow = (int32_t)(((int32_t)(info->tBorrow * info->avgTbRate / 100000000000) + 10 - 1) / 10);
     }
 }
 
