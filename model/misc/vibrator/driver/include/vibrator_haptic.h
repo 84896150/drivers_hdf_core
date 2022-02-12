@@ -26,6 +26,7 @@ enum VibratorEffectType {
 enum VibratorTimeSeqIndex {
     VIBRATOR_TIME_DELAY_INDEX    = 0,
     VIBRATOR_TIME_DURATION_INDEX = 1,
+    VIBRATOR_TIME_STOP_INDEX     = 2,
     VIBRATOR_TIME_INDEX_BUTT,
 };
 

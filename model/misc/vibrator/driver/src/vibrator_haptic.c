@@ -240,9 +240,9 @@ static int32_t GetHapticSeqByEffect(struct VibratorEffectCfg *effectCfg)
     if (effectCfg->cfgMode == VIBRATOR_MODE_ONCE) {
         hapticData->duration[VIBRATOR_TIME_DELAY_INDEX] = VIBRATOR_MIN_WAIT_TIME;
         hapticData->duration[VIBRATOR_TIME_DURATION_INDEX] = effectCfg->duration;
-        hapticData->duration[VIBRATOR_TIME_INDEX_BUTT] = VIBRATOR_MIN_WAIT_TIME;
+        hapticData->duration[VIBRATOR_TIME_STOP_INDEX] = VIBRATOR_MIN_WAIT_TIME;
         hapticData->effectType = VIBRATOR_TYPE_TIME;
-        hapticData->seqCount = VIBRATOR_TIME_INDEX_BUTT + 1;
+        hapticData->seqCount = VIBRATOR_TIME_INDEX_BUTT;
         hapticData->currentEffectSeq = &hapticData->duration[VIBRATOR_TIME_DELAY_INDEX];
         (void)OsalMutexUnlock(&hapticData->mutex);
         return HDF_SUCCESS;
