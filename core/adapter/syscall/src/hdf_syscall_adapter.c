@@ -997,10 +997,16 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
     struct HdfSyscallAdapter *adapter = CONTAINER_OF(service, struct HdfSyscallAdapter, super);
     struct HdfSyscallAdapterGroup *adapterGroup = CONTAINER_OF(group, struct HdfSyscallAdapterGroup, serviceGroup);
 
+    HDF_LOGI("%{public}s, adapter:%{public}p", __func__, adapter);
+    HDF_LOGE("HdfIoServiceGroupAddService 999");
+    HDF_LOGE("HdfIoServiceGroupAddService 999");
     if (adapter->group != NULL) {
         HDF_LOGE("service already in group");
+        HDF_LOGE("service already in group adapter->group[%{public}p]",adapter->group);
+        HDF_LOGE("service already in group adapterGroup[%{public}p]", adapterGroup);
         return HDF_ERR_DEVICE_BUSY;
     }
+    HDF_LOGE("HdfIoServiceGroupAddService 1004");
 
     if (adapter->thread != NULL) {
         HDF_LOGE("service already has independent thread");
@@ -1022,7 +1028,7 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
     }
 
     adapter->group = adapterGroup;
-
+    HDF_LOGE("adapter->group = adapterGroup[%{public}p]",adapter->group);
     OsalMutexLock(&listenerThread->mutex);
     if ((!DListIsEmpty(&adapterGroup->listenerList) || !DListIsEmpty(&adapter->listenerList)) &&
         listenerThread->status < LISTENER_STARTED) {
@@ -1057,6 +1063,7 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
         HdfListenThreadPollDel(adapterGroup->thread, adapter);
     }
     OsalMutexUnlock(&adapterGroup->mutex);
+    HDF_LOGE(" HdfIoServiceGroupRemoveService adapter->group[%{public}p]",adapter->group);
     adapter->group = NULL;
 }
 
