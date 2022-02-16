@@ -152,9 +152,7 @@ static int32_t SensorSetBatchTest(int64_t samplingInterval, int64_t interval)
 
 static int32_t SensorSetModeTest(int32_t mode)
 {
-    int ret = (mode == SENSOR_WORK_MODE_REALTIME) ? HDF_SUCCESS : HDF_FAILURE;
-    HDF_LOGE("%s: SensorSetModeTest mode[%d] failed", __func__, mode);
-    return ret;
+    return (mode == SENSOR_WORK_MODE_REALTIME) ? HDF_SUCCESS : HDF_FAILURE;
 }
 
 static int32_t SensorSetOptionTest(uint32_t option)

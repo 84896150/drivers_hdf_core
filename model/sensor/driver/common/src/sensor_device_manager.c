@@ -211,7 +211,6 @@ static int32_t SetMode(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data
     }
 
     int ret = deviceInfo->ops.SetMode(mode);
-    HDF_LOGE("%s: SetMode ret[%d], mode[%d] failed", __func__, ret, mode);
     return ret;
   //  return deviceInfo->ops.SetMode(mode);
 }
@@ -299,7 +298,6 @@ static int32_t DispatchSensor(struct HdfDeviceIoClient *client,
     DLIST_FOR_EACH_ENTRY(pos, &manager->sensorDevInfoHead, struct SensorDevInfoNode, node) {
         if (sensorId == pos->devInfo.sensorInfo.sensorId) {
             ret = DispatchCmdHandle(&pos->devInfo, data, reply);
-            HDF_LOGE("%s: DispatchCmdHandle ret[%d]", __func__, ret);
             (void)OsalMutexUnlock(&manager->mutex);
             return ret;
         }
