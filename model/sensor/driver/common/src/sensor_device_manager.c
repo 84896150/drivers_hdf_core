@@ -210,7 +210,9 @@ static int32_t SetMode(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data
         return HDF_FAILURE;
     }
 
-    return deviceInfo->ops.SetMode(mode);
+    int ret = deviceInfo->ops.SetMode(mode);
+    return ret;
+  //  return deviceInfo->ops.SetMode(mode);
 }
 
 static int32_t SetOption(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
