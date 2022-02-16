@@ -196,7 +196,7 @@ static struct DevHostServiceClnt *DevmgrServiceFindDeviceHost(struct IDevmgrServ
             return hostClnt;
         }
     }
-    HDF_LOGE("cannot find host %u", hostId);
+    HDF_LOGE("cannot find host %{public}u", hostId);
     return NULL;
 }
 
