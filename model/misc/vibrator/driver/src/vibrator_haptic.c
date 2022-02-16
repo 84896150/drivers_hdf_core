@@ -148,7 +148,7 @@ static uint32_t ProcessHapticTime(struct VibratorHapticData *hapticData)
         return 0;
     }
 
-    if (hapticData->currentSeqIndex % 2 == 0) {
+    if (hapticData->currentSeqIndex % 2 != 0) {
         StartTimeVibrator();
     } else {
         StopVibrator();
@@ -292,6 +292,7 @@ int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
 
     duration = hapticData->currentEffectSeq[0] < VIBRATOR_MIN_WAIT_TIME ?
         VIBRATOR_MIN_WAIT_TIME : hapticData->currentEffectSeq[0];
+	hapticData->currentSeqIndex++;
 
     if (OsalTimerCreate(&hapticData->timer, duration, HapticTimerEntry, (uintptr_t)hapticData) != HDF_SUCCESS) {
         HDF_LOGE("%s: create vibrator timer fail!", __func__);
