@@ -19,6 +19,7 @@
 #define MXC6655_PRECISION    12
 #define MXC6655_BOUNDARY    (0x1 << (MXC6655_PRECISION - 1))
 #define MXC6655_GRAVITY_STEP    (MXC6655_RANGE / MXC6655_BOUNDARY)
+#define MXC6655_MASK    0x7fff
 #define MXC6655_ACCEL_OUTPUT_16BIT    16
 #define MXC6655_ACCEL_OUTPUT_MSB      8
 #define MXC6655_ACCEL_AXIS_NUM        9
@@ -42,7 +43,7 @@ static int sensor_convert_data(char high_byte, char low_byte)
     if (result < MXC6655_BOUNDARY) {
         result = result * MXC6655_GRAVITY_STEP;
     } else {
-        result = ~(((~result & (0x7fff >> (MXC6655_ACCEL_OUTPUT_16BIT - MXC6655_PRECISION))) + 1) *
+        result = ~(((~result & (MXC6655_MASK >> (MXC6655_ACCEL_OUTPUT_16BIT - MXC6655_PRECISION))) + 1) *
             MXC6655_GRAVITY_STEP) + 1;
     }
 
