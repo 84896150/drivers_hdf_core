@@ -25,7 +25,6 @@
 #define MXC6655_ACCEL_AXIS_NUM        9
 
 
-
 static struct Mxc6655xaDrvData *g_Mxc6655xaDrvData = NULL;
 
 struct Mxc6655xaDrvData *Mxc6655xaGetDrvData(void)
