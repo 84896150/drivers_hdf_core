@@ -19,6 +19,10 @@
 #define MXC6655_PRECISION    12
 #define MXC6655_BOUNDARY    (0x1 << (MXC6655_PRECISION - 1))
 #define MXC6655_GRAVITY_STEP    (MXC6655_RANGE / MXC6655_BOUNDARY)
+#define MXC6655_ACCEL_OUTPUT_16BIT    16
+#define MXC6655_ACCEL_OUTPUT_MSB      8
+#define MXC6655_ACCEL_AXIS_NUM        9
+
 
 
 static struct Mxc6655xaDrvData *g_Mxc6655xaDrvData = NULL;
@@ -32,12 +36,14 @@ static int sensor_convert_data(char high_byte, char low_byte)
 {
     s64 result;
 
-    result = ((int)high_byte << (MXC6655_PRECISION - 8)) | ((int)low_byte >> (16 - MXC6655_PRECISION));
+    result = ((int)high_byte << (MXC6655_PRECISION - MXC6655_ACCEL_OUTPUT_MSB)) |
+        ((int)low_byte >> (MXC6655_ACCEL_OUTPUT_16BIT - MXC6655_PRECISION));
 
     if (result < MXC6655_BOUNDARY) {
         result = result * MXC6655_GRAVITY_STEP;
     } else {
-        result = ~(((~result & (0x7fff >> (16 - MXC6655_PRECISION))) + 1) * MXC6655_GRAVITY_STEP) + 1;
+        result = ~(((~result & (0x7fff >> (MXC6655_ACCEL_OUTPUT_16BIT - MXC6655_PRECISION))) + 1) *
+            MXC6655_GRAVITY_STEP) + 1;
     }
 
     return (int)result;
@@ -48,8 +54,10 @@ static int32_t ReadMxc6655xaRawData(struct SensorCfgData *data, struct AccelData
     uint8_t status = 0;
     uint8_t reg[ACCEL_AXIS_BUTT];
     OsalTimespec time;
-    int32_t orientation[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    int32_t x, y,z;
+    int32_t orientation[MXC6655_ACCEL_AXIS_NUM] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
+    int32_t x;
+    int32_t y;
+    int32_t z;
 
     (void)memset_s(&time, sizeof(time), 0, sizeof(time));
     (void)memset_s(reg, sizeof(reg), 0, sizeof(reg));
