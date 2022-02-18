@@ -807,7 +807,7 @@ static void EmmcDecodeExtCsdSector(struct EmmcDevice *emmcDev, struct EmmcExtCsd
 
     extCsd->sectors = 0;
     for (i = 0; i < EMMC_EXT_CSD_SEC_CNT_BYTES; i++) {
-        extCsd->sectors |= (uint32_t)(extCsd->rawSectors[i] << shift);
+        extCsd->sectors |= ((uint32_t)extCsd->rawSectors[i] << shift);
         shift += BITS_PER_BYTE;
     }
     /* Device density > 2GiB are sector addressed. */
