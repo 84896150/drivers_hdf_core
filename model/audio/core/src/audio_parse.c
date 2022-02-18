@@ -78,8 +78,12 @@ int32_t AudioFillConfigData(const struct HdfDeviceObject *device, struct AudioCo
     int32_t accessoryDaiRet;
     ADM_LOG_DEBUG("Entry.");
 
-    if (device == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
+    if (device == NULL) {
+        ADM_LOG_ERR("Input para check error: device is NULL.");
+        return HDF_FAILURE;
+    }
+	if (configData == NULL) {
+        ADM_LOG_ERR("Input para check error: configData is NULL.");
         return HDF_FAILURE;
     }
 
@@ -143,7 +147,7 @@ static uint32_t* GetRegArray(const struct DeviceResourceIface *parser, const str
 {
     int32_t ret;
     int32_t index;
-    int32_t num;
+    uint32_t num;
     uint32_t *buf;
     if (group == NULL || parser == NULL || regNode == NULL || indexMax == 0) {
         ADM_LOG_ERR("Input para check error");
@@ -184,7 +188,7 @@ static int32_t ParseAudioRegItem(const struct DeviceResourceIface *parser, const
 {
     int32_t step;
     int32_t index;
-    int32_t *buf;
+    uint32_t *buf;
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -440,8 +444,12 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
 
     ADM_LOG_DEBUG("Entry.");
 
-    if (device == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
+    if (device == NULL) {
+        ADM_LOG_ERR("Input para check error: device is NULL.");
+        return HDF_FAILURE;
+    }
+	if (configData == NULL) {
+        ADM_LOG_ERR("Input para check error: configData is NULL.");
         return HDF_FAILURE;
     }
 
