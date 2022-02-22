@@ -198,10 +198,6 @@ static int32_t MmcCntlrInit(struct MmcCntlr *cntlr, bool needMsgQueue)
 {
     int32_t ret;
 
-    if (cntlr == NULL) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
-
     if (cntlr->index >= MMC_CNTLR_NR_MAX) {
         HDF_LOGE("MmcCntlrInit: invalid cntlr index:%u", cntlr->index);
         return HDF_ERR_INVALID_PARAM;
