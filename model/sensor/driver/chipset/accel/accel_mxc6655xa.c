@@ -22,7 +22,6 @@
 #define MXC6655_MASK    0x7fff
 #define MXC6655_ACCEL_OUTPUT_16BIT    16
 #define MXC6655_ACCEL_OUTPUT_MSB      8
-#define MXC6655_ACCEL_AXIS_NUM        9
 
 
 static struct Mxc6655xaDrvData *g_Mxc6655xaDrvData = NULL;
@@ -54,7 +53,6 @@ static int32_t ReadMxc6655xaRawData(struct SensorCfgData *data, struct AccelData
     uint8_t status = 0;
     uint8_t reg[ACCEL_AXIS_BUTT];
     OsalTimespec time;
-    int32_t orientation[MXC6655_ACCEL_AXIS_NUM] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     int32_t x;
     int32_t y;
     int32_t z;
@@ -97,9 +95,9 @@ static int32_t ReadMxc6655xaRawData(struct SensorCfgData *data, struct AccelData
     x = sensor_convert_data(reg[ACCEL_X_AXIS_MSB], reg[ACCEL_X_AXIS_LSB]);
     y = sensor_convert_data(reg[ACCEL_Y_AXIS_MSB], reg[ACCEL_Y_AXIS_LSB]);
     z = sensor_convert_data(reg[ACCEL_Z_AXIS_MSB], reg[ACCEL_Z_AXIS_LSB]);
-    rawData->x = (orientation[0]) * x + (orientation[1]) * y + (orientation[2]) * z;
-    rawData->y = (orientation[3]) * x + (orientation[4]) * y + (orientation[5]) * z;
-    rawData->z = (orientation[6]) * x + (orientation[7]) * y + (orientation[8]) * z;
+    rawData->x = x;
+    rawData->y = y;
+    rawData->z = z;
 
     return HDF_SUCCESS;
 }
@@ -220,7 +218,7 @@ void Mxc6655xaReleaseDriver(struct HdfDeviceObject *device)
     struct Mxc6655xaDrvData *drvData = (struct Mxc6655xaDrvData *)device->service;
     CHECK_NULL_PTR_RETURN(drvData);
 
-    if (drvData->sensorCfg != NULL) { 
+    if (drvData->sensorCfg != NULL) {
         AccelReleaseCfgData(drvData->sensorCfg);
         drvData->sensorCfg = NULL;
     }
