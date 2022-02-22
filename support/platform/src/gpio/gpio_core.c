@@ -150,7 +150,11 @@ static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord
     int32_t ret;
     uint16_t local = GpioInfoToLocal(ginfo);
     struct GpioCntlr *cntlr = ginfo->cntlr;
-
+    
+    if (cntlr == NULL) {
+        PLAT_LOGE("GpioCntlrSetIrqInner: cntlr is null");
+        return HDF_ERR_INVALID_PARAM;            
+    }
     GpioInfoLock(ginfo);
 
     if (ginfo->irqRecord != NULL) {
