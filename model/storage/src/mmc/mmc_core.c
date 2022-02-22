@@ -194,13 +194,9 @@ static int32_t MmcMsgHandleDefault(struct PlatformQueue *queue, struct PlatformM
     return ret;
 }
 
-static int32_t MmcCntlrInit(struct MmcCntlr *cntlr)
+static int32_t MmcCntlrInit(struct MmcCntlr *cntlr, bool needMsgQueue)
 {
     int32_t ret;
-
-    if (cntlr == NULL) {
-        return HDF_ERR_INVALID_OBJECT;
-    }
 
     if (cntlr->index >= MMC_CNTLR_NR_MAX) {
         HDF_LOGE("MmcCntlrInit: invalid cntlr index:%u", cntlr->index);
@@ -218,16 +214,18 @@ static int32_t MmcCntlrInit(struct MmcCntlr *cntlr)
         return ret;
     }
 
-    cntlr->msgQueue = PlatformQueueCreate(MmcMsgHandleDefault, NULL, cntlr);
-    if (cntlr->msgQueue == NULL) {
-        HDF_LOGE("MmcCntlrInit: failed to create msg queue!");
-        return HDF_PLT_ERR_OS_API;
-    }
-    ret = PlatformQueueStart(cntlr->msgQueue);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("MmcCntlrInit: failed to start msg queue!");
-        PlatformQueueDestroy(cntlr->msgQueue);
-        return ret;
+    if (needMsgQueue == true) {
+        cntlr->msgQueue = PlatformQueueCreate(MmcMsgHandleDefault, NULL, cntlr);
+        if (cntlr->msgQueue == NULL) {
+            HDF_LOGE("MmcCntlrInit: failed to create msg queue!");
+            return HDF_PLT_ERR_OS_API;
+        }
+        ret = PlatformQueueStart(cntlr->msgQueue);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("MmcCntlrInit: failed to start msg queue!");
+            PlatformQueueDestroy(cntlr->msgQueue);
+            return ret;
+        }
     }
 
     cntlr->service.Dispatch = MmcIoDispatch;
@@ -245,7 +243,7 @@ static void MmcCntlrUninit(struct MmcCntlr *cntlr)
     }
 }
 
-int32_t MmcCntlrAdd(struct MmcCntlr *cntlr)
+int32_t MmcCntlrAdd(struct MmcCntlr *cntlr, bool needMsgQueue)
 {
     int32_t ret;
 
@@ -253,7 +251,7 @@ int32_t MmcCntlrAdd(struct MmcCntlr *cntlr)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = MmcCntlrInit(cntlr);
+    ret = MmcCntlrInit(cntlr, needMsgQueue);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
