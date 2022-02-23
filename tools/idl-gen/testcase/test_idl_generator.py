@@ -10,6 +10,7 @@
 import json
 import sys
 import unittest
+
 import CppHeaderParser
 
 sys.path.insert(0, '..')
