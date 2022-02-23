@@ -86,7 +86,6 @@ static int32_t AudioAccessoryDevInit(struct AudioCard *audioCard)
         return HDF_ERR_IO;
     }
 
-
     rtd = audioCard->rtd;
     if (rtd == NULL) {
         ADM_LOG_ERR("rtd is NULL.");
