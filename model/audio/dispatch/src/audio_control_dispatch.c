@@ -136,11 +136,11 @@ static int32_t ControlHostElemRead(const struct HdfDeviceIoClient *client, struc
         ADM_LOG_ERR("Input ElemRead params check error: client is NULL.");
         return HDF_FAILURE;
     }
-	if (reqData == NULL) {
+    if (reqData == NULL) {
         ADM_LOG_ERR("Input ElemRead params check error: reqData is NULL.");
         return HDF_FAILURE;
     }
-	if (rspData == NULL) {
+    if (rspData == NULL) {
         ADM_LOG_ERR("Input ElemRead params check error: rspData is NULL.");
         return HDF_FAILURE;
     }
@@ -197,7 +197,7 @@ static int32_t ControlHostElemWrite(const struct HdfDeviceIoClient *client,
         ADM_LOG_ERR("Input params check error: client is NULL.");
         return HDF_FAILURE;
     }
-	if (reqData == NULL) {
+    if (reqData == NULL) {
         ADM_LOG_ERR("Input params check error: reqData is NULL.");
         return HDF_FAILURE;
     }
@@ -258,7 +258,7 @@ static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int cmdId,
         ADM_LOG_ERR("Input params check error: client is NULL.");
         return HDF_FAILURE;
     }
-	if (data == NULL) {
+    if (data == NULL) {
         ADM_LOG_ERR("Input params check error: data is NULL.");
         return HDF_FAILURE;
     }

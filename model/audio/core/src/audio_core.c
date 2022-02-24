@@ -48,7 +48,7 @@ int32_t AudioSocRegisterPlatform(struct HdfDeviceObject *device, struct Platform
         ADM_LOG_ERR("Input params check error: device is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (platformData == NULL) {
+    if (platformData == NULL) {
         ADM_LOG_ERR("Input params check error: platformData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -102,11 +102,11 @@ int32_t AudioRegisterAccessory(struct HdfDeviceObject *device,
         ADM_LOG_ERR("Input params check error: device is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (accessoryData == NULL) {
+    if (accessoryData == NULL) {
         ADM_LOG_ERR("Input params check error: accessoryData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (daiData == NULL) {
+    if (daiData == NULL) {
         ADM_LOG_ERR("Input params check error: daiData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -143,11 +143,11 @@ int32_t AudioRegisterCodec(struct HdfDeviceObject *device, struct CodecData *cod
         ADM_LOG_ERR("Input params check error: device is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (codecData == NULL) {
+    if (codecData == NULL) {
         ADM_LOG_ERR("Input params check error: codecData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (daiData == NULL) {
+    if (daiData == NULL) {
         ADM_LOG_ERR("Input params check error: daiData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -185,11 +185,11 @@ int32_t AudioRegisterDsp(struct HdfDeviceObject *device, struct DspData *dspData
         ADM_LOG_ERR("Input params check error: device is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (dspData == NULL) {
+    if (dspData == NULL) {
         ADM_LOG_ERR("Input params check error: dspData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (DaiData == NULL) {
+    if (DaiData == NULL) {
         ADM_LOG_ERR("Input params check error: daiData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -280,7 +280,7 @@ static int32_t AudioSeekCodecDevice(struct AudioRuntimeDeivces *rtd, const struc
         ADM_LOG_ERR("Input devicesName check error: configData->codecName is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (configData->codecDaiName == NULL) {
+    if (configData->codecDaiName == NULL) {
         ADM_LOG_ERR("Input devicesName check error: configData->codecDaiName is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -356,7 +356,7 @@ static int32_t AudioSeekDspDevice(struct AudioRuntimeDeivces *rtd, const struct 
         ADM_LOG_ERR("Input devicesName check error: configData->dspName is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (configData->dspDaiName == NULL) {
+    if (configData->dspDaiName == NULL) {
         ADM_LOG_ERR("Input devicesName check error: configData->dspDaiName is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -390,7 +390,7 @@ int32_t AudioBindDaiLink(struct AudioCard *audioCard, const struct AudioConfigDa
         ADM_LOG_ERR("Input params check error: audioCard is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if (configData == NULL) {
+    if (configData == NULL) {
         ADM_LOG_ERR("Input params check error: configData is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -617,12 +617,12 @@ int32_t AudioAddControls(struct AudioCard *audioCard, const struct AudioKcontrol
         ADM_LOG_ERR("Input params check error: audioCard is NULL.");
         return HDF_FAILURE;
     }
-	if (controls == NULL) {
+    if (controls == NULL) {
         ADM_LOG_ERR("Input params check error: controls is NULL.");
         return HDF_FAILURE;
     }
-	if (controlMaxNum <= 0) {
-        ADM_LOG_ERR("Input params check error: controlMaxNum=%d.",controlMaxNum);
+    if (controlMaxNum <= 0) {
+        ADM_LOG_ERR("Input params check error: controlMaxNum=%d.", controlMaxNum);
         return HDF_FAILURE;
     }
 

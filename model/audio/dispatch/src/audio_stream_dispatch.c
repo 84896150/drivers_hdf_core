@@ -15,10 +15,10 @@
 #define BUFF_SIZE_MAX 64
 
 #define LOG_ERR_RETURN(LOG) \
-do{\
-	ADM_LOG_ERR(LOG);\
-    return HDF_FAILURE;\
-	}while(0)
+do { \
+	    ADM_LOG_ERR(LOG); \
+        return HDF_FAILURE; \
+	} while(0)
 
 static inline struct StreamHost *StreamHostFromDevice(const struct HdfDeviceObject *device)
 {
@@ -304,17 +304,17 @@ static int32_t AudioDaiDeviceStartup(const struct AudioCard *audioCard)
 static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwParams *params)
 {
     if ((reqData == NULL) || (params == NULL)) {
-		LOG_ERR_RETURN(" input param is NULL.");
+        LOG_ERR_RETURN(" input param is NULL.");
     }
 
     if (!HdfSbufReadUint32(reqData, &params->streamType)) {
-		LOG_ERR_RETURN("read request streamType failed!");
+        LOG_ERR_RETURN("read request streamType failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->channels)) {
 		LOG_ERR_RETURN("read request channels failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->rate)) {
-		LOG_ERR_RETURN("read request rate failed!");
+        LOG_ERR_RETURN("read request rate failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->periodSize)) {
         LOG_ERR_RETURN("read request periodSize failed!");

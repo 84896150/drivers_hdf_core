@@ -24,10 +24,10 @@ const int TIME_OUT_CONST = 50;
 const int SLEEP_TIME = 5;
 
 #define LOG_ERR_RETURN(LOG) \
-do{\
-	AUDIO_DRIVER_LOG_ERR(LOG);\
-    return HDF_FAILURE;\
-	}while(0)
+do { \
+	    AUDIO_DRIVER_LOG_ERR(LOG); \
+        return HDF_FAILURE; \
+	} while(0)
 
 
 unsigned int SysReadl(unsigned long addr)
@@ -487,7 +487,7 @@ static int32_t MmapWriteData(struct PlatformData *data, char *tmpBuf)
 
 static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
 {
-	uint32_t timeout;
+    uint32_t timeout;
     uint32_t totalSize;
     uint32_t lastBuffSize;
     uint32_t loopTimes;
@@ -520,7 +520,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
             AUDIO_DRIVER_LOG_DEBUG("dma buff status ENUM_CIR_BUFF_FULL.");
             timeout++;
             if (timeout >= TIME_OUT_CONST) {
-				OsalMemFree(tmpBuf);
+                OsalMemFree(tmpBuf);
                 LOG_ERR_RETURN("timeout failed.");
             }
             continue;
