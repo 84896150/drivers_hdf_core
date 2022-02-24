@@ -58,7 +58,7 @@ static int32_t LogErrReturn(const char* log)
 
 static char *g_audioRegGroupName[AUDIO_GROUP_MAX] = {
     "resetSeqConfig",
-     "initSeqConfig",
+    "initSeqConfig",
     "ctrlParamsSeqConfig",
     "ctrlSapmParamsSeqConfig",
     "daiStartupSeqConfig",
