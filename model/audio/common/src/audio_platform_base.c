@@ -23,11 +23,11 @@ const int MIN_BUFF_SIZE = 16 * 1024;
 const int TIME_OUT_CONST = 50;
 const int SLEEP_TIME = 5;
 
-#define LOG_ERR_RETURN(LOG) \
-do { \
-        AUDIO_DRIVER_LOG_ERR(LOG); \
-        return HDF_FAILURE; \
-    } while (0)
+static int32_t LogErrReturn(const char* log)
+{
+    AUDIO_DRIVER_LOG_ERR(log);
+    return HDF_FAILURE;
+}
 
 
 unsigned int SysReadl(unsigned long addr)
@@ -494,10 +494,10 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     char *tmpBuf;
     struct PlatformData *data = PlatformDataFromCard(card);
     if (data == NULL) {
-        LOG_ERR_RETURN("PlatformDataFromCard failed.");
+        return LogErrReturn("PlatformDataFromCard failed.");
     }
     if (data->renderBufInfo.virtAddr == NULL) {
-        LOG_ERR_RETURN("render buffer is null.");
+        return LogErrReturn("render buffer is null.");
     }
 
     totalSize = (uint32_t)data->mmapData.totalBufferFrames * data->renderPcmInfo.frameSize;
@@ -507,7 +507,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     data->mmapLoopCount = 0;
     tmpBuf = OsalMemCalloc(MIN_PERIOD_SIZE);
     if (tmpBuf == NULL) {
-        LOG_ERR_RETURN("tmpBuf is null.");
+        return LogErrReturn("tmpBuf is null.");
     }
     while (data->mmapLoopCount < loopTimes && data->renderBufInfo.runStatus != PCM_STOP) {
         if (data->renderBufInfo.runStatus == PCM_PAUSE) {
@@ -521,7 +521,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
             timeout++;
             if (timeout >= TIME_OUT_CONST) {
                 OsalMemFree(tmpBuf);
-                LOG_ERR_RETURN("timeout failed.");
+                return LogErrReturn("timeout failed.");
             }
             continue;
         }

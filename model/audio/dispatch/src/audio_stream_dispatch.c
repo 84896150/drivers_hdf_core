@@ -14,11 +14,11 @@
 
 #define BUFF_SIZE_MAX 64
 
-#define LOG_ERR_RETURN(LOG) \
-do { \
-        ADM_LOG_ERR(LOG); \
-        return HDF_FAILURE; \
-    } while (0)
+static int32_t LogErrReturn(const char* log)
+{
+    ADM_LOG_ERR(log);
+    return HDF_FAILURE;
+}
 
 static inline struct StreamHost *StreamHostFromDevice(const struct HdfDeviceObject *device)
 {
@@ -304,56 +304,56 @@ static int32_t AudioDaiDeviceStartup(const struct AudioCard *audioCard)
 static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwParams *params)
 {
     if ((reqData == NULL) || (params == NULL)) {
-        LOG_ERR_RETURN(" input param is NULL.");
+        return LogErrReturn(" input param is NULL.");
     }
 
     if (!HdfSbufReadUint32(reqData, &params->streamType)) {
-        LOG_ERR_RETURN("read request streamType failed!");
+        return LogErrReturn("read request streamType failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->channels)) {
-        LOG_ERR_RETURN("read request channels failed!");
+        return LogErrReturn("read request channels failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->rate)) {
-        LOG_ERR_RETURN("read request rate failed!");
+        return LogErrReturn("read request rate failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->periodSize)) {
-        LOG_ERR_RETURN("read request periodSize failed!");
+        return LogErrReturn("read request periodSize failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->periodCount)) {
-        LOG_ERR_RETURN("read request periodCount failed!");
+        return LogErrReturn("read request periodCount failed!");
     }
     if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->format)) {
-        LOG_ERR_RETURN("read request format failed!");
+        return LogErrReturn("read request format failed!");
     }
     if (!(params->cardServiceName = HdfSbufReadString(reqData))) {
-        LOG_ERR_RETURN("read request cardServiceName failed!");
+        return LogErrReturn("read request cardServiceName failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->period)) {
-        LOG_ERR_RETURN("read request perid failed!");
+        return LogErrReturn("read request perid failed!");
     }
 
     if (!HdfSbufReadUint32(reqData, &params->frameSize)) {
-        LOG_ERR_RETURN("read request frameSize failed!");
+        return LogErrReturn("read request frameSize failed!");
     }
 
     if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->isBigEndian)) {
-        LOG_ERR_RETURN("read request isBigEndian failed!");
+        return LogErrReturn("read request isBigEndian failed!");
     }
 
     if (!HdfSbufReadUint32(reqData, (uint32_t *)&params->isSignedData)) {
-        LOG_ERR_RETURN("read request isSignedData failed!");
+        return LogErrReturn("read request isSignedData failed!");
     }
 
     if (!HdfSbufReadUint32(reqData, &params->startThreshold)) {
-        LOG_ERR_RETURN("read request startThreshold failed!");
+        return LogErrReturn("read request startThreshold failed!");
     }
 
     if (!HdfSbufReadUint32(reqData, &params->stopThreshold)) {
-        LOG_ERR_RETURN("read request stopThreshold failed!");
+        return LogErrReturn("read request stopThreshold failed!");
     }
 
     if (!HdfSbufReadUint32(reqData, &params->silenceThreshold)) {
-        LOG_ERR_RETURN("read request silenceThreshold failed!");
+        return LogErrReturn("read request silenceThreshold failed!");
     }
 
     return HDF_SUCCESS;
