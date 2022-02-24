@@ -18,6 +18,7 @@
 #define SEND_STATUS_CMD_RETRY_TIMES 100
 #define STOP_TRANSMISSION_CMD_RETRY_TIMES 5
 #define BITS_NUMBER_OF_4_BYTES 32
+#define CID_PNM_START_BIT 96
 
 /* TRAN_SPEED: Frequency unit 0 = 100KHz, 1 = 1MHz, 2 = 10MHz, 3 = 100MHz, 4...7 = reserved */
 uint32_t g_tranSpeedUnit[] = { 10000, 100000, 1000000, 10000000, 0, 0, 0, 0 };
@@ -699,7 +700,7 @@ static int32_t EmmcDecodeCsd(struct MmcCntlr *cntlr)
 
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
+    unit = MmcParseBits(rawCsd, CSD_BITS, CID_PNM_START_BIT, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);
 
@@ -769,7 +770,7 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
     if (specVers == MMC_CSD_SPEC_VER_0 || specVers == MMC_CSD_SPEC_VER_1) {
         cid->mid = MmcParseBits(rawCid, CID_BITS, 104, 24);
         for (i = 0; i < 7; i++) {
-            cid->pnm[i] = (char)MmcParseBits(rawCid, CID_BITS, 96 - (i * 8), 8);
+            cid->pnm[i] = (char)MmcParseBits(rawCid, CID_BITS, CID_PNM_START_BIT - (i * BITS_PER_BYTE), BITS_PER_BYTE);
         }
         cid->pnm[7] = '\0';
         cid->hwPrv = MmcParseBits(rawCid, CID_BITS, 44, 4);
@@ -782,7 +783,7 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
         cid->oid = MmcParseBits(rawCid, CID_BITS, 104, 16);
         /* Product name(PNM): [103:56] */
         for (i = 0; i < 6; i++) {
-            cid->pnm[i] = MmcParseBits(rawCid, CID_BITS, 96 - (i * 8), 8);
+            cid->pnm[i] = (char)MmcParseBits(rawCid, CID_BITS, CID_PNM_START_BIT - (i * BITS_PER_BYTE), BITS_PER_BYTE);
         }
         cid->pnm[6] = '\0';
         /* Product serial number(PSN): [47:16] */
@@ -1995,7 +1996,7 @@ static void SdDecodeCid(struct MmcCntlr *cntlr)
     cid->oid = MmcParseBits(rawCid, CID_BITS, 104, 16);
     /* Product name(PNM): [103:64] */
     for (i = 0; i < 5; i++) {
-        cid->pnm[i] = (char)MmcParseBits(rawCid, CID_BITS, 96 - (i * 8), 8);
+        cid->pnm[i] = (char)MmcParseBits(rawCid, CID_BITS, CID_PNM_START_BIT - (i * BITS_PER_BYTE), BITS_PER_BYTE);
     }
     cid->pnm[5] = '\0';
     /*
@@ -2045,7 +2046,7 @@ static void SdDecodeCsdRev1Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uin
 
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
+    unit = MmcParseBits(rawCsd, CSD_BITS, CID_PNM_START_BIT, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     /* card command classes: [95:84] */
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);
@@ -2093,7 +2094,7 @@ static void SdDecodeCsdRev2Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uin
     cntlr->curDev->state.bits.blockAddr = 1;
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
+    unit = MmcParseBits(rawCsd, CSD_BITS, CID_PNM_START_BIT, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     /* card command classes: [95:84] */
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);
