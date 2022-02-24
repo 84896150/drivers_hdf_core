@@ -386,6 +386,7 @@ static int32_t AudioDriverInit(struct HdfDeviceObject *device)
         return HDF_ERR_IO;
     }
 
+    audioCard->device = device;
     audioCard->standbyMode = AUDIO_SAPM_TURN_STANDBY_LATER;
 
     /* Bind specific codec、platform and dai device */
@@ -443,34 +444,40 @@ static void AudioDriverRelease(struct HdfDeviceObject *device)
     if (audioHost->priv != NULL) {
         audioCard = (struct AudioCard *)audioHost->priv;
 
-    componentHead = &audioCard->components;
-    DLIST_FOR_EACH_ENTRY_SAFE(componentReq, componentTmp, componentHead, struct AudioSapmComponent, list) {
-        DListRemove(&componentReq->list);
-        if (componentReq->componentName != NULL) {
-            OsalMemFree(componentReq->componentName);
+        componentHead = &audioCard->components;
+        DLIST_FOR_EACH_ENTRY_SAFE(componentReq, componentTmp, componentHead, struct AudioSapmComponent, list) {
+            DListRemove(&componentReq->list);
+            if (componentReq->componentName != NULL) {
+                OsalMemFree(componentReq->componentName);
+            }
+            OsalMemFree(componentReq);
         }
-        OsalMemFree(componentReq);
+
+        controlHead = &audioCard->controls;
+        DLIST_FOR_EACH_ENTRY_SAFE(ctrlReq, ctrlTmp, controlHead, struct AudioKcontrol, list) {
+            DListRemove(&ctrlReq->list);
+            if (ctrlReq->pri != NULL) {
+                OsalMemFree(ctrlReq->pri);
+            }
+            if (ctrlReq->privateData != NULL) {
+                OsalMemFree(ctrlReq->privateData);
+            }
+            OsalMemFree(ctrlReq);
+        }
+
+        if (audioCard->rtd != NULL) {
+            OsalMemFree(audioCard->rtd);
+        }
+
+        if (audioHost->priv != NULL) {
+            OsalMemFree(audioHost->priv);
+        }
+
     }
 
-    controlHead = &audioCard->controls;
-    DLIST_FOR_EACH_ENTRY_SAFE(ctrlReq, ctrlTmp, controlHead, struct AudioKcontrol, list) {
-        DListRemove(&ctrlReq->list);
-        if (ctrlReq->pri != NULL) {
-            OsalMemFree(ctrlReq->pri);
-        }
-        if (ctrlReq->privateData != NULL) {
-            OsalMemFree(ctrlReq->privateData);
-        }
-        OsalMemFree(ctrlReq);
+    if (audioHost != NULL) {
+        OsalMemFree(audioHost);
     }
-
-    if (audioCard->rtd != NULL) {
-        OsalMemFree(audioCard->rtd);
-    }
-
-        OsalMemFree(audioHost->priv);
-    }
-    OsalMemFree(audioHost);
 
     ADM_LOG_INFO("success.");
 }
