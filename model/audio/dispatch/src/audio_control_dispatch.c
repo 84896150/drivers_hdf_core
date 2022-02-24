@@ -95,7 +95,7 @@ static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
         ADM_LOG_ERR("Input ElemInfo params check error: reqData is NULL.");
         return HDF_FAILURE;
     }
-	if (client == NULL) {
+    if (client == NULL) {
         ADM_LOG_ERR("Input ElemInfo params check error: client is NULL.");
         return HDF_FAILURE;
     }

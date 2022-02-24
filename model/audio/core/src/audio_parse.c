@@ -51,9 +51,9 @@ enum AudioSapmComponentIndex {
 
 #define LOG_ERR_RETURN(LOG) \
 do { \
-	    ADM_LOG_ERR(LOG); \
+        ADM_LOG_ERR(LOG); \
         return HDF_FAILURE; \
-	} while(0)
+    } while (0)
 
 
 static char *g_audioRegGroupName[AUDIO_GROUP_MAX] = {
@@ -478,7 +478,7 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
     DEV_RES_NODE_FOR_EACH_ATTR(regCfgNode, regAttr) {
         if (regAttr == NULL || regAttr->name == NULL) {
             LOG_ERR_RETURN("audio reg node attr is null");
-         }
+        }
 
         index = GetAudioRegGroupNameIndex(regAttr->name);
         if (index >= AUDIO_GROUP_MAX) {
@@ -486,9 +486,9 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
         }
 
         if (ParseAudioRegGroup(drsOps, regCfgNode, &configData->audioRegParams[index], index) != HDF_SUCCESS) {
-			ReleaseAudioAllRegConfig(configData);
+            ReleaseAudioAllRegConfig(configData);
             LOG_ERR_RETURN("parse audio register group failed");
-          }
+        }
     }
     return HDF_SUCCESS;
 }

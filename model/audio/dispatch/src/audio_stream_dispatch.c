@@ -16,9 +16,9 @@
 
 #define LOG_ERR_RETURN(LOG) \
 do { \
-	    ADM_LOG_ERR(LOG); \
+        ADM_LOG_ERR(LOG); \
         return HDF_FAILURE; \
-	} while(0)
+    } while (0)
 
 static inline struct StreamHost *StreamHostFromDevice(const struct HdfDeviceObject *device)
 {
@@ -311,7 +311,7 @@ static int32_t HwParamsDataAnalysis(struct HdfSBuf *reqData, struct AudioPcmHwPa
         LOG_ERR_RETURN("read request streamType failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->channels)) {
-		LOG_ERR_RETURN("read request channels failed!");
+        LOG_ERR_RETURN("read request channels failed!");
     }
     if (!HdfSbufReadUint32(reqData, &params->rate)) {
         LOG_ERR_RETURN("read request rate failed!");

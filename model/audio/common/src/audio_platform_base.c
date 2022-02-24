@@ -25,9 +25,9 @@ const int SLEEP_TIME = 5;
 
 #define LOG_ERR_RETURN(LOG) \
 do { \
-	    AUDIO_DRIVER_LOG_ERR(LOG); \
+        AUDIO_DRIVER_LOG_ERR(LOG); \
         return HDF_FAILURE; \
-	} while(0)
+    } while (0)
 
 
 unsigned int SysReadl(unsigned long addr)
