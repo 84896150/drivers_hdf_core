@@ -1256,7 +1256,7 @@ int32_t AudioCodecSapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const str
         ADM_LOG_ERR("input params: kcontrol is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if ((elemValue == NULL)) {
+	if (elemValue == NULL) {
         ADM_LOG_ERR("input params: elemValue is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -1298,7 +1298,7 @@ int32_t AudioAccessorySapmSetCtrlOps(const struct AudioKcontrol *kcontrol, const
         ADM_LOG_ERR("input params: kcontrol is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
-	if ((elemValue == NULL)) {
+	if (elemValue == NULL) {
         ADM_LOG_ERR("input params: elemValue is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }

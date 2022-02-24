@@ -491,7 +491,6 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     uint32_t totalSize;
     uint32_t lastBuffSize;
     uint32_t loopTimes;
-	struct AudioMmap_Time_Size mmapTimeSize = {0};
     char *tmpBuf;
     struct PlatformData *data = PlatformDataFromCard(card);
     if (data == NULL) {

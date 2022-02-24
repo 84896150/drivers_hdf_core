@@ -622,7 +622,7 @@ int32_t AudioAddControls(struct AudioCard *audioCard, const struct AudioKcontrol
         return HDF_FAILURE;
     }
 	if (controlMaxNum <= 0) {
-        ADM_LOG_ERR("Input params check error: controlMaxNum=%d."controlMaxNum);
+        ADM_LOG_ERR("Input params check error: controlMaxNum=%d.",controlMaxNum);
         return HDF_FAILURE;
     }
 
