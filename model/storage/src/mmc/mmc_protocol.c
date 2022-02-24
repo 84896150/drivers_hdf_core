@@ -699,7 +699,7 @@ static int32_t EmmcDecodeCsd(struct MmcCntlr *cntlr)
 
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, CID_PNM_START_BIT, 3);
+    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);
 
@@ -2045,7 +2045,7 @@ static void SdDecodeCsdRev1Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uin
 
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, CID_PNM_START_BIT, 3);
+    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     /* card command classes: [95:84] */
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);
@@ -2093,7 +2093,7 @@ static void SdDecodeCsdRev2Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uin
     cntlr->curDev->state.bits.blockAddr = 1;
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
     factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, CID_PNM_START_BIT, 3);
+    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     /* card command classes: [95:84] */
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);

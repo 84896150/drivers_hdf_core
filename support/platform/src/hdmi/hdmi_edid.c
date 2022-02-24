@@ -108,7 +108,7 @@ static int32_t HdmiEdidVendorInfoPhase(struct HdmiEdid *edid)
     /* Serial Number */
     for (i = 0; i < HDMI_EDID_SERIAL_NUMBER_FIELD_LEN; i++) {
         sinkCap->vendorInfo.serialNumber |= (uint32_t)(block->serialNumber[i] << 
-                                                       (uint16_t)(HDMI_EDID_SERIAL_NUMBER_SHIFT * i));
+            (uint16_t)(HDMI_EDID_SERIAL_NUMBER_SHIFT * i));
     }
     sinkCap->vendorInfo.week = block->week;
     sinkCap->vendorInfo.year = block->year + HDMI_EDID_YEAR_BASE;
