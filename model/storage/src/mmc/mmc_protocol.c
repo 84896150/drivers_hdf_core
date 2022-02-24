@@ -18,7 +18,6 @@
 #define SEND_STATUS_CMD_RETRY_TIMES 100
 #define STOP_TRANSMISSION_CMD_RETRY_TIMES 5
 #define BITS_NUMBER_OF_4_BYTES 32
-#define CID_PNM_START_BIT 96
 
 /* TRAN_SPEED: Frequency unit 0 = 100KHz, 1 = 1MHz, 2 = 10MHz, 3 = 100MHz, 4...7 = reserved */
 uint32_t g_tranSpeedUnit[] = { 10000, 100000, 1000000, 10000000, 0, 0, 0, 0 };
