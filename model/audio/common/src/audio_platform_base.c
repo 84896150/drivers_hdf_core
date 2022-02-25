@@ -1182,6 +1182,7 @@ int32_t AudioPcmPointer(const struct AudioCard *card, uint32_t *pointer, enum Au
 
 static int32_t PnpReportMsgConvert(const struct PnpReportMsg *pnpReportMsg, char *msgBuf, const uint32_t bufLen)
 {
+    int ret;
     if (pnpReportMsg == NULL || msgBuf == NULL || bufLen < PNP_REPORT_MSG_LEN) {
         AUDIO_DRIVER_LOG_ERR("Parameter error!");
         return HDF_FAILURE;
@@ -1189,16 +1190,24 @@ static int32_t PnpReportMsgConvert(const struct PnpReportMsg *pnpReportMsg, char
 
     switch (pnpReportMsg->reportType) {
         case DEVICE_PULG:
-            snprintf(msgBuf, bufLen - 1, "%d;%d;%d;%d;%d",
-                    pnpReportMsg->devPlugMsg.eventType, pnpReportMsg->devPlugMsg.state,
-                    pnpReportMsg->devPlugMsg.deviceType, pnpReportMsg->devPlugMsg.deviceCap,
-                    pnpReportMsg->devPlugMsg.id);
+            ret = snprintf_s(msgBuf, bufLen, bufLen - 1, "%d;%d;%d;%d;%d",
+                pnpReportMsg->devPlugMsg.eventType, pnpReportMsg->devPlugMsg.state,
+                pnpReportMsg->devPlugMsg.deviceType, pnpReportMsg->devPlugMsg.deviceCap,
+                pnpReportMsg->devPlugMsg.id);
+            if (ret < 0) {
+                AUDIO_DRIVER_LOG_ERR("snprintf_s failed");
+                return HDF_ERR_IO;
+            }
             break;
         case EVENT_REPORT:
-            snprintf(msgBuf, bufLen - 1, "%d;%d;%d;%d;%d",
-                    pnpReportMsg->eventMsg.eventType, pnpReportMsg->eventMsg.eventId,
-                    pnpReportMsg->eventMsg.eventValue, pnpReportMsg->eventMsg.deviceType,
-                    pnpReportMsg->eventMsg.reserve);
+            ret = snprintf_s(msgBuf, bufLen, bufLen - 1, "%d;%d;%d;%d;%d",
+                pnpReportMsg->eventMsg.eventType, pnpReportMsg->eventMsg.eventId,
+                pnpReportMsg->eventMsg.eventValue, pnpReportMsg->eventMsg.deviceType,
+                pnpReportMsg->eventMsg.reserve);
+            if (ret < 0) {
+                AUDIO_DRIVER_LOG_ERR("snprintf_s failed");
+                return HDF_ERR_IO;
+            }
             break;
         default:
             AUDIO_DRIVER_LOG_ERR("Unknown message type!");
