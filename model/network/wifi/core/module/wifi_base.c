@@ -72,7 +72,7 @@ static uint32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
     return chipDriver->ops->SetMode(netDev, iftype);
 }
 
-static uint32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr,
+static int32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr,
     struct KeyParams *params)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
@@ -84,7 +84,7 @@ static uint32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise
     return chipDriver->ops->AddKey(netDev, keyIndex, pairwise, macAddr, params);
 }
 
-static uint32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr)
+static int32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -160,7 +160,7 @@ static int32_t WifiCmdNewKey(const RequestContext *context, struct HdfSBuf *reqD
 
     (void)memset_s(&params, sizeof(struct KeyParams), 0, sizeof(struct KeyParams));
     WifiSetKeyParams(keyExt, &params, &pairwise);
-    return AddKey(netDev, keyExt->keyIdx, pairwise, keyExt->addr, &params);
+    return (int32_t)AddKey(netDev, keyExt->keyIdx, pairwise, keyExt->addr, &params);
 }
 
 static int32_t WifiCmdDelKey(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -272,7 +272,7 @@ static int32_t WifiCmdSetKey(const RequestContext *context, struct HdfSBuf *reqD
     unicast = TRUE;
     multicast = WifiGetMulticast(keyExt);
 
-    return SetDefaultKey(netDev, index, unicast, multicast);
+    return (int32_t)SetDefaultKey(netDev, index, unicast, multicast);
 }
 
 static int32_t WifiCmdSendEapol(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -338,7 +338,7 @@ static int32_t WifiCmdReceiveEapol(const RequestContext *context, struct HdfSBuf
         return HDF_FAILURE;
     }
 
-    ret = ReceiveEapol(netdev, &eapol);
+    ret = (int32_t)ReceiveEapol(netdev, &eapol);
     HDF_LOGI("%s:receiveEapol ret=%d", __func__, ret);
     if (!ret) {
         if (!HdfSbufWriteBuffer(rspData, eapol.buf, eapol.len)) {
@@ -459,7 +459,7 @@ static int32_t WifiCmdSetMode(const RequestContext *context, struct HdfSBuf *req
         return HDF_FAILURE;
     }
     HDF_LOGW("%s:%s changing mode to %u ...", __func__, ifName, mode->iftype);
-    ret = SetMode(netdev, mode->iftype);
+    ret = (int32_t)SetMode(netdev, mode->iftype);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to do change intf,%d", __func__, ret);
     }
@@ -532,7 +532,7 @@ static int32_t WifiFillHwFeature(struct NetDevice *netdev, WifiHwFeatureData *fe
     return ret;
 }
 
-static uint32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t *mac, uint8_t len)
+static int32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t *mac, uint8_t len)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -555,7 +555,7 @@ static uint32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
     return chipDriver->ops->SetMacAddr(netdev, mac, len);
 }
 
-static uint32_t SetTxPower(struct NetDevice *netdev, int32_t power)
+static int32_t SetTxPower(struct NetDevice *netdev, int32_t power)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -909,7 +909,7 @@ static int32_t WifiCmdSetMacAddr(const RequestContext *context, struct HdfSBuf *
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "mac");
         return HDF_FAILURE;
     }
-    ret = SetMacAddr(netdev, mac, IEEE80211_MAC_ADDR_LEN);
+    ret = (int32_t)SetMacAddr(netdev, mac, IEEE80211_MAC_ADDR_LEN);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to set mac addr,%d", __func__, ret);
     }
@@ -944,7 +944,7 @@ static int32_t WifiCmdGetValidFreqsWithBand(const RequestContext *context, struc
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "band");
         return HDF_FAILURE;
     }
-    ret = GetValidFreqsWithBand(netdev, band, freqs, &num);
+    ret = (int32_t)GetValidFreqsWithBand(netdev, band, freqs, &num);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to get valid freqs,%d", __func__, ret);
         return ret;

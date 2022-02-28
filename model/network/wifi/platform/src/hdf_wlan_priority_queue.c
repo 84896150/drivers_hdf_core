@@ -99,7 +99,7 @@ int32_t PushPriorityQueue(PriorityQueue *queue, const uint8_t priority, void *co
         pri = queueImpl->priorityLevelCount - 1;
     }
 
-    ret = PushQueue(queueImpl->queues[pri], context);
+    ret = (uint32_t)PushQueue(queueImpl->queues[pri], context);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:Write queue failed!ret=%d", __func__, ret);
         return ret;

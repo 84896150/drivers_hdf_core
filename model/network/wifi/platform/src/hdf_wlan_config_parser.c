@@ -344,7 +344,7 @@ static int32_t ParseWlanBusConfig(const struct DeviceResourceNode *node, struct 
         HDF_LOGE("%s: funcNum fail!", __func__);
         return HDF_FAILURE;
     }
-    busConfig->funcNumSize = drsOps->GetElemNum(node, "funcNum");
+    busConfig->funcNumSize = (uint32_t)drsOps->GetElemNum(node, "funcNum");
 
     if (drsOps->GetUint16(node, "timeout", &busConfig->timeout, 0) != HDF_SUCCESS) {
         HDF_LOGE("%s: timeout fail!", __func__);
