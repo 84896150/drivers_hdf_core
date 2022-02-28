@@ -7,10 +7,10 @@
  */
 
 #include "uart_dispatch_sample.h"
-#include "hdf_log.h"
-#include "hdf_sbuf.h"
 #include "uart_core.h"
 #include "uart_pl011_sample.h"
+#include "hdf_log.h"
+#include "hdf_sbuf.h"
 
 #define HDF_LOG_TAG uart_dispatch_sample
 
