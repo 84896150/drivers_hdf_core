@@ -31,27 +31,28 @@ static int32_t PlatformManagerTestCreateDevices(void)
         g_platDevices[i] = (struct PlatformDevice *)OsalMemCalloc(sizeof(struct PlatformDevice));
         if (g_platDevices[i] == NULL) {
             ret = HDF_ERR_MALLOC_FAIL;
-            goto CREATE_ERR__;
+            for (j = 0; j < i; j++) {
+                PlatformDeviceUninit(g_platDevices[j]);
+                OsalMemFree(g_platDevices[j]);
+                g_platDevices[j] = 0;
+            }
+            return ret;
         }
         g_platDevices[i]->number = i + PLAT_MGR_TEST_DEV_NUM_START;
         ret = PlatformDeviceInit(g_platDevices[i]);
         if (ret != HDF_SUCCESS) {
             OsalMemFree(g_platDevices[i]);
             g_platDevices[i] = NULL;
-            goto CREATE_ERR__;
+            for (j = 0; j < i; j++) {
+                PlatformDeviceUninit(g_platDevices[j]);
+                OsalMemFree(g_platDevices[j]);
+                g_platDevices[j] = 0;
+            }
+            return ret;
         }
     }
 
     return HDF_SUCCESS;
-
-CREATE_ERR__:
-    for (j = 0; j < i; j++) {
-        PlatformDeviceUninit(g_platDevices[j]);
-        OsalMemFree(g_platDevices[j]);
-        g_platDevices[j] = 0;
-    }
-
-    return ret;
 }
 
 static void PlatformManagerTestDestroyDevices(void)
@@ -241,7 +242,8 @@ int PlatformManagerTestExecute(int cmd)
     if (cmd > PLAT_MANAGER_TEST_CMD_MAX) {
         PLAT_LOGE("PlatformManagerTestExecute: invalid cmd:%d", cmd);
         ret = HDF_ERR_NOT_SUPPORT;
-        goto __EXIT__;
+        PLAT_LOGE("[PlatformManagerTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
+        return ret;
     }
 
     for (i = 0; i < sizeof(g_entry) / sizeof(g_entry[0]); i++) {
@@ -274,7 +276,6 @@ int PlatformManagerTestExecute(int cmd)
     PlatformManagerDestroy(manager);
     PlatformManagerTestDestroyDevices();
 
-__EXIT__:
     PLAT_LOGE("[PlatformManagerTestExecute][======cmd:%d====ret:%d======]", cmd, ret);
     return ret;
 }
