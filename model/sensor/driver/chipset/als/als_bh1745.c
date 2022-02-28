@@ -17,9 +17,12 @@
 #define HDF_LOG_TAG    hdf_sensor_als
 
 /* IO config for int-pin and I2C-pin */
+#if 0
 #define SENSOR_I2C6_DATA_REG_ADDR 0x114f004c
 #define SENSOR_I2C6_CLK_REG_ADDR  0x114f0048
 #define SENSOR_I2C_REG_CFG        0x403
+#endif
+
 #define SENSOR_TIME_INCREASE      0
 #define SENSOR_TIME_DECREASE      1
 
@@ -305,6 +308,7 @@ static int32_t InitBh1745(struct SensorCfgData *data)
     return HDF_SUCCESS;
 }
 
+#if 0
 static int32_t InitAlsPreConfig(void)
 {
     if (SetSensorPinMux(SENSOR_I2C6_DATA_REG_ADDR, SENSOR_ADDR_WIDTH_4_BYTE, SENSOR_I2C_REG_CFG) != HDF_SUCCESS) {
@@ -318,6 +322,7 @@ static int32_t InitAlsPreConfig(void)
 
     return HDF_SUCCESS;
 }
+#endif
 
 static int32_t DispatchBH1745(struct HdfDeviceIoClient *client,
     int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
@@ -357,11 +362,13 @@ int32_t Bh1745InitDriver(struct HdfDeviceObject *device)
     struct Bh1745DrvData *drvData = (struct Bh1745DrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
+#if 0
     ret = InitAlsPreConfig();
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Init  BH1745 bus mux config", __func__);
         return HDF_FAILURE;
     }
+#endif
 
     drvData->sensorCfg = AlsCreateCfgData(device->property);
     if (drvData->sensorCfg == NULL || drvData->sensorCfg->root == NULL) {
