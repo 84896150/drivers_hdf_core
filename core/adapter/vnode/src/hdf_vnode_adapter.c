@@ -559,6 +559,34 @@ static int HdfVNodeAdapterClose(struct OsalCdev *cdev, struct file *filep)
     return HDF_SUCCESS;
 }
 
+struct HdfIoService *HdfIoServiceAdapterInit(struct HdfVNodeAdapter *vnodeAdapter,
+    const struct OsalCdevOps *fileOps, uint32_t mode)
+{
+    int ret;
+    DListHeadInit(&vnodeAdapter->clientList);
+    if (OsalMutexInit(&vnodeAdapter->mutex) != HDF_SUCCESS) {
+        HDF_LOGE("vnode adapter out of mutex");
+        goto error;
+    }
+    vnodeAdapter->cdev = OsalAllocCdev(fileOps);
+    if (vnodeAdapter->cdev == NULL) {
+        HDF_LOGE("fail to alloc osalcdev");
+        OsalMutexDestroy(&vnodeAdapter->mutex);
+        goto error;
+    }
+    ret = OsalRegisterCdev(vnodeAdapter->cdev, vnodeAdapter->vNodePath, mode, vnodeAdapter);
+    if (ret != 0) {
+        HDF_LOGE("failed to register dev node %s, ret is: %d", vnodeAdapter->vNodePath, ret);
+        OsalMutexDestroy(&vnodeAdapter->mutex);
+        goto error;
+    }
+    return &vnodeAdapter->ioService;
+error:
+    OsalMemFree(vnodeAdapter->vNodePath);
+    OsalMemFree(vnodeAdapter);
+    return NULL;
+}
+
 struct HdfIoService *HdfIoServiceAdapterPublish(const char *serviceName, uint32_t mode)
 {
     int nodePathLength;
@@ -596,29 +624,7 @@ struct HdfIoService *HdfIoServiceAdapterPublish(const char *serviceName, uint32_
         OsalMemFree(vnodeAdapter);
         return NULL;
     }
-    DListHeadInit(&vnodeAdapter->clientList);
-    if (OsalMutexInit(&vnodeAdapter->mutex) != HDF_SUCCESS) {
-        HDF_LOGE("vnode adapter out of mutex");
-        goto error;
-    }
-    vnodeAdapter->cdev = OsalAllocCdev(&fileOps);
-    if (vnodeAdapter->cdev == NULL) {
-        HDF_LOGE("fail to alloc osalcdev");
-        OsalMutexDestroy(&vnodeAdapter->mutex);
-        goto error;
-    }
-    ret = OsalRegisterCdev(vnodeAdapter->cdev, vnodeAdapter->vNodePath, mode, vnodeAdapter);
-    if (ret != 0) {
-        HDF_LOGE("failed to register dev node %s, ret is: %d", vnodeAdapter->vNodePath, ret);
-        OsalMutexDestroy(&vnodeAdapter->mutex);
-        goto error;
-    }
-
-    return &vnodeAdapter->ioService;
-error:
-    OsalMemFree(vnodeAdapter->vNodePath);
-    OsalMemFree(vnodeAdapter);
-    return NULL;
+    return HdfIoServiceAdapterInit(vnodeAdapter, &fileOps, mode);
 }
 
 void HdfIoServiceAdapterRemove(struct HdfIoService *service)
