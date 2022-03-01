@@ -95,7 +95,7 @@ static int32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise,
     return chipDriver->ops->DelKey(netDev, keyIndex, pairwise, macAddr);
 }
 
-static uint32_t SetDefaultKey(struct NetDevice *netDev, uint8_t keyIndex, bool unicast, bool multicast)
+static int32_t SetDefaultKey(struct NetDevice *netDev, uint8_t keyIndex, bool unicast, bool multicast)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -272,7 +272,7 @@ static int32_t WifiCmdSetKey(const RequestContext *context, struct HdfSBuf *reqD
     unicast = TRUE;
     multicast = WifiGetMulticast(keyExt);
 
-    return (int32_t)SetDefaultKey(netDev, index, unicast, multicast);
+    return SetDefaultKey(netDev, index, unicast, multicast);
 }
 
 static int32_t WifiCmdSendEapol(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -544,7 +544,7 @@ static int32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t 
     return chipDriver->ops->GetDeviceMacAddr(netdev, type, mac, len);
 }
 
-static uint32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
+static int32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -909,7 +909,7 @@ static int32_t WifiCmdSetMacAddr(const RequestContext *context, struct HdfSBuf *
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "mac");
         return HDF_FAILURE;
     }
-    ret = (int32_t)SetMacAddr(netdev, mac, IEEE80211_MAC_ADDR_LEN);
+    ret = SetMacAddr(netdev, mac, IEEE80211_MAC_ADDR_LEN);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to set mac addr,%d", __func__, ret);
     }

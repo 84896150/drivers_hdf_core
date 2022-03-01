@@ -136,7 +136,7 @@ static int32_t GetAssociatedStasCount(struct NetDevice *netDev, uint32_t *num)
     return chipDriver->apOps->GetAssociatedStasCount(netDev, num);
 }
 
-static uint32_t GetAssociatedStasInfo(struct NetDevice *netDev, WifiStaInfo *staInfo, uint32_t num)
+static int32_t GetAssociatedStasInfo(struct NetDevice *netDev, WifiStaInfo *staInfo, uint32_t num)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -307,7 +307,7 @@ static int32_t GetAssociatedStas(struct NetDevice *netdev, uint32_t num, struct 
         HDF_LOGE("%s: OsalMemCalloc failed!", __func__);
         return HDF_FAILURE;
     }
-    ret = (int32_t)GetAssociatedStasInfo(netdev, staInfo, num);
+    ret = GetAssociatedStasInfo(netdev, staInfo, num);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to get sta info,%d", __func__, ret);
         OsalMemFree(staInfo);
