@@ -86,7 +86,7 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
     return NetIfSetStatus(netDev, NETIF_UP);
 }
 
-static uint32_t StopAp(struct NetDevice *netDev)
+static int32_t StopAp(struct NetDevice *netDev)
 {
     uint32_t ret;
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
@@ -215,7 +215,7 @@ static int32_t WifiCmdStopAp(const RequestContext *context, struct HdfSBuf *reqD
         return HDF_FAILURE;
     }
     HDF_LOGI("%s:%s stopping AP ...", __func__, ifName);
-    return (int32_t)StopAp(netdev);
+    return StopAp(netdev);
 }
 
 static int32_t WifiCmdChangeBeacon(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)

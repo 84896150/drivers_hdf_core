@@ -55,13 +55,13 @@ inline static uint32_t SendEapol(struct NetDevice *netdev, WifiTxEapol *txData)
     const struct Eapol *eapol = EapolGetInstance();
     return eapol->eapolOp->sendEapol(netdev, (struct EapolTx *)txData);
 }
-inline static uint32_t ReceiveEapol(struct NetDevice *netdev, WifiRxEapol *rxData)
+inline static int32_t ReceiveEapol(struct NetDevice *netdev, WifiRxEapol *rxData)
 {
     const struct Eapol *eapol = EapolGetInstance();
     return eapol->eapolOp->getEapol(netdev, (struct EapolRx *)rxData);
 }
 
-static uint32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
+static int32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -160,7 +160,7 @@ static int32_t WifiCmdNewKey(const RequestContext *context, struct HdfSBuf *reqD
 
     (void)memset_s(&params, sizeof(struct KeyParams), 0, sizeof(struct KeyParams));
     WifiSetKeyParams(keyExt, &params, &pairwise);
-    return (int32_t)AddKey(netDev, keyExt->keyIdx, pairwise, keyExt->addr, &params);
+    return AddKey(netDev, keyExt->keyIdx, pairwise, keyExt->addr, &params);
 }
 
 static int32_t WifiCmdDelKey(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -338,7 +338,7 @@ static int32_t WifiCmdReceiveEapol(const RequestContext *context, struct HdfSBuf
         return HDF_FAILURE;
     }
 
-    ret = (int32_t)ReceiveEapol(netdev, &eapol);
+    ret = ReceiveEapol(netdev, &eapol);
     HDF_LOGI("%s:receiveEapol ret=%d", __func__, ret);
     if (!ret) {
         if (!HdfSbufWriteBuffer(rspData, eapol.buf, eapol.len)) {
@@ -459,7 +459,7 @@ static int32_t WifiCmdSetMode(const RequestContext *context, struct HdfSBuf *req
         return HDF_FAILURE;
     }
     HDF_LOGW("%s:%s changing mode to %u ...", __func__, ifName, mode->iftype);
-    ret = (int32_t)SetMode(netdev, mode->iftype);
+    ret = SetMode(netdev, mode->iftype);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to do change intf,%d", __func__, ret);
     }
@@ -567,7 +567,7 @@ static int32_t SetTxPower(struct NetDevice *netdev, int32_t power)
     return chipDriver->ops->SetTxPower(netdev, power);
 }
 
-static uint32_t GetValidFreqsWithBand(struct NetDevice *netdev, int32_t band, int32_t *freqs, uint32_t *num)
+static int32_t GetValidFreqsWithBand(struct NetDevice *netdev, int32_t band, int32_t *freqs, uint32_t *num)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -944,7 +944,7 @@ static int32_t WifiCmdGetValidFreqsWithBand(const RequestContext *context, struc
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "band");
         return HDF_FAILURE;
     }
-    ret = (int32_t)GetValidFreqsWithBand(netdev, band, freqs, &num);
+    ret = GetValidFreqsWithBand(netdev, band, freqs, &num);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to get valid freqs,%d", __func__, ret);
         return ret;
