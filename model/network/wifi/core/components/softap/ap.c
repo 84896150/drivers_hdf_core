@@ -21,7 +21,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static uint32_t ChangeBeacon(struct NetDevice *netDev, WifiApSetting *apSettings)
+static int32_t ChangeBeacon(struct NetDevice *netDev, WifiApSetting *apSettings)
 {
     struct WlanBeaconConf beaconConf = { 0 };
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
@@ -34,7 +34,7 @@ static uint32_t ChangeBeacon(struct NetDevice *netDev, WifiApSetting *apSettings
         return HDF_FAILURE;
     }
     beaconConf.interval = apSettings->beaconInterval;
-    beaconConf.DTIMPeriod = apSettings->dtimPeriod;
+    beaconConf.DTIMPeriod = (uint32_t)apSettings->dtimPeriod;
     beaconConf.hiddenSSID = (apSettings->hiddenSsid == 1);
     beaconConf.headIEs = apSettings->beaconData.head;
     beaconConf.headIEsLength = apSettings->beaconData.headLen;
@@ -62,9 +62,9 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
         return HDF_FAILURE;
     }
     apConf.ssidConf.ssidLen = apSettings->ssidLen;
-    apConf.centerFreq1 = apSettings->freqParams.centerFreq1;
-    apConf.channel = apSettings->freqParams.channel;
-    apConf.width = apSettings->freqParams.bandwidth;
+    apConf.centerFreq1 = (uint16_t)apSettings->freqParams.centerFreq1;
+    apConf.channel = (uint16_t)apSettings->freqParams.channel;
+    apConf.width = (uint8_t)apSettings->freqParams.bandwidth;
     apConf.band = apSettings->freqParams.band;
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->apOps, ConfigAp);
     ret = chipDriver->apOps->ConfigAp(netDev, &apConf);
@@ -86,7 +86,7 @@ static int32_t StartAp(struct NetDevice *netDev, WifiApSetting *apSettings)
     return NetIfSetStatus(netDev, NETIF_UP);
 }
 
-static uint32_t StopAp(struct NetDevice *netDev)
+static int32_t StopAp(struct NetDevice *netDev)
 {
     uint32_t ret;
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
@@ -95,7 +95,7 @@ static uint32_t StopAp(struct NetDevice *netDev)
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->apOps, StopAp);
-    ret = chipDriver->apOps->StopAp(netDev);
+    ret = (uint32_t)chipDriver->apOps->StopAp(netDev);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("StopAp:failed, error[%d]", ret);
         return ret;
@@ -103,7 +103,7 @@ static uint32_t StopAp(struct NetDevice *netDev)
     return NetIfSetStatus(netDev, NETIF_DOWN);
 }
 
-static uint32_t DelStation(struct NetDevice *netDev, struct StationDelParameters *params)
+static int32_t DelStation(struct NetDevice *netDev, struct StationDelParameters *params)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -125,7 +125,7 @@ static uint32_t SetCountryCode(struct NetDevice *netDev, const char *code, uint3
     return chipDriver->apOps->SetCountryCode(netDev, code, len);
 }
 
-static uint32_t GetAssociatedStasCount(struct NetDevice *netDev, uint32_t *num)
+static int32_t GetAssociatedStasCount(struct NetDevice *netDev, uint32_t *num)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -136,7 +136,7 @@ static uint32_t GetAssociatedStasCount(struct NetDevice *netDev, uint32_t *num)
     return chipDriver->apOps->GetAssociatedStasCount(netDev, num);
 }
 
-static uint32_t GetAssociatedStasInfo(struct NetDevice *netDev, WifiStaInfo *staInfo, uint32_t num)
+static int32_t GetAssociatedStasInfo(struct NetDevice *netDev, WifiStaInfo *staInfo, uint32_t num)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -261,7 +261,7 @@ static int32_t WifiCmdChangeBeacon(const RequestContext *context, struct HdfSBuf
         HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
-    return ChangeBeacon(netdev, apSettings);
+    return (int32_t)ChangeBeacon(netdev, apSettings);
 }
 
 static int32_t WifiCmdStaRemove(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
@@ -386,7 +386,7 @@ static int32_t WifiCmdSetCountryCode(const RequestContext *context, struct HdfSB
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "code");
         return HDF_FAILURE;
     }
-    ret = SetCountryCode(netdev, code, replayDataSize);
+    ret = (int32_t)SetCountryCode(netdev, code, replayDataSize);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to set country code,%d", __func__, ret);
     }

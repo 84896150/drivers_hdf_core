@@ -124,7 +124,7 @@ int32_t GetPlatformIfName(uint8_t id, char *ifName, uint32_t ifNameSize)
         return HDF_FAILURE;
     }
 
-    if (snprintf_s(ifName, ifNameSize, ifNameSize - 1, "wlan%d", id) < 0) {
+    if (snprintf_s(ifName, ifNameSize, ifNameSize - 1, "wlan%u", id) < 0) {
         HDF_LOGE("%s:format ifName failed!netDevice id=%u", __func__, id);
         return HDF_FAILURE;
     }
