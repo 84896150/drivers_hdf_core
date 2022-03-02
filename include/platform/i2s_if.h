@@ -51,6 +51,7 @@ extern "C" {
  */
 
 #define I2S_DATA_TRANSFER_PERIOD 20
+#define I2S_DATA_TRANSFER_MAX_NUM 5
 
 enum I2sSampleRate {
     I2S_SAMPLE_RATE_8K = 8,
