@@ -81,21 +81,21 @@ static int32_t TestCaseWatchdogSetGetTimeout(struct WatchdogTester *tester)
 static int32_t TestCaseWatchdogStartStop(struct WatchdogTester *tester)
 {
     int32_t ret;
-    int32_t status;
+    int32_t watchdog_status;
 
     ret = WatchdogStart(tester->handle);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: satrt fail! ret:%d", __func__, ret);
         return ret;
     }
-    status = WATCHDOG_STOP;
-    ret = WatchdogGetStatus(tester->handle, &status);
+    watchdog_status = WATCHDOG_STOP;
+    ret = WatchdogGetStatus(tester->handle, &watchdog_status);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: get status fail! ret:%d", __func__, ret);
+        HDF_LOGE("%s: get watchdog_status fail! ret:%d", __func__, ret);
         return ret;
     }
-    if (status != WATCHDOG_START) {
-        HDF_LOGE("%s: status is:%d after start", __func__, status);
+    if (watchdog_status != WATCHDOG_START) {
+        HDF_LOGE("%s: watchdog_status is:%d after start", __func__, watchdog_status);
         return HDF_FAILURE;
     }
 
@@ -104,10 +104,10 @@ static int32_t TestCaseWatchdogStartStop(struct WatchdogTester *tester)
         HDF_LOGE("%s: stop fail! ret:%d", __func__, ret);
         return ret;
     }
-    status = WATCHDOG_START;
-    ret = WatchdogGetStatus(tester->handle, &status);
-    if (status != WATCHDOG_STOP) {
-        HDF_LOGE("%s: status is:%d after stop", __func__, status);
+    watchdog_status = WATCHDOG_START;
+    ret = WatchdogGetStatus(tester->handle, &watchdog_status);
+    if (watchdog_status != WATCHDOG_STOP) {
+        HDF_LOGE("%s: watchdog_status is:%d after stop", __func__, watchdog_status);
         return HDF_FAILURE;
     }
 
@@ -166,12 +166,12 @@ static int32_t TestCaseWatchdogBark(struct WatchdogTester *tester)
 
 static int32_t TestCaseWatchdogReliability(struct WatchdogTester *tester)
 {
-    int32_t status;
     uint32_t timeout;
+    int32_t watchdog_status;
 
     HDF_LOGE("%s: test dfr for WatchdogGetStatus ...", __func__);
     /* invalid device handle */
-    (void)WatchdogGetStatus(NULL, &status);
+    (void)WatchdogGetStatus(NULL, &watchdog_status);
     /* invalid status pointer */
     (void)WatchdogGetStatus(tester->handle, NULL);
 
