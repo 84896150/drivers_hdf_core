@@ -334,7 +334,7 @@ int32_t HdfNetBufTest010(void)
     NetBufPush(dst, E_DATA_BUF, DEFAULT_OP_SIZE);
     NetBufPush(src, E_DATA_BUF, DEFAULT_OP_SIZE);
 
-    ret = NetBufConcat(dst, src);
+    ret = (uint32_t)NetBufConcat(dst, src);
     if (ret != HDF_SUCCESS) {
         NetBufFree(src);
         NetBufFree(dst);
@@ -375,7 +375,7 @@ int32_t HdfNetBufTest011(void)
     NetBufPush(dst, E_DATA_BUF, dstDataLen);
     NetBufPush(src, E_DATA_BUF, DEFAULT_NETBUF_SIZE - 1);
 
-    ret = NetBufConcat(dst, src);
+    ret = (uint32_t)NetBufConcat(dst, src);
     if (ret == HDF_SUCCESS) {
         NetBufFree(dst);
         HDF_LOGE("NetBufConcat success");
