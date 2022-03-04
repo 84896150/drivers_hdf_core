@@ -82,7 +82,10 @@ static int32_t HandleResetEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
     switch (type) {
         case TYPE_VCC:
         case TYPE_VCI:
+            break;
         case TYPE_INT:
+            gpio = chipDev->boardCfg->pins.intGpio;
+            ret = SetGpio(gpio, dir, status);
             break;
         case TYPE_RESET:
             gpio = chipDev->boardCfg->pins.rstGpio;
@@ -300,7 +303,20 @@ static void ChipReset(ChipDevice *chipDev)
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
     int32_t count = 5;   // 5 : reset time
-    int32_t ret = SetPowerOnTiming(chipDev, false);
+    int32_t ret;
+    ret = GpioSetDir(chipDev->boardCfg->pins.rstGpio, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+
+    ret = GpioSetDir(chipDev->boardCfg->pins.intGpio, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+
+    ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
 
     if ((chipDev->ops == NULL) || (chipDev->ops->Detect == NULL)) {
@@ -314,7 +330,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         }
         HDF_LOGI("%s: reset chip one time");
         ChipReset(chipDev);
-        OsalMSleep(50); // 50 : wait 10ms，then try one time
+        OsalMSleep(10); // 10 : wait 10ms，then try one time
     }
     CHECK_RETURN_VALUE(ret);
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
