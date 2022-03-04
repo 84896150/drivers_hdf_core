@@ -349,7 +349,7 @@ int32_t CheckRawSdkIfFillIsoRequest002(void)
         reqData.callback      = AcmWriteIsoCallback;
         reqData.timeout       = USB_CTRL_SET_TIMEOUT;
         reqData.buffer        = (unsigned char*)sendData;
-        reqData.length        = (int32_t)size;
+        reqData.length        = size;
         ret = UsbRawFillIsoRequest(NULL, rawAcm->devHandle, &reqData);
         if (ret) {
             printf("%s: error++ret=%d\n", __func__, ret);
