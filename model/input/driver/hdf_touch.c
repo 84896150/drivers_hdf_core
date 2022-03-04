@@ -323,7 +323,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         return HDF_FAILURE;
     }
 
-    while(count--) {
+    while(count --) {
         ret = chipDev->ops->Detect(chipDev);
         if (ret == HDF_SUCCESS) {
             break;
