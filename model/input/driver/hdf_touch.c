@@ -13,6 +13,7 @@
 #include "osal_mem.h"
 #include "osal_io.h"
 #include "event_hub.h"
+#include "input_i2c_ops.h"
 
 #define I2C_TYPE 0
 #define SPI_TYPE 1
@@ -126,6 +127,38 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
     return HDF_SUCCESS;
 }
 
+#define GTP_REG_CMD   0x8040
+#define GTP_REG_CMD_1 0x8041
+
+static int32_t SetResetStatus(TouchDriver *driver)
+{
+    int32_t ret;
+    uint8_t writeBuf[5];
+
+    writeBuf[0] = (GTP_REG_CMD_1 >> 8) & 0xFF;
+    writeBuf[1] = GTP_REG_CMD_1 & 0xFF;
+    writeBuf[2] = 0x00;
+    writeBuf[3] = 0x56;
+    writeBuf[4] = 0xAA;
+    ret = InputI2cWrite(&driver->i2cClient, writeBuf, 5);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: InputI2cWrite failed, ret = %d", __func__, ret);
+        return ret;
+    }
+
+    writeBuf[0] = (GTP_REG_CMD >> 8) & 0xFF;
+    writeBuf[1] = GTP_REG_CMD & 0xFF;
+    writeBuf[2] = 0x00;
+
+    ret = InputI2cWrite(&driver->i2cClient, writeBuf, 3);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: InputI2cWrite failed, ret = %d", __func__, ret);
+        return ret;
+    }
+
+    return HDF_SUCCESS;
+}
+
 static int32_t SetPowerOnTiming(ChipDevice *chipDev)
 {
     int32_t i;
@@ -168,6 +201,12 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev)
         CHECK_RETURN_VALUE(ret);
         pwrOnTiming.buf = pwrOnTiming.buf + PWR_CELL_LEN;
     }
+
+    ret = SetResetStatus(driver);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: SetResetStatus failed", __func__);
+    }
+
     return HDF_SUCCESS;
 }
 
