@@ -64,6 +64,40 @@ static int32_t SetGpio(uint16_t gpio, uint32_t dir, uint32_t status)
     return HDF_SUCCESS;
 }
 
+static int32_t HandleResetEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t length)
+{
+    int32_t ret = 0;
+    uint16_t gpio;
+
+    if (length <= PWR_DELAY_INDEX) {
+        HDF_LOGE("%s: invalid param", __func__);
+        return HDF_FAILURE;
+    }
+    uint32_t type = timing[PWR_TYPE_INDEX];
+    uint32_t status = timing[PWR_STATUS_INDEX];
+    uint32_t dir = timing[PWR_DIR_INDEX];
+    uint32_t delay = timing[PWR_DELAY_INDEX];
+    HDF_LOGD("%s: type = %u, status = %u, dir = %u, delay = %u", __func__, type, status, dir, delay);
+
+    switch (type) {
+        case TYPE_VCC:
+        case TYPE_VCI:
+        case TYPE_INT:
+            break;
+        case TYPE_RESET:
+            gpio = chipDev->boardCfg->pins.rstGpio;
+            ret = SetGpio(gpio, dir, status);
+            break;
+        default:
+            HDF_LOGE("%s: unknown power type", __func__);
+            break;
+    }
+    if (delay > 0) {
+        OsalMSleep(delay);
+    }
+    return ret;
+}
+
 static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t length)
 {
     int32_t ret = 0;
@@ -126,7 +160,7 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
     return HDF_SUCCESS;
 }
 
-static int32_t SetPowerOnTiming(ChipDevice *chipDev)
+static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
 {
     int32_t i;
     int32_t ret;
@@ -164,7 +198,11 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev)
     }
 
     for (i = 0; i < pwrOnTiming.count / PWR_CELL_LEN; i++) {
-        ret = HandlePowerEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
+        if (enableRst) {
+            ret = HandleResetEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
+        } else {
+            ret = HandlePowerEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
+        }
         CHECK_RETURN_VALUE(ret);
         pwrOnTiming.buf = pwrOnTiming.buf + PWR_CELL_LEN;
     }
@@ -254,10 +292,16 @@ static int32_t SetupChipIrq(ChipDevice *chipDev)
     return HDF_SUCCESS;
 }
 
+static void ChipReset(ChipDevice *chipDev)
+{
+    (void)SetPowerOnTiming(chipDev, true);
+}
+
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
     int32_t count = 5;
-    int32_t ret = SetPowerOnTiming(chipDev);
+    
+    int32_t ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
 
     if ((chipDev->ops == NULL) || (chipDev->ops->Detect == NULL)) {
@@ -269,6 +313,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         if (ret == HDF_SUCCESS) {
             break;
         }
+        ChipReset(chipDev);
         OsalMSleep(10); // 10 : wait 10ms，then try one time
     }
     CHECK_RETURN_VALUE(ret);
