@@ -300,7 +300,6 @@ static void ChipReset(ChipDevice *chipDev)
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
     int32_t count = 5;
-    
     int32_t ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
 
