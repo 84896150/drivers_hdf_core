@@ -256,6 +256,7 @@ static int32_t SetupChipIrq(ChipDevice *chipDev)
 
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
+    int32_t count = 5;
     int32_t ret = SetPowerOnTiming(chipDev);
     CHECK_RETURN_VALUE(ret);
 
@@ -263,7 +264,13 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         return HDF_FAILURE;
     }
 
-    ret = chipDev->ops->Detect(chipDev);
+    while(count--) {
+        ret = chipDev->ops->Detect(chipDev);
+        if (ret == HDF_SUCCESS) {
+            break;
+        }
+        OsalMSleep(10); // 10 : wait 10ms，then try one time
+    }
     CHECK_RETURN_VALUE(ret);
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
 
