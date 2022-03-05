@@ -302,7 +302,7 @@ static void ChipReset(ChipDevice *chipDev)
 
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
-    int32_t count = 5;   // 5 : reset time
+    int32_t count = 20;   // 20 : reset time
     int32_t ret;
     ret = GpioSetDir(chipDev->boardCfg->pins.rstGpio, 0);
     if (ret != HDF_SUCCESS) {
@@ -330,7 +330,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         }
         HDF_LOGI("%s: reset chip one time");
         ChipReset(chipDev);
-        OsalMSleep(10); // 10 : wait 10ms，then try one time
+        OsalMSleep(100); // 100 : wait 10ms，then try one time
     }
     CHECK_RETURN_VALUE(ret);
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
