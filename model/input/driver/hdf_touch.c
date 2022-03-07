@@ -367,7 +367,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         if (ret == HDF_SUCCESS) {
             break;
         }
-        HDF_LOGI("%s: reset chip one time");
+        HDF_LOGI("%s: reset chip %d time", __func__, count);
         ChipReset(chipDev);
         OsalMSleep(100); // 100 : wait 100ms，then try one time
     }
