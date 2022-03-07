@@ -152,21 +152,25 @@ static int32_t WifiCmdSetApInner(struct HdfSBuf *reqData,  WifiApSetting *apSett
     uint32_t WifiFreqParamsLen = 0;
     uint32_t WifiBeaconDataLen = 0;
 
+    if (apSettings ==NULL) {
+        HDF_LOGE("%s: apSettings is NULL", __func__);
+        return HDF_FAILURE;
+    }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->freqParams), &WifiFreqParamsLen) ||
         apSettings->freqParams == NULL || WifiFreqParamsLen != sizeof(WifiFreqParams)) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->beaconData), &WifiBeaconDatalen) ||
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->beaconData), &WifiBeaconDataLen) ||
         apSettings->beaconData == NULL || WifiBeaconDataLen != sizeof(WifiBeaconData)) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadInt32(reqData, &(apSettings->beaconInterval)) || apSettings == NULL) {
+    if (!HdfSbufReadInt32(reqData, &(apSettings->beaconInterval))) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadInt32(reqData, &(apSettings->dtimPeriod)) || apSettings == NULL) {
+    if (!HdfSbufReadInt32(reqData, &(apSettings->dtimPeriod))) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
         return HDF_FAILURE;
     }
