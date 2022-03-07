@@ -150,7 +150,8 @@ static uint32_t GetAssociatedStasInfo(struct NetDevice *netDev, WifiStaInfo *sta
 static int32_t WifiCmdSetAp(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     WifiApSetting *apSettings = NULL;
-    uint32_t settingLen = 0;
+    uint32_t WifiFreqParams = 0;
+    uint32_t WifiBeaconData = 0;
     const char *ifName = NULL;
     struct NetDevice *netdev = NULL;
     (void)context;
@@ -164,9 +165,30 @@ static int32_t WifiCmdSetAp(const RequestContext *context, struct HdfSBuf *reqDa
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadBuffer(reqData, (const void **)&apSettings, &settingLen) || apSettings == NULL ||
-        settingLen != sizeof(WifiApSetting)) {
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->freqParams), &WifiFreqParams) || apSettings == NULL ||
+        settingLen != sizeof(WifiFreqParams)) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->beaconData), &WifiBeaconData) || apSettings == NULL ||
+        settingLen != sizeof(WifiBeaconData)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadInt32(reqData, &(apsettings->beaconInterval)) || apSettings == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadInt32(reqData, &(apsettings->dtimPeriod)) || apSettings == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(apsettings->hiddenSsid))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "head");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(apsettings->authType))) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "head");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->beaconData.head), &(apSettings->beaconData.headLen))) {

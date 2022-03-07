@@ -136,8 +136,32 @@ static int32_t WifiCmdNewKey(const RequestContext *context, struct HdfSBuf *reqD
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadBuffer(reqData, (const void **)&keyExt, &len) || keyExt == NULL || len != sizeof(WifiKeyExt)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
+    if (!HdfSbufReadInt32(reqData, &(keyExt->type)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(keyExt->keyIdx)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyIdx");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(keyExt->cipher)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "cipher");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->def)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "def");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->defMgmt)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defMgmt");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->defaultTypes)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defaultTypes");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->resv)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "resv");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(keyExt->addr), &len)) {
@@ -182,8 +206,32 @@ static int32_t WifiCmdDelKey(const RequestContext *context, struct HdfSBuf *reqD
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadBuffer(reqData, (const void **)&keyExt, &len) || keyExt == NULL || len != sizeof(WifiKeyExt)) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt", len);
+    if (!HdfSbufReadInt32(reqData, &(keyExt->type)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(keyExt->keyIdx)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyIdx");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(keyExt->cipher)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "cipher");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->def)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "def");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->defMgmt)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defMgmt");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->defaultTypes)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defaultTypes");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->resv)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "resv");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(keyExt->addr), &len)) {
@@ -246,8 +294,32 @@ static int32_t WifiCmdSetKey(const RequestContext *context, struct HdfSBuf *reqD
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (!HdfSbufReadBuffer(reqData, (const void **)&keyExt, &len) || keyExt == NULL || len != sizeof(WifiKeyExt)) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt", len);
+    if (!HdfSbufReadInt32(reqData, &(keyExt->type)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(keyExt->keyIdx)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyIdx");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &(keyExt->cipher)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "cipher");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->def)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "def");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->defMgmt)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defMgmt");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->defaultTypes)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defaultTypes");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint8(reqData, &(keyExt->resv)) || keyExt == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "resv");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(keyExt->addr), &len)) {
