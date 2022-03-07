@@ -266,6 +266,11 @@ static ErrorCode ErrorCodeRegist(const NodeId nodeId, const DispatcherId dispatc
                                  MessageNode *node, RemoteService *remoteService, MessageDispatcher *dispatcher)
 {
     ErrorCode errCodeReg;
+    if (node == NULL) {
+        HDF_LOGE("%s:Node not found!", __func__);
+        OsalMutexUnlock(&g_routerMutex);
+        return ME_ERROR_NO_SUCH_NODE;
+    }
     do {
         if (node->CreateRemoteService == NULL) {
             HDF_LOGE("%s:Can not reg service to node %d", __func__, nodeId);
