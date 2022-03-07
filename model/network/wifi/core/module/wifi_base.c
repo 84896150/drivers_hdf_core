@@ -118,7 +118,7 @@ static void WifiSetKeyParams(const WifiKeyExt *keyExt, struct KeyParams *params,
 
 static int32_t WifiCmdFillKeyInner(struct HdfSBuf *reqData, WifiKeyExt *keyExt)
 {
-     if (!HdfSbufReadInt32(reqData, &(keyExt->type)) || keyExt == NULL) {
+    if (!HdfSbufReadInt32(reqData, &(keyExt->type)) || keyExt == NULL) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
         return HDF_FAILURE;
     }
@@ -169,8 +169,7 @@ static int32_t WifiCmdNewKey(const RequestContext *context, struct HdfSBuf *reqD
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS)
-    {
+    if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
         return HDF_FAILURE;
     }
@@ -216,8 +215,7 @@ static int32_t WifiCmdDelKey(const RequestContext *context, struct HdfSBuf *reqD
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS)
-    {
+    if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
         return HDF_FAILURE;
     }
@@ -281,8 +279,7 @@ static int32_t WifiCmdSetKey(const RequestContext *context, struct HdfSBuf *reqD
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
-    if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS)
-    {
+    if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
         return HDF_FAILURE;
     }
