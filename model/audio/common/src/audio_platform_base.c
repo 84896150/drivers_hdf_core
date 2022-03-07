@@ -516,7 +516,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
             timeout++;
             if (timeout >= TIME_OUT_CONST) {
                 OsalMemFree(tmpBuf);
-                return AudioDriverLogErr("timeout failed."); 
+                return AudioDriverLogErr("timeout failed.");
             }
             continue;
         }

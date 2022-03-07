@@ -13,7 +13,7 @@
 
 const int32_t g_testAudioType = 701; // 701 is TEST_AUDIO_TYPE
 
-typedef enum {
+enum HDFAudioTestCommonCmd{
     TESTI2CREADWRITE = 48,
     TESTREGBITSREAD,
     TESTREGBITSUPDATE,
@@ -71,6 +71,6 @@ typedef enum {
     TESTCAPTUREPREPARE,
     TESTRENDERTRIGGER,
     TESTCAPTURETRIGGER,
-} HDFAudioTestCommonCmd;
+};
 
 #endif /* AUDIO_COMMON_TEST_H */
