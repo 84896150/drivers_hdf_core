@@ -152,10 +152,6 @@ static int32_t WifiCmdSetApInner(struct HdfSBuf *reqData,  WifiApSetting *apSett
     uint32_t WifiFreqParamsLen = 0;
     uint32_t WifiBeaconDataLen = 0;
 
-    if (apSettings ==NULL) {
-        HDF_LOGE("%s: apSettings is NULL", __func__);
-        return HDF_FAILURE;
-    }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(apSettings->freqParams), &WifiFreqParamsLen) ||
         WifiFreqParamsLen != sizeof(WifiFreqParams)) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "apSettings");
