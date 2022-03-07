@@ -262,6 +262,42 @@ static ErrorCode DoRegistService(const NodeId nodeId, const DispatcherId dispatc
     return ME_SUCCESS;
 }
 
+static ErrorCode ErrorCodeRegist(const NodeId nodeId, const DispatcherId dispatcherId, struct ServiceDef *mapper,
+                                 MessageNode *node, RemoteService *remoteService, MessageDispatcher *dispatcher)
+{
+    ErrorCode errCodeReg;
+	do {
+        if (node->CreateRemoteService == NULL) {
+            HDF_LOGE("%s:Can not reg service to node %d", __func__, nodeId);
+            errCodeReg = ME_ERROR_NOT_SUPPORTED;
+            break;
+        }
+        dispatcher = RefDispatcherInner(dispatcherId, false);
+
+        remoteService = node->CreateRemoteService(node, dispatcher, mapper);
+        if (remoteService == NULL) {
+            HDF_LOGE("%s:Node create service failed!node=%d", __func__, nodeId);
+            errCodeReg = ME_ERROR_NULL_PTR;
+            break;
+        }
+
+        errCodeReg = NotifyAllNodesServiceAdd(nodeId, mapper);
+        if (errCodeReg != ME_SUCCESS) {
+            HDF_LOGE("%s:NotifyAllNodesServiceAdd failed!err=%d", __func__, errCodeReg);
+            break;
+        }
+
+        errCodeReg = DoRegistService(nodeId, dispatcherId, remoteService);
+        if (errCodeReg != ME_SUCCESS) {
+            HDF_LOGE("%s:DoRegistService failed!err=%d.", __func__, errCodeReg);
+            NotifyAllNodesServiceDel(nodeId, mapper->serviceId);
+            break;
+        }
+    } while (false);
+
+    return errCodeReg;
+}
+
 static ErrorCode RegistServiceInner(const NodeId nodeId, const DispatcherId dispatcherId, struct ServiceDef *mapper)
 {
     HDF_STATUS status;
@@ -289,34 +325,8 @@ static ErrorCode RegistServiceInner(const NodeId nodeId, const DispatcherId disp
         OsalMutexUnlock(&g_routerMutex);
         return ME_ERROR_NO_SUCH_NODE;
     }
-    do {
-        if (node->CreateRemoteService == NULL) {
-            HDF_LOGE("%s:Can not reg service to node %d", __func__, nodeId);
-            errCode = ME_ERROR_NOT_SUPPORTED;
-            break;
-        }
-        dispatcher = RefDispatcherInner(dispatcherId, false);
 
-        remoteService = node->CreateRemoteService(node, dispatcher, mapper);
-        if (remoteService == NULL) {
-            HDF_LOGE("%s:Node create service failed!node=%d", __func__, nodeId);
-            errCode = ME_ERROR_NULL_PTR;
-            break;
-        }
-
-        errCode = NotifyAllNodesServiceAdd(nodeId, mapper);
-        if (errCode != ME_SUCCESS) {
-            HDF_LOGE("%s:NotifyAllNodesServiceAdd failed!err=%d", __func__, errCode);
-            break;
-        }
-
-        errCode = DoRegistService(nodeId, dispatcherId, remoteService);
-        if (errCode != ME_SUCCESS) {
-            HDF_LOGE("%s:DoRegistService failed!err=%d.", __func__, errCode);
-            NotifyAllNodesServiceDel(nodeId, mapper->serviceId);
-            break;
-        }
-    } while (false);
+    errcode = ErrorCodeRegist(nodeId, dispatcherId, mapper, node, remoteService, dispatcher);
 
     status = OsalMutexUnlock(&g_routerMutex);
     if (status != HDF_SUCCESS) {
