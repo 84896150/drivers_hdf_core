@@ -167,7 +167,7 @@ static int32_t WifiCmdNewKey(const RequestContext *context, struct HdfSBuf *reqD
     }
     keyExt = (WifiKeyExt *)malloc(sizeof(WifiKeyExt));
     if (keyExt == NULL) {
-        LOG_FUN_ERR("keyExt malloc failed");
+        HDF_LOGE("%s:keyExt malloc failed", __func__);
         return HDF_FAILURE;
     }
     ifName = HdfSbufReadString(reqData);
@@ -227,7 +227,7 @@ static int32_t WifiCmdDelKey(const RequestContext *context, struct HdfSBuf *reqD
     }
     keyExt = (WifiKeyExt *)malloc(sizeof(WifiKeyExt));
     if (keyExt == NULL) {
-        LOG_FUN_ERR("keyExt malloc failed");
+        HDF_LOGE("%s:keyExt malloc failed", __func__);
         return HDF_FAILURE;
     }
     ifName = HdfSbufReadString(reqData);
@@ -304,9 +304,10 @@ static int32_t WifiCmdSetKey(const RequestContext *context, struct HdfSBuf *reqD
     }
     keyExt = (WifiKeyExt *)malloc(sizeof(WifiKeyExt));
     if (keyExt == NULL) {
-        LOG_FUN_ERR("keyExt malloc failed");
+        HDF_LOGE("%s:keyExt malloc failed", __func__);
         return HDF_FAILURE;
     }
+    do {
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
         HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
