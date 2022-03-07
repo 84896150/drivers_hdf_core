@@ -320,7 +320,7 @@ static int32_t HdfWlanInitInterfaces(struct HdfWlanDevice *device, struct HdfChi
     return ret;
 }
 
-inline static void ReleaseWlanDevice(struct HdfWlanDevice *device)
+static void ReleaseWlanDevicePRB(struct HdfWlanDevice *device)
 {
     if (device->powers != NULL && device->powers->Release != NULL) {
         device->powers->Release(device->powers);
@@ -334,6 +334,11 @@ inline static void ReleaseWlanDevice(struct HdfWlanDevice *device)
         device->bus->ops.deInit(device->bus);
         device->bus = NULL;
     }
+}
+
+inline static void ReleaseWlanDevice(struct HdfWlanDevice *device)
+{
+    ReleaseWlanDevicePRB;
     OsalMemFree(device);
 }
 
