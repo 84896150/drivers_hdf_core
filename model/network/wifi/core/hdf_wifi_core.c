@@ -338,7 +338,7 @@ static void ReleaseWlanDevicePRB(struct HdfWlanDevice *device)
 
 inline static void ReleaseWlanDevice(struct HdfWlanDevice *device)
 {
-    ReleaseWlanDevicePRB;
+    ReleaseWlanDevicePRB(device);
     OsalMemFree(device);
 }
 
