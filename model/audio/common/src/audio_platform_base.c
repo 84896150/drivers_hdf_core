@@ -26,6 +26,12 @@ const int SLEEP_TIME = 5;
 const int MIN_PERIOD_SILENCE_THRESHOLD = (4 * 1024);
 const int MAX_PERIOD_SILENCE_THRESHOLD = (16 * 1024);
 
+static int AudioDriverLogErr(const char *log)
+{
+    AUDIO_DRIVER_LOG_ERR("%s\n", log);
+    return HDF_FAILURE;
+}
+
 unsigned int SysReadl(unsigned long addr)
 {
     return *(volatile unsigned int *)(uintptr_t)(addr);
@@ -58,7 +64,6 @@ uint32_t AudioBytesToFrames(uint32_t frameBits, uint32_t size)
 
 int32_t AudioDataBigEndianChange(char *srcData, uint32_t audioLen, enum DataBitWidth bitWidth)
 {
-
     uint64_t i;
     uint16_t framesize;
     char *changeData;
@@ -147,7 +152,6 @@ int32_t AudioSetPcmInfo(struct PlatformData *platformData, const struct AudioPcm
         platformData->renderPcmInfo.interleaved = 1;
         platformData->renderPcmInfo.channels = param->channels;
         platformData->renderPcmInfo.streamType = param->streamType;
-
     } else if (param->streamType == AUDIO_CAPTURE_STREAM) {
         if (AudioFramatToBitWidth(param->format, &platformData->capturePcmInfo.bitWidth) != HDF_SUCCESS) {
             return HDF_FAILURE;
@@ -166,7 +170,6 @@ int32_t AudioSetPcmInfo(struct PlatformData *platformData, const struct AudioPcm
         platformData->capturePcmInfo.interleaved = 1;
         platformData->capturePcmInfo.channels = param->channels;
         platformData->capturePcmInfo.streamType = param->streamType;
-
     } else {
         AUDIO_DRIVER_LOG_ERR("param streamType is invalid.");
         return HDF_FAILURE;
@@ -486,12 +489,10 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     char *tmpBuf;
     struct PlatformData *data = PlatformDataFromCard(card);
     if (data == NULL) {
-        AUDIO_DRIVER_LOG_ERR("PlatformDataFromCard failed.");
-        return HDF_FAILURE;
+        return AudioDriverLogErr("PlatformDataFromCard failed.");
     }
     if (data->renderBufInfo.virtAddr == NULL) {
-        AUDIO_DRIVER_LOG_ERR("render buffer is null.");
-        return HDF_FAILURE;
+        return AudioDriverLogErr("render buffer is null.");
     }
 
     totalSize = (uint32_t)data->mmapData.totalBufferFrames * data->renderPcmInfo.frameSize;
@@ -501,8 +502,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     data->mmapLoopCount = 0;
     tmpBuf = OsalMemCalloc(MIN_PERIOD_SIZE);
     if (tmpBuf == NULL) {
-        AUDIO_DRIVER_LOG_ERR("tmpBuf is null.");
-        return HDF_FAILURE;
+        return AudioDriverLogErr("tmpBuf is null.");
     }
     while (data->mmapLoopCount < loopTimes && data->renderBufInfo.runStatus != PCM_STOP) {
         if (data->renderBufInfo.runStatus == PCM_PAUSE) {
@@ -515,9 +515,8 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
             AUDIO_DRIVER_LOG_DEBUG("dma buff status ENUM_CIR_BUFF_FULL.");
             timeout++;
             if (timeout >= TIME_OUT_CONST) {
-                AUDIO_DRIVER_LOG_ERR("timeout failed.");
                 OsalMemFree(tmpBuf);
-                return HDF_FAILURE;
+                return AudioDriverLogErr("timeout failed."); 
             }
             continue;
         }
