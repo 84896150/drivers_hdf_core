@@ -185,7 +185,7 @@ static int32_t SetResetStatus(TouchDriver *driver)
 
     writeBuf[0] = (GTP_REG_CMD >> 8) & 0xFF;
     writeBuf[1] = GTP_REG_CMD & 0xFF;
-    writeBuf[2] = 0x00;
+    writeBuf[2] = 0xAA;
 
     ret = InputI2cWrite(&driver->i2cClient, writeBuf, 3);
     if (ret != HDF_SUCCESS) {
