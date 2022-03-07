@@ -266,7 +266,7 @@ static ErrorCode ErrorCodeRegist(const NodeId nodeId, const DispatcherId dispatc
                                  MessageNode *node, RemoteService *remoteService, MessageDispatcher *dispatcher)
 {
     ErrorCode errCodeReg;
-	do {
+    do {
         if (node->CreateRemoteService == NULL) {
             HDF_LOGE("%s:Can not reg service to node %d", __func__, nodeId);
             errCodeReg = ME_ERROR_NOT_SUPPORTED;
@@ -326,7 +326,7 @@ static ErrorCode RegistServiceInner(const NodeId nodeId, const DispatcherId disp
         return ME_ERROR_NO_SUCH_NODE;
     }
 
-    errcode = ErrorCodeRegist(nodeId, dispatcherId, mapper, node, remoteService, dispatcher);
+    errCode = ErrorCodeRegist(nodeId, dispatcherId, mapper, node, remoteService, dispatcher);
 
     status = OsalMutexUnlock(&g_routerMutex);
     if (status != HDF_SUCCESS) {
