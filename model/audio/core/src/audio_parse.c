@@ -49,6 +49,12 @@ enum AudioSapmComponentIndex {
     AUDIO_SAPM_COMP_INDEX_MAX
 };
 
+static int32_t LogErrReturn(const char* log)
+{
+    ADM_LOG_ERR(log);
+    return HDF_FAILURE;
+}
+
 
 static char *g_audioRegGroupName[AUDIO_GROUP_MAX] = {
     "resetSeqConfig",
@@ -78,20 +84,20 @@ int32_t AudioFillConfigData(const struct HdfDeviceObject *device, struct AudioCo
     int32_t accessoryDaiRet;
     ADM_LOG_DEBUG("Entry.");
 
-    if (device == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
-        return HDF_FAILURE;
+    if (device == NULL) {
+        return LogErrReturn("Input para check error: device is NULL.");
+    }
+    if (configData == NULL) {
+        return LogErrReturn("Input para check error: configData is NULL.");
     }
 
     node = device->property;
     if (node == NULL) {
-        ADM_LOG_ERR("drs node is NULL.");
-        return HDF_FAILURE;
+        return LogErrReturn("drs node is NULL.");
     }
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetString == NULL) {
-        ADM_LOG_ERR("AudioFillConfigData: invalid drs ops fail!");
-        return HDF_FAILURE;
+        return LogErrReturn("AudioFillConfigData: invalid drs ops fail!");
     }
 
     serviceRet = drsOps->GetString(node, "serviceName", &(configData->cardServiceName), 0);
@@ -143,7 +149,7 @@ static uint32_t* GetRegArray(const struct DeviceResourceIface *parser, const str
 {
     int32_t ret;
     int32_t index;
-    int32_t num;
+    uint32_t num;
     uint32_t *buf;
     if (group == NULL || parser == NULL || regNode == NULL || indexMax == 0) {
         ADM_LOG_ERR("Input para check error");
@@ -184,7 +190,7 @@ static int32_t ParseAudioRegItem(const struct DeviceResourceIface *parser, const
 {
     int32_t step;
     int32_t index;
-    int32_t *buf;
+    uint32_t *buf;
     if (group == NULL || parser == NULL || regNode == NULL) {
         ADM_LOG_ERR("Input para check error");
         return HDF_FAILURE;
@@ -440,41 +446,38 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
 
     ADM_LOG_DEBUG("Entry.");
 
-    if (device == NULL || configData == NULL) {
-        ADM_LOG_ERR("Input para check error: device=%p, configData=%p.", device, configData);
-        return HDF_FAILURE;
+    if (device == NULL) {
+        return LogErrReturn("Input para check error: device is NULL.");
+    }
+    if (configData == NULL) {
+        return LogErrReturn("Input para check error: configData is NULL.");
     }
 
     root = device->property;
     if (root == NULL) {
-        ADM_LOG_ERR("drs node is NULL.");
-        return HDF_FAILURE;
+        return LogErrReturn("drs node is NULL.");
     }
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetString == NULL) {
-        ADM_LOG_ERR("AudioFillConfigData: invalid drs ops fail!");
-        return HDF_FAILURE;
+        return LogErrReturn("AudioFillConfigData: invalid drs ops fail!");
     }
 
     idNode = drsOps->GetChildNode(root, "idInfo");
     if (idNode != NULL) {
         if (ParseAudioAttr(drsOps, idNode, &configData->audioIdInfo) != HDF_SUCCESS) {
-            ADM_LOG_ERR("audio reg node attr is null");
-            return HDF_FAILURE;
+            return LogErrReturn("audio reg node attr is null");
         }
     }
 
     regCfgNode = drsOps->GetChildNode(root, "regConfig");
     if (regCfgNode == NULL) {
-        ADM_LOG_ERR("CodecGetRegConfig: Read audioRegConfig fail!");
-        return HDF_FAILURE;
+        return LogErrReturn("CodecGetRegConfig: Read audioRegConfig fail!");
     }
 
     DEV_RES_NODE_FOR_EACH_ATTR(regCfgNode, regAttr) {
         if (regAttr == NULL || regAttr->name == NULL) {
-            ADM_LOG_ERR("audio reg node attr is null");
-            return HDF_FAILURE;
+            return LogErrReturn("audio reg node attr is null");
         }
 
         index = GetAudioRegGroupNameIndex(regAttr->name);
@@ -483,9 +486,8 @@ int32_t CodecGetRegConfig(const struct HdfDeviceObject *device, struct AudioRegC
         }
 
         if (ParseAudioRegGroup(drsOps, regCfgNode, &configData->audioRegParams[index], index) != HDF_SUCCESS) {
-            ADM_LOG_ERR("parse audio register group failed");
             ReleaseAudioAllRegConfig(configData);
-            return HDF_FAILURE;
+            return LogErrReturn("parse audio register group failed");
         }
     }
     return HDF_SUCCESS;

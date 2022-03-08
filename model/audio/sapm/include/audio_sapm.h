@@ -116,7 +116,7 @@ struct AudioSapmComponent {
     struct PlatformDevice *platform; /* parent platform */
 
     /* sapm control */
-    int16_t reg; /* negative reg = no direct sapm */
+    uint16_t reg; /* negative reg = no direct sapm */
     uint8_t shift; /* bits to shift */
     uint8_t invert; /* invert the power bit */
     uint8_t mask;
@@ -132,7 +132,7 @@ struct AudioSapmComponent {
     int32_t (*Event)(struct AudioSapmComponent*, struct AudioKcontrol *, int32_t);
 
     /* power check callback */
-    int32_t (*PowerCheck)(const struct AudioSapmComponent *);
+    uint32_t (*PowerCheck)(const struct AudioSapmComponent *);
 
     /* kcontrols that relate to this component */
     int32_t kcontrolsNum;
