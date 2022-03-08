@@ -87,8 +87,10 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
             ret = SetVciPower(status);
             break;
         case TYPE_RESET:
+#if !defined(CONFIG_ARCH_ROCKCHIP)
             gpio = chipDev->boardCfg->pins.rstGpio;
             ret = SetGpio(gpio, dir, status);
+#endif
             break;
         case TYPE_INT:
             gpio = chipDev->boardCfg->pins.intGpio;
