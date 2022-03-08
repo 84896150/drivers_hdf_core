@@ -53,6 +53,11 @@ static int32_t ChipDetect(ChipDevice *device)
     xSolution = (buf[GT_SOLU_X_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_X_LOW];
     ySolution = (buf[GT_SOLU_Y_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_Y_LOW];
 
+    if (version != 0x100 || buf[GT_PROD_ID_1ST] != '5' || buf[GT_PROD_ID_2ND] != '6') {
+        HDF_LOGE("%s: version or ID wrong", __func__);
+        return HDF_FAILURE;
+    }
+
     HDF_LOGI("%s: IC FW version is 0x%x", __func__, version);
     if (buf[GT_FW_VER_HIGH] == 0x0) {
         HDF_LOGI("Product ID : %c%c%c_%02x%02x, xSol = %d, ySol = %d", buf[GT_PROD_ID_1ST], buf[GT_PROD_ID_2ND],
@@ -126,6 +131,7 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
             frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         }
+        pr_err("---debug X,y:%d,%d\n",frame->fingers[i].x,frame->fingers[i].y);
         frame->fingers[i].valid = true;
     }
 }
@@ -139,6 +145,8 @@ static int32_t ChipDataHandle(ChipDevice *device)
     InputI2cClient *i2cClient = &device->driver->i2cClient;
     uint8_t reg[GT_ADDR_LEN] = {0};
     FrameData *frame = &device->driver->frameData;
+
+    HDF_LOGE("%s: HKHK", __func__);
 
     reg[0] = (GT_BUF_STATE_ADDR >> ONE_BYTE_OFFSET) & ONE_BYTE_MASK;
     reg[1] = GT_BUF_STATE_ADDR & ONE_BYTE_MASK;
