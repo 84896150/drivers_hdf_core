@@ -18,6 +18,7 @@
 
 #define PROXIMITY_STATE_FAR    5
 #define PROXIMITY_STATE_NEAR   0
+#define DEMO_BOARD             3516
 
 static struct Apds9960DrvData *g_apds9960DrvData = NULL;
 
@@ -26,10 +27,50 @@ struct Apds9960DrvData *Apds9960GetDrvData(void)
     return g_apds9960DrvData;
 }
 
-/* IO config for int-pin and I2C-pin */
-#define SENSOR_I2C6_DATA_REG_ADDR 0x114f004c
-#define SENSOR_I2C6_CLK_REG_ADDR  0x114f0048
-#define SENSOR_I2C_REG_CFG        0x403
+int32_t GetDemoBoardInfo(const struct DeviceResourceNode *node)
+{
+    int32_t ret;
+    uint32_t demoBoard;
+    uint32_t i2cDataRegAddr;
+    uint32_t i2cClkRegAddr;
+    uint16_t i2cRegAddr;
+    struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *infoNode = NULL;
+
+    parser = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    CHECK_NULL_PTR_RETURN_VALUE(parser, HDF_ERR_INVALID_PARAM);
+
+    infoNode = parser->GetChildNode(node, "sensorDemoBoardInfo");
+
+    ret = parser->GetUint32(infoNode, "demoBoard", &demoBoard, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "demoBoard");
+
+    HDF_LOGE("%s: demoBoard = %u", __func__, demoBoard);
+
+    if (demoBoard != DEMO_BOARD) {
+        return HDF_SUCCESS;
+    }
+
+    ret = parser->GetUint32(infoNode, "i2cDataRegAddr", &i2cDataRegAddr, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "i2cDataRegAddr");
+
+    ret = parser->GetUint32(infoNode, "i2cClkRegAddr", &i2cClkRegAddr, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "i2cClkRegAddr");
+
+    ret = parser->GetUint16(infoNode, "i2cRegAddr", &i2cRegAddr, NULL);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "i2cRegAddr");
+
+    if (SetSensorPinMux(i2cDataRegAddr, SENSOR_ADDR_WIDTH_4_BYTE, i2cRegAddr) != HDF_SUCCESS) {
+        HDF_LOGE("%s: Data write mux pin failed", __func__);
+        return HDF_FAILURE;
+    }
+    if (SetSensorPinMux(i2cClkRegAddr, SENSOR_ADDR_WIDTH_4_BYTE, i2cRegAddr) != HDF_SUCCESS) {
+        HDF_LOGE("%s: Clk write mux pin failed", __func__);
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
 
 static int32_t ReadApds9960RawData(struct SensorCfgData *data, struct ProximityData *rawData, int64_t *timestamp)
 {
@@ -98,20 +139,6 @@ static int32_t InitApda9960(struct SensorCfgData *data)
     return HDF_SUCCESS;
 }
 
-static int32_t InitProximityPreConfig(void)
-{
-    if (SetSensorPinMux(SENSOR_I2C6_DATA_REG_ADDR, SENSOR_ADDR_WIDTH_4_BYTE, SENSOR_I2C_REG_CFG) != HDF_SUCCESS) {
-        HDF_LOGE("%s: Data write mux pin failed", __func__);
-        return HDF_FAILURE;
-    }
-    if (SetSensorPinMux(SENSOR_I2C6_CLK_REG_ADDR, SENSOR_ADDR_WIDTH_4_BYTE, SENSOR_I2C_REG_CFG) != HDF_SUCCESS) {
-        HDF_LOGE("%s: Clk write mux pin failed", __func__);
-        return HDF_FAILURE;
-    }
-
-    return HDF_SUCCESS;
-}
-
 static int32_t DispatchApds9960(struct HdfDeviceIoClient *client,
     int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
@@ -150,9 +177,9 @@ int32_t Apds996InitDriver(struct HdfDeviceObject *device)
     struct Apds9960DrvData *drvData = (struct Apds9960DrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
-    ret = InitProximityPreConfig();
+    ret = GetDemoBoardInfo(device->property);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: Init  APDS9960 bus mux config", __func__);
+        HDF_LOGE("%s: get demo board failed", __func__);
         return HDF_FAILURE;
     }
 
