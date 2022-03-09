@@ -20,7 +20,10 @@
 #define MAX_TOUCH_DEVICE 5
 #define REGISTER_BYTE_SIZE 4
 #define TOUCH_CHIP_NAME_LEN 10
-
+#if defined(CONFIG_ARCH_ROCKCHIP)
+#define GTP_REG_CMD   0x8040
+#define GTP_REG_CMD_1 0x8041
+#endif
 
 static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
 static void InputFrameReport(TouchDriver *driver);
@@ -164,9 +167,6 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
     return HDF_SUCCESS;
 }
 
-#define GTP_REG_CMD   0x8040
-#define GTP_REG_CMD_1 0x8041
-
 static int32_t SetResetStatus(TouchDriver *driver)
 {
     int32_t ret;
@@ -232,7 +232,7 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
         HDF_LOGE("%s: pwrOnTiming config is invalid", __func__);
         return HDF_FAILURE;
     }
-    pr_err("--debug pwrOnTiming.count = %d\n",pwrOnTiming.count/PWR_CELL_LEN);
+
     for (i = 0; i < pwrOnTiming.count / PWR_CELL_LEN; i++) {
         if (enableRst) {
             ret = HandleResetEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
@@ -242,12 +242,12 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
         CHECK_RETURN_VALUE(ret);
         pwrOnTiming.buf = pwrOnTiming.buf + PWR_CELL_LEN;
     }
-
+#if defined(CONFIG_ARCH_ROCKCHIP)
     ret = SetResetStatus(driver);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: SetResetStatus failed", __func__);
     }
-
+#endif
     return HDF_SUCCESS;
 }
 
@@ -343,13 +343,12 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
     int32_t count = 20;   // 20 : reset time
     int32_t ret;
-    //ret = GpioSetDir(chipDev->boardCfg->pins.rstGpio, 1);
+#if defined(CONFIG_ARCH_ROCKCHIP)
     ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
         return HDF_FAILURE;
     }
-    //ret = GpioSetDir(chipDev->boardCfg->pins.intGpio, 1);
     ret = SetGpio(chipDev->boardCfg->pins.intGpio, 1, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
@@ -362,6 +361,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         return HDF_FAILURE;
     }
     OsalMSleep(20);
+#endif
     ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
 
