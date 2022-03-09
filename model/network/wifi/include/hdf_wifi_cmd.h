@@ -10,6 +10,7 @@
 #define HDF_WIFI_CMD_H
 
 #include "hdf_base.h"
+#include <stddef.h>
 #include "net_device.h"
 #include "hdf_device_desc.h"
 #include "hdf_sbuf.h"
@@ -162,7 +163,7 @@ typedef struct {
 
 typedef struct {
     int32_t reassoc;
-    uint32_t ieLen;
+    size_t ieLen;
     uint8_t *ie;
     uint8_t macAddr[ETH_ADDR_LEN];
     uint8_t resv[2];
@@ -184,7 +185,7 @@ typedef struct {
 
 typedef struct {
     uint32_t freq;
-    uint32_t dataLen;
+    size_t dataLen;
     uint8_t *data;
     uint64_t *cookie;
 } WifiMlmeData;
@@ -201,7 +202,7 @@ typedef struct {
     uint8_t *src;
     uint8_t *bssid;
     uint8_t *data;
-    uint32_t dataLen;
+    size_t dataLen;
 } WifiActionData;
 
 typedef struct {
@@ -330,7 +331,7 @@ typedef struct {
 
 typedef struct {
     uint8_t ssid[MAX_SSID_LEN];
-    uint32_t ssidLen;
+    size_t ssidLen;
 } WifiDriverScanSsid;
 
 typedef struct {
@@ -388,9 +389,9 @@ typedef struct {
 
 typedef struct {
     uint8_t *reqIe;
-    uint32_t reqIeLen;
+    size_t reqIeLen;
     uint8_t *respIe;
-    uint32_t respIeLen;
+    size_t respIeLen;
     uint8_t bssid[ETH_ADDR_LEN];
     uint8_t rsv[2];
     uint16_t status;
