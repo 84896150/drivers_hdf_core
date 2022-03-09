@@ -10,7 +10,6 @@
 #define HDF_WIFI_CMD_H
 
 #include "hdf_base.h"
-#include <stddef.h>
 #include "net_device.h"
 #include "hdf_device_desc.h"
 #include "hdf_sbuf.h"
