@@ -171,24 +171,24 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
 static int32_t SetResetStatus(TouchDriver *driver)
 {
     int32_t ret;
-    uint8_t writeBuf[5];
+    uint8_t writeBuf[5]; // 5: buffer size
 
-    writeBuf[0] = (GTP_REG_CMD_1 >> 8) & 0xFF;
+    writeBuf[0] = (GTP_REG_CMD_1 >> 8) & 0xFF; // 8:high byte 0xff：mask
     writeBuf[1] = GTP_REG_CMD_1 & 0xFF;
-    writeBuf[2] = 0x00;
-    writeBuf[3] = 0x56;
-    writeBuf[4] = 0xAA;
-    ret = InputI2cWrite(&driver->i2cClient, writeBuf, 5);
+    writeBuf[2] = 0x00; // 2:index  0x00: reg value
+    writeBuf[3] = 0x56; // 3:index  0x56: reg value
+    writeBuf[4] = 0xAA; // 4:index  0xAA: reg value
+    ret = InputI2cWrite(&driver->i2cClient, writeBuf, 5); // 5: buffer size
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: InputI2cWrite failed, ret = %d", __func__, ret);
         return ret;
     }
 
-    writeBuf[0] = (GTP_REG_CMD >> 8) & 0xFF;
+    writeBuf[0] = (GTP_REG_CMD >> 8) & 0xFF; // 8:high byte 0xff：mask
     writeBuf[1] = GTP_REG_CMD & 0xFF;
-    writeBuf[2] = 0xAA;
+    writeBuf[2] = 0xAA; // 2:index 0xAA: reg value
 
-    ret = InputI2cWrite(&driver->i2cClient, writeBuf, 3);
+    ret = InputI2cWrite(&driver->i2cClient, writeBuf, 3); // 3: buffer size
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: InputI2cWrite failed, ret = %d", __func__, ret);
         return ret;
@@ -356,13 +356,13 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
         return HDF_FAILURE;
     }
-    OsalMSleep(100);
+    OsalMSleep(100); // 100 : delay time
     ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
         return HDF_FAILURE;
     }
-    OsalMSleep(20);
+    OsalMSleep(20); // 20 : delay time
 #endif
     ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
@@ -371,7 +371,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
         return HDF_FAILURE;
     }
 
-    while(count --) {
+    while (count --) {
         ret = chipDev->ops->Detect(chipDev);
         if (ret == HDF_SUCCESS) {
             break;
