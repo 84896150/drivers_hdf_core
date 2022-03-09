@@ -145,7 +145,6 @@ static int32_t ChipDataHandle(ChipDevice *device)
     uint8_t reg[GT_ADDR_LEN] = {0};
     FrameData *frame = &device->driver->frameData;
 
-
     reg[0] = (GT_BUF_STATE_ADDR >> ONE_BYTE_OFFSET) & ONE_BYTE_MASK;
     reg[1] = GT_BUF_STATE_ADDR & ONE_BYTE_MASK;
     ret = InputI2cRead(i2cClient, reg, GT_ADDR_LEN, &touchStatus, 1);
