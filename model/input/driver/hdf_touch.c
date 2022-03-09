@@ -167,6 +167,7 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
     return HDF_SUCCESS;
 }
 
+#if defined(CONFIG_ARCH_ROCKCHIP)
 static int32_t SetResetStatus(TouchDriver *driver)
 {
     int32_t ret;
@@ -195,6 +196,7 @@ static int32_t SetResetStatus(TouchDriver *driver)
 
     return HDF_SUCCESS;
 }
+#endif
 
 static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
 {
