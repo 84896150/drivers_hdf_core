@@ -154,7 +154,7 @@ void *HdfObjectAllocAlloc(size_t size)
     struct HdfObjectAlloc *allocator = HdfObjectAllocGetInstance();
     OsalMutexLock(&allocator->mutex);
     objectNode = HdfObjectAllocFindSuitableChunk(allocator, size);
-    if ((objectNode != NULL) && (objectNode->freeCount == 0)) {
+    if ((objectNode == NULL) || (objectNode->freeCount == 0)) {
         goto finished;
     }
 
