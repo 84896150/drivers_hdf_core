@@ -295,7 +295,7 @@ static int32_t WifiCmdStopAp(const RequestContext *context, struct HdfSBuf *reqD
 static int32_t WifiCmdChangeBeacon(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     struct NetDevice *netdev = NULL;
-    WifiApSetting *apSettings = NULL;
+    WifiApSetting *apSettings;
     const char *ifName = NULL;
     (void)context;
     (void)rspData;
