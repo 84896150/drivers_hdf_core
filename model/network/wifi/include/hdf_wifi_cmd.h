@@ -191,8 +191,8 @@ typedef struct {
 } WifiMlmeData;
 
 typedef struct {
-    size_t headLen;
-    size_t tailLen;
+    uint32_t headLen;
+    uint32_t tailLen;
     uint8_t *head;
     uint8_t *tail;
 } WifiBeaconData;
@@ -275,13 +275,13 @@ typedef struct {
 typedef struct {
     WifiFreqParams freqParams;
     WifiBeaconData beaconData;
-    size_t ssidLen;
+    uint32_t ssidLen;
     int32_t beaconInterval;
     int32_t dtimPeriod;
     uint8_t *ssid;
     uint8_t hiddenSsid;
     uint8_t authType;
-    size_t meshSsidLen;
+    uint32_t meshSsidLen;
     uint8_t *meshSsid;
 } WifiApSetting;
 
