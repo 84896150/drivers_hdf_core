@@ -346,6 +346,15 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
     int32_t count = 20;  // 20: reset time
     int32_t ret;
 #if defined(CONFIG_ARCH_ROCKCHIP)
+    // conflict for hdf wifi driver
+    ret = SetGpio(108, 1, 1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: lijg111 set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    OsalMSleep(800);
+    HDF_LOGE("%s: lijg111 set intGpio to output ret %d", __func__, ret);
+
     ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
