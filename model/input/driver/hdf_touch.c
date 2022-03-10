@@ -256,7 +256,16 @@ static int32_t SetupChipIrq(ChipDevice *chipDev)
 
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
-    int32_t ret = SetPowerOnTiming(chipDev);
+    int32_t ret = 0;
+    ret = SetGpio(108, 1, 1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: lijg111 set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    OsalMSleep(800);
+    HDF_LOGE("%s: lijg111 set intGpio to output ret %d", __func__, ret);
+
+    ret = SetPowerOnTiming(chipDev);
     CHECK_RETURN_VALUE(ret);
 
     if ((chipDev->ops == NULL) || (chipDev->ops->Detect == NULL)) {
