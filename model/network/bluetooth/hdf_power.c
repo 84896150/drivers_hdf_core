@@ -125,12 +125,12 @@ static struct HdfPower *CreatePower(const struct HdfPowerConfig *power) {
     }
     if (power->type == POWER_TYPE_ALWAYS_ON) {
         return (struct HdfPower *)CreateNoManagablePower(power);
-    } else if (power->type == POWER_TYPE_GPIO) {
-        return (struct HdfPower *)CreateGpioBasedPower(power);
-    } else {
-        HDF_LOGE("%s:not supported power type %d", __func__, power->type);
-        return NULL;
     }
+    if (power->type == POWER_TYPE_GPIO) {
+        return (struct HdfPower *)CreateGpioBasedPower(power);
+    }
+    HDF_LOGE("%s:not supported power type %d", __func__, power->type);
+    return NULL;
 }
 
 static int32_t ActiveMutiPower(struct HdfPower *power) {
