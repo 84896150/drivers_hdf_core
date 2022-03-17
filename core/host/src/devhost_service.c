@@ -261,8 +261,13 @@ void DevHostServiceRelease(struct HdfObject *object)
 
 struct IDevHostService *DevHostServiceNewInstance(uint16_t hostId, const char *hostName)
 {
-    struct DevHostService *hostService =
-        (struct DevHostService *)HdfObjectManagerGetObject(HDF_OBJECT_ID_DEVHOST_SERVICE);
+    static struct DevHostService *hostService = NULL;
+
+    if (hostService != NULL) {
+        return (struct IDevHostService *)hostService;
+    }
+
+    hostService = (struct DevHostService *)HdfObjectManagerGetObject(HDF_OBJECT_ID_DEVHOST_SERVICE);
     if (hostService != NULL) {
         hostService->hostId = hostId;
         hostService->hostName = hostName;
