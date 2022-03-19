@@ -95,6 +95,8 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
     int32_t resX = device->driver->boardCfg->attr.resolutionX;
     int32_t resY = device->driver->boardCfg->attr.resolutionY;
     int32_t i;
+    HDF_LOGE("HDF HKHK IRQ come %s", __func__);
+pr_err("PR HKHK IRQ come %s\n", __func__);
 
     for (i = 0; i < pointNum; i++) {
         if (chipVer == 0) {         // chipversion  A:gt911_zsj5p5
