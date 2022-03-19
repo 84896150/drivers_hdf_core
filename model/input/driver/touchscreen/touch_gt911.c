@@ -151,6 +151,7 @@ static int32_t ChipDataHandle(ChipDevice *device)
     reg[1] = GT_BUF_STATE_ADDR & ONE_BYTE_MASK;
     ret = InputI2cRead(i2cClient, reg, GT_ADDR_LEN, &touchStatus, 1);
     if (ret < 0 || touchStatus == GT_EVENT_INVALID) {
+        HDF_LOGE("%s: HKHK IIC read error", __func__);
         return HDF_FAILURE;
     }
 
