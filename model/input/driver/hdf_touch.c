@@ -265,6 +265,8 @@ pr_err("PR HKHK IRQ come %s\n", __func__);
     ret = chipDev->ops->DataHandle(chipDev);
     if (ret == HDF_SUCCESS) {
         InputFrameReport(driver);
+    } else {
+        HDF_LOGE("%s: HKHK DataHandle failed", __func__);
     }
 }
 
