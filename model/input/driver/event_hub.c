@@ -39,6 +39,8 @@ void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t
     OsalGetTime(&time);
     package.time = time.sec * SEC_TO_USEC + time.usec;
 
+HDF_LOGE("type = %d, code = %d, value = %d", type, code, value);
+
     if (!HdfSbufWriteBuffer(inputDev->pkgBuf, &package, sizeof(EventPackage))) {
         HDF_LOGE("%s: sbuf write pkg failed, clear sbuf", __func__);
         HdfSbufFlush(inputDev->pkgBuf);
