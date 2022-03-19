@@ -256,6 +256,8 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
 static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
 {
     int32_t ret;
+HDF_LOGE("HDF HKHK IRQ come %s", __func__);
+pr_err("PR HKHK IRQ come %s\n", __func__);
     if ((chipDev->ops == NULL) || (chipDev->ops->DataHandle == NULL)) {
         return;
     }
@@ -269,6 +271,8 @@ static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
 static int32_t IrqHandle(uint16_t intGpioNum, void *data)
 {
     TouchDriver *driver = (TouchDriver *)data;
+HDF_LOGE("HDF HKHK IRQ come");
+pr_err("PR HKHK IRQ come\n");
     int ret = GpioDisableIrq(intGpioNum);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: disable irq failed, ret %d", __func__, ret);
