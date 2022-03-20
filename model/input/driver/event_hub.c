@@ -22,7 +22,7 @@ static void SendFramePackages(InputDevice *inputDev)
     }
     ret = HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
     if (ret != 0) {
-        HDF_LOGE("HKHK HdfDeviceSendEvent failed");
+        HDF_LOGE("HKHK HdfDeviceSendEvent failed ret = %d", ret);
     }
 }
 
