@@ -383,14 +383,14 @@ int32_t gt1x_sed_feed_watchdog(TouchDriver *driver,uint8_t cmd, uint8_t data)
     writeBuf[2] = 0; 
     writeBuf[3] = (uint8_t) ((0 - cmd - data) & 0xFF); 
 
-    ret = InputI2cWrite(g_touchDriver->i2cClient, writeBuf, 4);
+    ret = InputI2cWrite(&g_touchDriver->i2cClient, writeBuf, 4);
 //	ret = gt1x_i2c_write(GTP_REG_CMD + 1, &buffer[1], 2);
 
     writeBuf[0] = 0x80; // 8:high byte 0xff：mask
     writeBuf[1] = 0x40;
     writeBuf[2] = 0xAA;
 
-    ret = InputI2cWrite(g_touchDriver->i2cClient, writeBuf, 3);
+    ret = InputI2cWrite(&g_touchDriver->i2cClient, writeBuf, 3);
 
 //  ret |= gt1x_i2c_write(GTP_REG_CMD, &buffer[0], 1);
 
@@ -407,22 +407,22 @@ static int32_t gt1x_sed_read_status(TouchDriver *driver)
     uint8_t reg[2] = {0};
     reg[0] = 0x80;
     reg[1] = 0x40;
-    ret = InputI2cRead(g_touchDriver->i2cClient, reg, 2, buf, 4);// ????
+    ret = InputI2cRead(&g_touchDriver->i2cClient, reg, 2, buf, 4);// ????
 
     return (!ret && buf[0] != 0xAA && buf[3] == 0xAA);
 }
 
 static int32_t gt1x_sed_reset_status(TouchDriver *driver)
 {
+    int32_t ret = -1;
     uint8_t writeBuf[6]; // 5: buffer size
-
     writeBuf[0] = 0x42; // 8:high byte 0xff：mask
     writeBuf[1] = 0x26;
     writeBuf[2] = 0x01; 
     writeBuf[3] = 0x01; 
     writeBuf[4] = 0x01; 
     writeBuf[5] = 0x01;
-    ret = InputI2cWrite(g_touchDriver->i2cClient, writeBuf, 6);
+    ret = InputI2cWrite(&g_touchDriver->i2cClient, writeBuf, 6);
     return ret;
 }
 
@@ -433,11 +433,6 @@ void gt1x_init_esd_protect(void)
 	INIT_DELAYED_WORK(&esd_check_work, gt1x_esd_check_func);
 }
 
-static void gt1x_deinit_esd_protect(void)
-{
-	gt1x_esd_switch(0);
-}
-
 void gt1x_esd_switch(int32_t on)
 {
 	//mutex_lock(&esd_lock);
@@ -446,17 +441,20 @@ void gt1x_esd_switch(int32_t on)
 			//esd_running = 1;
 			pr_err("Esd protector started!\n");
 			queue_delayed_work(gt1x_workqueue, &esd_check_work, 1);
-		}
+		//}
 	} else {		/* switch off esd check */
 		//if (esd_running) {
 			//esd_running = 0;
 			pr_err("Esd protector stoped!\n");
 			cancel_delayed_work(&esd_check_work);
-		}
+		//}
 	}
 	//mutex_unlock(&esd_lock);
 }
-
+static void gt1x_deinit_esd_protect(void)
+{
+	gt1x_esd_switch(0);
+}
 static int32_t gt1x_power_reset(TouchDriver *driver)
 {
     int count = 20;
@@ -578,7 +576,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
     g_touchDriver = chipDev->driver;
     gt1x_workqueue = create_singlethread_workqueue("gt1x_workthread");
 	if (gt1x_workqueue == NULL) {
-		GTP_ERROR("Create workqueue failed!");
+		HDF_LOGE("Create workqueue failed!");
 	}
 
 	gt1x_init_esd_protect();
