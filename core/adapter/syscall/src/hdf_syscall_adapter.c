@@ -99,7 +99,7 @@ static int32_t HdfDevEventDispatchLocked(
         HDF_LOGE("%s:sbuf oom", __func__);
         return HDF_DEV_ERR_NO_MEMORY;
     }
-
+HDF_LOGE("HKHK HdfDevEventDispatchLocked work");
     /* Dispatch events to the service group listener */
     if (thread->listenerListPtr != NULL) {
         DLIST_FOR_EACH_ENTRY(listener, thread->listenerListPtr, struct HdfDevEventlistener, listNode) {
@@ -153,6 +153,7 @@ static int32_t HdfDevEventReadAndDispatch(struct HdfDevListenerThread *thread, i
 
     while (true) {
         ret = ioctl(adapter->fd, HDF_READ_DEV_EVENT, &bwr);
+        HDF_LOGE("HKHK ioctl ret = %d", ret);
         if (ret == 0) {
             break;
         }

@@ -14,12 +14,16 @@
 
 static void SendFramePackages(InputDevice *inputDev)
 {
+    int32_t ret = 0;
     struct HdfDeviceObject *hdfDev = inputDev->hdfDevObj;
     if (hdfDev == NULL || inputDev->pkgBuf == NULL) {
         HDF_LOGE("%s: hdf dev is null", __func__);
         return;
     }
-    HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
+    ret = HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
+    if (ret != 0) {
+        HDF_LOGE("HKHK HdfDeviceSendEvent failed ret = %d", ret);
+    }
 }
 
 void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t value)
@@ -38,6 +42,9 @@ void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t
     package.value = value;
     OsalGetTime(&time);
     package.time = time.sec * SEC_TO_USEC + time.usec;
+
+HDF_LOGE("HKHK type = %d, code = %d, value = %d", type, code, value);
+pr_err("HKHK type = %d, code = %d, value = %d", type, code, value);
 
     if (!HdfSbufWriteBuffer(inputDev->pkgBuf, &package, sizeof(EventPackage))) {
         HDF_LOGE("%s: sbuf write pkg failed, clear sbuf", __func__);
