@@ -14,12 +14,16 @@
 
 static void SendFramePackages(InputDevice *inputDev)
 {
+    int32_t ret = 0;
     struct HdfDeviceObject *hdfDev = inputDev->hdfDevObj;
     if (hdfDev == NULL || inputDev->pkgBuf == NULL) {
         HDF_LOGE("%s: hdf dev is null", __func__);
         return;
     }
-    HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
+    ret = HdfDeviceSendEvent(hdfDev, 0, inputDev->pkgBuf);
+    if (ret != 0) {
+        HDF_LOGE("HKHK HdfDeviceSendEvent failed");
+    }
 }
 
 void PushOnePackage(InputDevice *inputDev, uint32_t type, uint32_t code, int32_t value)
