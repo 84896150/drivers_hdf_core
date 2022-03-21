@@ -518,6 +518,7 @@ static void gt1x_esd_check_func(struct work_struct *work)
 	} else {
 		//if (esd_running) {
 			pr_err("IC works abnormally! Process reset guitar.\n");
+            HDF_LOGE("IC works abnormally! Process reset guitar.");
 			//memset(esd_buf, 0x01, sizeof(esd_buf));
             gt1x_sed_reset_status(g_touchDriver);
 			//gt1x_i2c_write(0x4226, esd_buf, sizeof(esd_buf));
