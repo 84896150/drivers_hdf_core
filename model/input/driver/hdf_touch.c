@@ -610,6 +610,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 		HDF_LOGE("Create workqueue failed!");
 	}
 	gt1x_init_esd_protect();
+    gt1x_esd_switch(1);
 #endif
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
 
