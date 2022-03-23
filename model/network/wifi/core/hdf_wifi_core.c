@@ -85,14 +85,14 @@ static int32_t HdfWifiDriverBind(struct HdfDeviceObject *dev)
     return HDF_SUCCESS;
 }
 
-static struct HdfConfigWlanDeviceList *HdfWlanGetDeviceList(void)
+static struct HdfConfigWlanConfig *HdfWlanGetDeviceList(void)
 {
     struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
     if (rootConfig == NULL) {
         HDF_LOGE("%s: HdfWlanGetModuleConfigRoot get failed", __func__);
         return NULL;
     }
-    return &rootConfig->wlanConfig.deviceList;
+    return &rootConfig->wlanConfig;
 }
 
 /* CreatePowerMgrByConfig,call by HdfWlanMainInit */
@@ -337,11 +337,12 @@ static void ReleaseWlanDevice(struct HdfWlanDevice *device)
     OsalMemFree(device);
 }
 
-static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConfig)
+static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConfig,
+    struct HdfConfigWlanChipInst *chipConfig)
 {
     struct HdfWlanDevice *device = NULL;
     int32_t ret;
-    if (deviceConfig == NULL) {
+    if (deviceConfig == NULL || chipConfig ==NULL) {
         return NULL;
     }
     device = (struct HdfWlanDevice *)OsalMemCalloc(sizeof(struct HdfWlanDevice));
@@ -371,7 +372,7 @@ static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConf
         ret = HDF_SUCCESS;
         OsalMSleep(SLEEPTIME);
         device->bus = NULL;
-        device->driverName = "hisi";  // from BDH6_DRIVER_NAME
+        device->driverName = chipConfig->driverName;  // from BDH6_DRIVER_NAME
         HDF_LOGW("Do not call GPIO and HdfWlanBusInit");
 #endif
 
@@ -446,7 +447,7 @@ static int32_t HdfWlanInitThread(void *para)
     const uint32_t initDelaySec = 15;
     struct HdfDeviceObject *device = (struct HdfDeviceObject *)para;
     struct SubscriberCallback callback = { NULL };
-    struct HdfConfigWlanDeviceList *devList = NULL;
+    struct HdfConfigWlanConfig *wlanRootConfig = NULL;
     struct HdfWlanDevice *wlanDevice = NULL;
     uint16_t i;
     int32_t ret;
@@ -457,23 +458,25 @@ static int32_t HdfWlanInitThread(void *para)
         return HDF_FAILURE;
     }
 
-    devList = HdfWlanGetDeviceList();
-    if (devList == NULL) {
+    wlanRootConfig = HdfWlanGetDeviceList();
+    if (wlanRootConfig == NULL) {
         HDF_LOGW("%s:No device defined.", __func__);
         return HDF_SUCCESS;
     }
-    for (i = 0; i < devList->deviceListSize; i++) {
+    for (i = 0; i < wlanRootConfig->deviceList.deviceListSize; i++) {
 #ifndef CONFIG_DRIVERS_HDF_NETDEV_EXT
-        ret = HdfWlanConfigSDIO(devList->deviceInst[i].bus.busIdx);
+        ret = HdfWlanConfigSDIO(wlanRootConfig->deviceList.deviceInst[i].bus.busIdx);
 #else
         ret = HDF_SUCCESS;
 #endif
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:HdfWlanConfigSDIO %d failed!ret=%d", __func__, devList->deviceInst[i].bus.busIdx, ret);
+            HDF_LOGE("%s:HdfWlanConfigSDIO %d failed!ret=%d", __func__,
+                wlanRootConfig->deviceList.deviceInst[i].bus.busIdx, ret);
             continue;
         }
 
-        wlanDevice = ProbeDevice(&(devList->deviceInst[i]));
+        wlanDevice = ProbeDevice(&(wlanRootConfig->deviceList.deviceInst[i]),
+            &(wlanRootConfig->chipList.chipInst[i]));
         if (wlanDevice == NULL) {
             HDF_LOGE("%s:Device %d detect failed!", __func__, i);
             continue;
