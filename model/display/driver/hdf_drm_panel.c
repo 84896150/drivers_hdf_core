@@ -69,7 +69,6 @@ static int HdfDrmPanelGetModes(struct drm_panel *panel,struct drm_connector *con
     HDF_LOGD("HdfDrmPanelGetModes");
     hdfDrmPanel = ToHdfDrmPanel(panel);
     pr_err("==debug %s %d clockFreq %d\n",__FUNCTION__,__LINE__,hdfDrmPanel->mode.clock);
-    pr_err("==debug %s %d debug %d\n",__FUNCTION__,__LINE__,hdfDrmPanel->mode.debug);
     panelInfo = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index]->info;
 	pr_err("==debug %s %d clockFreq %d\n",__FUNCTION__,__LINE__,panelInfo->clockFreq);
 	mode = drm_mode_duplicate(connector->dev, &hdfDrmPanel->mode);
@@ -79,7 +78,6 @@ static int HdfDrmPanelGetModes(struct drm_panel *panel,struct drm_connector *con
             drm_mode_vrefresh(mode));
         return -ENOMEM;
     }
-    pr_err("==debug %s %d debug %d\n",__FUNCTION__,__LINE__,hdfDrmPanel->mode.debug);
     drm_mode_set_name(mode);
     mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
     connector->display_info.width_mm = panelInfo->pWidth;
@@ -117,7 +115,6 @@ static void CreateDrmMode(struct HdfDrmPanel *hdfDrmPanel)
     hdfDrmPanel->mode.vsync_end = panelInfo->height + panelInfo->vfp + panelInfo->vsw;
     hdfDrmPanel->mode.vtotal = panelInfo->height + panelInfo->vfp + panelInfo->vsw + panelInfo->vbp;
     hdfDrmPanel->mode.flags = 10;
-    hdfDrmPanel->mode.debug = 66;
 }
 
 static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int32_t index)
@@ -158,7 +155,6 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         panelInfo = hdfDrmPanel->manager->panelManager->panel[i]->info;
         pr_err("==debug %s %d clockFreq--- %d\n",__FUNCTION__,__LINE__,panelInfo->clockFreq);
         pr_err("==debug %s %d clockFreq %d\n",__FUNCTION__,__LINE__,hdfDrmPanel->mode.clock);
-         pr_err("==debug %s %d debug %d\n",__FUNCTION__,__LINE__,hdfDrmPanel->mode.debug);
 
         dsiDev = (struct mipi_dsi_device *)manager->panelManager->panel[i]->priv;
         hdfDrmPanel->panel.dev = &dsiDev->dev;
