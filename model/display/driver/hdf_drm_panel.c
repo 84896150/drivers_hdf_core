@@ -7,7 +7,7 @@
  */
 
 #include "hdf_drm_panel.h"
-#include <drm/drmP.h>
+#include <drm/drm_device.h>
 #include <drm/drm_atomic_helper.h>
 #include <linux/backlight.h>
 #include <linux/module.h>
@@ -18,7 +18,9 @@
 #include <video/mipi_display.h>
 #include <video/of_display_timing.h>
 #include <video/videomode.h>
+#include <uapi/drm/drm_mode.h>
 #include "osal_mem.h"
+#include "osal.h"
 
 static inline struct HdfDrmPanel *ToHdfDrmPanel(const struct drm_panel *panel)
 {
@@ -27,12 +29,28 @@ static inline struct HdfDrmPanel *ToHdfDrmPanel(const struct drm_panel *panel)
 
 static int HdfDrmPanelUnprepare(struct drm_panel *panel)
 {
-    return 0;
+    struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
+    struct PanelData *panelData;
+
+    HDF_LOGD("HdfDrmPanelUnprepare");
+    OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
+    panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
+    panelData->unprepare(panelData);
+    OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
+    return HDF_SUCCESS;
 }
  
 static int HdfDrmPanelPrepare(struct drm_panel *panel)
 {
-    return 0;
+    struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
+    struct PanelData *panelData;
+
+    HDF_LOGD("HdfDrmPanelPrepare");
+    OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
+    panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
+    panelData->prepare(panelData);
+    OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
+    return HDF_SUCCESS;
 }
  
 static int HdfDrmPanelDisable(struct drm_panel *panel)
@@ -40,7 +58,7 @@ static int HdfDrmPanelDisable(struct drm_panel *panel)
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
     struct PanelData *panelData;
 
-    HDF_LOGD("%s line = %d\n", __func__, __LINE__);
+    HDF_LOGD("HdfDrmPanelDisable");
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->off(panelData);
@@ -52,8 +70,8 @@ static int HdfDrmPanelEnable(struct drm_panel *panel)
 {
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
     struct PanelData *panelData;
-
-    HDF_LOGD("%s line = %d\n", __func__, __LINE__);
+    
+    HDF_LOGD("HdfDrmPanelEnable");
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData->on(panelData);
@@ -61,30 +79,49 @@ static int HdfDrmPanelEnable(struct drm_panel *panel)
     return HDF_SUCCESS;
 }
 
-static int HdfDrmPanelGetModes(struct drm_panel *panel)
+static int HdfDrmPanelGetModes(struct drm_panel *panel,struct drm_connector *connector)
 {
-    struct drm_connector *connector = panel->connector;
-    struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
+    struct HdfDrmPanel *hdfDrmPanel = NULL;
     struct drm_display_mode *mode = NULL;
     struct PanelInfo *panelInfo = NULL;
 
-    HDF_LOGD("%s line = %d\n", __func__, __LINE__);
+    if (panel == NULL) {
+       HDF_LOGE("failed:panel = NULL");
+       return 0;
+    }
+    if (connector == NULL) {
+        HDF_LOGE("failed:connector = NULL");
+       return 0;
+    }
+    HDF_LOGD("HdfDrmPanelGetModes");
+    hdfDrmPanel = ToHdfDrmPanel(panel);
+	hdfDrmPanel->mode.clock = 75000;
     panelInfo = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index]->info;
-    mode = drm_mode_duplicate(panel->drm, &hdfDrmPanel->mode);
+	HDF_LOGE("[wqr00]==debug %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", \
+		__FUNCTION__,__LINE__,hdfDrmPanel->mode.clock,hdfDrmPanel->mode.hdisplay,hdfDrmPanel->mode.hsync_start,hdfDrmPanel->mode.hsync_end,hdfDrmPanel->mode.htotal,hdfDrmPanel->mode.hskew,hdfDrmPanel->mode.vdisplay,hdfDrmPanel->mode.vsync_start,hdfDrmPanel->mode.vsync_end, \
+		hdfDrmPanel->mode.vtotal,hdfDrmPanel->mode.vscan,hdfDrmPanel->mode.flags,hdfDrmPanel->mode.crtc_clock,hdfDrmPanel->mode.crtc_hdisplay,hdfDrmPanel->mode.crtc_hblank_start,hdfDrmPanel->mode.crtc_hblank_end,hdfDrmPanel->mode.crtc_hsync_start,hdfDrmPanel->mode.crtc_hsync_end,hdfDrmPanel->mode.crtc_htotal,hdfDrmPanel->mode.crtc_hskew, \
+		hdfDrmPanel->mode.crtc_vdisplay,hdfDrmPanel->mode.crtc_vblank_start,hdfDrmPanel->mode.crtc_vblank_end,hdfDrmPanel->mode.crtc_vsync_start,hdfDrmPanel->mode.crtc_vsync_end,hdfDrmPanel->mode.crtc_vtotal,hdfDrmPanel->mode.width_mm,hdfDrmPanel->mode.height_mm,hdfDrmPanel->mode.type,hdfDrmPanel->mode.expose_to_userspace);
+    mode = drm_mode_duplicate(connector->dev, &hdfDrmPanel->mode);
     if (!mode) {
         HDF_LOGE("failed to add mode %ux%ux@%u",
             hdfDrmPanel->mode.hdisplay, hdfDrmPanel->mode.vdisplay,
-            hdfDrmPanel->mode.vrefresh);
+            drm_mode_vrefresh(mode));
         return -ENOMEM;
     }
     drm_mode_set_name(mode);
     mode->type = DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED;
-    drm_mode_probed_add(connector, mode);
     connector->display_info.width_mm = panelInfo->pWidth;
     connector->display_info.height_mm = panelInfo->pHeight;
+
+	HDF_LOGE("[wqr11]==debug %s %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d\n", \
+		__FUNCTION__,__LINE__,mode->clock,mode->hdisplay,mode->hsync_start,mode->hsync_end,mode->htotal,mode->hskew,mode->vdisplay,mode->vsync_start,mode->vsync_end, \
+		mode->vtotal,mode->vscan,mode->flags,mode->crtc_clock,mode->crtc_hdisplay,mode->crtc_hblank_start,mode->crtc_hblank_end,mode->crtc_hsync_start,mode->crtc_hsync_end,mode->crtc_htotal,mode->crtc_hskew, \
+		mode->crtc_vdisplay,mode->crtc_vblank_start,mode->crtc_vblank_end,mode->crtc_vsync_start,mode->crtc_vsync_end,mode->crtc_vtotal,mode->width_mm,mode->height_mm,mode->type,mode->expose_to_userspace);
+	
+    drm_mode_probed_add(connector, mode);
     return 1;
 }
- 
+
 static struct drm_panel_funcs g_hdfDrmPanelFuncs = {
     .get_modes = HdfDrmPanelGetModes,
     .enable = HdfDrmPanelEnable,
@@ -156,7 +193,7 @@ static ssize_t BacklightStore(struct device *dev,
 
     return count;
 }
-static DEVICE_ATTR(backlight, S_IWUSR, NULL, BacklightStore);
+static DEVICE_ATTR(backlight, 0644, NULL, BacklightStore);
 
 #define ATTR_NUM  3
 static struct device_attribute *g_panelAttrs[] = {
@@ -182,8 +219,7 @@ static void CreateDrmMode(struct HdfDrmPanel *hdfDrmPanel)
     hdfDrmPanel->mode.vsync_start = panelInfo->height + panelInfo->vfp;
     hdfDrmPanel->mode.vsync_end = panelInfo->height + panelInfo->vfp + panelInfo->vsw;
     hdfDrmPanel->mode.vtotal = panelInfo->height + panelInfo->vfp + panelInfo->vsw + panelInfo->vbp;
-    hdfDrmPanel->mode.flags = 0;
-    hdfDrmPanel->mode.vrefresh = drm_mode_vrefresh(&hdfDrmPanel->mode);
+    hdfDrmPanel->mode.flags = 10;
 }
 
 static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int32_t index)
@@ -198,17 +234,17 @@ static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int3
     hdfDrmPanel->index = index;
     hdfDrmPanel->manager = manager;
     CreateDrmMode(hdfDrmPanel);
-    hdfDrmPanel->panel.funcs = &g_hdfDrmPanelFuncs;
     return hdfDrmPanel;
 }
 
 int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
 {
-    uint32_t ret;
+    uint32_t ret,i,j;
     uint32_t panelNum;
     struct HdfDrmPanel *hdfDrmPanel = NULL;
     struct mipi_dsi_device *dsiDev = NULL;
     struct DispManager *manager = NULL;
+    struct PanelInfo *panelInfo = NULL;
 
     manager = GetDispManager();
     if (manager == NULL) {
@@ -216,19 +252,16 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         return HDF_FAILURE;
     }
     panelNum = manager->panelManager->panelNum;
-    for (uint32_t i = 0; i < panelNum; i++) {
+    for (i = 0; i < panelNum; i++) {
         hdfDrmPanel = InstanceHdfDrmPanel(manager, i);
         if (hdfDrmPanel == NULL) {
             return HDF_FAILURE;
         }
+        panelInfo = hdfDrmPanel->manager->panelManager->panel[i]->info;
         dsiDev = (struct mipi_dsi_device *)manager->panelManager->panel[i]->priv;
         hdfDrmPanel->panel.dev = &dsiDev->dev;
-        drm_panel_init(&hdfDrmPanel->panel);
-        ret = drm_panel_add(&hdfDrmPanel->panel);
-        if (ret) {
-            HDF_LOGE("%s drm_panel_add() failed", __func__);
-            return ret;
-        }
+        drm_panel_init(&hdfDrmPanel->panel,&dsiDev->dev,&g_hdfDrmPanelFuncs,panelInfo->connector_type);
+        drm_panel_add(&hdfDrmPanel->panel);
         ret = mipi_dsi_attach(dsiDev);
         if (ret) {
             HDF_LOGE("%s mipi_dsi_attach failed", __func__);
@@ -236,12 +269,12 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
             return ret;
         }
         mipi_dsi_set_drvdata(dsiDev, hdfDrmPanel);
-        for (uint32_t j = 0; j < ATTR_NUM; j++) {
+        for (j = 0; j < ATTR_NUM; j++) {
             if (device_create_file(&dsiDev->dev, g_panelAttrs[j]) != 0) {
                 HDF_LOGE("%s line = %d device_create_file fail", __func__, __LINE__);
             }
         }
-        HDF_LOGI("%s panel[%d] registered success", i, __func__);
+        HDF_LOGI("%s panel[%d] registered success", __func__,i );
     }
     HDF_LOGI("%s success", __func__);
     return HDF_SUCCESS;
