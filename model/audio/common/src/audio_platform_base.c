@@ -1224,7 +1224,6 @@ static int32_t PnpReportMsgConvert(const struct PnpReportMsg *pnpReportMsg, char
         default:
             AUDIO_DRIVER_LOG_ERR("Unknown message type!");
             return HDF_FAILURE;
-            break;
     }
 
     return HDF_SUCCESS;

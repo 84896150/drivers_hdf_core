@@ -187,10 +187,6 @@ int32_t AccessoryRegBitsUpdate(struct AudioMixerControl regAttr)
     int32_t ret;
     struct AudioAddrConfig regVal;
     uint32_t newValue, newMask, value;
-    if (regAttr.reg < 0) {
-        AUDIO_DRIVER_LOG_ERR("input invalid parameter.");
-        return HDF_ERR_INVALID_PARAM;
-    }
     if (regAttr.invert) {
         regAttr.value = regAttr.max - regAttr.value;
     }
