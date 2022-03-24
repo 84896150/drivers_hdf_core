@@ -203,11 +203,15 @@ struct RtcHost *RtcHostCreate(struct HdfDeviceObject *device)
 
 void RtcHostDestroy(struct RtcHost *host)
 {
-    if (host != NULL) {
-        host->device = NULL;
-        host->method = NULL;
-        host->data = NULL;
+    if (host == NULL) {
+        HDF_LOGE("%s: host is NULL!", __func__);
         return;
     }
+
+    host->device = NULL;
+    host->method = NULL;
+    host->data = NULL;
     OsalMemFree(host);
+    host = NULL;
+    return;
 }
