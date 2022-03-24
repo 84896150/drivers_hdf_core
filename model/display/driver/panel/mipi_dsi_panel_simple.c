@@ -11,122 +11,13 @@
 #include "hdf_bl.h"
 #include "hdf_disp.h"
 #include "osal.h"
-#include <drm/drm_panel.h>
 
 struct PanelSimpleDev * g_panelSimpleDev = NULL;
 
-struct panel_cmd_header {
-	u8 data_type;
-	u8 delay;
-	u8 payload_length;
-} __packed;
-
-struct panel_cmd_desc {
-	struct panel_cmd_header header;
-	u8 *payload;
-};
-
-struct panel_cmd_seq {
-	struct panel_cmd_desc *cmds;
-	unsigned int cmd_cnt;
-};
-
-/**
- * @modes: Pointer to array of fixed modes appropriate for this panel.  If
- *         only one mode then this can just be the address of this the mode.
- *         NOTE: cannot be used with "timings" and also if this is specified
- *         then you cannot override the mode in the device tree.
- * @num_modes: Number of elements in modes array.
- * @timings: Pointer to array of display timings.  NOTE: cannot be used with
- *           "modes" and also these will be used to validate a device tree
- *           override if one is present.
- * @num_timings: Number of elements in timings array.
- * @bpc: Bits per color.
- * @size: Structure containing the physical size of this panel.
- * @delay: Structure containing various delay values for this panel.
- * @bus_format: See MEDIA_BUS_FMT_... defines.
- * @bus_flags: See DRM_BUS_FLAG_... defines.
- */
-struct panel_desc {
-	const struct drm_display_mode *modes;
-	unsigned int num_modes;
-	const struct display_timing *timings;
-	unsigned int num_timings;
-
-	unsigned int bpc;
-
-	/**
-	 * @width: width (in millimeters) of the panel's active display area
-	 * @height: height (in millimeters) of the panel's active display area
-	 */
-	struct {
-		unsigned int width;
-		unsigned int height;
-	} size;
-
-	/**
-	 * @prepare: the time (in milliseconds) that it takes for the panel to
-	 *           become ready and start receiving video data
-	 * @hpd_absent_delay: Add this to the prepare delay if we know Hot
-	 *                    Plug Detect isn't used.
-	 * @enable: the time (in milliseconds) that it takes for the panel to
-	 *          display the first valid frame after starting to receive
-	 *          video data
-	 * @disable: the time (in milliseconds) that it takes for the panel to
-	 *           turn the display off (no content is visible)
-	 * @unprepare: the time (in milliseconds) that it takes for the panel
-	 *             to power itself down completely
-	 * @reset: the time (in milliseconds) that it takes for the panel
-	 *         to reset itself completely
-	 * @init: the time (in milliseconds) that it takes for the panel to
-	 *	  send init command sequence after reset deassert
-	 */
-	struct {
-		unsigned int prepare;
-		unsigned int hpd_absent_delay;
-		unsigned int enable;
-		unsigned int disable;
-		unsigned int unprepare;
-		unsigned int reset;
-		unsigned int init;
-	} delay;
-
-	u32 bus_format;
-	u32 bus_flags;
-	int connector_type;
-
-	struct panel_cmd_seq *init_seq;
-	struct panel_cmd_seq *exit_seq;
-};
-
-struct panel_simple {
-	struct drm_panel base;
-	struct mipi_dsi_device *dsi;
-	bool prepared;
-	bool enabled;
-	bool power_invert;
-	bool no_hpd;
-
-	const struct panel_desc *desc;
-
-	struct regulator *supply;
-	struct i2c_adapter *ddc;
-
-	struct gpio_desc *enable_gpio;
-	struct gpio_desc *reset_gpio;
-	struct gpio_desc *hpd_gpio;
-
-	struct drm_display_mode override_mode;
-
-	struct drm_dsc_picture_parameter_set *pps;
-	enum drm_panel_orientation orientation;
-};
-
-static inline struct panel_simple *to_panel_simple(struct drm_panel *panel)
+static struct PanelSimpleDev *ToPanelSimpleDev(const struct PanelData *panel)
 {
-	return container_of(panel, struct panel_simple, base);
+    return (struct PanelSimpleDev *)panel->object->priv;
 }
-
 
 static int panel_simple_regulator_enable()
 {
@@ -150,10 +41,9 @@ static int panel_simple_regulator_disable()
     regulator_disable(g_panelSimpleDev->supply);
 	return 0;
 }
-#if 1
+
 int panel_simple_loader_protect(struct drm_panel *panel)
 {
-	struct panel_simple *p = to_panel_simple(panel);
 	int err;
     pr_err("==debug %s %d\n",__FUNCTION__,__LINE__);
 	err = panel_simple_regulator_enable();
@@ -164,20 +54,118 @@ int panel_simple_loader_protect(struct drm_panel *panel)
 	return 0;
 }
 EXPORT_SYMBOL(panel_simple_loader_protect);
-#endif
+
+static int PanelSimpleSendCmds(struct mipi_dsi_device *dsi,
+	const struct DsiCmdDesc *cmds, int size)
+{
+    int32_t i = 0;
+    HDF_LOGI("%s() %d", __func__,__LINE__);
+    if (dsi == NULL) {
+        HDF_LOGE("error: dis is NULL\n");
+        return -EINVAL;
+    }
+    for (i = 0; i < size; i++) {
+        mipi_dsi_dcs_write_buffer(dsi, cmds[i].payload, cmds[i].dataLen);
+        if (cmds[i].delay) {
+            OsalMSleep(cmds[i].delay);
+        }
+    }
+    HDF_LOGI("%s() %d", __func__,__LINE__);
+    return HDF_SUCCESS;
+}
+
 static int32_t PanelSimpleOn(struct PanelData *panel)
 {
-    pr_err("==debug %s %d\n",__FUNCTION__,__LINE__);
+    struct PanelSimpleDev *panelSimpleDev = NULL;
+
+    HDF_LOGE("%s() %d", __func__,__LINE__);
+    panelSimpleDev = ToPanelSimpleDev(panel);
+
+    if (panelSimpleDev->panelhwdelay.enable_delay)
+        OsalMSleep(panelSimpleDev->panelhwdelay.enable_delay);
     return HDF_SUCCESS;
 }
+
 static int32_t PanelSimpleOff(struct PanelData *panel)
 {
-    pr_err("==debug %s %d\n",__FUNCTION__,__LINE__);
+    struct PanelSimpleDev *panelSimpleDev = NULL;
+
+    HDF_LOGE("%s() %d", __func__,__LINE__);
+    panelSimpleDev = ToPanelSimpleDev(panel);
+
+    if (panelSimpleDev->panelhwdelay.disable_delay)
+        OsalMSleep(panelSimpleDev->panelhwdelay.disable_delay);
     return HDF_SUCCESS;
 }
-static struct PanelSimpleDev *ToPanelSimpleDev(const struct PanelData *panel)
+
+static int32_t PanelSimplePrepare(struct PanelData *panel)
 {
-    return (struct PanelSimpleDev *)panel->object->priv;
+    int32_t ret;
+    struct PanelSimpleDev *panelSimpleDev = NULL;
+
+    HDF_LOGE("%s() %d", __func__,__LINE__);
+    panelSimpleDev = ToPanelSimpleDev(panel);
+
+    ret = regulator_enable(panelSimpleDev->supply);
+	if (ret < 0) {
+		HDF_LOGE("failed to enable supply: %d\n", ret);
+		return ret;
+	}
+    gpiod_set_value_cansleep(panelSimpleDev->enable_gpio, 1);
+
+    if (panelSimpleDev->panelhwdelay.reset_delay)
+		OsalMSleep(panelSimpleDev->panelhwdelay.reset_delay);
+
+    gpiod_set_value_cansleep(panelSimpleDev->reset_gpio, 1);
+
+    if (panelSimpleDev->panelhwdelay.reset_delay)
+		OsalMSleep(panelSimpleDev->panelhwdelay.reset_delay);
+
+    gpiod_set_value_cansleep(panelSimpleDev->reset_gpio, 0);
+
+    if (panelSimpleDev->panelhwdelay.prepare_delay)
+        OsalMSleep(panelSimpleDev->panelhwdelay.prepare_delay);
+
+    ret = PanelSimpleSendCmds(panelSimpleDev->dsiDev, g_panelOnCode,
+                              sizeof(g_panelOnCode) / sizeof(g_panelOnCode[0]));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s PanelSimpleSendCmds failed", __func__);
+        return HDF_FAILURE;
+    }
+    if (panelSimpleDev->panelhwdelay.init_delay)
+        OsalMSleep(panelSimpleDev->panelhwdelay.init_delay);
+
+    HDF_LOGI("%s() %d", __func__,__LINE__);
+    return HDF_SUCCESS;
+}
+
+static int32_t PanelSimpleUnprepare(struct PanelData *panel)
+{
+    int32_t ret;
+    struct PanelSimpleDev *panelSimpleDev = NULL;
+
+    panelSimpleDev = ToPanelSimpleDev(panel);
+    HDF_LOGE(" %s line = %d", __func__, __LINE__);
+
+    ret = PanelSimpleSendCmds(panelSimpleDev->dsiDev, g_panelOffCode,
+                              sizeof(g_panelOffCode) / sizeof(g_panelOffCode[0]));
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s PanelSimpleSendCmds failed", __func__);
+        return HDF_FAILURE;
+    }
+    gpiod_set_value_cansleep(panelSimpleDev->reset_gpio, 1);
+    gpiod_set_value_cansleep(panelSimpleDev->enable_gpio, 1);
+    regulator_disable(panelSimpleDev->supply);
+
+    if (panelSimpleDev->panelhwdelay.unprepare_delay)
+        OsalMSleep(panelSimpleDev->panelhwdelay.unprepare_delay);
+
+    return HDF_SUCCESS;
+}
+
+static int32_t PanelSimpleInit(struct PanelData *panel)
+{
+    return 0;
 }
 
 #define BLK_PWM_INDEX             2
@@ -209,8 +197,11 @@ static void PanelSimpleResInit(struct PanelSimpleDev *panelSimpleDev)
     panelSimpleDev->dsiDev->format = MIPI_DSI_FMT_RGB888; //dsi,format /* pixel format for video mode MIPI_DSI_FMT_RGB888*/
     panelSimpleDev->dsiDev->mode_flags = (MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST | MIPI_DSI_MODE_LPM | MIPI_DSI_MODE_EOT_PACKET);
     panelSimpleDev->panel.info = &g_panelInfo;
+    panelSimpleDev->panel.init = PanelSimpleInit;
     panelSimpleDev->panel.on = PanelSimpleOn;
     panelSimpleDev->panel.off = PanelSimpleOff;
+    panelSimpleDev->panel.prepare = PanelSimplePrepare;
+    panelSimpleDev->panel.unprepare = PanelSimpleUnprepare;
     panelSimpleDev->panel.priv = panelSimpleDev->dsiDev;
     panelSimpleDev->panelhwdelay.disable_delay = 50;
     panelSimpleDev->panelhwdelay.enable_delay = 120;
@@ -246,6 +237,23 @@ int32_t PanelSimpleEntryInit(struct HdfDeviceObject *object)
         HDF_LOGE("Get regulator fail");
         goto FAIL;
     }
+
+    panelSimpleDev->enable_gpio = devm_gpiod_get_optional(&panelSimpleDev->dsiDev->dev, "enable", GPIOD_ASIS);
+    if (IS_ERR(panelSimpleDev->enable_gpio)) {
+        HDF_LOGI("get enable_gpio fail");
+		return PTR_ERR(panelSimpleDev->enable_gpio);
+    }
+    panelSimpleDev->hpd_gpio = devm_gpiod_get_optional(&panelSimpleDev->dsiDev->dev, "hpd", GPIOD_IN);
+    if (IS_ERR(panelSimpleDev->hpd_gpio)) {
+        HDF_LOGI("get hpd_gpio fail");
+		return PTR_ERR(panelSimpleDev->hpd_gpio);
+    }
+    panelSimpleDev->reset_gpio = devm_gpiod_get_optional(&panelSimpleDev->dsiDev->dev, "reset", GPIOD_ASIS);
+    if (IS_ERR(panelSimpleDev->reset_gpio)) {
+        HDF_LOGI("get reset_gpio fail");
+		return PTR_ERR(panelSimpleDev->reset_gpio);
+    }
+
     PanelSimpleResInit(panelSimpleDev);
     panelSimpleDev->panel.blDev = GetBacklightDev("hdf_pwm");
     if (panelSimpleDev->panel.blDev == NULL) {
