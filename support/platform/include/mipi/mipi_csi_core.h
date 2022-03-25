@@ -586,7 +586,7 @@ int32_t MipiCsiDebugGetPhyLvdsLinkData(struct MipiCsiCntlr *cntlr, int phyId, in
  *
  * @since 1.0
  */
-int32_t MipiCsiDebugGetMipiImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, short vc, ImgSize *pSize);
+int32_t MipiCsiDebugGetMipiImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, int16_t vc, ImgSize *pSize);
 
 /**
  * @brief Get image size of LVDS for debugging.
@@ -600,7 +600,7 @@ int32_t MipiCsiDebugGetMipiImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t dev
  *
  * @since 1.0
  */
-int32_t MipiCsiDebugGetLvdsImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, short vc, ImgSize *pSize);
+int32_t MipiCsiDebugGetLvdsImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, int16_t vc, ImgSize *pSize);
 
 /**
  * @brief Get image size of LVDS-Lane for debugging.
@@ -614,7 +614,7 @@ int32_t MipiCsiDebugGetLvdsImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t dev
  *
  * @since 1.0
  */
-int32_t MipiCsiDebugGetLvdsLaneImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, short lane, ImgSize *pSize);
+int32_t MipiCsiDebugGetLvdsLaneImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, int16_t lane, ImgSize *pSize);
 
 #ifdef __cplusplus
 #if __cplusplus

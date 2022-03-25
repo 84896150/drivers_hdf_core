@@ -687,7 +687,7 @@ int32_t MipiCsiDebugGetPhyLvdsLinkData(struct MipiCsiCntlr *cntlr, int phyId, in
     return HDF_SUCCESS;
 }
 
-int32_t MipiCsiDebugGetMipiImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, short vc, ImgSize *pSize)
+int32_t MipiCsiDebugGetMipiImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, int16_t vc, ImgSize *pSize)
 {
     if (cntlr == NULL) {
         HDF_LOGE("%s: cntlr is NULL.", __func__);
@@ -714,7 +714,7 @@ int32_t MipiCsiDebugGetMipiImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t dev
     return HDF_SUCCESS;
 }
 
-int32_t MipiCsiDebugGetLvdsImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, short vc, ImgSize *pSize)
+int32_t MipiCsiDebugGetLvdsImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, int16_t vc, ImgSize *pSize)
 {
     if (cntlr == NULL) {
         HDF_LOGE("%s: cntlr is NULL.", __func__);
@@ -741,7 +741,7 @@ int32_t MipiCsiDebugGetLvdsImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t dev
     return HDF_SUCCESS;
 }
 
-int32_t MipiCsiDebugGetLvdsLaneImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, short lane, ImgSize *pSize)
+int32_t MipiCsiDebugGetLvdsLaneImgsizeStatis(struct MipiCsiCntlr *cntlr, uint8_t devno, int16_t lane, ImgSize *pSize)
 {
     if (cntlr == NULL) {
         HDF_LOGE("%s: cntlr is NULL.", __func__);
