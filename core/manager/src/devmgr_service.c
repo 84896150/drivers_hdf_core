@@ -74,6 +74,7 @@ static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bo
 
     if (waitCount <= 0) {
         HDF_LOGE("wait host(%s, %d) attach timeout", hostClnt->hostName, hostClnt->hostId);
+        hostClnt->hostPid = -1;
         return HDF_ERR_TIMEOUT;
     }
 
@@ -99,7 +100,11 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
         HDF_LOGE("device %s not an dynamic load device", serviceName);
         return HDF_DEV_ERR_NORANGE;
     }
-
+    // host is started at startup phase by init module
+    bool isHostEmpty = HdfSListIsEmpty(&hostClnt->unloadDevInfos);
+    if (!isHostEmpty) {
+        return HDF_SUCCESS;
+    }
     if (hostClnt->hostPid < 0 && DevmgrServiceStartHostProcess(hostClnt, true) != HDF_SUCCESS) {
         HDF_LOGW("failed to start device host(%s, %u)", hostClnt->hostName, hostClnt->hostId);
         return HDF_FAILURE;
@@ -278,7 +283,8 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
     }
 
     DListInsertTail(&hostClnt->node, &devmgr->hosts);
-
+    // user space host is started at startup phase by init module
+#ifndef __USER__
     // not start the host which only have dynamic deivces
     if (HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
         return HDF_SUCCESS;
@@ -290,6 +296,7 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
         DevHostServiceClntFreeInstance(hostClnt);
         return HDF_FAILURE;
     }
+#endif
     return HDF_SUCCESS;
 }
 
