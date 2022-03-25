@@ -416,11 +416,13 @@ int32_t ParseSensorDirection(struct SensorCfgData *config)
     CHECK_NULL_PTR_RETURN_VALUE(directionNode, HDF_ERR_INVALID_PARAM);
     
     num = parser->GetElemNum(directionNode, "convert");
-    ret = parser->GetUint32(directionNode, "direction", &index, 0);
-    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "direction");
-    if ((num <= 0 || num > MAX_SENSOR_INDEX_NUM) || (index < 0 || (int32_t)index > num / AXIS_INDEX_MAX)) {
+    if ((num <= 0 || num > MAX_SENSOR_INDEX_NUM) || (index > num / AXIS_INDEX_MAX)) {
+        HDF_LOGE("%s: parser element num failed", __func__);
         return HDF_FAILURE;
     }
+
+    ret = parser->GetUint32(directionNode, "direction", &index, 0);
+    CHECK_PARSER_RESULT_RETURN_VALUE(ret, "direction");
 
     buf = (uint32_t *)OsalMemCalloc(sizeof(uint32_t) * num);
     CHECK_NULL_PTR_RETURN_VALUE(buf, HDF_ERR_MALLOC_FAIL);
@@ -458,6 +460,10 @@ int32_t SensorRawDataToRemapData(struct SensorDirection *direction, int32_t *rem
     int32_t newData[MAX_SENSOR_AXIS_NUM];
 
     CHECK_NULL_PTR_RETURN_VALUE(direction, HDF_ERR_INVALID_PARAM);
+    if (num > MAX_SENSOR_AXIS_NUM) {
+        OsalMemFree(direction);
+        return HDF_FAILURE;
+    }
 
     for (axis = 0; axis < num; axis++) {
         if (direction->sign[axis] == 0) {
@@ -466,7 +472,7 @@ int32_t SensorRawDataToRemapData(struct SensorDirection *direction, int32_t *rem
             directionSign[axis] = -1;
         }
     }
-
+    
     newData[direction->map[AXIS_X]] = directionSign[AXIS_X] * remapData[AXIS_X];
     newData[direction->map[AXIS_Y]] = directionSign[AXIS_Y] * remapData[AXIS_Y];
     newData[direction->map[AXIS_Z]] = directionSign[AXIS_Z] * remapData[AXIS_Z];
