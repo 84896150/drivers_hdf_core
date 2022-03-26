@@ -48,7 +48,7 @@ static bool DevmgrServiceDynamicDevInfoFound(
 
 #define WAIT_HOST_SLEEP_TIME    1 // ms
 #define WAIT_HOST_SLEEP_CNT     300
-static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bool sync)
+static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bool sync, bool dynamic)
 {
     int waitCount = WAIT_HOST_SLEEP_CNT;
     struct IDriverInstaller *installer = DriverInstallerGetInstance();
@@ -57,7 +57,7 @@ static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bo
         return HDF_FAILURE;
     }
 
-    hostClnt->hostPid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName);
+    hostClnt->hostPid = installer->StartDeviceHost(hostClnt->hostId, hostClnt->hostName, dynamic);
     if (hostClnt->hostPid == HDF_FAILURE) {
         HDF_LOGW("failed to start device host(%s, %u)", hostClnt->hostName, hostClnt->hostId);
         return HDF_FAILURE;
@@ -74,6 +74,7 @@ static int DevmgrServiceStartHostProcess(struct DevHostServiceClnt *hostClnt, bo
 
     if (waitCount <= 0) {
         HDF_LOGE("wait host(%s, %d) attach timeout", hostClnt->hostName, hostClnt->hostId);
+        hostClnt->hostPid = -1;
         return HDF_ERR_TIMEOUT;
     }
 
@@ -84,6 +85,7 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
 {
     struct HdfDeviceInfo *deviceInfo = NULL;
     struct DevHostServiceClnt *hostClnt = NULL;
+    bool dynamic = true;
     (void)devMgrSvc;
 
     if (serviceName == NULL) {
@@ -99,8 +101,12 @@ static int DevmgrServiceLoadDevice(struct IDevmgrService *devMgrSvc, const char 
         HDF_LOGE("device %s not an dynamic load device", serviceName);
         return HDF_DEV_ERR_NORANGE;
     }
-
-    if (hostClnt->hostPid < 0 && DevmgrServiceStartHostProcess(hostClnt, true) != HDF_SUCCESS) {
+    // host is started at init phase by init module in user state or hdf_devmgr in kernel state
+    if (!HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
+        return HDF_SUCCESS;
+    }
+    dynamic = !HdfSListIsEmpty(&hostClnt->dynamicDevInfos);
+    if (hostClnt->hostPid < 0 && DevmgrServiceStartHostProcess(hostClnt, true, dynamic) != HDF_SUCCESS) {
         HDF_LOGW("failed to start device host(%s, %u)", hostClnt->hostName, hostClnt->hostId);
         return HDF_FAILURE;
     }
@@ -124,7 +130,6 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
 {
     struct HdfDeviceInfo *deviceInfo = NULL;
     struct DevHostServiceClnt *hostClnt = NULL;
-    bool isHostEmpty = false;
     int ret;
     (void)devMgrSvc;
 
@@ -146,10 +151,13 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
         HDF_LOGI("%{public}s:unload service %{public}s delDevice failed", __func__, serviceName);
         return ret;
     }
+    if (!HdfSListIsEmpty(&hostClnt->unloadDevInfos)) {
+        HDF_LOGD("%{public}s host %{public}s has unloadDevInfos", __func__, hostClnt->hostName);
+        return HDF_SUCCESS;
+    }
 
-    isHostEmpty = HdfSListIsEmpty(&hostClnt->devices);
-    if (!isHostEmpty) {
-        HDF_LOGI("%{public}s host %{public}s devices is not empty", __func__, hostClnt->hostName);
+    if (!HdfSListIsEmpty(&hostClnt->devices)) {
+        HDF_LOGD("%{public}s host %{public}s devices is not empty", __func__, hostClnt->hostName);
         return HDF_SUCCESS;
     }
     return DevmgrServiceStopHost(hostClnt);
@@ -284,7 +292,7 @@ static int DevmgrServiceStartDeviceHost(struct DevmgrService *devmgr, struct Hdf
         return HDF_SUCCESS;
     }
 
-    if (DevmgrServiceStartHostProcess(hostClnt, false) != HDF_SUCCESS) {
+    if (DevmgrServiceStartHostProcess(hostClnt, false, false) != HDF_SUCCESS) {
         HDF_LOGW("failed to start device host, host id is %u", hostAttr->hostId);
         DListRemove(&hostClnt->node);
         DevHostServiceClntFreeInstance(hostClnt);
