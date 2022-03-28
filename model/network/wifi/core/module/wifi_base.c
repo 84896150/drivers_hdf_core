@@ -55,13 +55,13 @@ inline static uint32_t SendEapol(struct NetDevice *netdev, WifiTxEapol *txData)
     const struct Eapol *eapol = EapolGetInstance();
     return eapol->eapolOp->sendEapol(netdev, (struct EapolTx *)txData);
 }
-inline static uint32_t ReceiveEapol(struct NetDevice *netdev, WifiRxEapol *rxData)
+inline static int32_t ReceiveEapol(struct NetDevice *netdev, WifiRxEapol *rxData)
 {
     const struct Eapol *eapol = EapolGetInstance();
     return eapol->eapolOp->getEapol(netdev, (struct EapolRx *)rxData);
 }
 
-static uint32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
+static int32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -72,7 +72,7 @@ static uint32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
     return chipDriver->ops->SetMode(netDev, iftype);
 }
 
-static uint32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr,
+static int32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr,
     struct KeyParams *params)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
@@ -84,7 +84,7 @@ static uint32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise
     return chipDriver->ops->AddKey(netDev, keyIndex, pairwise, macAddr, params);
 }
 
-static uint32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr)
+static int32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -95,7 +95,7 @@ static uint32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise
     return chipDriver->ops->DelKey(netDev, keyIndex, pairwise, macAddr);
 }
 
-static uint32_t SetDefaultKey(struct NetDevice *netDev, uint8_t keyIndex, bool unicast, bool multicast)
+static int32_t SetDefaultKey(struct NetDevice *netDev, uint8_t keyIndex, bool unicast, bool multicast)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -571,7 +571,7 @@ static int32_t WifiFillHwFeature(struct NetDevice *netdev, WifiHwFeatureData *fe
     return ret;
 }
 
-static uint32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t *mac, uint8_t len)
+static int32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t *mac, uint8_t len)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -583,7 +583,7 @@ static uint32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t
     return chipDriver->ops->GetDeviceMacAddr(netdev, type, mac, len);
 }
 
-static uint32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
+static int32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -594,7 +594,7 @@ static uint32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
     return chipDriver->ops->SetMacAddr(netdev, mac, len);
 }
 
-static uint32_t SetTxPower(struct NetDevice *netdev, int32_t power)
+static int32_t SetTxPower(struct NetDevice *netdev, int32_t power)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
@@ -606,7 +606,7 @@ static uint32_t SetTxPower(struct NetDevice *netdev, int32_t power)
     return chipDriver->ops->SetTxPower(netdev, power);
 }
 
-static uint32_t GetValidFreqsWithBand(struct NetDevice *netdev, int32_t band, int32_t *freqs, uint32_t *num)
+static int32_t GetValidFreqsWithBand(struct NetDevice *netdev, int32_t band, int32_t *freqs, uint32_t *num)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
