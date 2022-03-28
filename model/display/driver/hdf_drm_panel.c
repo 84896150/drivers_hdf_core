@@ -79,24 +79,23 @@ static int HdfDrmPanelEnable(struct drm_panel *panel)
     return HDF_SUCCESS;
 }
 
-static int HdfDrmPanelGetModes(struct drm_panel *panel,struct drm_connector *connector)
+static int HdfDrmPanelGetModes(struct drm_panel *panel, struct drm_connector *connector)
 {
     struct HdfDrmPanel *hdfDrmPanel = NULL;
     struct drm_display_mode *mode = NULL;
     struct PanelInfo *panelInfo = NULL;
 
     if (panel == NULL) {
-       HDF_LOGE("failed:panel = NULL");
-       return 0;
+        HDF_LOGE("failed:panel = NULL");
+        return 0;
     }
     if (connector == NULL) {
         HDF_LOGE("failed:connector = NULL");
-       return 0;
+        return 0;
     }
     HDF_LOGD("HdfDrmPanelGetModes");
     hdfDrmPanel = ToHdfDrmPanel(panel);
     panelInfo = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index]->info;
-    //pr_err("==debug %s %d clockFreq %d\n",__FUNCTION__,__LINE__,hdfDrmPanel->mode.clock);
     mode = drm_mode_duplicate(connector->dev, &hdfDrmPanel->mode);
     if (!mode) {
         HDF_LOGE("failed to add mode %ux%ux@%u",
@@ -229,7 +228,7 @@ static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int3
 
 int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
 {
-    uint32_t ret,i,j;
+    uint32_t ret, i, j;
     uint32_t panelNum;
     struct HdfDrmPanel *hdfDrmPanel = NULL;
     struct mipi_dsi_device *dsiDev = NULL;
@@ -250,7 +249,7 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         panelInfo = hdfDrmPanel->manager->panelManager->panel[i]->info;
         dsiDev = (struct mipi_dsi_device *)manager->panelManager->panel[i]->priv;
         hdfDrmPanel->panel.dev = &dsiDev->dev;
-        drm_panel_init(&hdfDrmPanel->panel,&dsiDev->dev,&g_hdfDrmPanelFuncs,panelInfo->connector_type);
+        drm_panel_init(&hdfDrmPanel->panel, &dsiDev->dev, &g_hdfDrmPanelFuncs, panelInfo->connector_type);
         drm_panel_add(&hdfDrmPanel->panel);
         ret = mipi_dsi_attach(dsiDev);
         if (ret) {
@@ -264,7 +263,7 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
                 HDF_LOGE("%s line = %d device_create_file fail", __func__, __LINE__);
             }
         }
-        HDF_LOGI("%s panel[%d] registered success", __func__,i );
+        HDF_LOGI("%s panel[%d] registered success", __func__,i);
     }
     HDF_LOGI("%s success", __func__);
     return HDF_SUCCESS;
