@@ -15,11 +15,12 @@
 #include "osal_uaccess.h"
 #include "hdf_device_object.h"
 
-#define HDF_LOG_TAG audio_platform_base
-const int MAX_PERIOD_SIZE = (1024 * 8);
+#define HDF_LOG_TAG HDF_AUDIO_KADM
+#define MAX_PERIOD_SIZE (8 * 1024)
+#define MIN_PERIOD_SIZE (2 * 1024)
+
 const int PERIOD_COUNT = 4;
 const int RENDER_TRAF_BUF_SIZE = 1024;
-const int MIN_BUFF_SIZE = 16 * 1024;
 const int TIME_OUT_CONST = 50;
 const int SLEEP_TIME = 5;
 #define PNP_REPORT_MSG_LEN      32
