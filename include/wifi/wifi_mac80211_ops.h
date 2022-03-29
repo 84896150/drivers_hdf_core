@@ -35,6 +35,8 @@
 #ifndef WIFI_MAC80211_OPS_H
 #define WIFI_MAC80211_OPS_H
 
+#include <net/cfg80211.h>
+#include <linux/version.h>
 #include "net_device.h"
 #include "hdf_wifi_cmd.h"
 
@@ -135,11 +137,13 @@
  * @since 1.0
  * @version 1.0
  */
+#if LINUX_VERSION_CODE > KERNEL_VERSION(3,12,0)
 enum Ieee80211Band {
     IEEE80211_BAND_2GHZ = 0, /**< 2.4 GHz */
     IEEE80211_BAND_5GHZ,     /**< 5 GHz */
     IEEE80211_NUM_BANDS      /**< Number of frequency bands */
 };
+#endif
 
 /**
  * @brief Enumerates channel widths.
