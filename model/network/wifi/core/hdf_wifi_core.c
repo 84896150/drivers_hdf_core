@@ -39,7 +39,7 @@ int32_t HdfWifiGetBusIdx(void)
  * @brief  as for now, we just support one wlan module in one board cause driver binds to wlan featere
  * due to that reason, once we detected one chip, we stop rescan.
  */
-int HdfWlanBusInit(struct HdfWlanDevice *data, const struct HdfConfigWlanBus *busConfig)
+static int HdfWlanBusInit(struct HdfWlanDevice *data, const struct HdfConfigWlanBus *busConfig)
 {
     struct BusDev *bus = NULL;
     bus = HdfWlanCreateBusManager(busConfig);
@@ -313,7 +313,7 @@ static int32_t HdfWlanInitInterfaces(struct HdfWlanDevice *device, struct HdfChi
     for (i = 0; i < maxIFCount; i++) {
         ret = HdfWlanInitInterface(device, chipDriverFact, i);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:Init NetInterface failed!driverName=%s,portIndex=%d", __func__, device->driverName, i);
+            HDF_LOGE("%s:Init NetInterface failed!driverName=%s,portIndex=%hhu", __func__, device->driverName, i);
         }
     }
     HDF_LOGI("%s:%s init interfaces finished!", __func__, chipDriverFact->driverName);
@@ -339,16 +339,24 @@ static void ReleaseWlanDevice(struct HdfWlanDevice *device)
 
 static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConfig)
 {
+    if (deviceConfig == NULL) {
+        return NULL;
+    }
     struct HdfWlanDevice *device = NULL;
     int32_t ret;
-    if (deviceConfig == NULL) {
+    struct HdfConfigWlanChipList *tmpChipList = NULL;
+    struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
+    if (rootConfig == NULL) {
+        HDF_LOGE("%s:ProbeDevice rootConfig NULL", __func__);
         return NULL;
     }
     device = (struct HdfWlanDevice *)OsalMemCalloc(sizeof(struct HdfWlanDevice));
     if (device == NULL) {
-        HDF_LOGE("%s:oom", __func__);
+        HDF_LOGE("%s:ProbeDevice device NULL", __func__);
         return NULL;
     }
+
+    tmpChipList = &rootConfig->wlanConfig.chipList;
     do {
         device->powers = HdfWlanCreatePowerManager(&deviceConfig->powers);
         device->reset = HdfWlanCreateResetManager(&deviceConfig->reset, deviceConfig->bootUpTimeOut);
@@ -371,7 +379,7 @@ static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConf
         ret = HDF_SUCCESS;
         OsalMSleep(SLEEPTIME);
         device->bus = NULL;
-        device->driverName = "hisi";  // from BDH6_DRIVER_NAME
+        device->driverName = tmpChipList->chipInst[0].driverName;  // from BDH6_DRIVER_NAME
         HDF_LOGW("Do not call GPIO and HdfWlanBusInit");
 #endif
 

@@ -40,7 +40,7 @@ static int HdfDrmPanelUnprepare(struct drm_panel *panel)
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
     return HDF_SUCCESS;
 }
- 
+
 static int HdfDrmPanelPrepare(struct drm_panel *panel)
 {
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
@@ -53,7 +53,7 @@ static int HdfDrmPanelPrepare(struct drm_panel *panel)
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
     return HDF_SUCCESS;
 }
- 
+
 static int HdfDrmPanelDisable(struct drm_panel *panel)
 {
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
@@ -66,7 +66,7 @@ static int HdfDrmPanelDisable(struct drm_panel *panel)
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
     return HDF_SUCCESS;
 }
- 
+
 static int HdfDrmPanelEnable(struct drm_panel *panel)
 {
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);

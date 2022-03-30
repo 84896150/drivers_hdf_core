@@ -85,7 +85,7 @@ int32_t UsbStartIo(void)
     printf("%s start\n", __func__);
     g_stopIoThreadFlag = false;
 
-    /* creat Io thread */
+    /* create Io thread */
     (void)memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg));
     threadCfg.name      = (char *)("usb io thread");
     threadCfg.priority  = OSAL_THREAD_PRI_LOW;
@@ -185,6 +185,7 @@ void AcmReadBulkCallback(const void *requestArg)
         printf("%s - UsbRawSubmitRequest failed", __func__);
     }
 }
+
 void AcmNotifyReqCallback(const void *requestArg)
 {
     struct UsbRawRequest *req = (struct UsbRawRequest *)requestArg;
@@ -258,7 +259,8 @@ void AcmWriteBufFree(struct AcmRawDevice *acm)
 
 void AcmCtrlReqCallback(const void *requestArg)
 {
-    printf("%s:%d entry!", __func__, __LINE__);
+    (void)requestArg;
+    HDF_LOGI("%{public}s:%{public}d entry!", __func__, __LINE__);
 }
 
 static void AcmParaseInterfaceClass(
@@ -310,14 +312,14 @@ int32_t UsbParseConfigDescriptor(struct AcmRawDevice *acm, struct UsbRawConfigDe
     const struct UsbRawInterface *interface = NULL;
 
     numInterfaces = config->configDescriptor.bNumInterfaces;
-    printf("------numInterfaces = [%d]------\n", numInterfaces);
+    printf("------numInterfaces = [%hhu]------\n", numInterfaces);
     for (i = 0; i < numInterfaces; i++) {
         interface = config->interface[i];
 
         printf("------UsbRawClaimInterface start------\n");
         ret = UsbRawClaimInterface(acm->devHandle, i);
         if (ret) {
-            printf("%s:%d claim interface %u failed\n", __func__, __LINE__, i);
+            printf("%s:%d claim interface %hhu failed\n", __func__, __LINE__, i);
             continue;
         }
         printf("------UsbRawClaimInterface end------\n");

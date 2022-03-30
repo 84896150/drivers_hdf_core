@@ -168,7 +168,7 @@ static int ApplyDevicesPowerState(struct HdfDevice *device, uint32_t state)
             if (deviceNode->powerToken != NULL) {
                 ret = PowerStateChange(deviceNode->powerToken, state);
                 if (ret != HDF_SUCCESS) {
-                    HDF_LOGE("device %s failed to resume(%d)", deviceNode->driver->entry->moduleName, state);
+                    HDF_LOGE("device %s failed to resume(%u)", deviceNode->driver->entry->moduleName, state);
                 }
             }
         }
@@ -177,7 +177,7 @@ static int ApplyDevicesPowerState(struct HdfDevice *device, uint32_t state)
             if (deviceNode->powerToken != NULL) {
                 ret = PowerStateChange(deviceNode->powerToken, state);
                 if (ret != HDF_SUCCESS) {
-                    HDF_LOGE("device %s failed to suspend(%d)", deviceNode->driver->entry->moduleName, state);
+                    HDF_LOGE("device %s failed to suspend(%u)", deviceNode->driver->entry->moduleName, state);
                 }
             }
         }
@@ -263,7 +263,7 @@ struct IDevHostService *DevHostServiceNewInstance(uint16_t hostId, const char *h
 {
     struct DevHostService *hostService =
         (struct DevHostService *)HdfObjectManagerGetObject(HDF_OBJECT_ID_DEVHOST_SERVICE);
-    if (hostService != NULL) {
+    if (hostService != NULL && hostName != NULL) {
         hostService->hostId = hostId;
         hostService->hostName = hostName;
     }
