@@ -24,10 +24,9 @@ static int panel_simple_regulator_enable(void)
     int err;
     if (g_panelSimpleDev == NULL)
         return -1;
-    pr_err("==debug %s %d\n", __FUNCTION__, __LINE__);
     err = regulator_enable(g_panelSimpleDev->supply);
     if (err < 0) {
-        pr_err("==debug %s %d\n", __FUNCTION__, __LINE__);
+        HDF_LOGE("regulator_enable failed");
         return err;
     }
     return 0;
@@ -37,7 +36,6 @@ static int panel_simple_regulator_disable(void)
     int err;
     if (g_panelSimpleDev == NULL)
         return -1;
-    pr_err("==debug %s %d\n", __FUNCTION__, __LINE__);
     regulator_disable(g_panelSimpleDev->supply);
     return 0;
 }
@@ -45,7 +43,6 @@ static int panel_simple_regulator_disable(void)
 int panel_simple_loader_protect(struct drm_panel *panel)
 {
     int err;
-    pr_err("==debug %s %d\n", __FUNCTION__, __LINE__);
     err = panel_simple_regulator_enable();
     if (err < 0) {
         HDF_LOGE("failed to enable supply: %d\n", err);
@@ -198,7 +195,7 @@ static struct PanelInfo g_panelInfo = {
 
 static void PanelSimpleResInit(struct PanelSimpleDev *panelSimpleDev)
 {
-    panelSimpleDev->dsiDev->lanes = 4; // dsi,lanes /* number of active data lanes */
+    panelSimpleDev->dsiDev->lanes = 4;  /* 4: dsi,lanes ,number of active data lanes */
     panelSimpleDev->dsiDev->format = MIPI_DSI_FMT_RGB888; // dsi,format pixel format for video mode MIPI_DSI_FMT_RGB888
     panelSimpleDev->dsiDev->mode_flags = (MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST | MIPI_DSI_MODE_LPM \
                                           | MIPI_DSI_MODE_EOT_PACKET);
@@ -209,12 +206,12 @@ static void PanelSimpleResInit(struct PanelSimpleDev *panelSimpleDev)
     panelSimpleDev->panel.prepare = PanelSimplePrepare;
     panelSimpleDev->panel.unprepare = PanelSimpleUnprepare;
     panelSimpleDev->panel.priv = panelSimpleDev->dsiDev;
-    panelSimpleDev->panelhwdelay.disable_delay = 50;
-    panelSimpleDev->panelhwdelay.enable_delay = 120;
-    panelSimpleDev->panelhwdelay.init_delay = 20;
-    panelSimpleDev->panelhwdelay.prepare_delay = 2;
-    panelSimpleDev->panelhwdelay.reset_delay = 100;
-    panelSimpleDev->panelhwdelay.unprepare_delay = 20;
+    panelSimpleDev->panelhwdelay.disable_delay = 50; /* disable_delay time */
+    panelSimpleDev->panelhwdelay.enable_delay = 120; /* enable_delay */
+    panelSimpleDev->panelhwdelay.init_delay = 20; /* init_delay */
+    panelSimpleDev->panelhwdelay.prepare_delay = 2; /* prepare_delay */
+    panelSimpleDev->panelhwdelay.reset_delay = 100;  /* reset_delay */
+    panelSimpleDev->panelhwdelay.unprepare_delay = 20;  /* unprepare_delay */
 }
 
 int32_t PanelSimpleEntryInit(struct HdfDeviceObject *object)
