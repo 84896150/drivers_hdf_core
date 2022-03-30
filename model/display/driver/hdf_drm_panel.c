@@ -263,7 +263,7 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
                 HDF_LOGE("%s line = %d device_create_file fail", __func__, __LINE__);
             }
         }
-        HDF_LOGI("%s panel[%d] registered success", __func__,i);
+        HDF_LOGI("%s panel[%d] registered success", __func__, i);
     }
     HDF_LOGI("%s success", __func__);
     return HDF_SUCCESS;
