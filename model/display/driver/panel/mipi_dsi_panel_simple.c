@@ -206,12 +206,12 @@ static void PanelSimpleResInit(struct PanelSimpleDev *panelSimpleDev)
     panelSimpleDev->panel.prepare = PanelSimplePrepare;
     panelSimpleDev->panel.unprepare = PanelSimpleUnprepare;
     panelSimpleDev->panel.priv = panelSimpleDev->dsiDev;
-    panelSimpleDev->panelhwdelay.disable_delay = 50; /* disable_delay time */
-    panelSimpleDev->panelhwdelay.enable_delay = 120; /* enable_delay */
-    panelSimpleDev->panelhwdelay.init_delay = 20; /* init_delay */
-    panelSimpleDev->panelhwdelay.prepare_delay = 2; /* prepare_delay */
-    panelSimpleDev->panelhwdelay.reset_delay = 100;  /* reset_delay */
-    panelSimpleDev->panelhwdelay.unprepare_delay = 20;  /* unprepare_delay */
+    panelSimpleDev->panelhwdelay.disable_delay = 50; /* 50:disable_delay time */
+    panelSimpleDev->panelhwdelay.enable_delay = 120; /* 120:enable_delay */
+    panelSimpleDev->panelhwdelay.init_delay = 20; /* 20:init_delay */
+    panelSimpleDev->panelhwdelay.prepare_delay = 2; /* 2:prepare_delay */
+    panelSimpleDev->panelhwdelay.reset_delay = 100;  /* 100:reset_delay */
+    panelSimpleDev->panelhwdelay.unprepare_delay = 20;  /* 20:unprepare_delay */
 }
 
 int32_t PanelSimpleEntryInit(struct HdfDeviceObject *object)
