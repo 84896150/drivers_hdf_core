@@ -39,7 +39,7 @@ static int panel_simple_regulator_disable(void)
         return -1;
     pr_err("==debug %s %d\n", __FUNCTION__, __LINE__);
     regulator_disable(g_panelSimpleDev->supply);
-	return 0;
+    return 0;
 }
 
 int panel_simple_loader_protect(struct drm_panel *panel)
