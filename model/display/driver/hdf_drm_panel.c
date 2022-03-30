@@ -19,6 +19,7 @@
 #include <video/of_display_timing.h>
 #include <video/videomode.h>
 #include <uapi/drm/drm_mode.h>
+#include <drm/drm_mipi_dsi.h>
 #include "osal_mem.h"
 #include "osal.h"
 
