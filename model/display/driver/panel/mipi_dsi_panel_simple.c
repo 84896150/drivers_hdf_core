@@ -258,11 +258,11 @@ int32_t PanelSimpleEntryInit(struct HdfDeviceObject *object)
     }
 
     PanelSimpleResInit(panelSimpleDev);
-    panelSimpleDev->panel.blDev = GetBacklightDev("hdf_pwm");
+    /*panelSimpleDev->panel.blDev = GetBacklightDev("hdf_pwm");
     if (panelSimpleDev->panel.blDev == NULL) {
         HDF_LOGE("%s GetBacklightDev fail", __func__);
         goto FAIL;
-    }
+    }*/
 
     panelSimpleDev->panel.object = object;
     object->priv = panelSimpleDev;
