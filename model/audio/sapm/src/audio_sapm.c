@@ -1336,7 +1336,7 @@ static bool AudioSapmCheckTime(void)
     if (diffTime > SAPM_SLEEP_TIME) {
         return true;
     }
-    
+
     AudioSapmRefreshTime(true);
     return false;
 }
