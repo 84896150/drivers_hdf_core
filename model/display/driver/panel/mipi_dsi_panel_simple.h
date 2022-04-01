@@ -242,7 +242,7 @@ static struct DsiCmdDesc g_panelOnCode[] = {
     { 0x15, 0x00, sizeof(g_payLoad7), g_payLoad7 },
     { 0x15, 0x00, sizeof(g_payLoad8), g_payLoad8 },
     { 0x15, 0x00, sizeof(g_payLoad9), g_payLoad9 },
-    { 0x15, 0x00, sizeof(g_payLoad10), g_payLoad10 },  
+    { 0x15, 0x00, sizeof(g_payLoad10), g_payLoad10 },
     { 0x15, 0x00, sizeof(g_payLoad11), g_payLoad11 },
     { 0x15, 0x00, sizeof(g_payLoad12), g_payLoad12 },
     { 0x15, 0x00, sizeof(g_payLoad13), g_payLoad13 },
