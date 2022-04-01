@@ -6,8 +6,8 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef ILI9881C_BOE_H
-#define ILI9881C_BOE_H
+#ifndef ILI9881_ST055G_H
+#define ILI9881_ST055G_H
 
 #include <drm/drm_mipi_dsi.h>
 #include <uapi/drm/drm_mode.h>
