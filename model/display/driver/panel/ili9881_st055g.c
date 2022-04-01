@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "mipi_dsi_panel_simple.h"
+#include "ili9881_st055g.h"
 #include "gpio_if.h"
 #include "hdf_bl.h"
 #include "hdf_disp.h"
@@ -280,7 +280,7 @@ FAIL:
 
 struct HdfDriverEntry PanelSimpleDevEntry = {
     .moduleVersion = 1,
-    .moduleName = "LCD_ILI9881CBOE",
+    .moduleName = "LCD_ILI9881_ST055G",
     .Init = PanelSimpleEntryInit,
 };
 
