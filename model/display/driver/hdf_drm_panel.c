@@ -209,7 +209,7 @@ static void CreateDrmMode(struct HdfDrmPanel *hdfDrmPanel)
     hdfDrmPanel->mode.vsync_start = panelInfo->height + panelInfo->vfp;
     hdfDrmPanel->mode.vsync_end = panelInfo->height + panelInfo->vfp + panelInfo->vsw;
     hdfDrmPanel->mode.vtotal = panelInfo->height + panelInfo->vfp + panelInfo->vsw + panelInfo->vbp;
-    hdfDrmPanel->mode.flags = 10;
+    hdfDrmPanel->mode.flags = 10; /* 10:flags */
 }
 
 static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int32_t index)
