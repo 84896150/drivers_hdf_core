@@ -8,23 +8,24 @@
 
 #ifndef ILI9881C_BOE_H
 #define ILI9881C_BOE_H
-#include <linux/backlight.h>
+
 #include <drm/drm_mipi_dsi.h>
 #include <uapi/drm/drm_mode.h>
+#include <drm/drm_modes.h>
+#include <linux/backlight.h>
 #include <linux/of.h>
 #include <linux/regulator/consumer.h>
 #include <linux/gpio/consumer.h>
-#include <drm/drm_modes.h>
 #include "hdf_disp.h"
 
-struct PanelHwDelay{
-	unsigned int prepare_delay;
-	unsigned int hpd_absent_delay;
-	unsigned int enable_delay;
-	unsigned int disable_delay;
-	unsigned int unprepare_delay;
-	unsigned int reset_delay;
-	unsigned int init_delay;
+struct PanelHwDelay {
+    unsigned int prepare_delay;
+    unsigned int hpd_absent_delay;
+    unsigned int enable_delay;
+    unsigned int disable_delay;
+    unsigned int unprepare_delay;
+    unsigned int reset_delay;
+    unsigned int init_delay;
 };
 
 struct PanelSimpleDev {
@@ -33,8 +34,8 @@ struct PanelSimpleDev {
     struct mipi_dsi_device *dsiDev;
     struct regulator *supply;
     struct gpio_desc *enable_gpio;
-	struct gpio_desc *reset_gpio;
-	struct gpio_desc *hpd_gpio;
+    struct gpio_desc *reset_gpio;
+    struct gpio_desc *hpd_gpio;
     struct PanelHwDelay panelhwdelay;
 };
 
