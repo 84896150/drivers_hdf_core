@@ -34,6 +34,10 @@ static int HdfDrmPanelUnprepare(struct drm_panel *panel)
     struct PanelData *panelData;
 
     HDF_LOGD("HdfDrmPanelUnprepare");
+    if (hdfDrmPanel->index >= PANEL_MAX) {
+        HDF_LOGE("panel num out of PANEL_MAX");
+        return HDF_FAILURE;
+    }
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->unprepare(panelData);
@@ -47,6 +51,10 @@ static int HdfDrmPanelPrepare(struct drm_panel *panel)
     struct PanelData *panelData;
 
     HDF_LOGD("HdfDrmPanelPrepare");
+    if (hdfDrmPanel->index >= PANEL_MAX) {
+        HDF_LOGE("panel num out of PANEL_MAX");
+        return HDF_FAILURE;
+    }
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->prepare(panelData);
@@ -60,6 +68,10 @@ static int HdfDrmPanelDisable(struct drm_panel *panel)
     struct PanelData *panelData;
 
     HDF_LOGD("HdfDrmPanelDisable");
+    if (hdfDrmPanel->index >= PANEL_MAX) {
+        HDF_LOGE("panel num out of PANEL_MAX");
+        return HDF_FAILURE;
+    }
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->off(panelData);
@@ -73,6 +85,10 @@ static int HdfDrmPanelEnable(struct drm_panel *panel)
     struct PanelData *panelData;
     
     HDF_LOGD("HdfDrmPanelEnable");
+    if (hdfDrmPanel->index >= PANEL_MAX) {
+        HDF_LOGE("panel num out of PANEL_MAX");
+        return HDF_FAILURE;
+    }
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData->on(panelData);
