@@ -209,7 +209,7 @@ static void CreateDrmMode(struct HdfDrmPanel *hdfDrmPanel)
     hdfDrmPanel->mode.vsync_start = panelInfo->height + panelInfo->vfp;
     hdfDrmPanel->mode.vsync_end = panelInfo->height + panelInfo->vfp + panelInfo->vsw;
     hdfDrmPanel->mode.vtotal = panelInfo->height + panelInfo->vfp + panelInfo->vsw + panelInfo->vbp;
-    hdfDrmPanel->mode.flags = 10; /* 10:flags */
+    hdfDrmPanel->mode.flags = 10; /* Sync and timing flags, detial at include/drm/drm_modes.h */
 }
 
 static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int32_t index)
@@ -229,7 +229,9 @@ static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int3
 
 int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
 {
-    uint32_t ret, i, j;
+    uint32_t ret;
+    uint32_t i;
+    uint32_t j;
     uint32_t panelNum;
     struct HdfDrmPanel *hdfDrmPanel = NULL;
     struct mipi_dsi_device *dsiDev = NULL;
