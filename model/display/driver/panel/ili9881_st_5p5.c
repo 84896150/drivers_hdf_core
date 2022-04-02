@@ -149,7 +149,7 @@ static int32_t PanelSimpleUnprepare(struct PanelData *panel)
     struct PanelSimpleDev *panelSimpleDev = NULL;
 
     panelSimpleDev = ToPanelSimpleDev(panel);
-    HDF_LOGI(" %s enter", __func__);
+    HDF_LOGI("%s enter", __func__);
 
     ret = PanelSimpleSendCmds(panelSimpleDev->dsiDev, g_panelOffCode,
                               sizeof(g_panelOffCode) / sizeof(g_panelOffCode[0]));
