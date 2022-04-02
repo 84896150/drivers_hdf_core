@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -19,9 +19,9 @@ static struct PanelSimpleDev *ToPanelSimpleDev(const struct PanelData *panel)
     return (struct PanelSimpleDev *)panel->object->priv;
 }
 
-static int panel_simple_regulator_enable(void)
+static int32_t panel_simple_regulator_enable(void)
 {
-    int err;
+    int32_t err;
     if (g_panelSimpleDev == NULL)
         return -1;
     err = regulator_enable(g_panelSimpleDev->supply);
@@ -31,9 +31,9 @@ static int panel_simple_regulator_enable(void)
     }
     return 0;
 }
-static int panel_simple_regulator_disable(void)
+static int32_t panel_simple_regulator_disable(void)
 {
-    int err;
+    int32_t err;
     if (g_panelSimpleDev == NULL)
         return -1;
     regulator_disable(g_panelSimpleDev->supply);
@@ -52,13 +52,14 @@ int panel_simple_loader_protect(struct drm_panel *panel)
 }
 EXPORT_SYMBOL(panel_simple_loader_protect);
 
-static int PanelSimpleSendCmds(struct mipi_dsi_device *dsi,
+static int32_t PanelSimpleSendCmds(struct mipi_dsi_device *dsi,
     const struct DsiCmdDesc *cmds, int size)
 {
     int32_t i = 0;
-    HDF_LOGI("%s() %d", __func__, __LINE__);
+
+    HDF_LOGI("%s enter", __func__);
     if (dsi == NULL) {
-        HDF_LOGE("error: dis is NULL\n");
+        HDF_LOGE("error: dsi is NULL\n");
         return -EINVAL;
     }
     for (i = 0; i < size; i++) {
@@ -67,7 +68,7 @@ static int PanelSimpleSendCmds(struct mipi_dsi_device *dsi,
             OsalMSleep(cmds[i].delay);
         }
     }
-    HDF_LOGI("%s() %d", __func__, __LINE__);
+    HDF_LOGI("%s end", __func__);
     return HDF_SUCCESS;
 }
 
@@ -75,11 +76,12 @@ static int32_t PanelSimpleOn(struct PanelData *panel)
 {
     struct PanelSimpleDev *panelSimpleDev = NULL;
 
-    HDF_LOGE("%s() %d", __func__, __LINE__);
+    HDF_LOGI("%s enter", __func__);
     panelSimpleDev = ToPanelSimpleDev(panel);
     if (panelSimpleDev->panelhwdelay.enable_delay) {
         OsalMSleep(panelSimpleDev->panelhwdelay.enable_delay);
     }
+
     return HDF_SUCCESS;
 }
 
@@ -87,11 +89,12 @@ static int32_t PanelSimpleOff(struct PanelData *panel)
 {
     struct PanelSimpleDev *panelSimpleDev = NULL;
 
-    HDF_LOGE("%s() %d", __func__, __LINE__);
+    HDF_LOGI("%s enter", __func__);
     panelSimpleDev = ToPanelSimpleDev(panel);
     if (panelSimpleDev->panelhwdelay.disable_delay) {
         OsalMSleep(panelSimpleDev->panelhwdelay.disable_delay);
     }
+
     return HDF_SUCCESS;
 }
 
@@ -100,7 +103,7 @@ static int32_t PanelSimplePrepare(struct PanelData *panel)
     int32_t ret;
     struct PanelSimpleDev *panelSimpleDev = NULL;
 
-    HDF_LOGE("%s() %d", __func__, __LINE__);
+    HDF_LOGI("%s enter", __func__);
     panelSimpleDev = ToPanelSimpleDev(panel);
 
     ret = regulator_enable(panelSimpleDev->supply);
@@ -136,7 +139,7 @@ static int32_t PanelSimplePrepare(struct PanelData *panel)
         OsalMSleep(panelSimpleDev->panelhwdelay.init_delay);
     }
 
-    HDF_LOGI("%s() %d", __func__, __LINE__);
+    HDF_LOGI("%s end", __func__);
     return HDF_SUCCESS;
 }
 
@@ -146,7 +149,7 @@ static int32_t PanelSimpleUnprepare(struct PanelData *panel)
     struct PanelSimpleDev *panelSimpleDev = NULL;
 
     panelSimpleDev = ToPanelSimpleDev(panel);
-    HDF_LOGE(" %s line = %d", __func__, __LINE__);
+    HDF_LOGI(" %s enter", __func__);
 
     ret = PanelSimpleSendCmds(panelSimpleDev->dsiDev, g_panelOffCode,
                               sizeof(g_panelOffCode) / sizeof(g_panelOffCode[0]));
