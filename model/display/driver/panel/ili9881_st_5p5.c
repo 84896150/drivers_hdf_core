@@ -6,7 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "ili9881_st055g.h"
+#include "ili9881_st_5p5.h"
 #include "gpio_if.h"
 #include "hdf_bl.h"
 #include "hdf_disp.h"
