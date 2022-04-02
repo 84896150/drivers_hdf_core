@@ -82,7 +82,7 @@ struct BacklightDev *RegisterBlDev(const char *name, struct BacklightProperties 
     struct BacklightOps *ops, void *priv)
 {
     int32_t devNum;
-    int32_t i = 0;
+    int32_t i;
     struct BacklightDev *blDev = NULL;
     struct BlDevManager *blDevManager = NULL;
 
@@ -127,7 +127,7 @@ void *ToBlDevPriv(struct BacklightDev *blDev)
 struct BacklightDev *GetBacklightDev(const char *name)
 {
     struct BlDevManager *blDevManager = NULL;
-    int32_t i = 0;
+    int32_t i;
 
     if (name == NULL) {
         HDF_LOGE("%s name is null", __func__);
@@ -244,7 +244,7 @@ int32_t GetCurrBrightness(struct BacklightDev *blDev, uint32_t *brightness)
         return HDF_FAILURE;
     }
     *brightness = GetBlDevBrightness(blDev, CURRENT_BRIGHTNESS);
-    return HDF_SUCCESS; 
+    return HDF_SUCCESS;
 }
 
 int32_t GetDefBrightness(struct BacklightDev *blDev, uint32_t *brightness)
@@ -357,7 +357,7 @@ static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
     (void)device;
     (void)reqData;
     int32_t ret;
-    int32_t i = 0;
+    int32_t i;
     char *devName = NULL;
     char *tmp = NULL;
     char buffer[NAME_BUFFER_LEN] = {0};
