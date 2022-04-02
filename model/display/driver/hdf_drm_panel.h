@@ -12,6 +12,7 @@
 #include <drm/drm_modes.h>
 #include <drm/drm_panel.h>
 #include "hdf_disp.h"
+#include "hdf_bl.h"
 
 struct HdfDrmPanel {
     struct drm_panel panel;
@@ -22,4 +23,3 @@ struct HdfDrmPanel {
 };
 
 #endif /* HDF_DRM_PANEL_H */
-
