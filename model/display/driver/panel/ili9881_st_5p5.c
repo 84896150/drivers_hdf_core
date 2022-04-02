@@ -283,7 +283,7 @@ FAIL:
 
 struct HdfDriverEntry PanelSimpleDevEntry = {
     .moduleVersion = 1,
-    .moduleName = "LCD_ILI9881_ST055G",
+    .moduleName = "LCD_ILI9881_ST_5P5",
     .Init = PanelSimpleEntryInit,
 };
 
