@@ -1,13 +1,13 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#ifndef ILI9881_ST055G_H
-#define ILI9881_ST055G_H
+#ifndef ILI9881_ST_5P5_H
+#define ILI9881_ST_5P5_H
 
 #include <drm/drm_mipi_dsi.h>
 #include <uapi/drm/drm_mode.h>
@@ -19,13 +19,13 @@
 #include "hdf_disp.h"
 
 struct PanelHwDelay {
-    unsigned int prepare_delay;
-    unsigned int hpd_absent_delay;
-    unsigned int enable_delay;
-    unsigned int disable_delay;
-    unsigned int unprepare_delay;
-    unsigned int reset_delay;
-    unsigned int init_delay;
+    uint32_t prepare_delay;
+    uint32_t hpd_absent_delay;
+    uint32_t enable_delay;
+    uint32_t disable_delay;
+    uint32_t unprepare_delay;
+    uint32_t reset_delay;
+    uint32_t init_delay;
 };
 
 struct PanelSimpleDev {
