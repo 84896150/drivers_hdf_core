@@ -22,8 +22,9 @@ static struct panel_ili9881_dev *ToPanelSimpleDev(const struct PanelData *panel)
 static int32_t panel_simple_regulator_enable(void)
 {
     int32_t err;
-    if (g_panel_dev == NULL)
+    if (g_panel_dev == NULL) {
         return -1;
+    }
     err = regulator_enable(g_panel_dev->supply);
     if (err < 0) {
         HDF_LOGE("regulator_enable failed");
@@ -34,8 +35,9 @@ static int32_t panel_simple_regulator_enable(void)
 static int32_t panel_simple_regulator_disable(void)
 {
     int32_t err;
-    if (g_panel_dev == NULL)
+    if (g_panel_dev == NULL) {
         return -1;
+    }
     regulator_disable(g_panel_dev->supply);
     return 0;
 }
@@ -183,7 +185,7 @@ static struct PanelInfo g_panelInfo = {
     .clockFreq = 75000000,  /* clock */
     .pWidth = 68,           /* physical width */
     .pHeight = 121,         /* physical height */
-    .connector_type = DRM_MODE_CONNECTOR_DPI,   /* DRM_MODE_CONNECTOR_DPI=17 */
+    .connectorType = DRM_MODE_CONNECTOR_DPI,   /* DRM_MODE_CONNECTOR_DPI=17 */
     .blk = { BLK_PWM, MIN_LEVEL, MAX_LEVEL, DEFAULT_LEVEL },
 };
 
