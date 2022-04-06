@@ -45,6 +45,7 @@ static int32_t panel_simple_regulator_disable(void)
 int panel_simple_loader_protect(struct drm_panel *panel)
 {
     int err;
+    void panel;
     err = panel_simple_regulator_enable();
     if (err < 0) {
         HDF_LOGE("failed to enable supply: %d\n", err);
@@ -124,8 +125,8 @@ static int32_t PanelPrepare(struct PanelData *panel)
         OsalMSleep(panel_dev->hw_delay.prepare_delay);
     }
 
-    ret = PanelSendCmds(panel_dev->dsiDev, g_panelOnCode,
-                              sizeof(g_panelOnCode) / sizeof(g_panelOnCode[0]));
+    ret = PanelSendCmds(panel_dev->dsiDev, g_panelOnCode, \
+        sizeof(g_panelOnCode) / sizeof(g_panelOnCode[0]));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s PanelSendCmds failed", __func__);
         return HDF_FAILURE;
@@ -144,8 +145,8 @@ static int32_t PanelUnprepare(struct PanelData *panel)
 
     panel_dev = ToPanelSimpleDev(panel);
 
-    ret = PanelSendCmds(panel_dev->dsiDev, g_panelOffCode,
-                              sizeof(g_panelOffCode) / sizeof(g_panelOffCode[0]));
+    ret = PanelSendCmds(panel_dev->dsiDev, g_panelOffCode, \
+        sizeof(g_panelOffCode) / sizeof(g_panelOffCode[0]));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s PanelSendCmds failed", __func__);
         return HDF_FAILURE;
