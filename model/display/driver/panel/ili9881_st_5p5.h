@@ -18,7 +18,7 @@
 #include <linux/gpio/consumer.h>
 #include "hdf_disp.h"
 
-struct PanelHwDelay {
+struct panel_hw_delay {
     uint32_t prepare_delay;
     uint32_t hpd_absent_delay;
     uint32_t enable_delay;
@@ -28,7 +28,7 @@ struct PanelHwDelay {
     uint32_t init_delay;
 };
 
-struct PanelSimpleDev {
+struct panel_ili9881_dev {
     bool power_invert;
     struct PanelData panel;
     struct mipi_dsi_device *dsiDev;
@@ -36,7 +36,7 @@ struct PanelSimpleDev {
     struct gpio_desc *enable_gpio;
     struct gpio_desc *reset_gpio;
     struct gpio_desc *hpd_gpio;
-    struct PanelHwDelay panelhwdelay;
+    struct panel_hw_delay hw_delay;
 };
 
 /* panel on command payload */
