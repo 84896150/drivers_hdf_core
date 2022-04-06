@@ -268,7 +268,7 @@ int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         panelInfo = hdfDrmPanel->manager->panelManager->panel[i]->info;
         dsiDev = (struct mipi_dsi_device *)manager->panelManager->panel[i]->priv;
         hdfDrmPanel->panel.dev = &dsiDev->dev;
-        drm_panel_init(&hdfDrmPanel->panel, &dsiDev->dev, &g_hdfDrmPanelFuncs, panelInfo->connector_type);
+        drm_panel_init(&hdfDrmPanel->panel, &dsiDev->dev, &g_hdfDrmPanelFuncs, panelInfo->connectorType);
         drm_panel_add(&hdfDrmPanel->panel);
         ret = mipi_dsi_attach(dsiDev);
         if (ret) {
