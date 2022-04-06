@@ -45,7 +45,7 @@ static int32_t panel_simple_regulator_disable(void)
 int panel_simple_loader_protect(struct drm_panel *panel)
 {
     int err;
-    void panel;
+    (void)panel;
     err = panel_simple_regulator_enable();
     if (err < 0) {
         HDF_LOGE("failed to enable supply: %d\n", err);
