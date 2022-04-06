@@ -82,7 +82,7 @@ struct PanelInfo {
     uint32_t clockFreq;
     uint32_t pWidth;
     uint32_t pHeight;
-    int32_t connector_type;
+    int32_t connectorType;
     enum LcdIntfType intfType;
     uint32_t intfSync;
     struct MipiDsiDesc mipi;
