@@ -103,11 +103,11 @@ static int HdfDrmPanelGetModes(struct drm_panel *panel, struct drm_connector *co
     struct PanelInfo *panelInfo = NULL;
 
     if (panel == NULL) {
-        HDF_LOGE("failed:panel = NULL");
+        HDF_LOGE("panel is NULL");
         return 0;
     }
     if (connector == NULL) {
-        HDF_LOGE("failed:connector = NULL");
+        HDF_LOGE("connector is NULL");
         return 0;
     }
     HDF_LOGD("HdfDrmPanelGetModes");
