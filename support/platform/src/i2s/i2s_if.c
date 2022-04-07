@@ -128,6 +128,7 @@ void I2sStopRead(DevHandle handle)
 int32_t I2sWrite(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pWlen)
 {
     struct I2sMsg msg = {0};
+    uint8_t times = 0;
     if (pWlen == NULL) {
         HDF_LOGE("%s: pWlen is null", __func__);
         return HDF_FAILURE;
@@ -143,7 +144,10 @@ int32_t I2sWrite(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pWlen)
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: I2sCntlrTransfer fail", __func__);
         }
-    } while (*pWlen == 0);
+        if (*pWlen == 0) {
+            times++;
+        }
+    } while ((*pWlen == 0) && (times < I2S_DATA_TRANSFER_MAX_NUM));
 
     return HDF_SUCCESS;
 }
@@ -151,6 +155,7 @@ int32_t I2sWrite(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pWlen)
 int32_t I2sRead(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pRlen)
 {
     struct I2sMsg msg = {0};
+    uint8_t times = 0;
     if (pRlen == NULL) {
         HDF_LOGE("%s: pRlen is null", __func__);
         return HDF_FAILURE;
@@ -166,7 +171,10 @@ int32_t I2sRead(DevHandle handle, uint8_t *buf, uint32_t len, uint32_t *pRlen)
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: I2sCntlrTransfer fail", __func__);
         }
-    } while (*pRlen == 0);
+        if (*pRlen == 0) {
+            times++;
+        }
+    } while ((*pRlen == 0) && (times < I2S_DATA_TRANSFER_MAX_NUM));
 
     return HDF_SUCCESS;
 }
