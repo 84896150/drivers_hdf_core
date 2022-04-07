@@ -453,7 +453,7 @@ static int32_t ChipEsdResetRetry(TouchDriver *driver)
     HDF_LOGE("start ChipEsdResetRetry");
     ret = ChipCheckResetRetry(chipDev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: enable irq failed, ret %d", __func__, ret);
+        HDF_LOGE("%s: ChipCheckResetRetry failed, ret %d", __func__, ret);
         ret = GpioEnableIrq(intGpioNum);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: enable irq failed, ret %d", __func__, ret);
