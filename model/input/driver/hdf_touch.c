@@ -574,8 +574,8 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 #endif
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
 
-#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP)
-    HDF_LOGI("%s: DAYU do not update firmware", __func__);
+#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157)
+    HDF_LOGI("%s: do not update firmware", __func__);
 #else
     ret = chipDev->ops->UpdateFirmware(chipDev);
     CHECK_RETURN_VALUE(ret);
