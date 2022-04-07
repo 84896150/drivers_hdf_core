@@ -276,8 +276,6 @@ static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
     ret = chipDev->ops->DataHandle(chipDev);
     if (ret == HDF_SUCCESS) {
         InputFrameReport(driver);
-    } else {
-        HDF_LOGE("%s: DataHandle failed", __func__);
     }
 }
 
