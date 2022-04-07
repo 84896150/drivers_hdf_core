@@ -476,7 +476,7 @@ static void Gt1xEsdCheckFunc(struct work_struct *work)
 {
     int32_t i = 0;
     int32_t ret = -1;
-    if (time_after(jiffies,g_timeout)) {
+    if (time_after(jiffies, g_timeout)) {
         HDF_LOGE("ESD check runing...");
         g_timeout = jiffies + HZ * 600; // 600: second
     }
