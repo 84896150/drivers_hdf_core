@@ -5,7 +5,7 @@
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
-
+#include <linux/debugfs.h>
 #include <securec.h>
 #include "osal_mem.h"
 #include "hdf_device_desc.h"
@@ -15,6 +15,8 @@
 #include "touch_gt911.h"
 
 #define MAX_POINT 5
+static struct dentry *gt911_debugfs_root;
+static bool tp_debug = false;
 
 static int32_t ChipInit(ChipDevice *device)
 {
@@ -137,6 +139,9 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         }
         frame->fingers[i].valid = true;
+        if (tp_debug) {
+            pr_err("TP: x,y %d %d\n",frame->fingers[i].x,frame->fingers[i].y);
+        }
     }
 }
 
@@ -304,6 +309,28 @@ static void FreeChipConfig(TouchChipCfg *config)
     OsalMemFree(config);
 }
 
+static int tp_debug_enable_set(void *data, u64 val)
+{
+	if (val) {
+        tp_debug = true;
+	} else {
+        tp_debug = false;
+	}
+	return 0;
+}
+
+static int tp_debug_enable_get(void *data, u64 *val)
+{
+    if (tp_debug) {
+        *val = 1;
+	} else {
+        *val = 0;
+	}
+	return 0;
+}
+DEFINE_DEBUGFS_ATTRIBUTE(tp_ops, tp_debug_enable_get,
+			tp_debug_enable_set, "%llu\n");
+
 static int32_t HdfGoodixChipInit(struct HdfDeviceObject *device)
 {
     TouchChipCfg *chipCfg = NULL;
@@ -333,6 +360,8 @@ static int32_t HdfGoodixChipInit(struct HdfDeviceObject *device)
     if (RegisterTouchChipDevice(chipDev) != HDF_SUCCESS) {
         goto EXIT1;
     }
+    gt911_debugfs_root = debugfs_create_dir("dayu200TP", NULL);
+    debugfs_create_file("enable", 0644, gt911_debugfs_root, NULL,&tp_ops);
     HDF_LOGI("%s: exit succ, chipName = %s", __func__, chipCfg->chipName);
     return HDF_SUCCESS;
 
@@ -349,6 +378,7 @@ static void HdfGoodixChipRelease(struct HdfDeviceObject *device)
         HDF_LOGE("%s: param is null", __func__);
         return;
     }
+    debugfs_remove_recursive(gt911_debugfs_root);
     HDF_LOGI("%s: goodix chip is release", __func__);
 }
 
