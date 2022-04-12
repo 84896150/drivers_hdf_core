@@ -41,7 +41,6 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
 static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
 static void InputFrameReport(TouchDriver *driver);
 
-
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
     int32_t ret;
@@ -548,9 +547,6 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
 }
 #endif
 
-
-
-
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
     int32_t count = 20;  // 20: reset time
@@ -558,6 +554,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 #if defined(CONFIG_ARCH_ROCKCHIP)
     g_touchDriver = chipDev->driver;
     ret = Gt1xRequestIo(chipDev);
+    CHECK_RETURN_VALUE(ret);
 #endif
     ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
