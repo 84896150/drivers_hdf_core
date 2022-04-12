@@ -14,9 +14,9 @@ class Parser {
         this.astList = {}
     }
     Parse(fn) {
-        if (fn in this.astList) {
-            return this.astList[fn]
-        }
+        // if (fn in this.astList) {
+        //     return this.astList[fn]
+        // }
         if (this.srcQueue_.indexOf(fn) == -1) this.srcQueue_.push(fn)
 
         while (this.srcQueue_.length > 0) {
@@ -26,9 +26,9 @@ class Parser {
                 return false;
             }
 
-            this.astList[fn] = {
+            this.astList[this.srcQueue_[0]] = {
                 ast: oneAst,
-                include: includeList
+                include: includeList,
             };
             this.srcQueue_.shift();
             this.srcQueue_ = this.srcQueue_.concat(includeList)
@@ -62,6 +62,8 @@ class Parser {
             if (includePath[1] != ':') {
                 let currentSrc = includeBy.substring(0, includeBy.lastIndexOf("\\") + 1)
                 includePath = currentSrc + includePath.replace(/\//g,"\\");
+
+                includePath=includePath.replace(/\\\.\\/g,"\\");
             }
         }
         else {//mac,linux

@@ -118,6 +118,16 @@ class Generator {
             ret += "    "
         return ret;
     }
+    MakeHcs(fn, node) {
+        let body = this.ObjToHcs(node, 0);
+        let head = "";
+
+        let fpath = fn.substring(0, fn.lastIndexOf("\\") + 1);
+        for (let i in this.parser.astList[fn].include) {
+            head += '#include "./' + this.parser.astList[fn].include[i].substring(fpath.length) + '"\n';
+        }
+        return head + body;
+    }
     ObjToHcs(node, deep) {
         let ret = ""
         let child;

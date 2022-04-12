@@ -307,7 +307,8 @@ class MainEditor {
                                 }
 
                                 this.CheckAllError()
-                                this.selectNode_.type = null
+                                this.selectNode_.type = null;
+                                this.OnAttributeChange("writefile");
                             }
                         }
                     }
@@ -377,6 +378,7 @@ class MainEditor {
     OnSelectInclude(sel) {
         MainEditor.gi().filePoint_ = sel;
         AttrEditor.gi().FreshEditor();
+        XMessage.gi().Send("selectchange", sel);
     }
     OnAttributeChange(type, value) {
         let pme = MainEditor.gi();
@@ -384,7 +386,7 @@ class MainEditor {
             pme.CheckAllError();
             XMessage.gi().Send("writefile", {
                 fn: pme.filePoint_,
-                data: Generator.gi().ObjToHcs(pme.files_[pme.filePoint_], 0)
+                data: Generator.gi().MakeHcs(pme.filePoint_, pme.files_[pme.filePoint_])//Generator.gi().ObjToHcs(pme.files_[pme.filePoint_], 0)
             })
         }
         else if (type.substring(0, 13) == "change_target") {
@@ -411,6 +413,13 @@ class MainEditor {
             Lexer.FILE_AND_DATA[data.fn] = data.data;
             me.Parse(data.fn)
         }
+        else if (type == "freshfiledata") {
+            Lexer.FILE_AND_DATA[data.fn] = data.data;
+            let t = Generator.gi().HscToAst(data.fn);
+            me.files_[data.fn] = Generator.gi().AstToObj(t[data.fn].ast.astRoot_);
+            me.CheckAllError();
+            AttrEditor.gi().FreshEditor(this.filePoint_, this.nodePoint_);
+        }
     }
     Parse(fn) {
         if (this.rootPoint_ == null) {
@@ -418,7 +427,6 @@ class MainEditor {
         }
         let t = Generator.gi().HscToAst(fn);
         if (!t) return;
-
         let fs = []
         for (let i in t) {
             this.files_[i] = Generator.gi().AstToObj(t[i].ast.astRoot_);
