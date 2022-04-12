@@ -186,7 +186,7 @@ static int32_t SetResetStatus(TouchDriver *driver)
     int32_t ret;
     uint8_t writeBuf[5]; // 5: buffer size
 
-    writeBuf[0] = (GTP_REG_CMD_1 >> 8) & 0xFF; // 8:high byte 0xff:mask
+    writeBuf[0] = (GTP_REG_CMD_1 >> 8) & 0xFF; // 8:high byte 0xffmask
     writeBuf[1] = GTP_REG_CMD_1 & 0xFF;
     writeBuf[2] = 0x00; // 2:index  0x00: reg value
     writeBuf[3] = 0x56; // 3:index  0x56: reg value
@@ -197,7 +197,7 @@ static int32_t SetResetStatus(TouchDriver *driver)
         return ret;
     }
 
-    writeBuf[0] = (GTP_REG_CMD >> 8) & 0xFF; // 8:high byte 0xff:mask
+    writeBuf[0] = (GTP_REG_CMD >> 8) & 0xFF; // 8:high byte 0xffmask
     writeBuf[1] = GTP_REG_CMD & 0xFF;
     writeBuf[2] = 0xAA; // 2:index 0xAA: reg value
 
@@ -450,17 +450,17 @@ static int32_t ChipEsdResetRetry(TouchDriver *driver)
         HDF_LOGE("%s: disable irq failed, ret %d", __func__, ret);
         return HDF_FAILURE;
     }
-    HDF_LOGE("start ChipEsdResetRetry");
+    HDF_LOGI("start ChipEsdResetRetry");
     ret = ChipCheckResetRetry(chipDev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: ChipCheckResetRetry failed, ret %d", __func__, ret);
+        HDF_LOGE("%s: enable irq failed, ret %d", __func__, ret);
         ret = GpioEnableIrq(intGpioNum);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: enable irq failed, ret %d", __func__, ret);
         }
         return HDF_FAILURE;
     }
-    HDF_LOGE("end ChipEsdResetRetry");
+    HDF_LOGI("end ChipEsdResetRetry");
 
     ret = GpioEnableIrq(intGpioNum);
     if (ret != HDF_SUCCESS) {
@@ -490,7 +490,7 @@ static void Gt1xEsdCheckFunc(struct work_struct *work)
         Gt1xSedFeedWatchdog(g_touchDriver, 0xaa, 0); // 0xaa: reg value
         queue_delayed_work(gt1x_workqueue, &esd_check_work, esd_work_cycle);
     } else {
-        HDF_LOGE("IC works abnormally! Process reset guitar");
+        HDF_LOGI("IC works abnormally! Process reset guitar");
         Gt1xSedResetStatus(g_touchDriver);
         OsalMSleep(50); // 50: sleep time
         ret = ChipEsdResetRetry(g_touchDriver);
@@ -503,7 +503,6 @@ static void Gt1xEsdCheckFunc(struct work_struct *work)
 }
 #endif
 
-#if defined(CONFIG_ARCH_ROCKCHIP)
 static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 {
     int32_t ret;
@@ -526,7 +525,6 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
     OsalMSleep(20); // 20 : delay time
     return HDF_SUCCESS;
 }
-#endif
 
 static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
 {
@@ -544,26 +542,53 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
         if (ret == HDF_SUCCESS) {
             return HDF_SUCCESS;
         }
-        HDF_LOGE("%s: reset chip %d time", __func__, count);
+        HDF_LOGI("%s: reset chip %d time", __func__, count);
     }
     return HDF_FAILURE;
 }
 
+
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
+    int32_t count = 20;  // 20: reset time
     int32_t ret;
 #if defined(CONFIG_ARCH_ROCKCHIP)
-    g_touchDriver = chipDev->driver;
-    ret = Gt1xRequestIo(chipDev);
-    CHECK_RETURN_VALUE(ret);
-#else
+    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    ret = SetGpio(chipDev->boardCfg->pins.intGpio, 1, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    OsalMSleep(100); // 100: delay time
+    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    OsalMSleep(20); // 20: delay time
+#endif
     ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
-#endif
 
-    ret = ChipCheckResetRetry(chipDev);
+    if ((chipDev->ops == NULL) || (chipDev->ops->Detect == NULL)) {
+        return HDF_FAILURE;
+    }
+
+    while (count --) {
+        ret = chipDev->ops->Detect(chipDev);
+        if (ret == HDF_SUCCESS) {
+            break;
+        }
+        HDF_LOGI("%s: reset chip %d time", __func__, count);
+        ChipReset(chipDev);
+        OsalMSleep(100); // 100 : wait 100msthen try one time
+    }
     CHECK_RETURN_VALUE(ret);
-
+	
 #if GTP_ESD_PROTECT
     gt1x_workqueue = create_singlethread_workqueue("gt1x_workthread");
     if (gt1x_workqueue == NULL) {
@@ -572,6 +597,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
     Gt1xInitEsdProtect();
     Gt1xEsdSwitch(1);
 #endif
+
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
 
 #if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157)
