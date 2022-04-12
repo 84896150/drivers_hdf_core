@@ -35,11 +35,12 @@
 #define GTP_REG_CMD   0x8040
 #define GTP_REG_CMD_1 0x8041
 unsigned long g_timeout;
+static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
 #endif
 
 static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
 static void InputFrameReport(TouchDriver *driver);
-static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
+
 
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
@@ -207,6 +208,29 @@ static int32_t SetResetStatus(TouchDriver *driver)
         return ret;
     }
 
+    return HDF_SUCCESS;
+}
+
+static int32_t Gt1xRequestIo(ChipDevice *chipDev)
+{
+    int32_t ret;
+    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    ret = SetGpio(chipDev->boardCfg->pins.intGpio, 1, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    OsalMSleep(100); // 100 : delay time
+    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
+        return HDF_FAILURE;
+    }
+    OsalMSleep(20); // 20 : delay time
     return HDF_SUCCESS;
 }
 #endif
@@ -501,30 +525,6 @@ static void Gt1xEsdCheckFunc(struct work_struct *work)
         }
     }
 }
-#endif
-
-static int32_t Gt1xRequestIo(ChipDevice *chipDev)
-{
-    int32_t ret;
-    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
-        return HDF_FAILURE;
-    }
-    ret = SetGpio(chipDev->boardCfg->pins.intGpio, 1, 0);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
-        return HDF_FAILURE;
-    }
-    OsalMSleep(100); // 100 : delay time
-    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 1);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
-        return HDF_FAILURE;
-    }
-    OsalMSleep(20); // 20 : delay time
-    return HDF_SUCCESS;
-}
 
 static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
 {
@@ -546,6 +546,9 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
     }
     return HDF_FAILURE;
 }
+#endif
+
+
 
 
 static int32_t ChipDriverInit(ChipDevice *chipDev)
@@ -553,23 +556,8 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
     int32_t count = 20;  // 20: reset time
     int32_t ret;
 #if defined(CONFIG_ARCH_ROCKCHIP)
-    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set rstGpio to output failed, ret %d", __func__, ret);
-        return HDF_FAILURE;
-    }
-    ret = SetGpio(chipDev->boardCfg->pins.intGpio, 1, 0);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
-        return HDF_FAILURE;
-    }
-    OsalMSleep(100); // 100: delay time
-    ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 1);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set intGpio to output failed, ret %d", __func__, ret);
-        return HDF_FAILURE;
-    }
-    OsalMSleep(20); // 20: delay time
+    g_touchDriver = chipDev->driver;
+    ret = Gt1xRequestIo(chipDev);
 #endif
     ret = SetPowerOnTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
