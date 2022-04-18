@@ -460,12 +460,12 @@ ConfigNode& ConfigNode::operator=(const ConfigNode &node)
 const std::string &ConfigNode::NodeTypeToStr(uint32_t type)
 {
     static std::map<uint32_t, std::string> type2StringMap = {
-        {NODE_NOREF,     ""             },
-        { NODE_COPY,     "NodeCopy"     },
-        { NODE_REF,      "NodeReference"},
-        { NODE_DELETE,   "NodeDelete"   },
-        { NODE_INHERIT,  "NodeInherit"  },
-        { NODE_TEMPLATE, "NodeTemplate" },
+        {NODE_NOREF,    ""             },
+        {NODE_COPY,     "NodeCopy"     },
+        {NODE_REF,      "NodeReference"},
+        {NODE_DELETE,   "NodeDelete"   },
+        {NODE_INHERIT,  "NodeInherit"  },
+        {NODE_TEMPLATE, "NodeTemplate" },
     };
     return type2StringMap[type];
 }
@@ -602,6 +602,10 @@ bool ConfigNode::Copy(std::shared_ptr<AstObject> src, bool overwrite)
 {
     auto child = src->Child();
     while (child != nullptr) {
+        if (overwrite && child_->Name() == child->Name() && (child_->Type() != child->Type())) {
+            Logger().Error() << child->SourceInfo() << "duplicate name with" << child_->SourceInfo();
+            return false;
+        }
         auto dst = Lookup(child->Name(), child->Type());
         if (dst == nullptr) {
             AddChild(AstObjectFactory::Build(child));
