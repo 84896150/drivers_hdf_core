@@ -17,10 +17,11 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
-const int MAX_PERIOD_SIZE = (1024 * 8);
+#define MAX_PERIOD_SIZE (8 * 1024)
+#define MIN_PERIOD_SIZE (2 * 1024)
+
 const int PERIOD_COUNT = 4;
 const int RENDER_TRAF_BUF_SIZE = 1024;
-const int MIN_BUFF_SIZE = 16 * 1024;
 const int TIME_OUT_CONST = 50;
 const int SLEEP_TIME = 5;
 #define PNP_REPORT_MSG_LEN      32
@@ -147,7 +148,9 @@ int32_t AudioSetPcmInfo(struct PlatformData *platformData, const struct AudioPcm
         platformData->renderPcmInfo.silenceThreshold = param->silenceThreshold;
 
         platformData->renderPcmInfo.interleaved = INTERLEAVED;
+        platformData->renderPcmInfo.channels = param->channels;
         platformData->renderPcmInfo.streamType = param->streamType;
+
     } else if (param->streamType == AUDIO_CAPTURE_STREAM) {
         if (AudioFormatToBitWidth(param->format, &platformData->capturePcmInfo.bitWidth) != HDF_SUCCESS) {
             AUDIO_DRIVER_LOG_ERR("capturePcmInfo is failure");
@@ -165,7 +168,9 @@ int32_t AudioSetPcmInfo(struct PlatformData *platformData, const struct AudioPcm
         platformData->capturePcmInfo.silenceThreshold = param->silenceThreshold;
 
         platformData->capturePcmInfo.interleaved = INTERLEAVED;
+        platformData->capturePcmInfo.channels = param->channels;
         platformData->capturePcmInfo.streamType = param->streamType;
+
     } else {
         AUDIO_DRIVER_LOG_ERR("param streamType is invalid.");
         return HDF_FAILURE;
