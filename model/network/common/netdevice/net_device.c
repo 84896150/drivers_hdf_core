@@ -398,6 +398,11 @@ int32_t NetIfRxNi(const struct NetDevice *netDevice, NetBuf *buff)
     return NetIfRxImpl(netDevice, buff, NO_IN_INTERRUPT);
 }
 
+int32_t NetIfRxReceive(const struct NetDevice *netDevice, NetBuf *buff)
+{
+    return NetIfRxImpl(netDevice, buff, NAPI_METHOD);
+}
+
 int32_t NetIfSetStatus(const struct NetDevice *netDevice, NetIfStatus status)
 {
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
