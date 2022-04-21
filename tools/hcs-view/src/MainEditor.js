@@ -155,7 +155,7 @@ class MainEditor {
                 this.SetNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
                 this.DrawObj(pm2f, data.value_, offx + w, offy, path);
                 break;
-            case 8://array 数组类属性值
+            case 8://array数组类属性值
                 let ss = "[" + data.value_.length + "]" + NodeTools.ArrayToString(data)
                 if (ss.length > 32) {
                     ss = ss.substring(0, 29) + "..."
@@ -265,9 +265,6 @@ class MainEditor {
             return true;
         }
         if (this.btnSelectTemp.ProcTouch(msg, x, y)) {
-            if (this.btnSelectTemp.IsClicked()) {
-
-            }
             return true;
         }
         if (this.sltInclude.ProcTouch(msg, x, y)) {
@@ -361,7 +358,6 @@ class MainEditor {
                 AttrEditor.gi().FreshEditor();
             }
         }
-        if (k.length > 1) return;
     }
     ProcAll() {
         while (this.touchQueue_.length > 0) {
