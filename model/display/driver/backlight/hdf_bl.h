@@ -11,6 +11,7 @@
 
 #include "hdf_disp.h"
 #include "hdf_types.h"
+#include "hdf_dlist.h"
 
 enum FbPowerStatus {
     FB_POWER_ON,
@@ -35,6 +36,7 @@ struct BacklightProperties {
 
 struct BacklightDev *RegisterBlDev(const char *name, struct BacklightProperties *props,
     struct BacklightOps *ops, void *priv);
+int32_t UnRegisterBlDev(struct BacklightDev *blDev);
 void *ToBlDevPriv(struct BacklightDev *blDev);
 struct BacklightDev *GetBacklightDev(const char *name);
 int32_t UpdateBacklightState(struct BacklightDev *blDev, enum FbPowerStatus status);
