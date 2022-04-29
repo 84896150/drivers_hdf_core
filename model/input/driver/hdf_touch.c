@@ -1066,8 +1066,8 @@ static int HdfTouchDriverSuspend(struct HdfDeviceObject *device)
 
 static void HdfTouchDriverPowerListener(struct HdfDeviceObject *device)
 {
-    static struct HdfTouchDriverPmListener pmListener = { 0 };
     int ret;
+    static struct HdfTouchDriverPmListener pmListener = { 0 };
     HDF_LOGI("%s::enter!", __func__);
     pmListener.powerListener.DozeResume = HdfTouchDriverDozeResume;
     pmListener.powerListener.DozeSuspend = HdfTouchDriverDozeSuspend;
