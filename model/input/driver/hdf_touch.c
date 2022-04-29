@@ -1085,7 +1085,7 @@ static void HdfTouchDriverPowerListener(struct HdfDeviceObject *device)
     powerListener.Resume = NULL;
     powerListener.Suspend = NULL;
 
-    ret = HdfPmRegisterPowerListener(device, &pmListener.powerListener);
+    ret = HdfPmRegisterPowerListener(device, &powerListener);
     HDF_LOGI("%s:register power listener, ret = %d", __func__, ret);
 }
 
