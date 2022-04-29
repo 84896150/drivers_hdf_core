@@ -40,6 +40,7 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
 
 static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
 static void InputFrameReport(TouchDriver *driver);
+static bool isSuspend = false;
 
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
@@ -1032,6 +1033,51 @@ static int32_t HdfTouchDriverBind(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
+static int HdfTouchDriverDozeResume(struct HdfDeviceObject *device)
+{
+    (void)device;
+    isSuspend = false;
+    HDF_LOGI("%s:called isSuspend:%d", __func__,isSuspend);
+    return HDF_SUCCESS;
+}
+
+static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
+{
+    (void)device;
+    isSuspend = true;
+    HDF_LOGI("%s:called isSuspend:%d", __func__,isSuspend);
+    return HDF_SUCCESS;
+}
+
+static int HdfTouchDriverResume(struct HdfDeviceObject *device)
+{
+    (void)device;
+    HDF_LOGI("%s:called", __func__);
+    return HDF_SUCCESS;
+}
+
+static int HdfTouchDriverSuspend(struct HdfDeviceObject *device)
+{
+    (void)device;
+    HDF_LOGI("%s:called", __func__);
+    return HDF_SUCCESS;
+}
+
+
+static void HdfTouchDriverPowerListener(struct HdfDeviceObject *device)
+{
+    static struct HdfTouchDriverPmListener pmListener = { 0 };
+    int ret;
+    HDF_LOGI("%s::enter!", __func__);
+    pmListener.powerListener.DozeResume = HdfTouchDriverDozeResume;
+    pmListener.powerListener.DozeSuspend = HdfTouchDriverDozeSuspend;
+    pmListener.powerListener.Resume = HdfTouchDriverResume;
+    pmListener.powerListener.Suspend = HdfTouchDriverSuspend;
+
+    ret = HdfPmRegisterPowerListener(device, &pmListener.powerListener);
+    HDF_LOGI("%s:register power listener, ret = %d", __func__, ret);
+}
+
 static int32_t HdfTouchDriverProbe(struct HdfDeviceObject *device)
 {
     int32_t ret;
@@ -1052,6 +1098,8 @@ static int32_t HdfTouchDriverProbe(struct HdfDeviceObject *device)
     if (touchDriver == NULL) {
         goto EXIT;
     }
+
+    HdfTouchDriverPowerListener(device);
 
     ret = TouchDriverInit(touchDriver, boardCfg);
     if (ret == HDF_SUCCESS) {
