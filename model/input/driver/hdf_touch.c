@@ -1037,7 +1037,7 @@ static int HdfTouchDriverDozeResume(struct HdfDeviceObject *device)
 {
     (void)device;
     isSuspend = false;
-    HDF_LOGI("%s:called isSuspend:%d", __func__,isSuspend);
+    HDF_LOGI("%s:called, isSuspend:%d", __func__, isSuspend);
     return HDF_SUCCESS;
 }
 
@@ -1045,7 +1045,7 @@ static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
 {
     (void)device;
     isSuspend = true;
-    HDF_LOGI("%s:called isSuspend:%d", __func__,isSuspend);
+    HDF_LOGI("%s:called, isSuspend:%d", __func__, isSuspend);
     return HDF_SUCCESS;
 }
 
