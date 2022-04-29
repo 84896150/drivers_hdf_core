@@ -14,6 +14,7 @@
 #include "osal_io.h"
 #include "event_hub.h"
 #include "input_i2c_ops.h"
+#include "hdf_pm.h"
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
 #include <linux/hrtimer.h>
@@ -1032,6 +1033,62 @@ static int32_t HdfTouchDriverBind(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
+static int HdfTouchDriverDozeResume(struct HdfDeviceObject *device)
+{
+    static int32_t flag = 0;
+    if (flag == 0) {
+        flag = 1;
+        return HDF_SUCCESS;
+    }
+    HDF_LOGI("%s:called", __func__);
+    TouchDriver *touchDriver = (TouchDriver *)device->priv;
+    uint16_t intGpioNum = touchDriver->device->boardCfg->pins.intGpio;
+
+    ChipReset(touchDriver->device);
+
+    return HDF_SUCCESS;
+}
+
+static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
+{
+    int32_t ret = -1;
+    uint8_t writeBuf[3]; // 6: buffer size
+    static int32_t flag = 0;
+    if (flag == 0) {
+        flag = 1;
+        return HDF_SUCCESS;
+    }
+    HDF_LOGI("%s:called", __func__);
+
+    TouchDriver *touchDriver = (TouchDriver *)device->priv;
+    uint16_t intGpioNum = touchDriver->device->boardCfg->pins.intGpio;
+
+    GpioSetDir(intGpioNum, 1);
+    GpioWrite(intGpioNum, 0);
+
+    writeBuf[0] = 0x80;  // 0x42: reg address high bit
+    writeBuf[1] = 0x40;  // 0x26: reg address low bit
+    writeBuf[2] = 0x05;  // 0x01: reg value
+    ret = InputI2cWrite(&touchDriver->i2cClient, writeBuf, 3); // 6: len
+    HDF_LOGI("%s:ret = %d", __func__, ret);
+
+    return HDF_SUCCESS;
+}
+
+static void HdfTouchDriverPowerListener(struct HdfDeviceObject *device)
+{
+    int ret;
+    static struct IPowerEventListener powerListener = {0};
+    HDF_LOGI("%s::enter!", __func__);
+    powerListener.DozeResume = HdfTouchDriverDozeResume;
+    powerListener.DozeSuspend = HdfTouchDriverDozeSuspend;
+    powerListener.Resume = NULL;
+    powerListener.Suspend = NULL;
+
+    ret = HdfPmRegisterPowerListener(device, &powerListener);
+    HDF_LOGI("%s:register power listener, ret = %d", __func__, ret);
+}
+
 static int32_t HdfTouchDriverProbe(struct HdfDeviceObject *device)
 {
     int32_t ret;
@@ -1053,12 +1110,15 @@ static int32_t HdfTouchDriverProbe(struct HdfDeviceObject *device)
         goto EXIT;
     }
 
+    HdfTouchDriverPowerListener(device);
+
     ret = TouchDriverInit(touchDriver, boardCfg);
     if (ret == HDF_SUCCESS) {
         touchDriver->hdfTouchDev = device;
         touchDriver->boardCfg = boardCfg;
         AddTouchDriver(touchDriver);
         device->priv = (void *)touchDriver;
+
         HDF_LOGI("%s: %s exit succ", __func__, boardCfg->attr.devName);
         return HDF_SUCCESS;
     }
