@@ -56,34 +56,46 @@ static int32_t GetAllLightInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
     return HDF_SUCCESS;
 }
 
-int32_t StartLight(uint32_t lightId)
+static int32_t UpdateLight(uint32_t lightId, uint32_t lightOn)
 {
+    int32_t level;
     struct LightDriverData *drvData = NULL;
 
     drvData = GetLightDrvData();
     CHECK_LIGHT_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
-    if (GpioWrite(drvData->info[lightId]->busNum, GPIO_VAL_HIGH) != HDF_SUCCESS) {
-        HDF_LOGE("%s: pull gpio%d to %d level failed", __func__, drvData->info[lightId]->busNum, GPIO_VAL_LOW);
+    level = (drvData->info[lightId]->lightBrightness & LIGHT_MAKE_R_BIT) ? GPIO_VAL_HIGH:GPIO_VAL_LOW;
+    level = lightOn ? level : GPIO_VAL_LOW;
+    if (GpioWrite(drvData->info[lightId]->busRNum, level) != HDF_SUCCESS) {
+        HDF_LOGE("%s: pull gpio%d to %d level failed", __func__, drvData->info[lightId]->busRNum, level);
+        return HDF_FAILURE;
+    }
+
+    level = (drvData->info[lightId]->lightBrightness & LIGHT_MAKE_G_BIT)?GPIO_VAL_HIGH:GPIO_VAL_LOW;
+    level = lightOn ? level : GPIO_VAL_LOW;
+    if (GpioWrite(drvData->info[lightId]->busGNum, level) != HDF_SUCCESS) {
+        HDF_LOGE("%s: pull gpio%d to %d level failed", __func__, drvData->info[lightId]->busGNum, level);
+        return HDF_FAILURE;
+    }
+
+    level = (drvData->info[lightId]->lightBrightness & LIGHT_MAKE_B_BIT) ? GPIO_VAL_HIGH : GPIO_VAL_LOW;
+    level = lightOn ? level : GPIO_VAL_LOW;
+    if (GpioWrite(drvData->info[lightId]->busBNum, level) != HDF_SUCCESS) {
+        HDF_LOGE("%s: pull gpio%d to %d level failed", __func__, drvData->info[lightId]->busBNum, level);
         return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
 }
 
+int32_t StartLight(uint32_t lightId)
+{
+    return UpdateLight(lightId, LIGHT_STATE_START);
+}
+
 int32_t StopLight(uint32_t lightId)
 {
-    struct LightDriverData *drvData = NULL;
-
-    drvData = GetLightDrvData();
-    CHECK_LIGHT_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
-
-    if (GpioWrite(drvData->info[lightId]->busNum, GPIO_VAL_LOW) != HDF_SUCCESS) {
-        HDF_LOGE("%s: pull gpio%d to %d level failed", __func__, drvData->info[lightId]->busNum, GPIO_VAL_LOW);
-        return HDF_FAILURE;
-    }
-
-    return HDF_SUCCESS;
+    return UpdateLight(lightId, LIGHT_STATE_STOP);
 }
 
 void LightTimerEntry(uintptr_t para)
@@ -146,19 +158,8 @@ static int32_t Enable(uint32_t lightId, struct HdfSBuf *data, struct HdfSBuf *re
     drvData->info[lightId]->lightBrightness = (buf->lightBrightness == 0) ?
         drvData->info[lightId]->lightBrightness : buf->lightBrightness;
 
-    if ((drvData->info[lightId]->lightBrightness & LIGHT_MAKE_R_BIT) != 0) {
-        drvData->info[lightId]->busNum = drvData->info[lightId]->busRNum;
-    } else if ((drvData->info[lightId]->lightBrightness & LIGHT_MAKE_G_BIT) != 0) {
-        drvData->info[lightId]->busNum = drvData->info[lightId]->busGNum;
-    } else if ((drvData->info[lightId]->lightBrightness & LIGHT_MAKE_B_BIT) != 0) {
-        drvData->info[lightId]->busNum = drvData->info[lightId]->busBNum;
-    }
-
     if (buf->flashEffect.flashMode == LIGHT_FLASH_NONE) {
-        if (GpioWrite(drvData->info[lightId]->busNum, GPIO_VAL_HIGH) != HDF_SUCCESS) {
-            HDF_LOGE("%s: gpio busNum %d write failed", __func__, drvData->info[lightId]->busNum);
-            return HDF_FAILURE;
-        }
+        return UpdateLight(lightId, LIGHT_STATE_START);
     }
 
     if (buf->flashEffect.flashMode == LIGHT_FLASH_TIMED) {
@@ -202,7 +203,7 @@ static int32_t Disable(uint32_t lightId, struct HdfSBuf *data, struct HdfSBuf *r
         }
     }
 
-    if (GpioWrite(drvData->info[lightId]->busRNum, GPIO_VAL_LOW) != HDF_SUCCESS) {
+    if (UpdateLight(lightId, LIGHT_STATE_STOP) != HDF_SUCCESS) {
         HDF_LOGE("%s: gpio write failed", __func__);
         return HDF_FAILURE;
     }

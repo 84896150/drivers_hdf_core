@@ -59,8 +59,8 @@ enum LightOpsCmd {
 };
 
 enum LightState {
-    LIGHT_STATE_START   = 0,
-    LIGHT_STATE_STOP    = 1,
+    LIGHT_STATE_STOP   = 0,
+    LIGHT_STATE_START  = 1,
     LIGHT_STATE_BUTT,
 };
 
@@ -96,7 +96,6 @@ struct LightInfo {
 
 struct LightDeviceInfo {
     enum LightState lightState;
-    uint32_t busNum;
     uint32_t busRNum;
     uint32_t busGNum;
     uint32_t busBNum;
