@@ -14,6 +14,7 @@
 #include "osal_io.h"
 #include "event_hub.h"
 #include "input_i2c_ops.h"
+#include "hdf_pm.h"
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
 #include <linux/hrtimer.h>
@@ -1077,12 +1078,12 @@ static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
 static void HdfTouchDriverPowerListener(struct HdfDeviceObject *device)
 {
     int ret;
-    static struct HdfTouchDriverPmListener pmListener = { 0 };
+    static struct IPowerEventListener powerListener = {0};
     HDF_LOGI("%s::enter!", __func__);
-    pmListener.powerListener.DozeResume = HdfTouchDriverDozeResume;
-    pmListener.powerListener.DozeSuspend = HdfTouchDriverDozeSuspend;
-    pmListener.powerListener.Resume = NULL;
-    pmListener.powerListener.Suspend = NULL;
+    powerListener.DozeResume = HdfTouchDriverDozeResume;
+    powerListener.DozeSuspend = HdfTouchDriverDozeSuspend;
+    powerListener.Resume = NULL;
+    powerListener.Suspend = NULL;
 
     ret = HdfPmRegisterPowerListener(device, &pmListener.powerListener);
     HDF_LOGI("%s:register power listener, ret = %d", __func__, ret);

@@ -14,7 +14,6 @@
 #include "hdf_input_device_manager.h"
 #include "input_config.h"
 #include "input_i2c_ops.h"
-#include "hdf_pm.h"
 
 #define CHIP_CHECK_RETURN(ret) do { \
     if ((ret) != HDF_SUCCESS) { \
@@ -96,11 +95,6 @@ struct TouchChipOps {
     int32_t (*DataHandle)(ChipDevice *device);
     int32_t (*UpdateFirmware)(ChipDevice *device);
     void (*SetAbility)(ChipDevice *device);
-};
-
-struct HdfTouchDriverPmListener {
-    struct IPowerEventListener powerListener;
-    void *p;
 };
 
 typedef struct {
