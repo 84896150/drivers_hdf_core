@@ -1,1 +1,4 @@
 tools/hc-gen/build
+*.cmd
+*.[oad]
+__pycache__/
