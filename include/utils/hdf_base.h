@@ -52,6 +52,7 @@ typedef enum {
     HDF_ERR_DEVICE_BUSY = -16, /**< The device is busy. */
     HDF_ERR_IO          = -17, /**< I/O error. */
     HDF_ERR_BAD_FD      = -18, /**< Incorrect file descriptor. */
+    HDF_ERR_NOPERM      = -19, /**< No permission. */
 
 #define HDF_BSP_ERR_START (-100) /**< Defines the start of the Board Support Package (BSP) module error codes. */
 #define HDF_BSP_ERR_NUM(v) (HDF_BSP_ERR_START + (v)) /**< Defines the BSP module error codes. */
@@ -94,7 +95,11 @@ typedef enum {
 #define HDF_ETC_DIR "/etc"
 #define HDF_CONFIG_DIR "/etc"
 #else
+#ifdef __aarch64__
+#define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib64/" x ".z.so"
+#else
 #define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib/" x ".z.so"
+#endif
 #define HDF_LIBRARY_DIR "/vendor/lib"
 #define HDF_ETC_DIR "/vendor/etc"
 #define HDF_CONFIG_DIR "/vendor/etc/hdfconfig"

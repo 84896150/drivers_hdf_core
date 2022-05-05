@@ -15,6 +15,13 @@
 
 using namespace OHOS::Hardware;
 
+Parser::Parser() : errno_(NOERR), current_() {}
+
+void Parser::CleanError()
+{
+    errno_ = NOERR;
+}
+
 bool Parser::Parse()
 {
     auto astList = ParseOne(Option::Instance().GetSourceName());
@@ -38,6 +45,7 @@ bool Parser::Parse()
     if (!ast_->Expand()) {
         return false;
     }
+
     return true;
 }
 
@@ -86,10 +94,11 @@ std::list<std::shared_ptr<Ast>> Parser::ParseOne(const std::string &src)
 
     std::list<std::shared_ptr<Ast>> astList;
     std::list<std::string> includeList;
+    CleanError();
 
     std::shared_ptr<AstObject> rootNode = ParseOneContent(src, includeList);
     /* hcs allows a file have only include list, but does not allow empty files */
-    if (rootNode == nullptr && includeList.empty()) {
+    if ((rootNode == nullptr && includeList.empty()) || errno_ != NOERR) {
         return astList;
     }
 
@@ -121,12 +130,14 @@ bool Parser::ProcessInclude(std::list<std::string> &includeList)
     do {
         if (!lexer_.Lex(current_) || current_ != STRING) {
             Logger().Error() << lexer_ << "syntax error, expect include path after ’#include‘";
+            errno_ = EFAIL;
             return false;
         }
 
         auto includePath = current_.strval;
         if (includePath.empty()) {
             Logger().Error() << lexer_ << "include invalid file: \'" << includePath << '\'';
+            errno_ = EFAIL;
             return false;
         }
         if (includePath[0] != '/') {
@@ -138,6 +149,7 @@ bool Parser::ProcessInclude(std::list<std::string> &includeList)
         auto includeAbsPath = Util::File::AbsPath(includePath);
         if (includeAbsPath.empty()) {
             Logger().Error() << lexer_ << "include invalid file: \'" << current_.strval << '\'';
+            errno_ = EFAIL;
             return false;
         }
 
@@ -307,7 +319,7 @@ std::shared_ptr<AstObject> Parser::ParseNodeWithRef(Token name)
     return node;
 }
 
-/* started with NodePath on gramme : LITERAL ':' NodePath '{' ConfigTermList '}'*/
+/* started with NodePath on gramme : LITERAL ':' NodePath '{' ConfigTermList '}' */
 std::shared_ptr<AstObject> Parser::ParseNodeCopy(Token &name)
 {
     auto nodePath = current_.strval;
@@ -324,7 +336,7 @@ std::shared_ptr<AstObject> Parser::ParseNodeCopy(Token &name)
     return node;
 }
 
-/* started with & on gramme : LITERAL ':' '&' NodePath '{' ConfigTermList '}'*/
+/* started with & on gramme : LITERAL ':' '&' NodePath '{' ConfigTermList '}' */
 std::shared_ptr<AstObject> Parser::ParseNodeRef(Token &name)
 {
     if (!lexer_.Lex(current_) || (current_ != LITERAL && current_ != REF_PATH)) {
@@ -343,7 +355,7 @@ std::shared_ptr<AstObject> Parser::ParseNodeRef(Token &name)
     return node;
 }
 
-/* started with DELETE on gramme : LITERAL ':' DELETE '{' ConfigTermList '}'*/
+/* started with DELETE on gramme : LITERAL ':' DELETE '{' ConfigTermList '}' */
 std::shared_ptr<AstObject> Parser::ParseNodeDelete(Token &name)
 {
     auto node = ParseNode(name);
@@ -357,7 +369,7 @@ std::shared_ptr<AstObject> Parser::ParseNodeDelete(Token &name)
     return node;
 }
 
-/* started with 2th ':' on gramme : LITERAL ':' ':' NodePath '{' ConfigTermList '}'*/
+/* started with 2th ':' on gramme : LITERAL ':' ':' NodePath '{' ConfigTermList '}' */
 std::shared_ptr<AstObject> Parser::ParseNodeInherit(Token &name)
 {
     if (!lexer_.Lex(current_) || (current_ != LITERAL && current_ != REF_PATH)) {

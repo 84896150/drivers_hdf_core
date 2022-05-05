@@ -59,7 +59,7 @@ public:
 
     virtual ~AstObject();
 
-    AstObject& operator=(const AstObject &obj);
+    AstObject &operator=(const AstObject &obj);
 
     virtual bool AddChild(const std::shared_ptr<AstObject> &childObj);
 
@@ -154,7 +154,7 @@ public:
 
     ~ConfigNode() override = default;
 
-    ConfigNode& operator=(const ConfigNode &node);
+    ConfigNode &operator=(const ConfigNode &node);
 
     friend std::ostream &operator<<(std::ostream &stream, const ConfigNode &t);
 
@@ -166,7 +166,7 @@ public:
 
     const std::string &GetRefPath();
 
-    void SetNodeType(uint32_t type);
+    void SetNodeType(uint32_t nodeType);
 
     void SetRefPath(std::string ref);
 
@@ -183,6 +183,8 @@ public:
     bool Move(std::shared_ptr<AstObject> src) override;
 
     bool Compare(ConfigNode &other);
+
+    bool IsBaseNode();
 
     uint32_t InheritIndex();
 
@@ -217,7 +219,7 @@ public:
 
     ~ConfigTerm() override = default;
 
-    ConfigTerm& operator=(const ConfigTerm &term);
+    ConfigTerm &operator=(const ConfigTerm &term);
 
     static ConfigTerm *CastFrom(const std::shared_ptr<AstObject> &astObject);
 
@@ -252,7 +254,7 @@ public:
 
     ~ConfigArray() override = default;
 
-    ConfigArray& operator=(const ConfigArray &array);
+    ConfigArray &operator=(const ConfigArray &array);
 
     static ConfigArray *CastFrom(const std::shared_ptr<AstObject> &astObject);
 
@@ -434,6 +436,12 @@ private:
 
     bool NodeExpand();
 
+    bool NodeExpandRef();
+
+    bool NodeExpandDelete();
+
+    bool NodeExpandTermRef();
+
     bool InheritExpand();
 
     std::list<std::string> SplitNodePath(const std::string &path, char separator);
@@ -442,9 +450,9 @@ private:
     bool redefineChecked_;
 };
 
-std::ostream &operator<<(std::ostream &s, const AstObject &obj);
-std::ostream &operator<<(std::ostream &s, const ConfigNode &obj);
-std::ostream &operator<<(std::ostream &s, const ConfigTerm &obj);
+std::ostream &operator<<(std::ostream &stream, const AstObject &t);
+std::ostream &operator<<(std::ostream &stream, const ConfigNode &t);
+std::ostream &operator<<(std::ostream &stream, const ConfigTerm &t);
 
 } // namespace Hardware
 } // namespace OHOS
