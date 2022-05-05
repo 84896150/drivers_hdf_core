@@ -6,10 +6,10 @@ class AttributeArea {
         this.callback_func = null;
         this.freshInputValue_ = []
     }
-    Clear() {
+    clear() {
         this.htmlStr = ""
     }
-    Flush() {
+    flush() {
         this.area.innerHTML = this.htmlStr
         while (this.freshInputValue_.length > 0) {
             let v = this.freshInputValue_.shift();
@@ -17,10 +17,10 @@ class AttributeArea {
             e.value = v[1];
         }
     }
-    AddTitle(name) {
+    addTitle(name) {
         this.htmlStr += '<p class="att_title">' + name + '</p>';
     }
-    AddInput(searchId, label, default_, disable) {
+    addInput(searchId, label, default_, disable) {
         let ret = '<label class="input_text_readonly">' + label + '</label>'
         ret += '<input id="' + searchId + '"';
         ret += ' class="input_text"';
@@ -35,7 +35,7 @@ class AttributeArea {
         ret += ' oninput="document.attrCallback.Event(' + "'input', " + "'" + searchId + "'" + ')" /><br>'
         this.htmlStr += ret;
     }
-    AddTextArea(searchId, label, default_) {
+    addTextArea(searchId, label, default_) {
         let ret = '<label class="input_text_readonly">' + label + '</label><br>'
         ret += '<textarea id="' + searchId + '"';
         ret += ' class="text_area"';
@@ -44,11 +44,11 @@ class AttributeArea {
         ret += '</textarea><br>';//cols="20" rows="10"
         this.htmlStr += ret;
     }
-    AddButton(searchId, label) {
+    addButton(searchId, label) {
         if (label.length > 13) label = label.substring(0, 10) + "..."
         this.htmlStr += '<button id="' + searchId + '" class="button_click" type="button" onclick="document.attrCallback.Event(' + "'button', " + "'" + searchId + "'" + ')">' + label + '</button><br>';
     }
-    AddSelect(searchId, label, selectList, default_, disable) {
+    addSelect(searchId, label, selectList, default_, disable) {
         let ret = '<label class="input_text_readonly">' + label + '</label>'
         ret += '<select id="' + searchId + '"';
         ret += ' class="select_list"'
@@ -67,7 +67,7 @@ class AttributeArea {
         ret += "</select><br>";
         this.htmlStr += ret;
     }
-    AddGap(type) {
+    addGap(type) {
         if (type == 0) this.htmlStr += '<br>';
     }
     Event(type, value) {
@@ -82,7 +82,7 @@ class AttributeArea {
             this.callback_func(value, type, cbv)
         }
     }
-    RegistRecvCallback(func) {
+    registRecvCallback(func) {
         this.callback_func = func
     }
 }
