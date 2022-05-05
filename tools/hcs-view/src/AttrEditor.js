@@ -1,3 +1,17 @@
+/*
+* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd. 
+* Licensed under the Apache License, Version 2.0 (the "License"); 
+* you may not use this file except in compliance with the License. 
+* You may obtain a copy of the License at 
+*
+* http://www.apache.org/licenses/LICENSE-2.0 
+*
+* Unless required by applicable law or agreed to in writing, software 
+* distributed under the License is distributed on an "AS IS" BASIS, 
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+* See the License for the specific language governing permissions and 
+* limitations under the License. 
+*/
 const { AttributeArea } = require("./attr/AttributeArea");
 const { ModifyNode } = require("./hcs/ModifyNode");
 const { DataType, NodeType } = require("./hcs/NodeTools");
@@ -5,238 +19,249 @@ const { NodeTools } = require("./hcs/NodeTools");
 
 class AttrEditor {
     constructor() {
-        AttributeArea.gi().RegistRecvCallback(this.OnChange);
+        AttributeArea.gi().registRecvCallback(this.onChange);
         this.files_ = []
         this.callback_ = null;
     }
-    SetFiles(files) {
+    setFiles(files) {
         this.files_ = files;
     }
-    FreshEditor(fn, node) {
+    freshEditor(fn, node) {
         this.filePoint_ = fn;
         this.node_ = node;
         if (fn in this.files_) {
             this.root_ = this.files_[fn];
         }
 
-        AttributeArea.gi().Clear();
+        AttributeArea.gi().clear();
         if (this.node_ != null) {
-            AttributeArea.gi().AddTitle(this.node_.name_)
+            AttributeArea.gi().addTitle(this.node_.name_)
             switch (this.node_.type_) {
                 case 6://节点
                     switch (this.node_.nodeType_) {
                         case 0://数据类节点，不继承
-                            this.FreshDataNodeNotInheritEditor(this.node_);
+                            this.freshDataNodeNotInheritEditor(this.node_);
                             break;
                         case 1://复制类节点
                         case 2://引用修改类节点
                         case 5://数据类节点，继承
-                            this.FreshCopyNodeEditor(this.node_);
+                            this.freshcopyNodeEditor(this.node_);
                             break;
                         case 3://删除类节点
-                            this.FreshDeleteNodeEditor(this.node_);
+                            this.freshdeleteNodeEditor(this.node_);
                             break;
                         case 4://模板类节点
-                            this.FreshTempletNodeEditor(this.node_);
+                            this.freshTempletNodeEditor(this.node_);
                             break;
-                        // return "templete " + data.name_;
-                        default://
+                        default:
                             break;
                     }
                     break;
                 case 7://属性
-                    this.FreshDefineAttributeEditor(this.node_);
+                    this.freshDefineAttributeEditor(this.node_);
                     break;
             }
         }
-        else AttributeArea.gi().AddTitle("属性编辑区")
+        else AttributeArea.gi().addTitle("属性编辑区")
 
-        AttributeArea.gi().Flush();
+        AttributeArea.gi().flush();
     }
-    //节点0 -- 数据类  不继承
-    FreshDataNodeNotInheritEditor(node) {//编辑数据节点
-        AttributeArea.gi().AddSelect("node_type", "节点类型", AttrEditor.NODE_TYPE_STR, AttrEditor.NODE_TYPE_STR[node.nodeType_], this.root_ == this.node_);
-        AttributeArea.gi().AddGap(0);
+    // 节点0 -- 数据类  不继承
+    freshDataNodeNotInheritEditor(node) {// 编辑数据节点
+        AttributeArea.gi().addSelect("node_type", "节点类型", AttrEditor.NODE_TYPE_STR, 
+          AttrEditor.NODE_TYPE_STR[node.nodeType_], this.root_ == this.node_);
+        AttributeArea.gi().addGap(0);
 
-        AttributeArea.gi().AddInput("name", "名称", node.name_, this.root_ == this.node_);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("add_child_node", "添加子节点");
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("add_child_attr", "添加子属性");
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("delete", "删除");
+        AttributeArea.gi().addInput("name", "名称", node.name_, this.root_ == this.node_);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("add_child_node", "添加子节点");
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("add_child_attr", "添加子属性");
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("delete", "删除");
     }
-    ChangeDataNodeNotInherit(searchId, type, value) {
+    changeDataNodeNotInherit(searchId, type, value) {
         if (searchId == "node_type") {
-            ModifyNode.ModifyNodeType(this.files_, this.root_, this.node_, AttrEditor.NODE_TYPE_STR.indexOf(value));
-            this.FreshEditor(this.filePoint_, this.node_);
+            ModifyNode.modifyNodeType(this.files_, this.root_, this.node_, AttrEditor.NODE_TYPE_STR.indexOf(value));
+            this.freshEditor(this.filePoint_, this.node_);
         }
-        if (searchId == "name" && this.node_.name_ != value) ModifyNode.ModifyName(this.files_, this.root_, this.node_, value);
-        if (searchId == "add_child_node") ModifyNode.AddChildNode(this.root_, this.node_);
-        if (searchId == "add_child_attr") ModifyNode.AddChildAttr(this.root_, this.node_);
+        if (searchId == "name" && this.node_.name_ != value) {
+          ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
+        }
+        if (searchId == "add_child_node") ModifyNode.addChildNode(this.root_, this.node_);
+        if (searchId == "add_child_attr") ModifyNode.addChildAttr(this.root_, this.node_);
         if (searchId == "delete") {
-            ModifyNode.DeleteNode(this.node_);
-            this.FreshEditor();
+            ModifyNode.deleteNode(this.node_);
+            this.freshEditor();
         }
     }
     //节点1 -- 复制类节点
     //节点2 -- 引用修改类节点
     //节点5 -- 数据节点 继承
-    FreshCopyNodeEditor(node) {
-        AttributeArea.gi().AddInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddInput("name", "名称", node.name_);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("change_target", node.ref_);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("add_child_node", "添加子节点");
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("add_child_attr", "添加子属性");
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("delete", "删除");
+    freshcopyNodeEditor(node) {
+        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addInput("name", "名称", node.name_);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("change_target", node.ref_);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("add_child_node", "添加子节点");
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("add_child_attr", "添加子属性");
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("delete", "删除");
     }
-    ChangeCopyNode(searchId, type, value) {
-        if (searchId == "name" && this.node_.name_ != value) ModifyNode.ModifyName(this.files_, this.root_, this.node_, value);
-        if (searchId == "change_target") {
-            this.CallCallback("change_target", this.node_);
+    changecopyNode(searchId, type, value) {
+        if (searchId == "name" && this.node_.name_ != value) {
+          ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
         }
-        if (searchId == "add_child_node") ModifyNode.AddChildNode(this.root_, this.node_);
-        if (searchId == "add_child_attr") ModifyNode.AddChildAttr(this.root_, this.node_);
+        if (searchId == "change_target") {
+            this.callCallback("change_target", this.node_);
+        }
+        if (searchId == "add_child_node") ModifyNode.addChildNode(this.root_, this.node_);
+        if (searchId == "add_child_attr") ModifyNode.addChildAttr(this.root_, this.node_);
         if (searchId == "delete") {
-            ModifyNode.DeleteNode(this.node_);
-            this.FreshEditor();
+            ModifyNode.deleteNode(this.node_);
+            this.freshEditor();
         }
     }
     //节点3 -- 删除类节点
-    FreshDeleteNodeEditor(node) {
-        AttributeArea.gi().AddInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddInput("name", "名称", node.name_);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("delete", "删除");
+    freshdeleteNodeEditor(node) {
+        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addInput("name", "名称", node.name_);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("delete", "删除");
     }
-    ChangeDeleteNode(searchId, type, value) {
-        if (searchId == "name" && this.node_.name_ != value) ModifyNode.ModifyName(this.files_, this.root_, this.node_, value);
+    changedeleteNode(searchId, type, value) {
+        if (searchId == "name" && this.node_.name_ != value) {
+          ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
+        }  
         if (searchId == "delete") {
-            ModifyNode.DeleteNode(this.node_);
-            this.FreshEditor();
+            ModifyNode.deleteNode(this.node_);
+            this.freshEditor();
         }
     }
     //节点4 -- 模板类
-    FreshTempletNodeEditor(node) {
-        AttributeArea.gi().AddInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddInput("name", "名称", node.name_);
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("add_child_node", "添加子节点");
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("add_child_attr", "添加子属性");
-        AttributeArea.gi().AddGap(0);
-        AttributeArea.gi().AddButton("delete", "删除");
+    freshTempletNodeEditor(node) {
+        AttributeArea.gi().addInput("node_type", "节点类型", AttrEditor.NODE_TYPE_STR[node.nodeType_], true);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addInput("name", "名称", node.name_);
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("add_child_node", "添加子节点");
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("add_child_attr", "添加子属性");
+        AttributeArea.gi().addGap(0);
+        AttributeArea.gi().addButton("delete", "删除");
     }
-    ChangeTempletNode(searchId, type, value) {
-        if (searchId == "name") ModifyNode.ModifyName(this.files_, this.root_, this.node_, value);
-        if (searchId == "add_child_node") ModifyNode.AddChildNode(this.root_, this.node_);
-        if (searchId == "add_child_attr") ModifyNode.AddChildAttr(this.root_, this.node_);
+    changeTempletNode(searchId, type, value) {
+        if (searchId == "name") {
+          ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
+        }
+        if (searchId == "add_child_node") ModifyNode.addChildNode(this.root_, this.node_);
+        if (searchId == "add_child_attr") ModifyNode.addChildAttr(this.root_, this.node_);
         if (searchId == "delete") {
-            ModifyNode.DeleteNode(this.node_);
-            this.FreshEditor();
+            ModifyNode.deleteNode(this.node_);
+            this.freshEditor();
         }
     }
 
 
     //属性0 定义类
-    FreshDefineAttributeEditor(node) {//定义类属性
+    freshDefineAttributeEditor(node) {//定义类属性
         let v = node.value_;
-        AttributeArea.gi().AddInput("name", "名称", node.name_);
-        AttributeArea.gi().AddGap(0);
+        AttributeArea.gi().addInput("name", "名称", node.name_);
+        AttributeArea.gi().addGap(0);
 
         if (v.type_ == DataType.INT8 ||
             v.type_ == DataType.INT16 ||
             v.type_ == DataType.INT32 ||
             v.type_ == DataType.INT64) {
-            AttributeArea.gi().AddSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[0]);
-            AttributeArea.gi().AddGap(0);
-            // AttributeArea.gi().AddInput("jinzhi", "进制", v.jinzhi_);
-            AttributeArea.gi().AddInput("value", "属性值", NodeTools.JinZhi_10_to_x(v.value_, v.jinzhi_));
-            AttributeArea.gi().AddGap(0);
+            AttributeArea.gi().addSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[0]);
+            AttributeArea.gi().addGap(0);
+            AttributeArea.gi().addInput("value", "属性值", NodeTools.jinZhi_10_to_x(v.value_, v.jinzhi_));
+            AttributeArea.gi().addGap(0);
         }
         else if (v.type_ == DataType.STRING) {
-            AttributeArea.gi().AddSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[1]);
-            AttributeArea.gi().AddGap(0);
-            AttributeArea.gi().AddInput("value", "属性值", v.value_);
-            AttributeArea.gi().AddGap(0);
+            AttributeArea.gi().addSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[1]);
+            AttributeArea.gi().addGap(0);
+            AttributeArea.gi().addInput("value", "属性值", v.value_);
+            AttributeArea.gi().addGap(0);
         }
         else if (v.type_ == DataType.ARRAY) {
-            AttributeArea.gi().AddSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[2]);
-            AttributeArea.gi().AddGap(0);
-            AttributeArea.gi().AddTextArea("value", "属性值", NodeTools.ArrayToString(v, 20));
-            AttributeArea.gi().AddGap(0);
+            AttributeArea.gi().addSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[2]);
+            AttributeArea.gi().addGap(0);
+            AttributeArea.gi().addTextArea("value", "属性值", NodeTools.arrayToString(v, 20));
+            AttributeArea.gi().addGap(0);
         }
         else if (v.type_ == DataType.BOOL) {
-            AttributeArea.gi().AddSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[3]);
-            AttributeArea.gi().AddGap(0);
-            AttributeArea.gi().AddSelect("value", "属性值", [true, false], v.value_ == 1);
-            AttributeArea.gi().AddGap(0);
+            AttributeArea.gi().addSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[3]);
+            AttributeArea.gi().addGap(0);
+            AttributeArea.gi().addSelect("value", "属性值", [true, false], v.value_ == 1);
+            AttributeArea.gi().addGap(0);
         }
         else if (v.type_ == DataType.REFERENCE) {
-            AttributeArea.gi().AddSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[4]);
-            AttributeArea.gi().AddGap(0);
-            AttributeArea.gi().AddButton("change_target", v.value_);
-            AttributeArea.gi().AddGap(0);
+            AttributeArea.gi().addSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[4]);
+            AttributeArea.gi().addGap(0);
+            AttributeArea.gi().addButton("change_target", v.value_);
+            AttributeArea.gi().addGap(0);
         }
         else if (v.type_ == DataType.DELETE) {
-            AttributeArea.gi().AddSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[5]);
-            AttributeArea.gi().AddGap(0);
+            AttributeArea.gi().addSelect("value_type", "类型", AttrEditor.ATTR_TYPE_STR, AttrEditor.ATTR_TYPE_STR[5]);
+            AttributeArea.gi().addGap(0);
         }
 
-        AttributeArea.gi().AddButton("delete", "删除");
+        AttributeArea.gi().addButton("delete", "删除");
     }
-    ChangeDefineAttribute(searchId, type, value) {
+
+    getNodeValue(v, value) {
+        switch (AttrEditor.ATTR_TYPE_STR.indexOf(value)) {
+            case 0://整形
+                v.type_ = DataType.INT8;
+                v.value_ = 0;
+                v.jinzhi_ = 10;
+                break;
+            case 1://str
+                v.type_ = DataType.STRING;
+                v.value_ = "";
+                break;
+            case 2://array
+                v.type_ = DataType.ARRAY;
+                v.value_ = [];
+                break;
+            case 3://bool
+                v.type_ = DataType.BOOL;
+                v.value_ = 1;
+                break;
+            case 4://ref
+                v.type_ = DataType.REFERENCE;
+                v.value_ = "_unknow_";
+                break;
+            case 5://delete
+                v.type_ = DataType.DELETE;
+                break;
+        }
+        this.freshEditor(this.filePoint_, this.node_);
+    }
+
+    changeDefineAttribute(searchId, type, value) {
         let v = this.node_.value_;
-        if (searchId == "name" && value != this.node_.name_) ModifyNode.ModifyName(this.files_, this.root_, this.node_, value);
+        if (searchId == "name" && value != this.node_.name_) {
+          ModifyNode.modifyName(this.files_, this.root_, this.node_, value);
+        }  
         if (searchId == "value_type") {
-            switch (AttrEditor.ATTR_TYPE_STR.indexOf(value)) {
-                case 0://整形
-                    v.type_ = DataType.INT8;
-                    v.value_ = 0;
-                    v.jinzhi_ = 10;
-                    break;
-                case 1://str
-                    v.type_ = DataType.STRING;
-                    v.value_ = "";
-                    break;
-                case 2://array
-                    v.type_ = DataType.ARRAY;
-                    v.value_ = [];
-                    break;
-                case 3://bool
-                    v.type_ = DataType.BOOL;
-                    v.value_ = 1;
-                    break;
-                case 4://ref
-                    v.type_ = DataType.REFERENCE;
-                    v.value_ = "_unknow_";
-                    break;
-                case 5://delete
-                    v.type_ = DataType.DELETE;
-                    break;
-            }
-            this.FreshEditor(this.filePoint_, this.node_);
+          getNodeValue(v, value);
         }
         if (searchId == "change_target") {
-            this.CallCallback("change_target", v);
+            this.callCallback("change_target", v);
         }
         if (searchId == "value") {
             if (v.type_ == DataType.INT8 ||
                 v.type_ == DataType.INT16 ||
                 v.type_ == DataType.INT32 ||
                 v.type_ == DataType.INT64) {
-                let ret = NodeTools.JinZhi_x_to_10(value)
-                if (isNaN(ret[0])) {
-                    // this.node_.errMsg_="整数格式错误";
-                }
-                else {
+                let ret = NodeTools.jinZhi_x_to_10(value)
+                if (!isNaN(ret[0])) {
                     v.value_ = ret[0]
                     v.jinzhi_ = ret[1]
                 }
@@ -245,59 +270,57 @@ class AttrEditor {
                 v.value_ = value;
             }
             else if (v.type_ == DataType.ARRAY) {
-                v.value_ = NodeTools.StringToArray(value);
+                v.value_ = NodeTools.stringToArray(value);
             }
             else if (v.type_ == DataType.BOOL) {
                 v.value_ = value == "true" ? 1 : 0;
             }
         }
         if (searchId == "delete") {
-            ModifyNode.DeleteNode(this.node_);
-            this.FreshEditor();
+            ModifyNode.deleteNode(this.node_);
+            this.freshEditor();
         }
     }
     //属性1 删除类
     //属性2 引用类
-    OnChange(searchId, type, value) {
+    onChange(searchId, type, value) {
         let pattr = AttrEditor.gi();
         if (pattr.node_ != null) {
-            AttributeArea.gi().AddTitle(pattr.node_.name_)
+            AttributeArea.gi().addTitle(pattr.node_.name_)
             switch (pattr.node_.type_) {
                 case 6://节点
                     switch (pattr.node_.nodeType_) {
                         case 0://数据类节点，不继承
-                            pattr.ChangeDataNodeNotInherit(searchId, type, value);
+                            pattr.changeDataNodeNotInherit(searchId, type, value);
                             break;
                         case 1://复制类节点
                         case 2://引用修改类节点
                         case 5://数据类节点，继承
-                            pattr.ChangeCopyNode(searchId, type, value);
+                            pattr.changecopyNode(searchId, type, value);
                             break;
                         case 3://删除类节点
-                            pattr.ChangeDeleteNode(searchId, type, value);
+                            pattr.changedeleteNode(searchId, type, value);
                             break;
                         case 4://模板类节点
-                            pattr.ChangeTempletNode(searchId, type, value);
+                            pattr.changeTempletNode(searchId, type, value);
                             break;
-                        // return "templete " + data.name_;
-                        default://
+                        default:
                             break;
                     }
                     break;
                 case 7://属性
-                    pattr.ChangeDefineAttribute(searchId, type, value);
+                    pattr.changeDefineAttribute(searchId, type, value);
                     break;
             }
-            pattr.CallCallback("writefile")
+            pattr.callCallback("writefile")
         }
-        // console.log(searchId, type, value)
     }
-    CallCallback(type, value) {
+    callCallback(type, value) {
         if (this.callback_ != null) {
             this.callback_(type, value);
         }
     }
-    RegistCallback(func) {
+    registCallback(func) {
         this.callback_ = func;
     }
 }
