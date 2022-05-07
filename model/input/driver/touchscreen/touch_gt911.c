@@ -33,7 +33,7 @@ static int32_t ChipSuspend(ChipDevice *device)
 
 static int32_t ChipDetect(ChipDevice *device)
 {
-    int32_t ret;
+    int32_t ret,i;
     int32_t version;
     int32_t xSolution;
     int32_t ySolution;
@@ -55,8 +55,11 @@ static int32_t ChipDetect(ChipDevice *device)
 #if defined(CONFIG_ARCH_ROCKCHIP)
     if (version != 0x100 || buf[GT_PROD_ID_1ST] != '5' || buf[GT_PROD_ID_2ND] != '6') {
         HDF_LOGE("%s: version or ID wrong", __func__);
-        return HDF_FAILURE;
+        //return HDF_FAILURE;
     }
+    for(i = 0;i<GT_CFG_INFO_LEN;i++) {
+		pr_err("==debug 0x%x\n",buf[i]);
+	}
 #endif
     HDF_LOGI("%s: IC FW version is 0x%x", __func__, version);
     if (buf[GT_FW_VER_HIGH] == 0x0) {
