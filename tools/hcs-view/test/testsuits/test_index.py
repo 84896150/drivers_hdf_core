@@ -14,7 +14,7 @@ class TestHcsTool():
     url = "file:///D:/HCS_tool/drivers_framework-master/tools/hcs-view/index.html"
 
     def setup_class(self):
-        '''用例执行前判断本地项目中index.html文件是否可以打开，并可以使用'''
+        #Determine whether the index.html file in the local project can be opened and used before executing the use case
         filelist = os.listdir('../../../tools/hcs-view/dist')
         if len(filelist) < 2:
             os.chdir('../../../tools/hcs-view/')
@@ -23,23 +23,22 @@ class TestHcsTool():
             return
 
     def setup(self):
-        '''浏览器中打开网页'''
+        #Open a web page in your browser
         self.driver.get(self.url)
         time.sleep(1)
 
     def teardown(self):
-        '''数据清理'''
-        print('清空cookies,退出登录状态')
+        #Data cleaning
+        print('Clear cookies and exit the login state')
         self.driver.delete_all_cookies()
         self.driver.refresh()
         time.sleep(1)
 
     def teardown_class(self):
-        '''用例执行完成，关闭浏览器'''
+        #When the use case is complete, close the browser
         self.driver.quit()
 
     def test_rootselfattr(self):
-        print("验证root自身属性")
         el = self.test.findElement(('id', 'visual_area'))
         loc = self.test.get_canvas_point_position('./Program_pictures/rootselfattr.png', 'root')
         self.test.click_canvas_point(el, loc[0], loc[1])
@@ -74,7 +73,6 @@ class TestHcsTool():
         assert len(nodecount) == 1  #Gets the number of elements in the property edit area
 
     def test_addnodedata(self):
-        print("新增子节点默认属性值")
         self.test.add_node('root')
         time.sleep(1)
         topname = self.driver.find_element_by_class_name('att_title').text
@@ -95,7 +93,6 @@ class TestHcsTool():
         assert deletnode is False
 
     def test_datamodifycopy(self):
-        print("修改为复制类基础属性")
         self.test.add_node('root')   #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[2]').click()   #change node type copy
@@ -110,13 +107,12 @@ class TestHcsTool():
         assert selecttarget is True
         canceltarget = self.test.kuang_contain_text('./Program_pictures/datamodifycopy3.png', "取消选择")
         assert canceltarget is True
-        self.test.sendkeys(('id', 'name'), 'hhhh')  #修改节点名称
+        self.test.sendkeys(('id', 'name'), 'hhhh')  #modify node name
         time.sleep(0.5)
         containhhhh = self.test.kuang_contain_text('./Program_pictures/datamodifycopy4.png','hhhh')
         assert containhhhh is True
 
     def test_copyself(self):
-        print("复制自身节点")
         el = self.test.findElement(('id', 'visual_area'))
         nodeloc = self.test.add_node('root')   #add & click node
         time.sleep(0.5)
@@ -143,7 +139,6 @@ class TestHcsTool():
         assert unknowexit is False
 
     def test_modiycopy(self):
-        print("变更复制节点")
         el = self.test.findElement(('id', 'visual_area'))
         nodeloc = self.test.add_node('root')  #add & click node
         time.sleep(0.5)
@@ -159,7 +154,6 @@ class TestHcsTool():
         assert text == 'nodeaa'
 
     def test_modifycopyname(self):
-        print("节点被复制后修改节点名称")
         nodeloc = self.test.add_node('root')   #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[2]').click()  #change node type copy
@@ -185,7 +179,6 @@ class TestHcsTool():
         assert copyname == 'nodeff'
 
     def test_copyattr(self):
-        print("复制属性节点")
         self.test.add_node('root')   #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[2]').click()  #change node type copy
@@ -196,7 +189,6 @@ class TestHcsTool():
         assert cancelselect is True
 
     def test_cancelcopy(self):
-        print("复制类点击取消选择按钮")
         self.test.add_node('root')  #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[2]').click()  #change node type copy
@@ -211,7 +203,6 @@ class TestHcsTool():
         assert copyflag is True
 
     def test_reference(self):
-        print("修改为引用修改类基础属性")
         self.test.add_node('root')   #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[3]').click()  # change node type reference
@@ -228,7 +219,6 @@ class TestHcsTool():
         assert canceltarget is True
 
     def test_referenceself(self):
-        print("引用自身节点")
         el = self.test.findElement(('id', 'visual_area'))
         nodeloc = self.test.add_node('root')  #add & click node
         time.sleep(0.5)
@@ -255,7 +245,6 @@ class TestHcsTool():
         assert text == 'hhhh'
 
     def test_modifyreference(self):
-        print("变更引用节点")
         el = self.test.findElement(('id', 'visual_area'))
         nodeloc = self.test.add_node('root')   #add & click node
         time.sleep(0.5)
@@ -271,7 +260,6 @@ class TestHcsTool():
         assert text == 'nodeaa'
 
     def test_modifyrefename(self):
-        print("节点被引用后修改节点名称")
         nodeloc = self.test.add_node('root') #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[3]').click()  #change node type to reference
@@ -297,7 +285,6 @@ class TestHcsTool():
         assert refename == 'nodeff'
 
     def test_refeattr(self):
-        print("引用属性节点")
         print("")
         self.test.add_node('root')  #add & click node
         time.sleep(0.5)
@@ -309,7 +296,6 @@ class TestHcsTool():
         assert cancelselect is True
 
     def test_cancelrefe(self):
-        print("引用类点击取消选择按钮")
         self.test.add_node('root')  #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[3]').click()   #change node type reference
@@ -324,7 +310,6 @@ class TestHcsTool():
         assert copyflag is True
 
     def test_delete(self):
-        print("修改为删除类基础属性")
         self.test.add_node('root')  #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[4]').click()  #change node type delete
@@ -337,7 +322,6 @@ class TestHcsTool():
         assert deleteexit is False
 
     def test_templete(self):
-        print("修改为模板类基础属性")
         self.test.add_node('root')   #add & click node
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[5]').click()   #change node type templete
@@ -349,7 +333,6 @@ class TestHcsTool():
         self.test.click(('id','add_child_attr'))
 
     def test_inheritance(self):
-        print("修改为数据类型继承基础属性")
         self.test.add_node('root')  #add & click node
         time.sleep(0.5)
         # Change the node type to inheritance class
@@ -367,7 +350,6 @@ class TestHcsTool():
         assert canceltarget is True
 
     def test_inherself(self):
-        print("继承自身节点")
         el = self.test.findElement(('id', 'visual_area'))
         nodeloc = self.test.add_node('root')  #add & click node
         time.sleep(0.5)
@@ -393,7 +375,6 @@ class TestHcsTool():
         assert text == 'hhhh'
 
     def test_modifyinher(self):
-        print("变更继承节点")
         el = self.test.findElement(('id', 'visual_area'))
         nodeloc = self.test.add_node('root')  #add & click node
         time.sleep(0.5)
@@ -410,7 +391,6 @@ class TestHcsTool():
         assert text == 'nodeaa'
 
     def test_modifyinhername(self):
-        print("节点被继承后修改节点名称")
         nodeloc = self.test.add_node('root')  # add && click node
         time.sleep(0.5)
         # Change the node type to inheritance class
@@ -437,7 +417,6 @@ class TestHcsTool():
         assert refename == 'nodeff'
 
     def test_inheattr(self):
-        print("继承属性节点")
         self.test.add_node('root')  # add && click node
         time.sleep(0.5)
         # Change the node type to inheritance class
@@ -449,7 +428,6 @@ class TestHcsTool():
         assert cancelselect is True   #The deselect button still exists on the canvas
 
     def test_cancelinher(self):
-        print("继承类点击取消选择按钮")
         self.test.add_node('root')  # add && click node
         time.sleep(0.5)
         # Change the node type to inheritance class
@@ -465,7 +443,6 @@ class TestHcsTool():
         assert copyflag is True  #Canvas hint could not find inheritance target
 
     def test_addattr(self):
-        print("添加子属性默认属性类型")
         self.test.add_attr('root')   #add attr
         attname = self.driver.find_element_by_class_name('att_title').text
         assert attname == 'attr_1'
@@ -484,7 +461,6 @@ class TestHcsTool():
         assert deleteattr == False  #Verifying a successful deletion
 
     def test_modifystring(self):
-        print("修改属性类型为字符串")
         self.test.add_attr('root')
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[2]').click()   #change attr type is string
@@ -496,7 +472,6 @@ class TestHcsTool():
         assert stringattr == True   # Verify modify successfully
 
     def test_modifyarray(self):
-        print("再次修改属性类型为数组")
         self.test.add_attr('root')
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[3]').click()  # change attr type is array
@@ -508,7 +483,6 @@ class TestHcsTool():
         assert arrayattr == True  # Verify modify successfully
 
     def test_modifybool(self):
-        print("修改属性类型为布尔")
         self.test.add_attr('root')
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[4]').click()  # change attr type is bool
@@ -520,7 +494,6 @@ class TestHcsTool():
         assert boolattr == True  # Verify the modification
 
     def test_modifurefe(self):
-        print("修改属性类型为引用")
         self.test.add_attr('root')
         time.sleep(0.5)
         self.driver.find_element_by_xpath('/html/body/div/select/option[5]').click()  # change attr type is reference

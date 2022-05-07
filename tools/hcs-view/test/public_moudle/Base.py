@@ -6,32 +6,27 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 
 class Base():
-    '''Selenium does secondary encapsulation based on native selenium'''
-    '''Initialize the self, the driver'''
     def __init__(self, driver):
         self.driver = driver
         self.timeout = 10
         self.t = 0.5
 
     def findElement(self, locator):
-        '''Element located, return object of element, not located, timeout exception'''
         if not isinstance(locator, tuple):
-            print('locator参数类型错误，必须传元组类型：loc=("id","value1")')
+            print('The type of the locator parameter is tuple')
         else:
-            print('正在定位元素信息：定位方式->%s,value值—>%s' % (locator[0], locator[1]))
-            '''Explicit wait method, search every 0.5 seconds, exit after 10 seconds'''
+            print('Locating element information：type is->%s,value is—>%s' % (locator[0], locator[1]))
             ele = WebDriverWait(self.driver,
                                 self.timeout,
                                 self.t).until(EC.presence_of_element_located(locator))
             return ele
 
-    '''Enter text information'''
+    #Enter text information
     def sendkeys(self, locator, text=''):
         ele = self.findElement(locator)
         ele.clear()
         ele.send_keys(text)
 
-    '''click'''
     def click(self, locator):
         ele = self.findElement(locator)
         ele.click()
@@ -40,8 +35,7 @@ class Base():
         try:
             element = self.findElement(locator)
             return element.get_attribute(name)
-        except:
-            print('获取%属性失败，返回""' % name)
+        except BaseException:
             return ""
 
     def click_canvas_point(self,el,x,y):
@@ -49,9 +43,7 @@ class Base():
         actions.move_to_element_with_offset(el, x, y).click().perform()
 
     def click_canvas_by_text(self,text):
-        '''
-        text:Click on the text
-        '''
+        #text:Click on the text
         el = self.findElement(('id', 'visual_area'))
         loc = self.get_canvas_point_position('./Program_pictures/quanping.png',text)
         actions = ActionChains(self.driver)
@@ -66,20 +58,14 @@ class Base():
         actions.key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
 
     def get_canvas_point_position(self,path,text):
-        '''
-        path:Storage address of screenshot
-        text:The text content to look up
-        '''
+        #path:Storage address of screenshot   text:The text content to look up
         self.driver.get_screenshot_as_file(path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
-        #print("###################",result)
         loc_x_min = loc_x_max = loc_y_min = loc_y_max = 0
         for i in result:
-            '''
-            The text in the recognition figure is prone to case error.
-            Compare the two texts in lower case to avoid the problem
-            '''
+            #The text in the recognition figure is prone to case error.
+            #Compare the two texts in lower case to avoid the problem
             if i[1].lower() == text.lower():
                 loc_x_min = i[0][0][0]
                 loc_x_max = i[0][1][0]
@@ -91,20 +77,14 @@ class Base():
         return (loc_x,loc_y)
 
     def get_obtain_point_position(self, path, text):
-        '''
-        path:Storage address of screenshot
-        text:The text content to look up
-        '''
+        #path:Storage address of screenshot   text:The text content to look up
         self.driver.get_screenshot_as_file(path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
-        #print("#########get_obtain_point_position##########", result)
         loc_x_min = loc_x_max = loc_y_min = loc_y_max = 0
         for i in result:
-            '''
-            The text in the recognition figure is prone to case error.
-            Compare the two texts in lower case to avoid the problem
-            '''
+            #The text in the recognition figure is prone to case error.
+            #Compare the two texts in lower case to avoid the problem
             if text in i[1].lower():
                 loc_x_min = i[0][0][0]
                 loc_x_max = i[0][1][0]
@@ -116,9 +96,7 @@ class Base():
         return (loc_x, loc_y)
 
     def add_node(self,text):
-        '''
-        text:Name of the child node to be added
-        '''
+        #text:Name of the child node to be added
         el = self.findElement(('id', 'visual_area'))
         loc = self.get_canvas_point_position('./Program_pictures/quanping.png', text)
         self.click_canvas_point(el, loc[0], loc[1])
@@ -128,9 +106,7 @@ class Base():
         return loc1
 
     def add_attr(self,text):
-        '''
-        text:Name of the child attr to be added
-        '''
+        #text:Name of the child attr to be added
         el = self.findElement(('id', 'visual_area'))
         loc = self.get_canvas_point_position('./Program_pictures/quanping.png', text)
         self.click_canvas_point(el, loc[0], loc[1])
@@ -140,10 +116,8 @@ class Base():
         result = reader.readtext('./Program_pictures/addattr.png')
         loc_x_min = loc_x_max = loc_y_min = loc_y_max = 0
         for i in result:
-            '''
-            Query the location of the node whose initial letter is A (there is no node whose initial letter 
-            is A on the current page, but the name of the node whose new attribute is attr_1).
-            '''
+            #Query the location of the node whose initial letter is A (there is no node whose initial letter
+            #is A on the current page, but the name of the node whose new attribute is attr_1).
             if 'a' == i[1].lower()[0]:
                 loc_x_min = i[0][0][0]
                 loc_x_max = i[0][1][0]
@@ -156,14 +130,10 @@ class Base():
         return (loc_x,loc_y)
 
     def node_in_kuang(self,path,text):
-        '''
-        path:Storage address of screenshot
-        text:The text content to look up
-        '''
+        #path:Storage address of screenshot   text:The text content to look up
         self.driver.get_screenshot_as_file(path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
-        #print("@@@@@@@@@@node_in_kuang@@@@@@@@@@@@",result)
         flag = False
         for i in result:
             if i[1].lower() == text:
@@ -172,14 +142,10 @@ class Base():
         return flag
 
     def kuang_contain_text(self,path,text):
-        '''
-        path:Storage address of screenshot
-        text:The text content to look up
-        '''
+        #path:Storage address of screenshot   text:The text content to look up
         self.driver.get_screenshot_as_file(path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
-        #print("@@@@@@@@@@kuang_contain_text@@@@@@@@@@@@", result)
         flag = False
         for i in result:
             if text in i[1]:
@@ -188,10 +154,7 @@ class Base():
         return flag
 
     def text_count(self, path, text):
-        '''
-        path:Storage address of screenshot
-        text:The text content to look up
-        '''
+        # path:Storage address of screenshot   text:The text content to look up
         self.driver.get_screenshot_as_file(path)
         size = self.driver.get_window_size()
         size.get('width')
@@ -199,7 +162,6 @@ class Base():
             path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
-        #print("@@@@@@@@@@text_count@@@@@@@@@@@@", result)
         count = 0
         for i in result:
             if text in i[1]:

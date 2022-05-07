@@ -12,7 +12,7 @@ def driver(request):
             driver = webdriver.Chrome()
         else:
             driver = webdriver.Chrome()
-        print("正在启动浏览器名称：%s" % name)
+        print("Name of the browser that is launching：{name}")
 
     def fn():
         driver.quit()
