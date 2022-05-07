@@ -149,13 +149,11 @@ static int AdcTestThreadFunc(void *param)
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: AdcRead failed, ret:%d", __func__, ret);
             *((int32_t *)param) = 1;
-            AdcTesterPut(tester);
             return HDF_ERR_IO;
         }
     }
 
     *((int32_t *)param) = 1;
-    AdcTesterPut(tester);
     HDF_LOGI("%s: done", __func__);
     return val;
 }
@@ -205,6 +203,7 @@ int32_t AdcTestMultiThread(void)
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
+    AdcTesterPut(AdcTesterGet());
     HDF_LOGI("%s: done", __func__);
     return HDF_SUCCESS;
 }
