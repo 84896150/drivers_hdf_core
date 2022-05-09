@@ -154,6 +154,9 @@ static int32_t ChipDataHandle(ChipDevice *device)
     reg[1] = GT_BUF_STATE_ADDR & ONE_BYTE_MASK;
     ret = InputI2cRead(i2cClient, reg, GT_ADDR_LEN, &touchStatus, 1);
     if (ret < 0 || touchStatus == GT_EVENT_INVALID) {
+        if (ret < 0) {
+            HDF_LOGE("InputI2cRead fail %s", __func__);
+        }
         return HDF_FAILURE;
     }
 
@@ -182,6 +185,7 @@ static int32_t ChipDataHandle(ChipDevice *device)
 EXIT:
     OsalMutexUnlock(&device->driver->mutex);
     if (ChipCleanBuffer(i2cClient) != HDF_SUCCESS) {
+        HDF_LOGE("ChipCleanBuffer fail %s", __func__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
