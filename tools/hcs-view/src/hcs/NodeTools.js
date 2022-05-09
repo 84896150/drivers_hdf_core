@@ -150,14 +150,10 @@ NodeTools.copyNode = function (node, parent) {
         type_: node.type_,
         name_: node.name_,
         parent_: parent
-    }
-    if(node.raw_!=undefined)
+    };if(node.raw_!=undefined)
         ret.raw_=node.raw_
     switch (node.type_) {
-        case DataType.INT8://uin8
-        case DataType.INT16://uin16
-        case DataType.INT32://uin32
-        case DataType.INT64://uin64
+        case DataType.INT8,DataType.INT16,DataType.INT32,DataType.INT64:
             ret.value_ = node.value_
             ret.jinzhi_ = node.jinzhi_
             break;
@@ -167,32 +163,23 @@ NodeTools.copyNode = function (node, parent) {
         case 6://ConfigNode
             ret.nodeType_ = node.nodeType_
             switch (node.nodeType_) {
-                case NodeType.INHERIT://数据类节点，继承
-                case NodeType.COPY://复制类节点
-                case NodeType.REFERENCE://引用修改类节点
+                case NodeType.INHERIT,NodeType.COPY,NodeType.REFERENCE://数据类节点，继承、复制类节点、引用修改类节点
                     ret.ref_ = node.ref_;
                     break;
-                case NodeType.DATA:
-                case NodeType.TEMPLETE:
-                case NodeType.DELETE:
+                case NodeType.DATA,NodeType.TEMPLETE,NodeType.DELETE:
                     break;
                 default://
                     NapiLog.logError("unknow node type");
                     break;
-            }
-            ret.value_ = []
-            for (let i in node.value_) {
-                ret.value_.push(NodeTools.copyNode(node.value_[i], ret))
-            }
+            }ret.value_ = []
+            for (let i in node.value_) {ret.value_.push(NodeTools.copyNode(node.value_[i], ret))}
             break;
         case 7://ConfigTerm
             ret.value_ = NodeTools.copyNode(node.value_, ret)
             break;
         case 8://array 数组类属性值
             ret.value_ = []
-            for (let i in node.value_) {
-                ret.value_.push(NodeTools.copyNode(node.value_[i], ret))
-            }
+            for (let i in node.value_) {ret.value_.push(NodeTools.copyNode(node.value_[i], ret))}
             break;
         case 9://属性等于叶子
             ret.value_ = node.value_;
@@ -206,8 +193,7 @@ NodeTools.copyNode = function (node, parent) {
         default:
             NapiLog.logInfo("unknow", node.type_)
             break;
-    }
-    return ret;
+    }return ret;
 }
 
 function makeError(node, errStr) {
@@ -231,31 +217,24 @@ NodeTools.nodeExpand = function (node) {
             if (pn.nodeType_ == NodeType.DELETE) {
                 separate(pn);
                 return true;
-            }
-            if (pn.nodeType_ == NodeType.COPY || pn.nodeType_ == NodeType.REFERENCE) {
+            }if (pn.nodeType_ == NodeType.COPY || pn.nodeType_ == NodeType.REFERENCE) {
                 let ref = NodeTools.lookup(pn);
                 if (ref == null) {
                     NapiLog.logError("reference not exist" + NodeTools.getPathByNode(pn) + ":" + pn.ref_);
                     if (pn.nodeType_ == NodeType.COPY) makeError(pn, "复制目标没找到")
                     else makeError(pn, "引用目标没找到")
-                }
-                else if (NodeTools.isElders(pn, ref)) {
+                }else if (NodeTools.isElders(pn, ref)) {
                     NapiLog.logError("circular reference" + NodeTools.getPathByNode(pn) + ":" + pn.ref_);
                     if (pn.nodeType_ == NodeType.COPY) makeError(pn, "循环复制")
                     else makeError(pn, "循环引用")
-                }
-                else {
+                }else {
                     if (pn.nodeType_ == NodeType.COPY) {
                         pn.nodeType_ = NodeType.DATA;//当前节点转换为数据类节点
                         let tref = NodeTools.copyNode(ref, pn.parent_);//复制一个ref出来
                         NodeTools.merge(tref, pn)//把当前节点的内容合并进去
                         pn.value_ = tref.value_
-
-                        // NodeTools.nodeExpand(pn);**因为翻译工具不支持嵌套展开，暂时注释这一部分**
-                    }
-                    else if (pn.nodeType_ == NodeType.REFERENCE) {
-                        pn.nodeType_ = ref.nodeType_;
-                        pn.name_ = ref.name_;
+                    }else if (pn.nodeType_ == NodeType.REFERENCE) {
+                        pn.nodeType_ = ref.nodeType_; pn.name_ = ref.name_;
                         NodeTools.merge(ref, pn)//将当前节点内容合并到ref里面去
                         separate(pn);
                         return true;
@@ -267,26 +246,22 @@ NodeTools.nodeExpand = function (node) {
             if (pn.value_.type_ == DataType.DELETE) {
                 separate(pn);
                 return true;
-            }
-            if (pn.value_.type_ == DataType.REFERENCE) {
+            }if (pn.value_.type_ == DataType.REFERENCE) {
                 let ref = NodeTools.lookup(pn);
-                if (ref == null || ref.type_ != DataType.NODE ||
-                    ref.nodeType_ == NodeType.REFERENCE ||
-                    ref.nodeType_ == NodeType.TEMPLETE ||
-                    ref.nodeType_ == NodeType.DELETE) {
+                if (ref == null || ref.type_ != DataType.NODE || ref.nodeType_ == NodeType.REFERENCE ||
+                    ref.nodeType_ == NodeType.TEMPLETE || ref.nodeType_ == NodeType.DELETE) {
                     NapiLog.logError("reference invalid node" + NodeTools.getPathByNode(pn) + ":" + pn.value_.value_);
                     if (ref == null) makeError(pn, "找不到引用目标")
                     else if (ref.type_ != DataType.NODE) makeError(pn, "不能引用属性")
                     else if (ref.nodeType == NodeType.REFERENCE) makeError(pn, "不能引用引用类节点")
                     else if (ref.nodeType == NodeType.TEMPLETE) makeError(pn, "不能引用模板类节点")
                     else if (ref.nodeType == NodeType.DELETE) makeError(pn, "不能引用删除类节点")
-                }
-                else pn.refNode_ = ref;
+                }else pn.refNode_ = ref;
             }
-        }
-        return false;
+        }return false;
     }, false);
 }
+
 NodeTools.inheritExpand = function (node) {
     NodeTools.recursionAll(node, (pn) => {
         let tt = re.match("^[a-zA-Z_]{1}[a-zA-Z_0-9]*$", pn.name_);
@@ -322,7 +297,8 @@ NodeTools.merge = function (node1, node2) {
             return false;
         }
         node1.nodeType_ = node2.nodeType_;
-        if (node2.nodeType_ == NodeType.INHERIT || node2.nodeType_ == NodeType.REFERENCE || node2.nodeType_ == NodeType.COPY) node1.ref_ = node2.ref_
+        if (node2.nodeType_ == NodeType.INHERIT || node2.nodeType_ == NodeType.REFERENCE 
+            || node2.nodeType_ == NodeType.COPY) node1.ref_ = node2.ref_
         if (node1.value_ == undefined) node1.value_ = [];
 
         for (let i in node2.value_) {
@@ -349,7 +325,7 @@ NodeTools.merge = function (node1, node2) {
 
     return true;
 }
-NodeTools.jinZhi_10_to_x = function (num, jinzhi) {
+NodeTools.jinZhi10ToX = function (num, jinzhi) {
     let ret;
     switch (jinzhi) {
         case 2:
@@ -421,48 +397,41 @@ NodeTools.arrayToString = function (node, maxw) {
         if (type == DataType.STRING)
             line += '"' + node.value_[d].value_ + '"';
         else
-            line += NodeTools.jinZhi_10_to_x(node.value_[d].value_, node.value_[d].jinzhi_);
+            line += NodeTools.jinZhi10ToX(node.value_[d].value_, node.value_[d].jinzhi_);
     }
     ret += line;
     return ret;
 }
+
 NodeTools.stringToArray = function (s) {
-    let type = DataType.INT8;
-    let ret = [];
+    let type = DataType.INT8; let ret = [];
     s = s.replace(/\n/g, "")
     if (s.length <= 0)
         return ret;
     if (s.indexOf('"') >= 0) {
         type = DataType.STRING;
-        let p = 0;
-        let stat = 0;
-        let v
+        let p = 0; let stat = 0; let v
         while (p < s.length && stat < 100) {
             switch (stat) {
                 case 0:
                     if (s[p] == '"') {
-                        stat = 1;
-                        v = ""
-                    }
-                    else if (s[p] != ' ') stat = 100;
+                        stat = 1; v = "";
+                    }else if (s[p] != ' ') stat = 100;
                     break;
                 case 1:
                     if (s[p] == '"') {
                         stat = 2;
                         ret.push(NodeTools.createNewNode(type, "", v))
-                    }
-                    else v += s[p]
+                    }else v += s[p]
                     break;
                 case 2:
                     if (s[p] == ',') stat = 0;
                     else if (s[p] != ' ') stat = 100;
                     break;
-            }
-            p += 1;
+            }p += 1;
         }
-    }
-    else {
-        let arr = s.split(",")
+    }else {
+        let arr = s.split(",");
         for (let i in arr) {
             let num = NodeTools.jinZhiXTo10(arr[i])
             if (isNaN(num[0])) num[0] = 0;
@@ -471,24 +440,17 @@ NodeTools.stringToArray = function (s) {
             ret.push(attr)
             if (num[0] <= 0xff) {
                 if (type < DataType.INT8) type = DataType.INT8;
-            }
-            else if (num[0] <= 0xffff) {
+            }else if (num[0] <= 0xffff) {
                 if (type < DataType.INT16) type = DataType.INT16;
-            }
-            else if (num[0] <= 0xffffffff) {
+            }else if (num[0] <= 0xffffffff) {
                 if (type < DataType.INT32) type = DataType.INT32;
-            }
-            else {
+            }else {
                 type = DataType.INT64;
             }
+        }if (type != DataType.INT8) {
+            for (let i in ret) { ret[i].type_ = type;}
         }
-        if (type != DataType.INT8) {
-            for (let i in ret) {
-                ret[i].type_ = type;
-            }
-        }
-    }
-    return ret;
+    }return ret;
 }
 
 module.exports = {
