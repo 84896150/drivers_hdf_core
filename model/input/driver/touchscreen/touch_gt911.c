@@ -111,6 +111,12 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
             frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+            if (frame->fingers[i].y < GT_Y_OFFSET_A)
+                frame->fingers[i].y += CORRECTION_VALUE_A;
+            else if (frame->fingers[i].y < GT_Y_OFFSET_B)
+                frame->fingers[i].y += CORRECTION_VALUE_B;
+            else if (frame->fingers[i].y < GT_Y_OFFSET_C)
+                frame->fingers[i].y += CORRECTION_VALUE_C;
 #else
             frame->fingers[i].y = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
