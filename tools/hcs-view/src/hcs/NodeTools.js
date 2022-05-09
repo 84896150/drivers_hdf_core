@@ -1,3 +1,17 @@
+/*
+* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd. 
+* Licensed under the Apache License, Version 2.0 (the "License"); 
+* you may not use this file except in compliance with the License. 
+* You may obtain a copy of the License at 
+*
+* http://www.apache.org/licenses/LICENSE-2.0 
+*
+* Unless required by applicable law or agreed to in writing, software 
+* distributed under the License is distributed on an "AS IS" BASIS, 
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+* See the License for the specific language governing permissions and 
+* limitations under the License. 
+*/
 const { NapiLog } = require("./NapiLog");
 const re = require("./re")
 
@@ -42,16 +56,9 @@ NodeTools.isElders = function (node, elders) {
     return false;
 }
 
-// NodeTools.IsEested = function (node) {
-//     for(let i = 0;i<node.value_.length;i++){
-//         if ()
-//     }
-//     return false;
-// }
-
 NodeTools.getPathByNode = function (node) {
     if (node == null) return "";
-    ret = node.name_;
+    let ret = node.name_;
     while (node.parent_ != undefined) {
         node = node.parent_;
         ret = node.name_ + "." + ret;
@@ -197,7 +204,7 @@ NodeTools.copyNode = function (node, parent) {
             ret.value_ = node.value_
             break;
         default:
-            console.log("unknow", node.type_)
+            NapiLog.logInfo("unknow", node.type_)
             break;
     }
     return ret;
@@ -239,11 +246,10 @@ NodeTools.nodeExpand = function (node) {
                 }
                 else {
                     if (pn.nodeType_ == NodeType.COPY) {
-                        //todo 判断拷贝的目标必须是 数据类继承，数据类不继承，引用，模板
                         pn.nodeType_ = NodeType.DATA;//当前节点转换为数据类节点
                         let tref = NodeTools.copyNode(ref, pn.parent_);//复制一个ref出来
                         NodeTools.merge(tref, pn)//把当前节点的内容合并进去
-                        pn.value_ = tref.value_//更新当前节点的子孙(todo 后续遍历，子孙已经更新过?)
+                        pn.value_ = tref.value_
 
                         // NodeTools.nodeExpand(pn);**因为翻译工具不支持嵌套展开，暂时注释这一部分**
                     }
@@ -295,11 +301,10 @@ NodeTools.inheritExpand = function (node) {
             makeError(pn, "找不到继承目标")
             return false;
         }
-        //todo Compare
         pn.nodeType_ = NodeType.DATA;//当前节点转换为数据类节点
         let tinherit = NodeTools.copyNode(inherit, pn.parent_);//复制一个ref出来
         NodeTools.merge(tinherit, pn)//把当前节点的内容合并进去
-        pn.value_ = tinherit.value_//更新当前节点的子孙(todo 后续遍历，子孙已经更新过?)
+        pn.value_ = tinherit.value_
         return false;
     }, true);
 }
@@ -316,10 +321,6 @@ NodeTools.merge = function (node1, node2) {
         if (node1.name_ != node2.name_) {
             return false;
         }
-        // if (node2.nodeType_ == NodeType.DELETE) {
-        //     separate(node1);
-        //     return true;
-        // }
         node1.nodeType_ = node2.nodeType_;
         if (node2.nodeType_ == NodeType.INHERIT || node2.nodeType_ == NodeType.REFERENCE || node2.nodeType_ == NodeType.COPY) node1.ref_ = node2.ref_
         if (node1.value_ == undefined) node1.value_ = [];
@@ -348,42 +349,6 @@ NodeTools.merge = function (node1, node2) {
 
     return true;
 }
-// NodeTools.CheckError = function (files, node) {
-//     node.errMsg_ = null;
-//     if (node.parent_ == undefined)
-//         return false;
-//     let root = getRoot(node);
-//     //同级重名
-//     if (node.parent_.type_ == DataType.NODE) {
-//         for (let i in node.parent_.value_) {
-//             if (node.parent_.value_[i].name_ == undefined || node.name_ == undefined) {
-//                 console.log(123)
-//             }
-//             if (node.parent_.value_[i] != node && node.parent_.value_[i].name_ == node.name_) {
-//                 node.errMsg_ = "重名";
-//                 return true;
-//             }
-//         }
-//     }
-
-//     if (node.type_ == DataType.NODE) {
-//         switch (node.nodeType_) {
-//             case NodeType.DATA:
-//                 break;
-//             case NodeType.COPY://是否有源
-//                 break;
-//             case NodeType.REFERENCE://是否有源
-//                 break;
-//             case NodeType.DELETE://是否有源
-//                 break;
-//             case NodeType.TEMPLETE://
-//                 break;
-//             case NodeType.INHERIT://是否有源
-//                 break;
-//         }
-//     }
-// }
-
 NodeTools.jinZhi_10_to_x = function (num, jinzhi) {
     let ret;
     switch (jinzhi) {
@@ -405,7 +370,7 @@ NodeTools.jinZhi_10_to_x = function (num, jinzhi) {
     }
     return ret + num.toString(jinzhi);
 }
-NodeTools.jinZhi_x_to_10 = function (s) {
+NodeTools.jinZhiXTo10 = function (s) {
     if (s == null || s.length == 0)
         return [0, 10]
     if (s[0] == '0') {
@@ -499,7 +464,7 @@ NodeTools.stringToArray = function (s) {
     else {
         let arr = s.split(",")
         for (let i in arr) {
-            let num = NodeTools.jinZhi_x_to_10(arr[i])
+            let num = NodeTools.jinZhiXTo10(arr[i])
             if (isNaN(num[0])) num[0] = 0;
             let attr = NodeTools.createNewNode(type, "", num[0]);
             attr.jinzhi_ = num[1]

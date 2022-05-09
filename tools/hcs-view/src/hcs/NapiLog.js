@@ -36,13 +36,6 @@ function getDateString() {
 function saveLog(dateStr, levStr, detail) {
     if (logFileName) {
         let logStr = dateStr + " " + levStr + " " + detail + "\n";
-
-        // try {
-        //     const fs = require('fs');
-        //     if(levStr=="[INF]")fs.appendFileSync(logFileName, detail+"\n");
-        //     else fs.appendFileSync(logFileName, logStr);
-        // } catch (err) {
-        // }
     }
 }
 

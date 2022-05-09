@@ -1,9 +1,22 @@
-// const path = require("path")
+/*
+* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd. 
+* Licensed under the Apache License, Version 2.0 (the "License"); 
+* you may not use this file except in compliance with the License. 
+* You may obtain a copy of the License at 
+*
+* http://www.apache.org/licenses/LICENSE-2.0 
+*
+* Unless required by applicable law or agreed to in writing, software 
+* distributed under the License is distributed on an "AS IS" BASIS, 
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+* See the License for the specific language governing permissions and 
+* limitations under the License. 
+*/
 const { NapiLog } = require("./NapiLog")
-const { Lexer, TokenType, CODE } = require("./lexer")
+const { Lexer, TokenType, code } = require("./lexer")
 const { AstObject, ConfigNode, ConfigTerm, ConfigArray, NodeRefType, ObjectType, Ast } = require("./ast")
 
-function COPY(obj) {
+function copy(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 class Parser {
@@ -14,14 +27,11 @@ class Parser {
         this.astList = {}
     }
     Parse(fn) {
-        // if (fn in this.astList) {
-        //     return this.astList[fn]
-        // }
         if (this.srcQueue_.indexOf(fn) == -1) this.srcQueue_.push(fn)
 
         while (this.srcQueue_.length > 0) {
             let includeList = []
-            let oneAst = this.ParseOne(this.srcQueue_[0], includeList)
+            let oneAst = this.parseOne(this.srcQueue_[0], includeList)
             if (oneAst == null) {
                 return false;
             }
@@ -34,7 +44,6 @@ class Parser {
             this.srcQueue_ = this.srcQueue_.concat(includeList)
         }
         return this.astList;
-        //todo
         astList.push(astList.shift());
         this.ast_ = astList.shift();
 
@@ -44,20 +53,18 @@ class Parser {
         }
 
         if (astList.length > 0) {
-            //this.ast_.Dump("merged");
         }
-        if (this.ast_.GetAstRoot() == null) {
+        if (this.ast_.getAstRoot() == null) {
             NapiLog.logError(fn + ": Empty hcs file");
             return false;
         }
 
-        if (!this.ast_.Expand()) {
+        if (!this.ast_.expand()) {
             return false;
         }
-        // this.ast_.Dump("expanded");
         return astList[0]
     }
-    ConvertAbsPath(includeBy, includePath) {
+    convertAbsPath(includeBy, includePath) {
         if (navigator.userAgent.toLowerCase().indexOf("win") > -1) {//windows
             if (includePath[1] != ':') {
                 let currentSrc = includeBy.substring(0, includeBy.lastIndexOf("\\") + 1)
@@ -74,9 +81,9 @@ class Parser {
         }
         return includePath
     }
-    ProcessInclude(includeList) {
+    processInclude(includeList) {
         do {
-            if (!this.lexer_.Lex(this.current_) || this.current_.type != TokenType.STRING) {
+            if (!this.lexer_.lex(this.current_) || this.current_.type != TokenType.STRING) {
                 Logger().Error() << lexer_ << "syntax error, expect include path after ’#include‘";
                 return false;
             }
@@ -86,11 +93,11 @@ class Parser {
                 Logger().Error() << lexer_ << "include invalid file: \'" << includePath << '\'';
                 return false;
             }
-            includePath = this.ConvertAbsPath(this.srcQueue_[0], includePath);
+            includePath = this.convertAbsPath(this.srcQueue_[0], includePath);
 
             includeList.push(includePath);
 
-            if (!this.lexer_.Lex(this.current_)) {
+            if (!this.lexer_.lex(this.current_)) {
                 return false;
             }
 
@@ -103,25 +110,25 @@ class Parser {
 
         return true;
     }
-    ParseOne(src, includeList) {
-        if (!this.lexer_.Initialize(src)) {
+    parseOne(src, includeList) {
+        if (!this.lexer_.initialize(src)) {
             return null;
         }
 
-        if (!this.lexer_.Lex(this.current_)) {
+        if (!this.lexer_.lex(this.current_)) {
             return null;
         }
 
-        if (this.current_.type == TokenType.INCLUDE && !this.ProcessInclude(includeList)) {
+        if (this.current_.type == TokenType.INCLUDE && !this.processInclude(includeList)) {
             return null;
         }
 
         let rootNode = null;
         if (this.current_.type == TokenType.ROOT) {
-            let preToken = COPY(this.current_);
+            let preToken = copy(this.current_);
             preToken.type = TokenType.LITERAL;
             preToken.strval = "root";
-            rootNode = this.ParseNode(preToken);
+            rootNode = this.parseNode(preToken);
             if (rootNode == null) {
                 return null;
             }
@@ -130,21 +137,20 @@ class Parser {
             return null;
         }
 
-        if (!this.lexer_.Lex(this.current_) || this.current_.type != TokenType.EOF) {
+        if (!this.lexer_.lex(this.current_) || this.current_.type != TokenType.EOF) {
             NapiLog.logError("syntax error, expect EOF")
             return null;
         }
 
         let oneAst = new Ast(rootNode);
-        // oneAst.Dump(*lexer_.GetSourceName());
-
         return oneAst;
     }
 
-    ParseNode(name, bracesStart) {
+    parseNode(name, bracesStart) {
+        
         /* bracesStart： if true, current is '{' , else need to read next token and check with '}' */
         if (!bracesStart) {
-            if (!this.lexer_.Lex(this.current_) || this.current_.type != CODE('{')) {
+            if (!this.lexer_.lex(this.current_) || this.current_.type != code('{')) {
                 NapiLog.logError("syntax error, node miss '{'")
                 return null;
             }
@@ -152,13 +158,13 @@ class Parser {
 
         let node = new ConfigNode(name, NodeRefType.NODE_NOREF, "");
         let child;
-        while (this.lexer_.Lex(this.current_) && this.current_.type != 125) {
+        while (this.lexer_.lex(this.current_) && this.current_.type != 125) {
             switch (this.current_.type) {
                 case TokenType.TEMPLATE:
-                    child = this.ParseTemplate();
+                    child = this.parseTemplate();
                     break;
                 case TokenType.LITERAL:
-                    child = this.ParseNodeAndTerm();
+                    child = this.parseNodeAndTerm();
                     break;
                 default:
                     NapiLog.logError("syntax error, except '}' or TEMPLATE or LITERAL for node '" + name.strval + '\'')
@@ -168,31 +174,31 @@ class Parser {
                 return null;
             }
 
-            node.AddChild(child);
+            node.addChild(child);
         }
 
-        if (this.current_.type != CODE('}')) {
+        if (this.current_.type != code('}')) {
             Logger().Error() << lexer_ << "syntax error, node miss '}'";
             return null;
         }
         return node;
     }
 
-    ParseNodeAndTerm() {
-        let name = COPY(this.current_);
-        if (!this.lexer_.Lex(this.current_)) {
+    parseNodeAndTerm() {
+        let name = copy(this.current_);
+        if (!this.lexer_.lex(this.current_)) {
             Logger().Error() << lexer_ << "syntax error, broken term or node";
             return null;
         }
 
         switch (this.current_.type) {
-            case CODE('='):
-                return this.ParseTerm(name);
-            case CODE('{'):
-                return this.ParseNode(name, true);
-            case CODE(':'):
-                if (this.lexer_.Lex(this.current_)) {
-                    return this.ParseNodeWithRef(name);
+            case code('='):
+                return this.parseTerm(name);
+            case code('{'):
+                return this.parseNode(name, true);
+            case code(':'):
+                if (this.lexer_.lex(this.current_)) {
+                    return this.parseNodeWithRef(name);
                 }
                 NapiLog.logError("syntax error, unknown node reference type");
                 break;
@@ -203,15 +209,16 @@ class Parser {
 
         return null;
     }
-    ParseArray() {
+    parseArray() {
         let array = new ConfigArray(this.current_);
         let arrayType = 0;
 
-        while (this.lexer_.Lex(this.current_) && this.current_.type != CODE(']')) {
+        while (this.lexer_.lex(this.current_) && this.current_.type != code(']')) {
             if (this.current_.type == TokenType.STRING) {
-                array.AddChild(new AstObject("", ObjectType.PARSEROP_STRING, this.current_.strval, this.current_));
+                array.addChild(new AstObject("", ObjectType.PARSEROP_STRING, this.current_.strval, this.current_));
             } else if (this.current_.type == TokenType.NUMBER) {
-                array.AddChild(new AstObject("", ObjectType.PARSEROP_UINT64, this.current_.numval, this.current_, this.current_.jinzhi));
+                array.addChild(new AstObject("", ObjectType.PARSEROP_UINT64, 
+                this.current_.numval, this.current_, this.current_.jinzhi));
             } else {
                 Logger().Error() << lexer_ << "syntax error, except STRING or NUMBER in array";
                 return nullptr;
@@ -224,142 +231,138 @@ class Parser {
                 return null;
             }
 
-            if (this.lexer_.Lex(this.current_)) {
-                if (this.current_.type == CODE(',')) {
+            if (this.lexer_.lex(this.current_)) {
+                if (this.current_.type == code(',')) {
                     continue;
-                } else if (this.current_.type == CODE(']')) {
+                } else if (this.current_.type == code(']')) {
                     break;
                 } else {
                     Logger().Error() << lexer_ << "syntax error, except ',' or ']'";
                     return null;
                 }
             }
-            return null;//todo return std::shared_ptr<AstObject>();
+            return null;
         }
 
-        if (this.current_.type != CODE(']')) {
+        if (this.current_.type != code(']')) {
             Logger().Error() << lexer_ << "syntax error, miss ']' at end of array";
             return null;
         }
 
         return array;
     }
-    ParseTerm(name) {
-        if (!this.lexer_.Lex(this.current_)) {
+    parseTerm(name) {
+        if (!this.lexer_.lex(this.current_)) {
             NapiLog.logError("syntax error, miss value of config term");
             return null;
         }
         let term = new ConfigTerm(name, null)
-        // if(name.strval=="blockSize")
-        // {
-        //     console.log(name)
-        // }
         switch (this.current_.type) {
             case TokenType.BOOL:
-                term.AddChild(new AstObject("", ObjectType.PARSEROP_BOOL, this.current_.numval, this.current_));
+                term.addChild(new AstObject("", ObjectType.PARSEROP_BOOL, this.current_.numval, this.current_));
                 break;
             case TokenType.STRING:
-                term.AddChild(new AstObject("", ObjectType.PARSEROP_STRING, this.current_.strval, this.current_));
+                term.addChild(new AstObject("", ObjectType.PARSEROP_STRING, this.current_.strval, this.current_));
                 break;
             case TokenType.NUMBER:
-                term.AddChild(new AstObject("", ObjectType.PARSEROP_UINT64, this.current_.numval, this.current_, this.current_.jinzhi));
+                term.addChild(new AstObject("", ObjectType.PARSEROP_UINT64, this.current_.numval, this.current_, this.current_.jinzhi));
                 break;
-            case CODE('['): {
-                let list = this.ParseArray();
+            case code('['): {
+                let list = this.parseArray();
                 if (list == null) {
                     return null;
                 } else {
-                    term.AddChild(list);
+                    term.addChild(list);
                 }
                 break;
             }
-            case CODE('&'):
-                if (!this.lexer_.Lex(this.current_) || (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
+            case code('&'):
+                if (!this.lexer_.lex(this.current_) || (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
                     NapiLog.logError("syntax error, invalid config term definition");
                     return null;
                 }
-                term.AddChild(new AstObject("", ObjectType.PARSEROP_NODEREF, this.current_.strval, this.current_));
+                term.addChild(new AstObject("", ObjectType.PARSEROP_NODEREF, this.current_.strval, this.current_));
                 break;
             case TokenType.DELETE:
-                term.AddChild(new AstObject("", ObjectType.PARSEROP_DELETE, this.current_.strval, this.current_));
+                term.addChild(new AstObject("", ObjectType.PARSEROP_DELETE, this.current_.strval, this.current_));
                 break;
             default:
                 NapiLog.logError("syntax error, invalid config term definition");
                 return null;
         }
 
-        if (!this.lexer_.Lex(this.current_) || this.current_.type != CODE(';')) {
+        if (!this.lexer_.lex(this.current_) || this.current_.type != code(';')) {
             NapiLog.logError("syntax error, miss ';'");
             return null;
         }
 
         return term;
     }
-    ParseTemplate() {
-        if (!this.lexer_.Lex(this.current_) || this.current_.type != TokenType.LITERAL) {
+    parseTemplate() {
+        if (!this.lexer_.lex(this.current_) || this.current_.type != TokenType.LITERAL) {
             NapiLog.logError("syntax error, template miss name");
             return null;
         }
-
-        let name = COPY(this.current_);
-        let node = this.ParseNode(name, false);
+        let name = copy(this.current_);
+        let node = this.parseNode(name, false);
         if (node == null) {
             return node;
         }
 
-        node.SetNodeType(NodeRefType.NODE_TEMPLATE);
+        node.setNodeType(NodeRefType.NODE_TEMPLATE);
         return node;
     }
 
-    ParseNodeRef(name) {
-        if (!this.lexer_.Lex(this.current_) || (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
+    parseNodeRef(name) {
+        if (!this.lexer_.lex(this.current_) || 
+        (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
             Logger().Error() << lexer_ << "syntax error, miss node reference path";
             return nullptr;
         }
         let refPath = this.current_.strval;
-        let node = this.ParseNode(name);
+        let node = this.parseNode(name);
         if (node == null) {
             return null;
         }
 
         let configNode = node;
-        configNode.SetNodeType(NodeRefType.NODE_REF);
-        configNode.SetRefPath(refPath);
+        configNode.setNodeType(NodeRefType.NODE_REF);
+        configNode.setRefPath(refPath);
         return node;
     }
-    ParseNodeDelete(name) {
-        let node = this.ParseNode(name);
+    parseNodeDelete(name) {
+        let node = this.parseNode(name);
         if (node == null) {
             return null;
         }
 
-        node.SetNodeType(NodeRefType.NODE_DELETE);
+        node.setNodeType(NodeRefType.NODE_DELETE);
         return node;
     }
-    ParseNodeCopy(name) {
+    parseNodeCopy(name) {
         let nodePath = this.current_.strval;
 
-        let node = this.ParseNode(name);
+        let node = this.parseNode(name);
         if (node == null) {
             return null;
         }
 
         let nodeCopy = node;
-        nodeCopy.SetNodeType(NodeRefType.NODE_COPY);
-        nodeCopy.SetRefPath(nodePath);
+        nodeCopy.setNodeType(NodeRefType.NODE_COPY);
+        nodeCopy.setRefPath(nodePath);
 
         return node;
     }
-    ParseNodeWithRef(name) {
+    parseNodeWithRef(name) {
         switch (this.current_.type) {
             case TokenType.REF_PATH:
             case TokenType.LITERAL:
-                return this.ParseNodeCopy(name);
-            case CODE('&'):
-                return this.ParseNodeRef(name);
+                return this.parseNodeCopy(name);
+            case code('&'):
+                return this.parseNodeRef(name);
             case TokenType.DELETE:
-                return this.ParseNodeDelete(name);
-            case CODE(':'):
+                return this.parseNodeDelete(name);
+            case code(':'):
                 return this.ParseNodeInherit(name);
             default:
                 NapiLog.logError("syntax error, unknown node type");
@@ -370,20 +373,21 @@ class Parser {
     }
 
     ParseNodeInherit(name) {
-        if (!this.lexer_.Lex(this.current_) || (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
+        if (!this.lexer_.lex(this.current_) || 
+        (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
             NapiLog.logError("syntax error, miss node inherit path");
             return null;
         }
 
         let inheritPath = this.current_.strval;
 
-        let node = this.ParseNode(name);
+        let node = this.parseNode(name);
         if (node == null) {
             return null;
         }
 
-        node.SetNodeType(NodeRefType.NODE_INHERIT);
-        node.SetRefPath(inheritPath);
+        node.setNodeType(NodeRefType.NODE_INHERIT);
+        node.setRefPath(inheritPath);
         return node;
     }
 }

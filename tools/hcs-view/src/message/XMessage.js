@@ -1,34 +1,49 @@
+/*
+* Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd. 
+* Licensed under the Apache License, Version 2.0 (the "License"); 
+* you may not use this file except in compliance with the License. 
+* You may obtain a copy of the License at 
+*
+* http://www.apache.org/licenses/LICENSE-2.0 
+*
+* Unless required by applicable law or agreed to in writing, software 
+* distributed under the License is distributed on an "AS IS" BASIS, 
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+* See the License for the specific language governing permissions and 
+* limitations under the License. 
+*/
 const { MockMessage } = require("./mock")
+const { NapiLog } = require("./../hcs/NapiLog");
 
 class XMessage {
     constructor() {
-        this.message_type = XMessage.TYPE_NONE
+        this.messageType = XMessage.TYPE_NONE
         try {
             this.vscode = acquireVsCodeApi();
-            window.addEventListener('message', this.OnRecv);
-            this.message_type = XMessage.TYPE_VSCODE
+            window.addEventListener('message', this.onRecv);
+            this.messageType = XMessage.TYPE_VSCODE
         } catch (err) {
         }
         this.callbackFunc = null
-        console.log("Init XMessage : " + this.message_type)
+        NapiLog.logInfo("Init XMessage : " + this.messageType)
     }
     registRecvCallback(func) {
         this.callbackFunc = func
     }
-    OnRecv(event) {
+    onRecv(event) {
         if (XMessage.gi().callbackFunc != null) {
             XMessage.gi().callbackFunc(event.data.type, event.data.data)
         }
     }
     send(msgtype, msgdata) {
-        if (this.message_type == XMessage.TYPE_VSCODE) {
+        if (this.messageType == XMessage.TYPE_VSCODE) {
             this.vscode.postMessage({
                 type: msgtype,
                 data: msgdata
             })
         }
-        else if (this.message_type == XMessage.TYPE_NONE) {
-            MockMessage.gi().ProcessMessage({
+        else if (this.messageType == XMessage.TYPE_NONE) {
+            MockMessage.gi().processMessage({
                 type: msgtype,
                 data: msgdata
             })
