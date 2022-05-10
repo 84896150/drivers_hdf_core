@@ -72,6 +72,7 @@ struct SensorSpiCfg {
     DevHandle handle;
     uint32_t busNum;
     uint32_t csNum;
+    struct SpiCfg spi;
 };
 
 struct SensorBusCfg {
