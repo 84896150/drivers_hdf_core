@@ -1,21 +1,27 @@
 import pytest
 from selenium import webdriver
-driver=None
+
+_driver = None
+
+def pytest_addoption(parser):
+    parser.addoption(
+        "--browser", action="store", default="chrome", help="browser option: firefox or chrome"
+             )
 
 @pytest.fixture(scope='session')
 def browser(request):
-    global driver
-    if driver is None:
+    global _driver
+    if _driver is None:
         name = request.config.getoption("--browser")
         if name == "firefox":
-            driver = webdriver.Firefox()
+            _driver = webdriver.Firefox()
         elif name == "chrome":
-            driver = webdriver.Chrome()
+            _driver = webdriver.Chrome()
         else:
-            driver = webdriver.Chrome()
+            _driver = webdriver.Firefox()
 
     def fn():
-        driver.quit()
+        _driver.quit()
 
     request.addfinalizer(fn)
-    return driver
+    return _driver
