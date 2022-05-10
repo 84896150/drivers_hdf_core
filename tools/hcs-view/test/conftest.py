@@ -1,5 +1,6 @@
 import pytest
 from selenium import webdriver
+global driver
 
 def pytest_addoption(parser):
     parser.addoption(
