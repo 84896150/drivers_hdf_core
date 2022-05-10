@@ -1,10 +1,9 @@
 import pytest
 from selenium import webdriver
-driver = None
-
+driver=None
 
 @pytest.fixture(scope='session')
-def driver(request):
+def browser(request):
     global driver
     if driver is None:
         name = request.config.getoption("--browser")
