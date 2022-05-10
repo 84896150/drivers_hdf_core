@@ -1,0 +1,5 @@
+config ARCH_NXP_TOUCH
+    bool "config nxp ft5x06 touch"
+        default n
+    help
+      Answer Y to enable config ft5x06 touch.
