@@ -1,6 +1,8 @@
 import pytest
 from selenium import webdriver
 
+driver = None
+
 @pytest.fixture(scope='session')
 def driver(request):
     global driver
@@ -12,7 +14,6 @@ def driver(request):
             driver = webdriver.Chrome()
         else:
             driver = webdriver.Chrome()
-        print("Name of the browser that is launching：{name}")
 
     def fn():
         driver.quit()

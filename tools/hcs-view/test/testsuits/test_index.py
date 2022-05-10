@@ -11,13 +11,13 @@ warnings.filterwarnings("ignore", category=UserWarning)
 class TestHcsTool():
     driver = webdriver.Chrome()
     test = Base(driver)
-    url = "file:///D:/HCS_tool/drivers_framework-master/tools/hcs-view/index.html"
+    url = test.getfiledir()
 
     def setup_class(self):
         #Determine whether the index.html file in the local project can be opened and used before executing the use case
-        filelist = os.listdir('../../../tools/hcs-view/dist')
+        filelist = os.listdir('../../dist')
         if len(filelist) < 2:
-            os.chdir('../../../tools/hcs-view/')
+            os.chdir('../../')
             os.system("python build.py")
         else:
             return
@@ -604,6 +604,7 @@ class TestHcsTool():
         # beforeeditname = self.test.text_count('./Program_pictures/attrcopyself6.png', '重名')
         # assert beforeeditname == 1
         self.test.click_canvas_point(el,loc[0],loc[1]+25)
+        time.sleep(1)
         self.test.sendkeys(('id', 'name'), 'string')
         time.sleep(2)
         aftereditname = self.test.text_count('./Program_pictures/attrcopyself7.png', '重名')

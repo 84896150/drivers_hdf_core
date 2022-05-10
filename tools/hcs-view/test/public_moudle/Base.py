@@ -1,4 +1,5 @@
 import easyocr
+import os
 from PIL import Image
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,11 +16,19 @@ class Base():
         if not isinstance(locator, tuple):
             print('The type of the locator parameter is tuple')
         else:
-            print('Locating element information：type is->%s,value is—>%s' % (locator[0], locator[1]))
             ele = WebDriverWait(self.driver,
                                 self.timeout,
                                 self.t).until(EC.presence_of_element_located(locator))
             return ele
+
+    #Get URL address
+    def getfiledir(self):
+        os.chdir('../../')
+        curFile = os.getcwd()
+        path = curFile.replace('\\', '/')
+        url = 'file:///' + path + '/index.html'
+        os.chdir('test/testsuits')
+        return url
 
     #Enter text information
     def sendkeys(self, locator, text=''):
