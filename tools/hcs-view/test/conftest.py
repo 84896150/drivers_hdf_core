@@ -5,7 +5,8 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 global_param = {}
 
 @pytest.fixture
-def _set_global_data(global_driver, driver:WebDriver=None):
+def _set_global_data(global_driver):
+    driver = None
     global_param[global_driver] = driver
 
 @pytest.fixture
