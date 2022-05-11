@@ -21,7 +21,7 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='session')
 def browser(request):
-    driver = _get_global_data()
+    driver = _get_global_data('global_driver')
     if driver is None:
         name = request.config.getoption("--browser")
         if name == "firefox":
