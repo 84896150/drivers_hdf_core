@@ -1,7 +1,17 @@
 import pytest
 from selenium import webdriver
+from selenium.webdriver.chrome.webdriver import WebDriver
 
-_driver = None
+global_param = {}
+
+@pytest.fixture
+def _set_global_data(global_driver, driver:WebDriver=None):
+    global_param[global_driver] = driver
+
+@pytest.fixture
+def _get_global_data(global_driver):
+    return global_param.get(global_driver)
+
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -10,18 +20,18 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope='session')
 def browser(request):
-    global _driver
-    if _driver is None:
+    driver = _get_global_data()
+    if driver is None:
         name = request.config.getoption("--browser")
         if name == "firefox":
-            _driver = webdriver.Firefox()
+            driver = webdriver.Firefox()
         elif name == "chrome":
-            _driver = webdriver.Chrome()
+            driver = webdriver.Chrome()
         else:
-            _driver = webdriver.Firefox()
+            driver = webdriver.Firefox()
 
     def fn():
-        _driver.quit()
+        driver.quit()
 
     request.addfinalizer(fn)
-    return _driver
+    return driver
