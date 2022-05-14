@@ -10,6 +10,7 @@
 #include "osal_mem.h"
 #include "sdio_if.h"
 #include "wifi_inc.h"
+#include "hdf_wlan_sdio.h"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -368,7 +369,7 @@ static void HdfSetBusOps(struct BusDev *dev)
     dev->ops.claimHost = HdfSdioClaimHost;
     dev->ops.releaseHost = HdfSdioReleaseHost;
 }
-int32_t HdfSdioBusInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig)
+int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig)
 {
     if (dev == NULL) {
         HDF_LOGE("%s:set sdio device ops failed!", __func__);
@@ -376,6 +377,11 @@ int32_t HdfSdioBusInit(struct BusDev *dev, const struct HdfConfigWlanBus *busCon
     }
     HdfSetBusOps(dev);
     return HdfSdioInit(dev, busConfig);
+}
+
+int32_t HdfWlanConfigBusAbs(uint8_t busId)
+{
+    return HdfWlanConfigSDIO(busId);
 }
 
 #ifdef __cplusplus
