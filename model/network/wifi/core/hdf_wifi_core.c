@@ -530,7 +530,7 @@ static int32_t HdfWlanMainInit(struct HdfDeviceObject *device)
     HDF_LOGV("%s:start..", __func__);
     if (device == NULL) {
         return HDF_FAILURE;
-    }    
+    }
     if (HdfWlanGetConfig(device) != HDF_SUCCESS) {
         HDF_LOGE("%s:HdfWlanGetConfig get wlan config failed!", __func__);
         return HDF_FAILURE;
