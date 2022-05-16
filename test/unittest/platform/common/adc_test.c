@@ -197,6 +197,7 @@ int32_t AdcTestMultiThread(void)
 
     (void)OsalThreadDestroy(&thread1);
     (void)OsalThreadDestroy(&thread2);
+    AdcTesterPut(AdcTesterGet());
     HDF_LOGI("%s: done", __func__);
     return HDF_SUCCESS;
 }
