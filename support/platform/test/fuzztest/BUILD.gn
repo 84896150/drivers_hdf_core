@@ -10,5 +10,7 @@ group("hdf_platform_fuzztest") {
   deps += [
     "gpio_fuzzer:fuzztest",
     "pwm_fuzzer:fuzztest",
+    "rtc_fuzzer:fuzztest",
+    "uart_fuzzer:fuzztest",
   ]
 }
