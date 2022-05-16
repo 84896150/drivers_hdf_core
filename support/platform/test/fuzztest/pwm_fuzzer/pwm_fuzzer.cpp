@@ -7,15 +7,11 @@
  */
 
 #include "pwm_fuzzer.h"
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
-#include <random>
-#include <cstddef>
-#include "hdf_base.h"
-#include "pwm_if.h"
 #include "random.h"
 #include "securec.h"
+#include "hdf_base.h"
+#include "pwm_if.h"
 
 using namespace std;
 
@@ -38,7 +34,7 @@ union ConvertToParam {
 };
 
 namespace OHOS {
-    bool PwmFuzzTest(const uint8_t* data, size_t size)
+    bool PwmFuzzTest(const uint8_t *data, size_t size)
     {
         int32_t number;
         DevHandle handle = nullptr;
@@ -52,27 +48,28 @@ namespace OHOS {
             return false;
         }
 
-        number = randNum(MIN, MAX);
+        number = randNum(MIN,MAX);
         handle = PwmOpen(PWM_TEST_NUM);
-        switch (static_cast<ApiNumber>(number)) {
-            case ApiNumber::NUM_ZERO:
+        switch (static_cast<ApiTestCmd>(number)) {
+            case ApiTestCmd::PWM_TEST_SET_PERIOD:
                 PwmSetPeriod(handle, convertor.params.descPer);
                 break;
-            case ApiNumber::NUM_ONE:
+            case ApiTestCmd::PWM_TEST_SET_DUTY:
                 PwmSetDuty(handle, convertor.params.descDuty);
                 break;
-            case ApiNumber::NUM_TWO:
+            case ApiTestCmd::PWM_TEST_SET_POLARITY:
                 PwmSetPolarity(handle, convertor.params.descPolar);
                 break;
             default:
                 break;
         }
+        PwmClose(handle);
         return true;
     }
 }
 
 /* Fuzzer entry point */
-extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size)
+extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
 {
     /* Run your code on data */
     OHOS::PwmFuzzTest(data, size);
