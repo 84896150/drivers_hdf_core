@@ -79,7 +79,7 @@ enum WifiMainFeatureType {
 enum WifiBusType {
     BUS_SDIO,  /**< Secure Digital Input and Output (SDIO) */
     BUS_USB,   /**< Universal Serial Bus (USB) */
-    BUS_MAX, 
+    BUS_MAX,
 };
 
 #ifdef __cplusplus

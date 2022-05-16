@@ -50,6 +50,7 @@ static int32_t HdfUsbDisableFunc(struct BusDev *dev)
 
 static int32_t HdfUsbCliamIrq(struct BusDev *dev, IrqHandler *handler, void *data)
 {
+    (void)data;
     HDF_LOGI("%s:", __func__);
     return HDF_SUCCESS;
 }
