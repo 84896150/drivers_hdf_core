@@ -74,6 +74,7 @@ struct BusDev {
 };
 
 struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig);
+int32_t HdfWlanConfigBus(uint8_t busId);
 
 #ifdef __cplusplus
 #if __cplusplus
