@@ -20,9 +20,6 @@ extern "C" {
 #endif
 #endif
 
-int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig);
-int32_t HdfWlanConfigBusAbs(uint8_t busId);
-
 #ifdef __cplusplus
 #if __cplusplus
 }

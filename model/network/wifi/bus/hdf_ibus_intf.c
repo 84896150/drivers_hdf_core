@@ -20,16 +20,13 @@ extern "C" {
 #endif
 #endif
 
-int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig);
-int32_t HdfWlanConfigBusAbs(uint8_t busId);
-
 struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
 {
     struct BusDev *bus = NULL;
     if (busConfig == NULL) {
         return NULL;
     }
-    if (busConfig->busType >= BUS_MAX) {
+    if (busConfig->busType >= BUS_BUTT) {
         HDF_LOGE("%s:bus type %u not support!", __func__, busConfig->busType);
         return NULL;
     }
@@ -44,11 +41,6 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
         return NULL;
     }
     return bus;
-}
-
-int32_t HdfWlanConfigBus(uint8_t busId)
-{
-    return HdfWlanConfigBusAbs(busId);
 }
 
 #ifdef __cplusplus
