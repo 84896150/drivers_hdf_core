@@ -11,10 +11,10 @@
 
 #define FUZZ_PROJECT_NAME "gpio_fuzzer"
 
-enum class ApiNumber {
-    NUM_ZERO = 0,
-    NUM_ONE,
-    NUM_TWO,
+enum class ApiTestCmd {
+    GPIO_FUZZ_WRITE = 0,
+    GPIO_FUZZ_SET_DIR,
+    GPIO_FUZZ_SET_IRQ,
 };
 
 #endif
