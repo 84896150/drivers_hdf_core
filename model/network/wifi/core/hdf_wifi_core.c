@@ -470,7 +470,7 @@ static int32_t HdfWlanInitThread(void *para)
         return HDF_SUCCESS;
     }
     for (i = 0; i < devList->deviceListSize; i++) {
-        ret = HdfWlanConfigBus(devList->deviceInst[i].bus.busIdx);
+        ret = HdfWlanConfigBusAbs(devList->deviceInst[i].bus.busIdx);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:HdfWlanConfigSDIO %d failed!ret=%d", __func__, devList->deviceInst[i].bus.busIdx, ret);
             continue;
