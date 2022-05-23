@@ -72,8 +72,8 @@ static uint32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
     return chipDriver->ops->SetMode(netDev, iftype);
 }
 
-static uint32_t AddKey(
-    struct NetDevice *netDev, uint8_t keyIndex, bool pairwise, const uint8_t *macAddr, struct KeyParams *params)
+static uint32_t AddKey(struct NetDevice *netDev, uint8_t keyIndex,
+    bool pairwise, const uint8_t *macAddr, struct KeyParams *params)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
@@ -505,8 +505,8 @@ static int32_t WifiCmdSetMode(const RequestContext *context, struct HdfSBuf *req
     return ret;
 }
 
-static void WifiGetChannelData(
-    struct WlanBand *band, WifiHwFeatureData **featureData, struct WlanHwCapability *capability, uint32_t iee80211band)
+static void WifiGetChannelData(struct WlanBand *band, WifiHwFeatureData **featureData,
+    struct WlanHwCapability *capability, uint32_t iee80211band)
 {
     uint32_t loop;
     if (band == NULL || featureData == NULL || *featureData == NULL) {
@@ -952,8 +952,8 @@ static int32_t WifiCmdSetMacAddr(const RequestContext *context, struct HdfSBuf *
     return ret;
 }
 
-static int32_t WifiCmdGetValidFreqsWithBand(
-    const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+static int32_t WifiCmdGetValidFreqsWithBand(const RequestContext *context,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     int32_t ret;
     struct NetDevice *netdev = NULL;
@@ -1109,8 +1109,8 @@ static int32_t WifiCmdGetChipId(const RequestContext *context, struct HdfSBuf *r
     return ret;
 }
 
-static int32_t WifiCmdGetIfNamesByChipId(
-    const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+static int32_t WifiCmdGetIfNamesByChipId(const RequestContext *context,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     uint8_t chipId;
     uint8_t ifNameCount = 0;
@@ -1250,8 +1250,8 @@ static int32_t WifiCmdDoResetChip(const RequestContext *context, struct HdfSBuf 
     return ret;
 }
 
-void SendMessageResetDriverCallBack(
-    const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData, ErrorCode rspCode)
+void SendMessageResetDriverCallBack(const RequestContext *context,
+    struct HdfSBuf *reqData, struct HdfSBuf *rspData, ErrorCode rspCode)
 {
     uint8_t chipId;
     int32_t ret;
