@@ -53,6 +53,8 @@ Note:If the text contains special characters, please escape them according to th
                 <policyitem type="copyright" name="Copyright (c) 2022 Shenzhen Kaihong Digital" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kaihong codes"/>
                 <!--policyitem type="compatibility" name="GPL" path=".*" desc="linux kernel adapter codes"/-->
                 <!--policyitem type="compatibility" name="GPL-2.0+" path=".*" desc="linux kernel adapter codes"/-->
+                <policyitem type="copyright" name="Chipsea Technologies (Shenzhen) Corp., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kaihong codes"/>
+                <policyitem type="copyright" name="Shenzhen Kaihong Digital" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kaihong codes"/>
             </policy>
         </policylist>
         <filefilterlist>

@@ -36,7 +36,8 @@ void CppClientProxyCodeEmitter::EmitCode()
 
 void CppClientProxyCodeEmitter::EmitProxyHeaderFile()
 {
-    String filePath = String::Format("%s/%s.h", directory_.string(), FileName(baseName_ + "Proxy").string());
+    String filePath = File::AdapterPath(String::Format("%s/%s.h", directory_.string(),
+        FileName(baseName_ + "Proxy").string()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -144,7 +145,8 @@ void CppClientProxyCodeEmitter::EmitProxyMethodParameter(
 
 void CppClientProxyCodeEmitter::EmitProxySourceFile()
 {
-    String filePath = String::Format("%s/%s.cpp", directory_.string(), FileName(baseName_ + "Proxy").string());
+    String filePath = File::AdapterPath(String::Format("%s/%s.cpp", directory_.string(),
+        FileName(baseName_ + "Proxy").string()));
     File file(filePath, File::WRITE);
     StringBuilder sb;
 
@@ -282,7 +284,8 @@ void CppClientProxyCodeEmitter::EmitProxyPassthroughtLoadImpl(StringBuilder &sb,
     sb.Append(prefix).AppendFormat("if (isStub) {\n");
     sb.Append(prefix + TAB)
         .AppendFormat("std::string desc = Str16ToStr8(%s::GetDescriptor());\n", interfaceName_.string());
-    sb.Append(prefix + TAB).Append("void *impl = LoadHdiImpl(desc.data());\n");
+    sb.Append(prefix + TAB).Append("void *impl = LoadHdiImpl(desc.c_str(), ");
+    sb.AppendFormat("serviceName == \"%s\" ? \"service\" : serviceName.c_str());\n", FileName(implName_).string());
     sb.Append(prefix + TAB).Append("if (impl == nullptr) {\n");
     sb.Append(prefix + TAB + TAB).Append("HDF_LOGE(\"failed to load hdi impl %{public}s\", desc.data());\n");
     sb.Append(prefix + TAB + TAB).Append("return nullptr;\n");
