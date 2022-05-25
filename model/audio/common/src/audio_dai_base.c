@@ -73,7 +73,7 @@ int32_t DaiCheckSampleRate(unsigned int sampleRates)
     }
 }
 
-int32_t DaiSetConfigInfo(struct DaiData *data)
+int32_t DaiSetConfigInfoOfControls(struct DaiData *data)
 {
     uint16_t index;
     struct AudioRegCfgGroupNode **regCfgGroup = NULL;
@@ -86,7 +86,8 @@ int32_t DaiSetConfigInfo(struct DaiData *data)
     }
 
     regCfgGroup = data->regConfig->audioRegParams;
-    if (regCfgGroup == NULL) {
+    if (regCfgGroup == NULL || regCfgGroup[AUDIO_CTRL_PATAM_GROUP] == NULL ||
+        regCfgGroup[AUDIO_CTRL_CFG_GROUP] == NULL) {
         AUDIO_DRIVER_LOG_DEBUG("regCfgGroup is null.");
         return HDF_SUCCESS;
     }
