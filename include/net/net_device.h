@@ -37,6 +37,7 @@
 
 #ifndef HDF_NET_DEVICE_MODULE_H
 #define HDF_NET_DEVICE_MODULE_H
+#include <linux/phy.h>
 #include "hdf_base.h"
 #include "hdf_netbuf.h"
 #include "hdf_log.h"
@@ -683,6 +684,28 @@ int32_t NetIfSetStatus(const struct NetDevice *netDevice, NetIfStatus status);
  * @since 1.0
  * @version 1.0
  */
+void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
+            int (*poll)(struct napi_struct *, int), int weight);
+
+struct netdev_queue *NetIfGetTxQueue(struct NetDevice *netDevice, unsigned int index);
+
+__be16 NetIfTypeTrans(struct NetDevice *netDevice, struct sk_buff *skb);
+
+struct sk_buff *NetIfEnteAllocBuf(struct NetDevice *netDevice, uint32_t length);
+
+void NetIfStartQueue(struct NetDevice *netDevice);
+
+void NetIfDisableTx(struct NetDevice *netDevice);
+
+void NetIfSetDev(struct NetDevice *netDevice, struct device *dev);
+
+void NetIfWakeQueue(struct NetDevice *netDevice);
+
+struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
+                  struct device_node *phy_np,
+                  void (*hndlr)(struct net_device *), u32 flags,
+                  phy_interface_t iface);
+
 int32_t NetIfSetMacAddr(struct NetDevice *netDevice, const unsigned char *macAddr, unsigned char length);
 
 /**
