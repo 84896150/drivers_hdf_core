@@ -6,7 +6,7 @@
 
 更多工具的架构和实现原理详情，可以左键单击以下链接了解：
 
-[工具使用说明](https://gitee.com/zhaojunxia2020/drivers_framework/tree/master/tools/hcs-view/doc/INSTRUCTION_zh.md)
+[工具使用说明](https://gitee.com/openharmony/drivers_framework/tree/master/tools/hcs-view/doc/INSTRUCTION_zh.md)
 
 ## 目录
 
@@ -50,7 +50,7 @@ drivers_framework/tools/hcs-view/prebuilt
 
 具体的工具使用步骤，可以左键单击以下链接了解：
 
-[工具使用说明](https://gitee.com/zhaojunxia2020/drivers_framework/tree/master/tools/hcs-view/doc/INSTRUCTION_zh.md)
+[工具使用说明](https://gitee.com/openharmony/drivers_framework/tree/master/tools/hcs-view/doc/INSTRUCTION_zh.md)
 
 ### 工具输出
 
@@ -82,7 +82,7 @@ drivers_framework/tools/hcs-view/examples
 
 ### 开发步骤
 
-[工具开发说明](https://gitee.com/zhaojunxia2020/drivers_framework/tree/master/tools/hcs-view/doc/DEVELOP_zh.md)
+[工具开发说明](https://gitee.com/openharmony/drivers_framework/tree/master/tools/hcs-view/doc/DEVELOP_zh.md)
 
 ## 版本说明
 
@@ -92,7 +92,7 @@ drivers_framework/tools/hcs-view/examples
 
 对于常见问题解决方法指导如下：
 
-[FAQ](https://gitee.com/zhaojunxia2020/drivers_framework/tree/master/tools/hcs-view/FAQ.md)
+[FAQ](https://gitee.com/openharmony/drivers_framework/tree/master/tools/hcs-view/FAQ.md)
 
 ## 参与贡献
 
