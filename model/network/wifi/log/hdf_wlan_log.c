@@ -8,7 +8,7 @@
 
 #include "hdf_wlan_log.h"
 
-#include <regex.h>
+#include <stdarg.h>
 #include <securec.h>
 #include <string.h>
 
