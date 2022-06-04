@@ -19,17 +19,17 @@
 struct I2sCntlr;
 
 struct I2sCntlrMethod {
-    int32_t (*GetCfg)(struct I2sCntlr *, struct I2sCfg *);
-    int32_t (*SetCfg)(struct I2sCntlr *, struct I2sCfg *);
-    int32_t (*Transfer)(struct I2sCntlr *, struct I2sMsg *);
-    int32_t (*Open)(struct I2sCntlr *);
-    int32_t (*Close)(struct I2sCntlr *);
-    int32_t (*Enable)(struct I2sCntlr *);
-    int32_t (*Disable)(struct I2sCntlr *);
-    int32_t (*StartWrite)(struct I2sCntlr *);
-    int32_t (*StopWrite)(struct I2sCntlr *);
-    int32_t (*StartRead)(struct I2sCntlr *);
-    int32_t (*StopRead)(struct I2sCntlr *);
+    int32_t (*GetCfg)(struct I2sCntlr *cntlr, struct I2sCfg *cfg);
+    int32_t (*SetCfg)(struct I2sCntlr *cntlr, struct I2sCfg *cfg);
+    int32_t (*Transfer)(struct I2sCntlr *cntlr, struct I2sMsg *msg);
+    int32_t (*Open)(struct I2sCntlr *cntlr);
+    int32_t (*Close)(struct I2sCntlr *cntlr);
+    int32_t (*Enable)(struct I2sCntlr *cntlr);
+    int32_t (*Disable)(struct I2sCntlr *cntlr);
+    int32_t (*StartWrite)(struct I2sCntlr *cntlr);
+    int32_t (*StopWrite)(struct I2sCntlr *cntlr);
+    int32_t (*StartRead)(struct I2sCntlr *cntlr);
+    int32_t (*StopRead)(struct I2sCntlr *cntlr);
 };
 
 struct I2sCntlr {
