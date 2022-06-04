@@ -41,7 +41,7 @@ int32_t GyroRegisterChipOps(const struct GyroOpsCall *ops)
     return HDF_SUCCESS;
 }
 
-static void GyroDataWorkEntry(uintptr_t arg)
+static void GyroDataWorkEntry(void *arg)
 {
     struct GyroDrvData *drvData = NULL;
 
