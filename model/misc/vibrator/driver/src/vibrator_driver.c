@@ -41,7 +41,7 @@ int32_t RegisterVibrator(struct VibratorOps *ops)
     return HDF_SUCCESS;
 }
 
-void StartTimeVibrator()
+void StartTimeVibrator(void)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
@@ -51,7 +51,7 @@ void StartTimeVibrator()
     HdfAddWork(&drvData->workQueue, &drvData->work);
 }
 
-void StopVibrator()
+void StopVibrator(void)
 {
     struct VibratorDriverData *drvData = GetVibratorDrvData();
 
