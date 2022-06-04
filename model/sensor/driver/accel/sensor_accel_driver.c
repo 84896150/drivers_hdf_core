@@ -54,7 +54,7 @@ int32_t AccelRegisterChipOps(const struct AccelOpsCall *ops)
     return HDF_SUCCESS;
 }
 
-static void AccelDataWorkEntry(uintptr_t arg)
+static void AccelDataWorkEntry(void *arg)
 {
     struct AccelDrvData *drvData = NULL;
     struct SensorReportEvent event;

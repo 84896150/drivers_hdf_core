@@ -410,7 +410,7 @@ static void EsdTimerHandler(uintptr_t arg)
     HDF_LOGD("%s devId[%d] add work to wq", __func__, devId);
 }
 
-static void EsdWorkHandler(uintptr_t arg)
+static void EsdWorkHandler(void *arg)
 {
     int32_t ret = HDF_SUCCESS;
     uint32_t devId = (uint32_t)arg;

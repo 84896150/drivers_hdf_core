@@ -45,7 +45,7 @@ static int32_t GravitySubscribeAccelData(int32_t *accelData, int32_t size)
     return HDF_SUCCESS;
 }
 
-static void GravityDataWorkEntry(uintptr_t arg)
+static void GravityDataWorkEntry(void *arg)
 {
     struct GravityDrvData *drvData = NULL;
     static int32_t GravityRawData[GRAVITY_AXIS_NUM];
