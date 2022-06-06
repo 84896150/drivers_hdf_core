@@ -73,7 +73,10 @@ class Base:
         self.driver.get_screenshot_as_file(path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
+<<<<<<< HEAD
         print("############", result)
+=======
+>>>>>>> ab44faa20baf629c09ab0a9a56cb9e546f548f82
         loc_x_min = loc_x_max = loc_y_min = loc_y_max = 0
         for i in result:
             #The text in the recognition figure is prone to case error.
@@ -93,7 +96,10 @@ class Base:
         self.driver.get_screenshot_as_file(path)
         reader = easyocr.Reader(['ch_sim', 'en'], verbose=False)
         result = reader.readtext(path)
+<<<<<<< HEAD
         print("************************", result)
+=======
+>>>>>>> ab44faa20baf629c09ab0a9a56cb9e546f548f82
         loc_x_min = loc_x_max = loc_y_min = loc_y_max = 0
         for i in result:
             #The text in the recognition figure is prone to case error.

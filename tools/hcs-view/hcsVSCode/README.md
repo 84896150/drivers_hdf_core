@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # hcseditor README
 
 This is the README for your extension "hcseditor". After writing up a brief description, we recommend including the following sections.
@@ -63,3 +64,8 @@ Added features X, Y, and Z.
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
+=======
+1,右键单击hcs文件
+
+2,单击菜单[hcdView]
+>>>>>>> ab44faa20baf629c09ab0a9a56cb9e546f548f82
