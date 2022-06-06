@@ -9,8 +9,7 @@
 #include "hdf_wlan_log.h"
 
 #include <stdarg.h>
-#include <securec.h>
-#include <string.h>
+#include <securec.h> 
 
 #define LOG_NAME_MAX_LEN 5
 #ifndef HDF_WLAN_DEBUG
