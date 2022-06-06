@@ -18,21 +18,21 @@
 #define LOG_PRINT_MAX_LEN 512
 #endif
 
-static int32_t g_logLevel;
+static int g_logLevel;
 
 void HdfWlanLog(HdfWlanLogLevel level, const char *fmt, ...)
 {
-    uint32_t ulPos;
+    int ulPos;
     char buf[LOG_PRINT_MAX_LEN] = {0};
     va_list arg;
-    int32_t ret;
+    int ret;
 
     if (level >= HDF_WLAN_LOG_LEVEL_MAX) {
         HDF_LOGE("%s:hdf wlan log type error, level=%d.", __func__, level);
         return;
     }
 
-    if ((int32_t)level < g_logLevel) {
+    if ((int)level < g_logLevel) {
         return;
     }
 

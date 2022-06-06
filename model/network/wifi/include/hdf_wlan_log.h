@@ -9,7 +9,6 @@
 #ifndef HDF_WLAN_LOG_H
 #define HDF_WLAN_LOG_H
 
-#include <stdint.h>
 #include "hdf_log.h"
 
 typedef enum {
