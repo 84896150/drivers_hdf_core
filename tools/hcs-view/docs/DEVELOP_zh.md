@@ -14,25 +14,25 @@
 
 ### 开发步骤
 
-1.在drivers_framework/tools/hcs-view/hcsVSCode这个目录下执行命令：
+1. 在drivers_framework/tools/hcs-view/hcsVSCode这个目录下执行命令：
 
-	npm i vsce
+		npm i vsce
 
-2.在drivers_framework/tools/hcs-view/hcsVSCode这个目录下执行命令：
+2. 在drivers_framework/tools/hcs-view/hcsVSCode这个目录下执行命令：
 
-	npx vsce package
+		npx vsce package
 
-3.每个选项都选择y，然后回车，最终会在当前目录下打包生成一个插件hcseditor-0.0.1.vsix。以Ubuntu环境为例，结果如下：
+3. 每个选项都选择y，然后回车，最终会在当前目录下打包生成一个插件hcseditor-0.0.1.vsix。以Ubuntu环境为例，结果如下：
 
-	harmony@Ubuntu-64:~/hcsVSCode$ npx vsce package
-	WARNING  A 'repository' field is missing from the 'package.json' manifest file.
-	Do you want to continue? [y/N] y
-	WARNING  Using '*' activation is usually a bad idea as it impacts performance.
-	More info: https://code.visualstudio.com/api/references/activation-events#Start-up
-	Do you want to continue? [y/N] y
-	WARNING  LICENSE.md, LICENSE.txt or LICENSE not found
-	Do you want to continue? [y/N] y
-	This extension consists of 2318 files, out of which 1223 are JavaScript files. For performance reasons, you should bundle your extension: https://aka.ms/vscode-bundle-extension . You should also exclude unnecessary files by adding them to your .vscodeignore: https://aka.ms/vscode-vscodeignore
+		harmony@Ubuntu-64:~/hcsVSCode$ npx vsce package
+		WARNING  A 'repository' field is missing from the 'package.json' manifest file.
+		Do you want to continue? [y/N] y
+		WARNING  Using '*' activation is usually a bad idea as it impacts performance.
+		More info: https://code.visualstudio.com/api/references/activation-events#Start-up
+		Do you want to continue? [y/N] y
+		WARNING  LICENSE.md, LICENSE.txt or LICENSE not found
+		Do you want to continue? [y/N] y
+		This extension consists of 2318 files, out of which 1223 are JavaScript files. For performance reasons, you should bundle your extension: https://aka.ms/vscode-bundle-extension . You should also exclude unnecessary files by adding them to your .vscodeignore: https://aka.ms/vscode-vscodeignore
 		   
 ## 工具测试
 

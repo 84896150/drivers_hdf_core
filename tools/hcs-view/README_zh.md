@@ -9,21 +9,20 @@
 [工具使用说明](https://gitee.com/openharmony/drivers_framework/tree/master/tools/hcs-view/doc/INSTRUCTION_zh.md)
 
 ## 目录
-
-	├── drivers_framework  
-	│   ├── tools                         
-	│   |   ├── hcs-view 
-	│   |   |    ├── docs                        # 工具相关使用说明文档
-	│   |   |    ├── examples                    # 工具需要的文件样例
-	│   |   |    ├── figures                     # 图片文件               
-	│   |   |    ├── hcsVSCode                   # VSCode工程代码，用于hcs文件与hcsWebView之间传递数据
-	│   |   |    ├── hcsWebView                  # hcs可视化处理WebView源码，用于界面的绘制呈现等处理
-	│   |   |    |    ├── src                    # hcs源码 
-	│   |   |    |    ├── test                   # 工具单元测试用例
-	│   |   |    ├── prebuilt                    # 插件存放地址  
-	│   |   |    ├── FAQ.md                      # 工具约束说明  
-	│   |   |    ├── OWNER                       # 所有者说明
-	│   |   |    ├── README_zh.md                # 工具使用指导文档 
+    drivers_framework  
+	└── tools                         
+			└── hcs-view 
+		 			├── docs             # 工具相关使用说明文档
+		 			├── examples         # 工具需要的文件样例
+		 			├── figures          # 图片文件               
+		 			├── hcsVSCode        # VSCode工程代码，用于hcs文件与hcsWebView之间传递数据
+		 			├── hcsWebView       # hcs可视化处理WebView源码，用于界面的绘制呈现等处理
+		      			├── src          # hcs源码 
+		     			└── test         # 工具单元测试用例
+		 			├── prebuilt         # 插件存放地址  
+		 			├── FAQ.md           # 工具约束说明  
+		 			├── OWNER            # 所有者说明
+		 			└── README_zh.md     # 工具使用指导文档 
 
 ## 约束
 
@@ -54,7 +53,7 @@ drivers_framework/tools/hcs-view/prebuilt
 
 ### 工具输出
 
-1.根据使用者指定的hcs配置文件，工具会输出hcs文件内容对应的可视化配置图。
+1. 根据使用者指定的hcs配置文件，工具会输出hcs文件内容对应的可视化配置图。
 
 为了方便使用者快速上手工具，可供测试的hcs文件存放在以下路径：
 
@@ -66,7 +65,7 @@ drivers_framework/tools/hcs-view/examples
 
 ![](./figures/node-config.png)
 
-2.根据用户可视化配置，工具会生成hcs配置文件，如下图所示：
+2. 根据用户可视化配置，工具会生成hcs配置文件，如下图所示：
 
 ![](./figures/node-hcs.png)
 
