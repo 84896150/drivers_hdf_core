@@ -1463,6 +1463,7 @@ static struct StreamHost *StreamHostCreateAndBind(struct HdfDeviceObject *device
 {
     struct StreamHost *streamHost;
     if (device == NULL) {
+        ADM_LOG_ERR("device is null!");
         return NULL;
     }
 
@@ -1481,6 +1482,7 @@ static int32_t AudioStreamBind(struct HdfDeviceObject *device)
     struct StreamHost *streamHost;
     ADM_LOG_DEBUG("entry!");
     if (device == NULL) {
+        ADM_LOG_ERR("device is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
