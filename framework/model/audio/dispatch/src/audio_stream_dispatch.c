@@ -661,7 +661,6 @@ static int32_t StreamHostWrite(const struct HdfDeviceIoClient *client, struct Hd
     struct AudioCard *audioCard = NULL;
     int32_t ret = HDF_SUCCESS;
     uint32_t dataSize = 0;
-    ADM_LOG_DEBUG("entry.");
 
     if (client == NULL || reply == NULL) {
         ADM_LOG_ERR("input param is NULL.");
@@ -689,7 +688,7 @@ static int32_t StreamHostWrite(const struct HdfDeviceIoClient *client, struct Hd
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufWriteUint32(reply, (uint32_t)(transfer.status))) {
+    if (!HdfSbufWriteInt32(reply, (int32_t)(transfer.status))) {
         ADM_LOG_ERR("read response status failed!");
         return HDF_FAILURE;
     }
@@ -702,7 +701,6 @@ static int32_t StreamHostRead(const struct HdfDeviceIoClient *client, struct Hdf
     struct AudioCard *audioCard = NULL;
     struct AudioRxData rxData;
     int ret = HDF_SUCCESS;
-    ADM_LOG_DEBUG("entry.");
 
     if (client == NULL || reply == NULL) {
         ADM_LOG_ERR("input param is NULL.");
@@ -722,7 +720,7 @@ static int32_t StreamHostRead(const struct HdfDeviceIoClient *client, struct Hdf
         return HDF_FAILURE;
     }
 
-    if (!HdfSbufWriteUint32(reply, (uint32_t)(rxData.status))) {
+    if (!HdfSbufWriteInt32(reply, (int32_t)(rxData.status))) {
         ADM_LOG_ERR("write request data status failed!");
         return HDF_FAILURE;
     }
@@ -1463,6 +1461,7 @@ static struct StreamHost *StreamHostCreateAndBind(struct HdfDeviceObject *device
 {
     struct StreamHost *streamHost;
     if (device == NULL) {
+        ADM_LOG_ERR("device is null!");
         return NULL;
     }
 
@@ -1481,6 +1480,7 @@ static int32_t AudioStreamBind(struct HdfDeviceObject *device)
     struct StreamHost *streamHost;
     ADM_LOG_DEBUG("entry!");
     if (device == NULL) {
+        ADM_LOG_ERR("device is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 

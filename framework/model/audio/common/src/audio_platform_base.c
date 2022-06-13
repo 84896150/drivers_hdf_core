@@ -18,6 +18,7 @@
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 #define MAX_PERIOD_SIZE (8 * 1024)
 #define MIN_PERIOD_SIZE (2 * 1024)
+#define SECOND_TO_MILLISECOND  1000
 
 const int PERIOD_COUNT = 4;
 const int RENDER_TRAF_BUF_SIZE = 1024;
@@ -106,12 +107,20 @@ int32_t AudioFormatToBitWidth(enum AudioFormat format, unsigned int *bitWidth)
         return HDF_FAILURE;
     }
     switch (format) {
+        case AUDIO_FORMAT_PCM_8_BIT:
+            *bitWidth = DATA_BIT_WIDTH8;
+            break;
+
         case AUDIO_FORMAT_PCM_16_BIT:
             *bitWidth = DATA_BIT_WIDTH16;
             break;
 
         case AUDIO_FORMAT_PCM_24_BIT:
             *bitWidth = DATA_BIT_WIDTH24;
+            break;
+
+        case AUDIO_FORMAT_PCM_32_BIT:
+            *bitWidth = DATA_BIT_WIDTH32;
             break;
 
         default:
@@ -252,7 +261,7 @@ int32_t AudioWriteProcBigEndian(const struct PlatformData *data, struct AudioTxD
     return HDF_SUCCESS;
 }
 
-static enum CriBuffStatus AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStreamType streamType)
+static int32_t AudioDmaBuffStatus(const struct AudioCard *card, enum AudioStreamType streamType)
 {
     uint32_t dataAvailable;
     uint32_t residual;
@@ -265,39 +274,41 @@ static enum CriBuffStatus AudioDmaBuffStatus(const struct AudioCard *card, enum 
         AUDIO_DRIVER_LOG_ERR("PlatformDataFromCard failed.");
         return HDF_FAILURE;
     }
-
     if (AudioPcmPointer(card, &pointer, streamType) != HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("get Pointer failed.");
         return ENUM_CIR_BUFF_FULL;
     }
-
     if (streamType == AUDIO_RENDER_STREAM) {
         data->renderBufInfo.pointer = pointer;
         rptr = data->renderBufInfo.pointer * data->renderPcmInfo.frameSize;
         dataAvailable = (data->renderBufInfo.wbufOffSet - rptr) % data->renderBufInfo.cirBufSize;
         residual = data->renderBufInfo.cirBufSize - dataAvailable;
         if ((residual > data->renderBufInfo.trafBufSize)) {
+            AUDIO_DRIVER_LOG_DEBUG("rptr: %d wptr: %d trafBufSize: %d ",
+                rptr, dataAvailable, data->renderBufInfo.trafBufSize);
             return ENUM_CIR_BUFF_NORMAL;
+        } else {
+            AUDIO_DRIVER_LOG_DEBUG("full rptr: %d wptr: %d trafBufSize: %d ", rptr,
+                dataAvailable, data->renderBufInfo.trafBufSize);
+            return ((data->renderBufInfo.trafBufSize - residual) / data->renderBufInfo.oneMsBytes);
         }
-        return ENUM_CIR_BUFF_FULL;
     } else if (streamType == AUDIO_CAPTURE_STREAM) {
         rptr = data->captureBufInfo.rptrOffSet;
         wptr = pointer * data->capturePcmInfo.frameSize;
         data->captureBufInfo.pointer = pointer;
-
         if (wptr >= rptr) {
             // [S ... R ... W ... E]
             dataAvailable = wptr - rptr;
             if (dataAvailable < data->captureBufInfo.trafBufSize) {
                 AUDIO_DRIVER_LOG_DEBUG("empty rptr: %d wptr: %d trafBufSize: %d ", rptr,
                     wptr, data->captureBufInfo.trafBufSize);
-                return ENUM_CIR_BUFF_EMPTY;
+                return ((data->captureBufInfo.trafBufSize - dataAvailable) / data->captureBufInfo.oneMsBytes);
             }
         }
         AUDIO_DRIVER_LOG_DEBUG("rptr: %d wptr: %d trafBufSize: %d ", rptr, wptr, data->captureBufInfo.trafBufSize);
         return ENUM_CIR_BUFF_NORMAL;
     } else {
-        AUDIO_DRIVER_LOG_ERR("streamType is invalead.");
+        AUDIO_DRIVER_LOG_ERR("streamType(%d) is invalid.", streamType);
         return ENUM_CIR_BUFF_FULL;
     }
 }
@@ -305,7 +316,7 @@ static enum CriBuffStatus AudioDmaBuffStatus(const struct AudioCard *card, enum 
 int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
 {
     struct PlatformData *data = NULL;
-    enum CriBuffStatus status;
+    int32_t status;
     uint32_t wPtr;
     int ret;
 
@@ -334,7 +345,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     // 3. Buffer state checking
     status = AudioDmaBuffStatus(card, AUDIO_RENDER_STREAM);
     if (status != ENUM_CIR_BUFF_NORMAL) {
-        txData->status = ENUM_CIR_BUFF_FULL;
+        txData->status = status;
         return HDF_SUCCESS;
     }
 
@@ -385,7 +396,7 @@ static int32_t PcmReadData(struct PlatformData *data, struct AudioRxData *rxData
     }
 
     // 3. Big Small Exchange
-    if (!data->capturePcmInfo.isBigEndian) {
+    if (data->capturePcmInfo.isBigEndian) {
         if (rxData->buf == NULL || AudioDataBigEndianChange(rxData->buf,
             data->captureBufInfo.curTrafSize, data->capturePcmInfo.bitWidth) != HDF_SUCCESS) {
             AUDIO_DRIVER_LOG_ERR("AudioDataBigEndianChange: failed.");
@@ -403,7 +414,7 @@ static int32_t PcmReadData(struct PlatformData *data, struct AudioRxData *rxData
 int32_t AudioPcmRead(const struct AudioCard *card, struct AudioRxData *rxData)
 {
     struct PlatformData *data = NULL;
-    enum CriBuffStatus status;
+    int32_t status;
 
     if (card == NULL || rxData == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is null.");
@@ -423,7 +434,7 @@ int32_t AudioPcmRead(const struct AudioCard *card, struct AudioRxData *rxData)
     // 1. Buffer state checking
     status = AudioDmaBuffStatus(card, AUDIO_CAPTURE_STREAM);
     if (status != ENUM_CIR_BUFF_NORMAL) {
-        rxData->status = ENUM_CIR_BUFF_EMPTY;
+        rxData->status = status;
         rxData->buf = (char *)(data->captureBufInfo.virtAddr) + data->captureBufInfo.rptrOffSet;
         rxData->frames = 0;
         rxData->bufSize = 0;
@@ -517,7 +528,7 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     }
     while (data->mmapLoopCount < loopTimes && data->renderBufInfo.runStatus != PCM_STOP) {
         if (data->renderBufInfo.runStatus == PCM_PAUSE) {
-            OsalMSleep(5);
+            OsalMSleep(SLEEP_TIME);
             continue;
         }
 
@@ -606,7 +617,7 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
             data->captureBufInfo.curTrafSize = validDataSize;
         }
     }
-    if (!data->capturePcmInfo.isBigEndian) {
+    if (data->capturePcmInfo.isBigEndian) {
         if (AudioDataBigEndianChange((char *)(data->captureBufInfo.virtAddr) + rPtr,
             data->captureBufInfo.curTrafSize, data->capturePcmInfo.bitWidth) != HDF_SUCCESS) {
                 AUDIO_DRIVER_LOG_ERR("AudioDataBigEndianChange: failed.");
@@ -633,7 +644,7 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
 int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct AudioMmapData *rxMmapData)
 {
     uint32_t offset = 0;
-    enum CriBuffStatus status;
+    int32_t status;
     uint32_t timeout = 0;
     struct PlatformData *data;
     uint32_t frameSize;
@@ -662,7 +673,7 @@ int32_t AudioMmapReadTransfer(const struct AudioCard *card, const struct AudioMm
 
     do {
         if (data->captureBufInfo.runStatus == PCM_PAUSE) {
-            OsalMSleep(5);
+            OsalMSleep(SLEEP_TIME);
             continue;
         }
 
@@ -1052,6 +1063,140 @@ int32_t AudioCaptureTrigger(struct AudioCard *card, int cmd)
     return HDF_SUCCESS;
 }
 
+static int32_t AudioDmaConfig(struct PlatformData *data, enum AudioStreamType streamType)
+{
+    int ret;
+    if (data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("platform is NULL.");
+        return HDF_FAILURE;
+    }
+
+    if (streamType == AUDIO_RENDER_STREAM) {
+        if (data->renderBufInfo.virtAddr != NULL) {
+            (void)memset_s(data->renderBufInfo.virtAddr, data->renderBufInfo.cirBufSize, 0,
+                           data->renderBufInfo.cirBufSize);
+        }
+        data->renderBufInfo.wbufOffSet = 0;
+        data->renderBufInfo.wptrOffSet = 0;
+        data->renderBufInfo.framesPosition = 0;
+        data->renderBufInfo.pointer = 0;
+        data->renderPcmInfo.totalStreamSize = 0;
+
+        ret = AudioDmaConfigChannel(data, AUDIO_RENDER_STREAM);
+        if (ret) {
+            AUDIO_DRIVER_LOG_ERR("Dma Config Channel fail.");
+            return HDF_FAILURE;
+        }
+    } else if (streamType == AUDIO_CAPTURE_STREAM) {
+        if (data->captureBufInfo.virtAddr != NULL) {
+            (void)memset_s(data->captureBufInfo.virtAddr, data->captureBufInfo.cirBufSize, 0,
+                           data->captureBufInfo.cirBufSize);
+        }
+        data->captureBufInfo.rbufOffSet = 0;
+        data->captureBufInfo.rptrOffSet = 0;
+        data->captureBufInfo.chnId = 0;
+        data->captureBufInfo.framesPosition = 0;
+        data->captureBufInfo.pointer = 0;
+        data->capturePcmInfo.totalStreamSize = 0;
+
+        ret = AudioDmaConfigChannel(data, AUDIO_CAPTURE_STREAM);
+        if (ret) {
+            AUDIO_DRIVER_LOG_ERR("Dma Config Channel fail.");
+            return HDF_FAILURE;
+        }
+    } else {
+        AUDIO_DRIVER_LOG_ERR("param streamType is invalid.");
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioPcmTransferBytes(struct PlatformData *data, enum AudioStreamType streamType)
+{
+    if (data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("platform is NULL.");
+        return HDF_FAILURE;
+    }
+
+    if (streamType == AUDIO_RENDER_STREAM) {
+        data->renderBufInfo.oneMsBytes = data->renderPcmInfo.rate * data->renderPcmInfo.frameSize
+            / SECOND_TO_MILLISECOND;
+        if (data->renderBufInfo.oneMsBytes == 0) {
+            AUDIO_DRIVER_LOG_ERR("render pcm info is error.");
+            return HDF_FAILURE;
+        }
+        AUDIO_DRIVER_LOG_DEBUG("render pcm one ms transfer bytes is %d .", data->renderBufInfo.oneMsBytes);
+    } else if (streamType == AUDIO_CAPTURE_STREAM) {
+        data->captureBufInfo.oneMsBytes = data->capturePcmInfo.rate * data->capturePcmInfo.frameSize
+            / SECOND_TO_MILLISECOND;
+        if (data->captureBufInfo.oneMsBytes == 0) {
+            AUDIO_DRIVER_LOG_ERR("capture pcm info is error.");
+            return HDF_FAILURE;
+        }
+        AUDIO_DRIVER_LOG_DEBUG("capture pcm one ms transfer bytes is %d .", data->captureBufInfo.oneMsBytes);
+    } else {
+        AUDIO_DRIVER_LOG_ERR("param streamType is invalid.");
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioSetRenderHwParams(const struct AudioPcmHwParams *param, struct PlatformData *data)
+{
+    if (param == NULL || data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("input param is NULL.");
+        return HDF_FAILURE;
+    }
+
+    if (AudioDmaRequestChannel(data, AUDIO_RENDER_STREAM) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("Dma Request Channel fail.");
+        return HDF_FAILURE;
+    }
+
+    if (AudioSetRenderBufInfo(data, param) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (AudioDmaConfig(data, AUDIO_RENDER_STREAM) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (AudioPcmTransferBytes(data, AUDIO_RENDER_STREAM) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioSetCaptureHwParams(const struct AudioPcmHwParams *param, struct PlatformData *data)
+{
+    if (param == NULL || data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("input param is NULL.");
+        return HDF_FAILURE;
+    }
+
+    if (AudioDmaRequestChannel(data, AUDIO_CAPTURE_STREAM) != HDF_SUCCESS) {
+        AUDIO_DRIVER_LOG_ERR("Dma Request Channel fail.");
+        return HDF_FAILURE;
+    }
+
+    if (AudioSetCaptureBufInfo(data, param) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (AudioDmaConfig(data, AUDIO_CAPTURE_STREAM) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (AudioPcmTransferBytes(data, AUDIO_CAPTURE_STREAM) != HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+
 int32_t AudioHwParams(const struct AudioCard *card, const struct AudioPcmHwParams *param)
 {
     const int chnlCntMin = 1;
@@ -1078,21 +1223,13 @@ int32_t AudioHwParams(const struct AudioCard *card, const struct AudioPcmHwParam
     }
 
     if (param->streamType == AUDIO_RENDER_STREAM) {
-        if (AudioDmaRequestChannel(platformData, AUDIO_RENDER_STREAM) != HDF_SUCCESS) {
-            AUDIO_DRIVER_LOG_ERR("Dma Request Channel fail.");
-            return HDF_FAILURE;
-        }
-
-        if (AudioSetRenderBufInfo(platformData, param) != HDF_SUCCESS) {
+        if (AudioSetRenderHwParams(param, platformData) != HDF_SUCCESS) {
+            AUDIO_DRIVER_LOG_ERR("set render hardware params is failed.");
             return HDF_FAILURE;
         }
     } else if (param->streamType == AUDIO_CAPTURE_STREAM) {
-        if (AudioDmaRequestChannel(platformData, AUDIO_CAPTURE_STREAM) != HDF_SUCCESS) {
-            AUDIO_DRIVER_LOG_ERR("Dma Request Channel fail.");
-            return HDF_FAILURE;
-        }
-
-        if (AudioSetCaptureBufInfo(platformData, param) != HDF_SUCCESS) {
+        if (AudioSetCaptureHwParams(param, platformData) != HDF_SUCCESS) {
+            AUDIO_DRIVER_LOG_ERR("set capture hardware params is failed.");
             return HDF_FAILURE;
         }
     } else {
@@ -1118,19 +1255,9 @@ int32_t AudioRenderPrepare(const struct AudioCard *card)
         return HDF_FAILURE;
     }
 
-    if (platformData->renderBufInfo.virtAddr != NULL) {
-        (void)memset_s(platformData->renderBufInfo.virtAddr, platformData->renderBufInfo.cirBufSize, 0,
-                       platformData->renderBufInfo.cirBufSize);
-    }
-    platformData->renderBufInfo.wbufOffSet = 0;
-    platformData->renderBufInfo.wptrOffSet = 0;
-    platformData->renderBufInfo.framesPosition = 0;
-    platformData->renderBufInfo.pointer = 0;
-    platformData->renderPcmInfo.totalStreamSize = 0;
-
-    ret = AudioDmaConfigChannel(platformData, AUDIO_RENDER_STREAM);
+    ret = AudioDmaPrep(platformData, AUDIO_RENDER_STREAM);
     if (ret) {
-        AUDIO_DRIVER_LOG_ERR("Dma Config Channel fail.");
+        AUDIO_DRIVER_LOG_ERR("Dma prepare fail.");
         return HDF_FAILURE;
     }
 
@@ -1152,20 +1279,9 @@ int32_t AudioCapturePrepare(const struct AudioCard *card)
         return HDF_FAILURE;
     }
 
-    if (platformData->captureBufInfo.virtAddr != NULL) {
-        (void)memset_s(platformData->captureBufInfo.virtAddr, platformData->captureBufInfo.cirBufSize, 0,
-                       platformData->captureBufInfo.cirBufSize);
-    }
-    platformData->captureBufInfo.rbufOffSet = 0;
-    platformData->captureBufInfo.rptrOffSet = 0;
-    platformData->captureBufInfo.chnId = 0;
-    platformData->captureBufInfo.framesPosition = 0;
-    platformData->captureBufInfo.pointer = 0;
-    platformData->capturePcmInfo.totalStreamSize = 0;
-
-    ret = AudioDmaConfigChannel(platformData, AUDIO_CAPTURE_STREAM);
+    ret = AudioDmaPrep(platformData, AUDIO_CAPTURE_STREAM);
     if (ret) {
-        AUDIO_DRIVER_LOG_ERR("Dma Config Channel fail.");
+        AUDIO_DRIVER_LOG_ERR("Dma prepare fail.");
         return HDF_FAILURE;
     }
 

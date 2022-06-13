@@ -58,6 +58,7 @@ struct CircleBufInfo {
     uint32_t periodsMin;        /* Minimum number of periods */
     uint32_t cirBufMax;         /* Size of DMA cache requested */
     uint32_t curTrafSize;       /* The size of each actual transmission of PCM data */
+    uint32_t oneMsBytes;        /* Number of bytes transferred per millisecond. */
 };
 
 #define HDF_AUDIO_CAPTURE_THRESHOLD (0x9)
