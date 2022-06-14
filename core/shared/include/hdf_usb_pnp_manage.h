@@ -11,7 +11,7 @@
 
 #include "hdf_base.h"
 
-#define USB_PNP_NOTIFY_TEST_MODE        false
+#define USB_PNP_NOTIFY_TEST_MODE        0
 #define USB_PNP_INFO_MAX_INTERFACES     32
 
 enum UsbPnpNotifyServiceCmd {
@@ -20,7 +20,7 @@ enum UsbPnpNotifyServiceCmd {
     USB_PNP_NOTIFY_REPORT_INTERFACE,
     USB_PNP_NOTIFY_ADD_DEVICE,
     USB_PNP_NOTIFY_REMOVE_DEVICE,
-    #if USB_PNP_NOTIFY_TEST_MODE == true
+    #if USB_PNP_NOTIFY_TEST_MODE == 1
     USB_PNP_NOTIFY_ADD_TEST,
     USB_PNP_NOTIFY_REMOVE_TEST,
     #endif
