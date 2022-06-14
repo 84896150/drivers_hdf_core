@@ -1053,14 +1053,14 @@ int32_t UsbDdkPnpLoaderEventReceived(void *usbPnpManagerPtr, uint32_t id, struct
         case USB_PNP_NOTIFY_ADD_INTERFACE:
         case USB_PNP_NOTIFY_ADD_DEVICE:
         case USB_PNP_NOTIFY_REPORT_INTERFACE:
-#if USB_PNP_NOTIFY_TEST_MODE == true
+#if USB_PNP_NOTIFY_TEST_MODE == 1
         case USB_PNP_NOTIFY_ADD_TEST:
 #endif
             ret = UsbDdkPnpLoaderDevice(usbPnpManagerDevice, infoTable, id);
             break;
         case USB_PNP_NOTIFY_REMOVE_INTERFACE:
         case USB_PNP_NOTIFY_REMOVE_DEVICE:
-#if USB_PNP_NOTIFY_TEST_MODE == true
+#if USB_PNP_NOTIFY_TEST_MODE == 1
         case USB_PNP_NOTIFY_REMOVE_TEST:
 #endif
             removeInfo.removeType = infoTable->removeType;
