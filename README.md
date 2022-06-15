@@ -21,7 +21,7 @@ This repository stores the core source code information of the OpenHarmony drive
 ## Directory Structure<a name="section161941989596"></a>
 
 ```
-/drivers/framework
+/drivers/hdf_core/framework
 ├── core           # Core code for implementing the HDF
 │   ├── adapter    # Kernel adaptation layer
 │   ├── common     # Common basic code
