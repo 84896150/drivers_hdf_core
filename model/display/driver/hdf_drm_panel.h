@@ -23,4 +23,3 @@ struct HdfDrmPanel {
 };
 
 #endif /* HDF_DRM_PANEL_H */
-
