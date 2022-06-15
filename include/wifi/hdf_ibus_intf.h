@@ -10,6 +10,7 @@
 #define HDF_IBUS_INTF_H
 
 #include "hdf_wlan_config.h"
+#include "hdf_wlan_log.h"
 
 #ifdef __cplusplus
 #if __cplusplus

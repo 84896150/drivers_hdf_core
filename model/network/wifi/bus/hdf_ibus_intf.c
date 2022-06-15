@@ -27,7 +27,7 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
         return NULL;
     }
     if (busConfig->busType >= BUS_BUTT) {
-        HDF_LOGE("%s:bus type %u not support!", __func__, busConfig->busType);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bus type %u not support!", __func__, busConfig->busType);
         return NULL;
     }
     

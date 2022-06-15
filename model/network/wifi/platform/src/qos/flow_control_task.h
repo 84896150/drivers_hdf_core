@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -9,6 +9,7 @@
 #ifndef WIFI_FLOW_CONTROL_TASK_H
 #define WIFI_FLOW_CONTROL_TASK_H
 #include "flow_control.h"
+#include "hdf_wlan_log.h"
 
 #define MAX_EXIT_THREAD_COUNT 10 /* 10MS */
 int32_t CreateFlowControlTask(struct FlowControlModule *fcm);
