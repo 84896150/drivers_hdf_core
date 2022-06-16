@@ -11,6 +11,7 @@
 #include "hdf_base.h"
 #include "hdf_ibus_intf.h"
 #include "hdf_log.h"
+#include "hdf_wlan_log.h"
 #include "securec.h"
 
 #ifdef __cplusplus
@@ -23,14 +24,14 @@ static int32_t HdfGetUsbInfo(struct BusDev *dev, struct BusConfig *busCfg)
 {
     (void)dev;
     (void)busCfg;
-    HDF_LOGI("%s:get usb info", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Get usb info", __func__);
     return HDF_SUCCESS;
 }
 
 static void HdfUsbReleaseDev(struct BusDev *dev)
 {
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input parameter error", __func__);
         return;
     }
     if (dev->priData.data != NULL) {
@@ -44,14 +45,14 @@ static void HdfUsbReleaseDev(struct BusDev *dev)
 static int32_t HdfUsbEnableFunc(struct BusDev *dev)
 {
     (void)dev;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbEnableFunc successful", __func__);
     return HDF_SUCCESS;
 }
 
 static int32_t HdfUsbDisableFunc(struct BusDev *dev)
 {
     (void)dev;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbDisableFunc successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -60,33 +61,33 @@ static int32_t HdfUsbCliamIrq(struct BusDev *dev, IrqHandler *handler, void *dat
     (void)dev;
     (void)handler;
     (void)data;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbCliamIrq successful", __func__);
     return HDF_SUCCESS;
 }
 
 static void HdfUsbClaimHost(struct BusDev *dev)
 {
     (void)dev;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbClaimHost finished", __func__);
 }
 
 static void HdfUsbReleaseHost(struct BusDev *dev)
 {
     (void)dev;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbReleaseHost finished", __func__);
 }
 
 static int32_t HdfUsbReleaseIrq(struct BusDev *dev)
 {
     (void)dev;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbReleaseIrq successful", __func__);
     return HDF_SUCCESS;
 }
 
 static int32_t HdfUsbReset(struct BusDev *dev)
 {
     (void)dev;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbReset successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -96,7 +97,7 @@ static int32_t HdfUsbReadN(struct BusDev *dev, uint32_t addr, uint32_t cnt, uint
     (void)addr;
     (void)cnt;
     (void)buf;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbReadN successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -106,7 +107,7 @@ static int32_t HdfUsbReadFunc0(struct BusDev *dev, uint32_t addr, uint32_t cnt, 
     (void)addr;
     (void)cnt;
     (void)buf;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbReadFunc0 successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -117,7 +118,7 @@ static int32_t HdfUsbReadSpcReg(struct BusDev *dev, uint32_t addr, uint32_t cnt,
     (void)cnt;
     (void)buf;
     (void)sg_len;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbReadSpcReg successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -127,7 +128,7 @@ static int32_t HdfUsbWriteN(struct BusDev *dev, uint32_t addr, uint32_t cnt, uin
     (void)addr;
     (void)cnt;
     (void)buf;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbWriteN successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -137,7 +138,7 @@ static int32_t HdfUsbWriteFunc0(struct BusDev *dev, uint32_t addr, uint32_t cnt,
     (void)addr;
     (void)cnt;
     (void)buf;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbWriteFunc0 successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -148,7 +149,7 @@ static int32_t HdfUsbWriteSpcReg(struct BusDev *dev, uint32_t addr, uint32_t cnt
     (void)cnt;
     (void)buf;
     (void)sg_len;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbWriteSpcReg successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -156,7 +157,7 @@ static int32_t HdfUsbSetBlk(struct BusDev *dev, uint32_t blkSize)
 {
     (void)dev;
     (void)blkSize;
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbSetBlk successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -168,29 +169,30 @@ static struct DevHandle *HdfGetDevHandle(struct BusDev *dev, const struct HdfCon
 
     struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
     if (rootConfig == NULL) {
-        HDF_LOGE("%s: NULL ptr!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: RootConfig is null", __func__);
         return NULL;
     }
     tmpChipList = &rootConfig->wlanConfig.chipList;
 
     cnt = 0;
     if (cnt == tmpChipList->chipInstSize || cnt == WLAN_MAX_CHIP_NUM) {
-        HDF_LOGE("%s: NO usb card detected!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: NO usb card detected!", __func__);
         return NULL;
     }
     dev->devBase = NULL;
     dev->priData.driverName = tmpChipList->chipInst[cnt].driverName;
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: GetDevHandle finished!", __func__);
     return NULL;
 }
 
 static int32_t HdfUsbInit(struct BusDev *dev, const struct HdfConfigWlanBus *busCfg)
 {
     if (dev == NULL || busCfg == NULL) {
-        HDF_LOGE("%s: input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input parameter error", __func__);
         return HDF_FAILURE;
     }
     (void)HdfGetDevHandle(dev, busCfg);
-    HDF_LOGI("%s:", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfUsbInit successful", __func__);
     return HDF_SUCCESS;
 }
 
@@ -218,7 +220,7 @@ static void HdfSetBusOps(struct BusDev *dev)
 int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig)
 {
     if (dev == NULL) {
-        HDF_LOGE("%s:set usb device ops failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Set usb device ops failed", __func__);
         return HDF_FAILURE;
     }
     HdfSetBusOps(dev);
@@ -228,6 +230,7 @@ int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *bus
 int32_t HdfWlanConfigBusAbs(uint8_t busId)
 {
     (void)busId;
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfWlanConfigBusAbs successful", __func__);
     return HDF_SUCCESS;
 }
 

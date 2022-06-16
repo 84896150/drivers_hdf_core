@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -10,6 +10,7 @@
 #include "hdf_log.h"
 #include "wifi_module.h"
 #include "hdf_wlan_chipdriver_manager.h"
+#include "hdf_wlan_log.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG HDF_WIFI_CORE
@@ -40,40 +41,41 @@ int32_t HdfChipReset(struct ResetManager *resetManager)
     int32_t ret;
     struct ResetManagerImpl *resetMgrImpl = NULL;
     if (resetManager == NULL) {
-        HDF_LOGE("%s: resetManager is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     resetMgrImpl = (struct ResetManagerImpl*)resetManager;
     if (resetMgrImpl->resetData.resetCfg.resetType == RESET_ALWAYS_ON) {
-        HDF_LOGI("%s: the reset type is not managed", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: The reset type is not managed!", __func__);
         return HDF_SUCCESS;
     }
     ret = GpioSetDir(resetMgrImpl->resetData.resetCfg.gpioId, GPIO_DIR_OUT);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set dir fail!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Set dir fail!!", __func__);
         return ret;
     }
     ret = GpioWrite(resetMgrImpl->resetData.resetCfg.gpioId, resetMgrImpl->resetData.resetCfg.activeLevel);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: write active fail! ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Write active fail! ret=%d", __func__, ret);
         return ret;
     }
     OsalMSleep(resetMgrImpl->resetData.resetCfg.resetHoldTime);
 
     ret = GpioWrite(resetMgrImpl->resetData.resetCfg.gpioId, !resetMgrImpl->resetData.resetCfg.activeLevel);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: write deactivate fail! ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Write deactivate fail! ret=%d", __func__, ret);
         return ret;
     }
     OsalMSleep(resetMgrImpl->resetData.bootUpHoldTime);
 
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Chip reset successful!", __func__);
     return HDF_SUCCESS;
 }
 /* to release reset manager resource */
 int32_t HdfWlanResetMgrRelease(struct ResetManager* resetMgr)
 {
     if (resetMgr == NULL) {
-        HDF_LOGE("%s: resetMgr already deinit or input para error ", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     OsalMemFree(resetMgr);
@@ -84,23 +86,23 @@ struct ResetManager* HdfWlanCreateResetManager(const struct HdfConfWlanRest *con
 {
     struct ResetManagerImpl *resetMgrImpl = NULL;
     if (configReset == NULL) {
-        HDF_LOGE("%s: configReset is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return NULL;
     }
     resetMgrImpl = (struct ResetManagerImpl *)OsalMemCalloc(sizeof(struct ResetManagerImpl));
     if (resetMgrImpl == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc fail! ", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: OsalMemCalloc fail!", __func__);
         return NULL;
     }
     if (memcpy_s(&resetMgrImpl->resetData.resetCfg, sizeof(struct HdfConfWlanRest),
         configReset, sizeof(struct HdfConfWlanRest)) != EOK) {
-        HDF_LOGE("%s: memcpy_s is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: memcpy_s is NULL!", __func__);
         OsalMemFree(resetMgrImpl);
         return NULL;
     }
     resetMgrImpl->resetData.bootUpHoldTime = bootUpTime;
     resetMgrImpl->base.Reset = HdfChipReset;
     resetMgrImpl->base.Release = HdfWlanResetMgrRelease;
-
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: CreateResetManager successful!", __func__);
     return (struct ResetManager*)resetMgrImpl;
 }

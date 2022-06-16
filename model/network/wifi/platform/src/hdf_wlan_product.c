@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -8,6 +8,7 @@
 
 #include "hdf_wifi_product.h"
 #include "hdf_wlan_chipdriver_manager.h"
+#include "hdf_wlan_log.h"
 #include "hdf_wlan_utils.h"
 #include "securec.h"
 
@@ -30,11 +31,11 @@ int HdfWlanAddDevice(struct HdfWlanDevice *device)
 {
     uint8_t i;
     if (device == NULL) {
-        HDF_LOGE("%s:input is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     if (g_hdfWlanProductData == NULL) {
-        HDF_LOGE("%s:please Init product first!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Please Init product first!", __func__);
         return HDF_FAILURE;
     }
     for (i = 0; i < MAX_WLAN_DEVICE; i++) {
@@ -44,7 +45,7 @@ int HdfWlanAddDevice(struct HdfWlanDevice *device)
             return HDF_SUCCESS;
         }
     }
-    HDF_LOGE("%s: device list is full!", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Device list is full!", __func__);
     return HDF_FAILURE;
 }
 
@@ -52,23 +53,23 @@ int HdfWlanInitProduct(struct HdfDeviceObject *device, const struct HdfConfigWla
 {
     int ret;
     if (g_hdfWlanProductData != NULL) {
-        HDF_LOGE("%s:already inited!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Already inited!", __func__);
         return HDF_FAILURE;
     }
     g_hdfWlanProductData = OsalMemCalloc(sizeof(struct HdfWifiProductData));
     if (g_hdfWlanProductData == NULL) {
-        HDF_LOGE("%s:oom", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Failed to request memory!", __func__);
         return HDF_FAILURE;
     }
     ret = InitWifiModule(&(g_hdfWlanProductData->module), config);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:InitWifiModule failed! ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: InitWifiModule failed! ret=%d", __func__);
         OsalMemFree(g_hdfWlanProductData);
         g_hdfWlanProductData = NULL;
         return ret;
     }
     g_hdfWlanProductData->device = device;
-
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Wlan init product successful!", __func__);
     return HDF_SUCCESS;
 }
 

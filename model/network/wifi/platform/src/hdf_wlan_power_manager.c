@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -10,6 +10,7 @@
 #include "hdf_log.h"
 #include "wifi_module.h"
 #include "hdf_wlan_chipdriver_manager.h"
+#include "hdf_wlan_log.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG HDF_WIFI_CORE
@@ -41,24 +42,25 @@ static int32_t HdfWlanSinglePowerActive(struct HdfConfigWlanPower* powerDate)
 {
     int32_t ret;
     if (powerDate == NULL) {
-        HDF_LOGE("%s:powerDate is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     if (powerDate->powerType == POWER_NOT_MANAGED) {
-        HDF_LOGI("%s:power type is always on", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Power type is always on!", __func__);
         return HDF_SUCCESS;
     }
     ret = GpioSetDir(powerDate->gpioId, 1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:set dir fail! ret=%d\n", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Set dir fail! ret=%d\n", __func__, ret);
         return HDF_FAILURE;
     }
     OsalMSleep(powerDate->powerSeqDelay);
     ret = GpioWrite(powerDate->gpioId, powerDate->activeLevel);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:set power on fail! ret=%d\n", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: set power on fail! ret=%d\n", __func__, ret);
         return HDF_FAILURE;
     }
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfWlanSinglePowerActive successful!", __func__);
     return HDF_SUCCESS;
 }
 static int32_t HdfWlanSingleDeActive(struct HdfConfigWlanPower* powerDate)
@@ -67,20 +69,21 @@ static int32_t HdfWlanSingleDeActive(struct HdfConfigWlanPower* powerDate)
     uint8_t deActive;
 
     if (powerDate == NULL) {
-        HDF_LOGE("%s: powerDate is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     deActive = !powerDate->activeLevel;
     if (powerDate->powerType == POWER_NOT_MANAGED) {
-        HDF_LOGE("%s:power type is not supported in current version", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Power type is not supported in current version!", __func__);
         return HDF_FAILURE;
     }
     ret = GpioSetDir(powerDate->gpioId, 1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:set dir fail! ret:%d\n", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Set dir fail! ret:%d\n!", __func__, ret);
         return ret;
     }
     ret = GpioWrite(powerDate->gpioId, deActive);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfWlanSingleDeActive successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -89,21 +92,22 @@ static int32_t HdfWlanChipPowerOn(struct PowerManager* powerMgr)
     int32_t ret;
     struct PowerManagerImpl *powerMgrimpl = NULL;
     if (powerMgr == NULL) {
-        HDF_LOGE("%s: powerMgr is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     powerMgrimpl = (struct PowerManagerImpl*)powerMgr;
     ret = HdfWlanSinglePowerActive(&powerMgrimpl->powerDatas.power0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdfWlanMainPowerOn fail! ret:%d\n", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: HdfWlanMainPowerOn fail! ret:%d\n", __func__, ret);
         (void)HdfWlanSingleDeActive(&powerMgrimpl->powerDatas.power0);
         return HDF_FAILURE;
     }
     ret = HdfWlanSinglePowerActive((struct HdfConfigWlanPower*)&powerMgrimpl->powerDatas.power1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: HdfWlanPowerActive fail! ret:%d\n", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: HdfWlanPowerActive fail! ret:%d\n!", __func__, ret);
         return HDF_FAILURE;
     }
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfWlanChipPowerOn successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -112,27 +116,28 @@ static int32_t HdfWlanChipPowerOff(struct PowerManager* powerMgr)
     int32_t ret;
     struct PowerManagerImpl *powerMgrimpl = NULL;
     if (powerMgr == NULL) {
-        HDF_LOGE("%s: powerMgr is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return HDF_FAILURE;
     }
     powerMgrimpl = (struct PowerManagerImpl*)powerMgr;
     ret = HdfWlanSingleDeActive(&powerMgrimpl->powerDatas.power0);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: the main power off fail", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: The main power off fail!", __func__);
         return HDF_FAILURE;
     }
     ret = HdfWlanSingleDeActive((struct HdfConfigWlanPower*)&powerMgrimpl->powerDatas.power1);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: the standby power off fail", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: The standby power off fail!", __func__);
         return ret;
     }
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfWlanChipPowerOff successful!", __func__);
     return HDF_SUCCESS;
 }
 
 int32_t HdfWlanPowerMgrRelease(struct PowerManager* powerMgr)
 {
     if (powerMgr == NULL) {
-        HDF_LOGW("%s: powerMgr already deinit or input para error ", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: PowerMgr already deinit or input para error!", __func__);
         return HDF_SUCCESS;
     }
     OsalMemFree(powerMgr);
@@ -145,12 +150,12 @@ struct PowerManager* HdfWlanCreatePowerManager(const struct HdfConfWlanPowers *c
 {
     struct PowerManagerImpl *powerMgrimpl = NULL;
     if (configPowers == NULL) {
-        HDF_LOGE("%s: configPowers is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return NULL;
     }
     powerMgrimpl = (struct PowerManagerImpl *)OsalMemCalloc(sizeof(struct PowerManagerImpl));
     if (powerMgrimpl == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc fail! ", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Failed to request memory!", __func__);
         return NULL;
     }
     powerMgrimpl->base.On = HdfWlanChipPowerOn;
@@ -158,5 +163,7 @@ struct PowerManager* HdfWlanCreatePowerManager(const struct HdfConfWlanPowers *c
     powerMgrimpl->base.Release = HdfWlanPowerMgrRelease;
     powerMgrimpl->powerDatas.power0 = configPowers->power0;
     powerMgrimpl->powerDatas.power1 = configPowers->power1;
+
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Create power manager successful!", __func__);
     return (struct PowerManager *)powerMgrimpl;
 }
