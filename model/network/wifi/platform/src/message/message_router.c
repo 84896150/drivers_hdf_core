@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -8,6 +8,7 @@
 
 #include "message_router.h"
 #include "hdf_base.h"
+#include "hdf_wlan_log.h"
 #ifdef USERSPACE_CLIENT_SUPPORT
 #include <signal.h>
 #include <unistd.h>
@@ -58,6 +59,7 @@ static uint8_t g_routerStatus = ME_STATUS_STOPPED;
 static void ReleaseRemoteService(RemoteService *service)
 {
     if (service == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return;
     }
     if (service->Shutdown != NULL) {
@@ -109,13 +111,13 @@ static ErrorCode RegDispatcher(DispatcherId dispatcherId, MessageDispatcher *dis
     HDF_STATUS status;
     ErrorCode errCode;
     if (dispatcherId >= MESSAGE_ENGINE_MAX_DISPATCHER) {
-        HDF_LOGE("%s:dispatcher id is too big!id=%u", __func__, dispatcherId);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:dispatcher id is too big!id=%u!", __func__, dispatcherId);
         return ME_ERROR_PARA_WRONG;
     }
 
     status = OsalMutexTimedLock(&g_routerMutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to get lock!status=%d", status);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Unable to get lock!status=%d!", __func__, status);
         return ME_ERROR_OPER_MUTEX_FAILED;
     }
     errCode = ME_SUCCESS;
@@ -125,7 +127,7 @@ static ErrorCode RegDispatcher(DispatcherId dispatcherId, MessageDispatcher *dis
             break;
         }
         if (g_dispatchers[dispatcherId] != NULL) {
-            HDF_LOGE("%s:DispatcherId conflict!ID=%u", __func__, dispatcherId);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:DispatcherId conflict!ID=%u!", __func__, dispatcherId);
             errCode = ME_ERROR_DISPATCHERID_CONFLICT;
         } else {
             g_dispatchers[dispatcherId] = dispatcher;
@@ -134,7 +136,7 @@ static ErrorCode RegDispatcher(DispatcherId dispatcherId, MessageDispatcher *dis
 
     status = OsalMutexUnlock(&g_routerMutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to unlock!status=%d", status);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Unable to unlock!status=%d!", __func__, status);
     }
     return errCode;
 }
@@ -144,21 +146,24 @@ ErrorCode AddDispatcher(DispatcherConfig *config)
     ErrorCode errCode;
     MessageDispatcher *dispatcher = NULL;
     if (config == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
     errCode = CreateLocalDispatcher(&dispatcher, config);
     if (errCode != ME_SUCCESS) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Create local dispatcher failed!", __func__);
         return errCode;
     }
     if (dispatcher == NULL) {
-        HDF_LOGE("%s:CreateDispatcher return NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: CreateDispatcher return NULL!", __func__);
         return ME_ERROR_NULL_PTR;
     }
     do {
         if (dispatcher->Start != NULL) {
             errCode = dispatcher->Start(dispatcher);
             if (errCode != ME_SUCCESS) {
-                HDF_LOGE("%s:Start dispatcher %u failed!errCode=%d", __func__, config->dispatcherId, errCode);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR,
+                    "%s:Start dispatcher %u failed!errCode=%d", __func__, config->dispatcherId, errCode);
                 break;
             }
         }
@@ -171,6 +176,7 @@ ErrorCode AddDispatcher(DispatcherConfig *config)
     if (errCode != ME_SUCCESS && dispatcher->Disref != NULL) {
         dispatcher->Disref(dispatcher);
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: errCode = %d", __func__, errCode);
     return errCode;
 }
 
@@ -501,14 +507,14 @@ static ErrorCode CreateRemoteMessageNode(uint8_t nodesConfig)
 
 #ifdef KERNEL_SERVER_SUPPORT
     if ((nodesConfig & MESSAGE_NODE_REMOTE_KERNEL_SERVER) != 0) {
-        HDF_LOGI("Creating kernel server node...");
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Creating kernel server node", __func__);
         errCode = CreateKernelServerNode(&g_messageNodes[REMOTE_NODE_INDEX]);
     }
 #endif
 
 #ifdef USERSPACE_CLIENT_SUPPORT
     if ((nodesConfig & MESSAGE_NODE_REMOTE_USERSPACE_CLIENT) != 0) {
-        HDF_LOGI("Creating UserspaceClient server node...");
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Creating UserspaceClient server node", __func__);
         errCode = CreateUserspaceClientNode(&g_messageNodes[REMOTE_NODE_INDEX]);
     }
 #endif
@@ -527,7 +533,7 @@ static ErrorCode InitNodes(void)
                 errCode = node->Init(node);
             }
             if (errCode != ME_SUCCESS) {
-                HDF_LOGE("%s: init node failed!id=%d,ret=%d", __func__, i, errCode);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Init node failed!id=%d,ret=%d", __func__, i, errCode);
                 return errCode;
             }
         }
@@ -555,27 +561,25 @@ static ErrorCode DoStartMessageRouter(uint8_t nodesConfig)
     uint8_t i;
     ErrorCode errCode;
     if (g_routerStatus != ME_STATUS_STOPPED) {
-        HDF_LOGE("Router have already started!");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Router have already started!", __func__);
         return ME_ERROR_MUTI_INIT_NOT_ALLOWED;
     }
 
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Start message router!", __func__);
     for (i = 0; i < MESSAGE_ENGINE_MAX_SERVICE; i++) {
         g_servicesIndex[i].remoteService = NULL;
         g_servicesIndex[i].nodeIndex = NO_SUCH_NODE_INDEX;
         g_servicesIndex[i].dispatcherId = BAD_DISPATCHER_ID;
     }
     do {
-        HDF_LOGE("%s:Create local node ...", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Create local node ...", __func__);
         errCode = CreateLocalNode(&g_messageNodes[LOCAL_NODE_INDEX]);
         if (errCode != ME_SUCCESS) {
-            HDF_LOGE("%s:Create local node failed!ret=%d", __func__, errCode);
             break;
         }
 #if defined(KERNEL_SERVER_SUPPORT) || defined(USERSPACE_CLIENT_SUPPORT)
-        HDF_LOGE("%s:Create remote node ...", __func__);
         errCode = CreateRemoteMessageNode(nodesConfig);
         if (errCode != ME_SUCCESS) {
-            HDF_LOGE("%s:Create remote node failed!ret=%d", __func__, errCode);
             break;
         }
 #else
@@ -586,10 +590,12 @@ static ErrorCode DoStartMessageRouter(uint8_t nodesConfig)
 
     if (errCode == ME_SUCCESS) {
         g_routerStatus = ME_STATUS_RUNNING;
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Router is running!", __func__);
         return ME_SUCCESS;
     }
 
     ReleaseNodes();
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: errCode = %d!", __func__, errCode);
     return ME_SUCCESS;
 }
 
@@ -601,10 +607,10 @@ ErrorCode EnableDefaultDispatcher(void)
         .queueSize = DEFAULT_DISPATCHER_QUEUE_SIZE,
         .priorityLevelCount = DEFAULT_DISPATCHER_PRIORITY_COUNT
     };
-    HDF_LOGI("Register default dispatcher...");
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Register default dispatcher!", __func__);
     errCode = AddDispatcher(&config);
     if (errCode != ME_SUCCESS) {
-        HDF_LOGE("Register default dispatcher failed!ret=%d", errCode);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Add dispatcher failed!", __func__);
     }
     return errCode;
 }
@@ -616,19 +622,21 @@ ErrorCode StartMessageRouter(uint8_t nodesConfig)
     if (g_routerMutex.realMutex == NULL) {
         HDF_STATUS status = OsalMutexInit(&g_routerMutex);
         if (status != HDF_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Init mutex failed!", __func__);
             return ME_ERROR_OPER_MUTEX_FAILED;
         }
     }
     status = OsalMutexTimedLock(&g_routerMutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to get lock!status=%d", status);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Unable to get time lock!status=%d", __func__, status);
         return ME_ERROR_OPER_MUTEX_FAILED;
     }
     errCode = DoStartMessageRouter(nodesConfig);
     status = OsalMutexUnlock(&g_routerMutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to get lock!status=%d", status);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Unable to get lock!status=%d", __func__, status);
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s:  errcode is %d!", __func__, errCode);
     return errCode;
 }
 
@@ -637,6 +645,7 @@ static ErrorCode DoShutdownMessageRouter(void)
     uint8_t i;
     RemoteService *service = NULL;
     if (g_routerStatus == ME_STATUS_STOPPED) {
+        HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: Router Status stoped!", __func__);
         return ME_SUCCESS;
     }
 
@@ -665,6 +674,7 @@ static ErrorCode DoShutdownMessageRouter(void)
 
     ReleaseNodes();
     g_routerStatus = ME_STATUS_STOPPED;
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Shutdown message router successful!", __func__);
     return ME_SUCCESS;
 }
 
@@ -672,7 +682,8 @@ ErrorCode ShutdownMessageRouter()
 {
     HDF_STATUS status;
     ErrorCode errCode;
-    HDF_LOGW("%s:Shutdown router...", __func__);
+
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Shutdown router...!", __func__);
     status = OsalMutexTimedLock(&g_routerMutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Unable to get lock!status=%d", status);
@@ -681,11 +692,12 @@ ErrorCode ShutdownMessageRouter()
     errCode = DoShutdownMessageRouter();
     status = OsalMutexUnlock(&g_routerMutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Unable to get lock!status=%d", status);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s:Unable to get lock!status=%d", __func__, status);
     }
     if (errCode == ME_SUCCESS) {
-        HDF_LOGW("%s:Router down.", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s:Router down", __func__);
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: errCode = %d!", __func__, errCode);
     return errCode;
 }
 

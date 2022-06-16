@@ -11,6 +11,7 @@
 #include "wifi_inc.h"
 #include "hdf_log.h"
 #include "hdf_wlan_config.h"
+#include "hdf_wlan_log.h"
 #include "hdf_base.h"
 #include "hdf_ibus_intf.h"
 
@@ -24,19 +25,22 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
 {
     struct BusDev *bus = NULL;
     if (busConfig == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return NULL;
     }
     if (busConfig->busType >= BUS_BUTT) {
-        HDF_LOGE("%s:bus type %u not support!", __func__, busConfig->busType);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: bus type %u not support!", __func__, busConfig->busType);
         return NULL;
     }
     
     bus = (struct BusDev *)OsalMemCalloc(sizeof(struct BusDev));
     if (bus == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Failed to request memory", __func__);
         return NULL;
     }
 
     if (HdfWlanBusAbsInit(bus, busConfig) != HDF_SUCCESS) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: BusAbsInit failed", __func__);
         OsalMemFree(bus);
         return NULL;
     }

@@ -9,6 +9,7 @@
 #include "osal_mem.h"
 #include "sdio_if.h"
 #include "wifi_inc.h"
+#include "hdf_wlan_log.h"
 #include "hdf_wlan_sdio.h"
 #include "hdf_base.h"
 #include "hdf_ibus_intf.h"
@@ -27,7 +28,7 @@ static int32_t HdfGetSdioInfo(struct BusDev *dev, struct BusConfig *busCfg)
     struct DevHandle *handle = NULL;
     SdioCommonInfo palSdioCommonInfo;
     if (dev == NULL || busCfg == NULL || busCfg->busType != BUS_SDIO) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input parameter error", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
@@ -35,7 +36,7 @@ static int32_t HdfGetSdioInfo(struct BusDev *dev, struct BusConfig *busCfg)
 
     ret = SdioGetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:get sdio info error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Get sdio info error", __func__);
         return ret;
     }
     busCfg->busInfo.sdioInfo.maxBlockNum = palSdioCommonInfo.funcInfo.maxBlockNum;
@@ -45,13 +46,14 @@ static int32_t HdfGetSdioInfo(struct BusDev *dev, struct BusConfig *busCfg)
     busCfg->busInfo.sdioInfo.irqCap = palSdioCommonInfo.funcInfo.irqCap;
     busCfg->busInfo.sdioInfo.data = palSdioCommonInfo.funcInfo.data;
 
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: GetSdioInfo finished", __func__);
     return ret;
 }
 
 static void HdfSdioReleaseDev(struct BusDev *dev)
 {
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return;
     }
     if (dev->priData.data != NULL) {
@@ -60,6 +62,7 @@ static void HdfSdioReleaseDev(struct BusDev *dev)
     }
     OsalMemFree(dev);
     dev = NULL;
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: HdfSdioReleaseDev finished", __func__);
 }
 
 static int32_t HdfSdioEnableFunc(struct BusDev *dev)
@@ -83,13 +86,13 @@ static int32_t HdfSdioDisableFunc(struct BusDev *dev)
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioDisableFunc(handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:disable sdio func failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Disable sdio func failed", __func__);
     }
     return ret;
 }
@@ -100,13 +103,13 @@ static int32_t HdfSdioCliamIrq(struct BusDev *dev, IrqHandler *handler, void *da
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioClaimIrq(handle, (SdioIrqHandler *)handler);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:claim sdio irq failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Claim sdio irq failed", __func__);
     }
     return ret;
 }
@@ -115,7 +118,7 @@ static void HdfSdioClaimHost(struct BusDev *dev)
 {
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return;
     }
     handle = (struct DevHandle *)dev->devBase;
@@ -126,7 +129,7 @@ static void HdfSdioReleaseHost(struct BusDev *dev)
 {
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return;
     }
     handle = (struct DevHandle *)dev->devBase;
@@ -139,13 +142,13 @@ static int32_t HdfSdioReleaseIrq(struct BusDev *dev)
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioReleaseIrq(handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:release sdio irq failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Release sdio irq failed", __func__);
     }
     return ret;
 }
@@ -155,13 +158,13 @@ static int32_t HdfSdioReset(struct BusDev *dev)
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioFlushData(handle);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:reset sdio failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: SdioFlushData fail", __func__);
     }
     return ret;
 }
@@ -171,13 +174,13 @@ static int32_t HdfSdioReadN(struct BusDev *dev, uint32_t addr, uint32_t cnt, uin
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioReadBytes(handle, buf, addr, cnt);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:read sdio data failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Read sdio data failed", __func__);
     }
     return ret;
 }
@@ -187,13 +190,14 @@ static int32_t HdfSdioReadFunc0(struct BusDev *dev, uint32_t addr, uint32_t cnt,
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioReadBytesFromFunc0(handle, buf, addr, cnt);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:read sdio func0 data failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Read sdio func0 data failed", __func__);
     }
     return ret;
 }
@@ -203,13 +207,13 @@ static int32_t HdfSdioReadSpcReg(struct BusDev *dev, uint32_t addr, uint32_t cnt
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioReadBytesFromFixedAddr(handle, buf, addr, cnt, sg_len);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:read sdio special reg data failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Read sdio special reg data failed", __func__);
     }
     return ret;
 }
@@ -219,13 +223,13 @@ static int32_t HdfSdioWriteN(struct BusDev *dev, uint32_t addr, uint32_t cnt, ui
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL || buf == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioWriteBytes(handle, buf, addr, cnt);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:write sdio data failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Write sdio data failed", __func__);
     }
     return ret;
 }
@@ -235,13 +239,13 @@ static int32_t HdfSdioWriteFunc0(struct BusDev *dev, uint32_t addr, uint32_t cnt
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL || buf == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioWriteBytesToFunc0(handle, buf, addr, cnt);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:write sdio func0 data failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Write sdio func0 data failed", __func__);
     }
     return ret;
 }
@@ -251,13 +255,13 @@ static int32_t HdfSdioWriteSpcReg(struct BusDev *dev, uint32_t addr, uint32_t cn
     int32_t ret;
     struct DevHandle *handle = NULL;
     if (dev == NULL || buf == NULL) {
-        HDF_LOGE("%s:input parameter error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     handle = (struct DevHandle *)dev->devBase;
     ret = SdioWriteBytesToFixedAddr(handle, buf, addr, cnt, sg_len);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGI("%s:write sdio special reg data failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: Write sdio special reg data failed", __func__);
     }
     return ret;
 }
@@ -318,35 +322,39 @@ static int32_t HdfSdioInit(struct BusDev *dev, const struct HdfConfigWlanBus *bu
     struct DevHandle *handle = NULL;
     SdioCommonInfo palSdioCommonInfo;
 
-    if (dev == NULL || busCfg == NULL) {
-        HDF_LOGE("%s: input parameter error!", __func__);
-        goto sdioInitFail;
-    }
-    handle = HdfGetDevHandle(dev, busCfg);
-    if (handle == NULL) {
-        HDF_LOGE("%s: sdio card detected fail!", __func__);
-        return HDF_FAILURE;
-    }
-    SdioClaimHost(handle);
-    (void)memset_s(&palSdioCommonInfo, sizeof(SdioCommonInfo), 0, sizeof(SdioCommonInfo));
-    SdioGetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
-    palSdioCommonInfo.funcInfo.enTimeout = busCfg->timeout;
-    SdioSetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
-    ret = HdfSdioEnableFunc(dev);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: enable sdio failed!", __func__);
-        goto sdioInitFail;
-    }
-    ret = HdfSdioSetBlk(dev, busCfg->blockSize);
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: set sdio block size failed!", __func__);
-        goto sdioInitFail;
-    }
-    SdioReleaseHost(handle);
-    HDF_LOGI("%s: sdio bus init success!", __func__);
-    return ret;
+    do {
+        if (dev == NULL || busCfg == NULL) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
+            break;
+        }
 
-sdioInitFail:
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Start HdfSdioInit", __func__);
+        handle = HdfGetDevHandle(dev, busCfg);
+        if (handle == NULL) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Sdio card detected fail", __func__);
+            return HDF_FAILURE;
+        }
+        SdioClaimHost(handle);
+        (void)memset_s(&palSdioCommonInfo, sizeof(SdioCommonInfo), 0, sizeof(SdioCommonInfo));
+        SdioGetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
+        palSdioCommonInfo.funcInfo.enTimeout = busCfg->timeout;
+        SdioSetCommonInfo(handle, &palSdioCommonInfo, SDIO_FUNC_INFO);
+        ret = HdfSdioEnableFunc(dev);
+
+        if (ret != HDF_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Enable sdio failed", __func__);
+            break;
+        }
+        ret = HdfSdioSetBlk(dev, busCfg->blockSize);
+        if (ret != HDF_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Set sdio block size failed", __func__);
+            break;
+        }
+        SdioReleaseHost(handle);
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Sdio bus init success", __func__);
+        return ret;        
+    } while (0);
+
     SdioClose(handle);
     return HDF_FAILURE;
 }
@@ -375,7 +383,7 @@ static void HdfSetBusOps(struct BusDev *dev)
 int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *busConfig)
 {
     if (dev == NULL) {
-        HDF_LOGE("%s:set sdio device ops failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Set sdio device ops failed", __func__);
         return HDF_FAILURE;
     }
     HdfSetBusOps(dev);

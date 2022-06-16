@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -9,6 +9,7 @@
 #include "hdf_wlan_utils.h"
 #include <securec.h>
 #include "hdf_log.h"
+#include "hdf_wlan_log.h"
 #include "wifi_module.h"
 #include "hdf_wlan_chipdriver_manager.h"
 
@@ -22,10 +23,12 @@ const char *GetPlatformDriverName(void)
 struct HdfWifiNetDeviceData *GetPlatformData(const struct NetDevice *netDev)
 {
     if (netDev == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return NULL;
     }
 
     if (netDev->classDriverName != HDF_WIFI_PLATFORM_DRIVER_NAME) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Unexpect name", __func__);
         return NULL;
     }
 
@@ -36,6 +39,7 @@ struct HdfChipDriver *GetChipDriver(const struct NetDevice *netDev)
 {
     struct HdfWifiNetDeviceData *data = GetPlatformData(netDev);
     if (data != NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Data is null", __func__);
         return data->chipDriver;
     }
     return NULL;
@@ -47,16 +51,18 @@ struct WlanHwCapability *GetHwCapability(struct NetDevice *netDev)
     struct WlanHwCapability *capability = NULL;
     int32_t ret;
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Bad net device found", __func__);
         return NULL;
     }
     if (chipDriver->ops == NULL || chipDriver->ops->GetHwCapability == NULL) {
-        HDF_LOGE("%s: chipdriver not implemented", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Chipdriver not implemented", __func__);
+        return NULL;
         return NULL;
     }
     ret = chipDriver->ops->GetHwCapability(netDev, &capability);
     if (ret != HDF_SUCCESS || capability == NULL) {
-        HDF_LOGE("%s:GetHwCapability failed!ifName=%s,ret=%d", __func__, netDev->name, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR,
+            "%s: GetHwCapability failed!ifName=%s,ret=%d", __func__, netDev->name, ret);
         return NULL;
     }
     return capability;
@@ -120,12 +126,12 @@ int32_t RenewNetDevice(NetDevice **netDev)
 int32_t GetPlatformIfName(uint8_t id, char *ifName, uint32_t ifNameSize)
 {
     if (ifName == NULL || ifNameSize == 0) {
-        HDF_LOGE("%s:para is null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null or unexpect", __func__);
         return HDF_FAILURE;
     }
 
     if (snprintf_s(ifName, ifNameSize, ifNameSize - 1, "wlan%d", id) < 0) {
-        HDF_LOGE("%s:format ifName failed!netDevice id=%hhu", __func__, id);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: format ifName failed!netDevice id=%hhu", __func__, id);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -140,11 +146,14 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
     char ifName[IFNAMSIZ] = {0};
     struct HdfWifiNetDeviceData *data = NULL;
     if (device == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return NULL;
     }
+
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: Start AllocPlatformNetDevice", __func__);
     data = (struct HdfWifiNetDeviceData *)OsalMemCalloc(sizeof(struct HdfWifiNetDeviceData));
     if (data == NULL) {
-        HDF_LOGE("%s:AllocPlatformNetDevice data NULL ptr!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Failed to request memory", __func__);
         return NULL;
     }
     do {
@@ -155,7 +164,7 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
             }
         }
         if (id >= MAX_IF_COUNT) {
-            HDF_LOGE("%s: not enough if!map=%u", __func__, g_allocatedIfMap);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: not enough if!map=%u", __func__, g_allocatedIfMap);
             break;
         }
 
@@ -170,7 +179,7 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
 #endif
     } while (false);
     if (result == NULL) {
-        HDF_LOGE("%s:alloc NetDevice return NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: alloc NetDevice return NULL", __func__);
         OsalMemFree(data);
         return result;
     }
@@ -179,6 +188,7 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
     data->netInterfaceId = id;
     SET_BIT(device->netIfMap, id);
     SET_BIT(g_allocatedIfMap, id);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: AllocPlatformNetDevice finished", __func__);
     return result;
 }
 
@@ -189,17 +199,17 @@ int32_t ReleasePlatformNetDevice(struct NetDevice *netDev)
     int32_t ret;
 
     if (netDev == NULL) {
-        HDF_LOGE("%s:ReleasePlatformNetDevice netDev NULL ptr!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
     if (netDev->classDriverName != HDF_WIFI_PLATFORM_DRIVER_NAME) {
-        HDF_LOGE("%s:Wrong net device!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Wrong net device", __func__);
         return HDF_FAILURE;
     }
 
     data = GetPlatformData(netDev);
     if (data == NULL) {
-        HDF_LOGE("%s:GetPlatformData failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: GetPlatformData failed", __func__);
         return HDF_FAILURE;
     }
     id = data->netInterfaceId;
@@ -213,6 +223,7 @@ int32_t ReleasePlatformNetDevice(struct NetDevice *netDev)
     }
     CLEAR_BIT(g_allocatedIfMap, id);
     OsalMemFree(data);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: ReleasePlatformNetDevice successful", __func__);
     return HDF_SUCCESS;
 }
 
