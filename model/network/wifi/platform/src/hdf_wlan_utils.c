@@ -22,10 +22,12 @@ const char *GetPlatformDriverName(void)
 struct HdfWifiNetDeviceData *GetPlatformData(const struct NetDevice *netDev)
 {
     if (netDev == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return NULL;
     }
 
     if (netDev->classDriverName != HDF_WIFI_PLATFORM_DRIVER_NAME) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Unexpect classDriverName", __func__);
         return NULL;
     }
 
@@ -38,6 +40,7 @@ struct HdfChipDriver *GetChipDriver(const struct NetDevice *netDev)
     if (data != NULL) {
         return data->chipDriver;
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: Data is null", __func__);
     return NULL;
 }
 
@@ -140,8 +143,10 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
     char ifName[IFNAMSIZ] = {0};
     struct HdfWifiNetDeviceData *data = NULL;
     if (device == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return NULL;
     }
+
     data = (struct HdfWifiNetDeviceData *)OsalMemCalloc(sizeof(struct HdfWifiNetDeviceData));
     if (data == NULL) {
         HDF_LOGE("%s:AllocPlatformNetDevice data NULL ptr!", __func__);
