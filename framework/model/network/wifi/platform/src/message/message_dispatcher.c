@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -63,17 +63,17 @@ struct MessageDef *GetMsgDef(const struct ServiceDef *serviceDef, uint32_t comma
 {
     struct MessageDef *msgDef = NULL;
     if (serviceDef == NULL || serviceDef->messages == NULL) {
-        HDF_LOGE("%s:input is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:input is NULL!", __func__);
         return NULL;
     }
     if (commandId >= serviceDef->messagesLength) {
-        HDF_LOGE("%s:commandId exceed service def!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:commandId exceed service def!", __func__);
         return NULL;
     }
 
     msgDef = serviceDef->messages + commandId;
     if (msgDef->handler == NULL) {
-        HDF_LOGE("%s:command has no handler!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:command has no handler!", __func__);
         return NULL;
     }
     return msgDef;
@@ -82,21 +82,21 @@ struct MessageDef *GetMsgDef(const struct ServiceDef *serviceDef, uint32_t comma
 ErrorCode AppendToLocalDispatcher(MessageDispatcher *dispatcher, const uint8_t priority, MessageContext *context)
 {
     if (context == NULL) {
-        HDF_LOGE("%s:Input context is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Input context is NULL!", __func__);
         return ME_ERROR_NULL_PTR;
     }
     if (dispatcher == NULL) {
-        HDF_LOGE("%s:Input dispatcher is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Input dispatcher is NULL!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
     if (dispatcher->messageQueue == NULL) {
-        HDF_LOGE("MessageQueue is NULL.");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "MessageQueue is NULL.");
         return ME_ERROR_NULL_PTR;
     }
 
     if (dispatcher->status != ME_STATUS_RUNNING) {
-        HDF_LOGE("%s:dispatcher is not running", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:dispatcher is not running", __func__);
         return ME_ERROR_DISPATCHER_NOT_RUNNING;
     }
     return PushPriorityQueue(dispatcher->messageQueue, priority, context);
@@ -106,7 +106,7 @@ void SetToResponse(MessageContext *context)
 {
     ServiceId senderId;
     if (context->requestType != MESSAGE_TYPE_ASYNC_REQ && context->requestType != MESSAGE_TYPE_SYNC_REQ) {
-        HDF_LOGE("Only sync and async message can send response!type=%u", context->requestType);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Only sync and async message can send response!type=%u", context->requestType);
         return;
     }
     senderId = context->senderId;
@@ -132,13 +132,13 @@ static void HandleSyncResponse(MessageContext *context)
 {
     HDF_STATUS status;
     if (context == NULL) {
-        HDF_LOGE("Input context is NULL!");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Input context is NULL!");
         return;
     }
     status = OsalSemPost(&context->rspSemaphore);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Send semaphore failed!CMD=%u,Sender=%u,Receiver=%u", context->commandId, context->senderId,
-            context->receiverId);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Send semaphore failed!CMD=%u,Sender=%u,Receiver=%u", context->commandId,
+            context->senderId, context->receiverId);
     }
     return;
 }
@@ -150,13 +150,13 @@ static void HandleRequestMessage(MessageContext *context)
     RemoteService *rspService = NULL;
     do {
         if (targetService == NULL) {
-            HDF_LOGE("%s:Service %u is not available!", __func__, context->receiverId);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Service %u is not available!", __func__, context->receiverId);
             errCode = ME_ERROR_NULL_PTR;
             break;
         }
 
         if (targetService->ExecRequestMsg == NULL) {
-            HDF_LOGE("%s:Service %u has no ExecMsg method!", __func__, context->receiverId);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Service %u has no ExecMsg method!", __func__, context->receiverId);
             errCode = ME_ERROR_NULL_PTR;
             break;
         }
@@ -216,7 +216,7 @@ static void HandleMessage(MessageContext *context)
                 HandleAsyncResponse(context);
                 break;
             default:
-                HDF_LOGE("Unsupported message type %u", context->requestType);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "Unsupported message type %u", context->requestType);
         }
     }
 }
@@ -235,12 +235,12 @@ static int RunDispatcher(void *para)
     MessageDispatcher *dispatcher = NULL;
     MessageContext *context = NULL;
     if (para == NULL) {
-        HDF_LOGE("Start dispatcher failed! cause:%s\n", "input para is NULL");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Start dispatcher failed! cause:%s\n", "input para is NULL");
         return ME_ERROR_NULL_PTR;
     }
     dispatcher = (MessageDispatcher *)para;
     if (dispatcher->messageQueue == NULL) {
-        HDF_LOGE("Start dispatcher failed! cause:%s\n", "message queue is NULL");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Start dispatcher failed! cause:%s\n", "message queue is NULL");
         return ME_ERROR_NULL_PTR;
     }
 
@@ -252,7 +252,7 @@ static int RunDispatcher(void *para)
         if (dispatcher->Disref != NULL) {
             dispatcher->Disref(dispatcher);
         }
-        HDF_LOGE("Start dispatcher failed! cause:%s\n", "dispatcher is not stopped");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Start dispatcher failed! cause:%s\n", "dispatcher is not stopped");
         return ME_ERROR_WRONG_STATUS;
     } else {
         dispatcher->status = ME_STATUS_RUNNING;
@@ -272,7 +272,7 @@ static int RunDispatcher(void *para)
         dispatcher = NULL;
     }
 
-    HDF_LOGW("Dispatcher shutdown!");
+    HdfWlanLog(HDF_WLAN_LOG_WARN, "Dispatcher shutdown!");
     return ME_SUCCESS;
 }
 
@@ -304,7 +304,7 @@ static ErrorCode StartDispatcher(MessageDispatcher *dispatcher)
         localDispatcher = (LocalMessageDispatcher *)dispatcher;
         status = OsalThreadCreate(&localDispatcher->dispatcherThread, RunDispatcher, localDispatcher);
         if (status != HDF_SUCCESS) {
-            HDF_LOGE("%s:OsalThreadCreate failed!status=%d", __func__, status);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:OsalThreadCreate failed!status=%d", __func__, status);
             dispatcher->status = ME_STATUS_STOPPED;
             errCode = ME_ERROR_CREATE_THREAD_FAILED;
             break;
@@ -312,7 +312,7 @@ static ErrorCode StartDispatcher(MessageDispatcher *dispatcher)
 
         status = OsalThreadStart(&localDispatcher->dispatcherThread, &config);
         if (status != HDF_SUCCESS) {
-            HDF_LOGE("%s:OsalThreadStart failed!status=%d", __func__, status);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:OsalThreadStart failed!status=%d", __func__, status);
             dispatcher->status = ME_STATUS_STOPPED;
             OsalThreadDestroy(&localDispatcher->dispatcherThread);
             errCode = ME_ERROR_CREATE_THREAD_FAILED;
@@ -322,7 +322,7 @@ static ErrorCode StartDispatcher(MessageDispatcher *dispatcher)
 
     status = OsalMutexUnlock(&dispatcher->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:Destroy mutex failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Destroy mutex failed!", __func__);
     }
 
     if (errCode != ME_SUCCESS) {
@@ -343,13 +343,13 @@ static void ShutdownDispatcher(MessageDispatcher *dispatcher)
     }
     status = OsalMutexTimedLock(&dispatcher->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("Get lock failed!status=%d", status);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Get lock failed!status=%d", status);
         return;
     }
 
     do {
         if (dispatcher->status != ME_STATUS_RUNNING && dispatcher->status != ME_STATUS_STARTTING) {
-            HDF_LOGE("%s:wrong status.status=%d", __func__, dispatcher->status);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:wrong status.status=%d", __func__, dispatcher->status);
             break;
         }
         dispatcher->status = ME_STATUS_STOPPING;
@@ -357,7 +357,7 @@ static void ShutdownDispatcher(MessageDispatcher *dispatcher)
 
     status = OsalMutexUnlock(&dispatcher->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:Destroy mutex failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Destroy mutex failed!", __func__);
     }
 }
 
@@ -378,7 +378,7 @@ static void DestroyLocalDispatcher(MessageDispatcher *dispatcher)
 
     ret = OsalMutexDestroy(&dispatcher->mutex);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:Release mutex failed.ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Release mutex failed.ret=%d", __func__, ret);
     }
 
     DEINIT_SHARED_OBJ(MessageDispatcher, dispatcher);

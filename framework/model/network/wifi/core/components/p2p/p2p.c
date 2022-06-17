@@ -23,7 +23,7 @@ static int32_t RemainOnChannel(struct NetDevice *netdev, WifiOnChannel *onChanne
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -44,25 +44,25 @@ static int32_t  WifiCmdRemainOnChannel(const RequestContext *context, struct Hdf
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint32(reqData, &(wifiOnChannel.freq))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freq");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freq");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint32(reqData, &(wifiOnChannel.duration))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "duration");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "duration");
         return HDF_FAILURE;
     }
     ret = RemainOnChannel(netdev, &wifiOnChannel);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to remain on channel,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to remain on channel,%d", __func__, ret);
     }
     return ret;
 }
@@ -71,7 +71,7 @@ static int32_t ProbeReqReport(struct NetDevice *netdev, int32_t report)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -92,22 +92,22 @@ static int32_t WifiCmdProbeReqReport(const RequestContext *context, struct HdfSB
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadInt32(reqData, &(report))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "report");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "report");
         return HDF_FAILURE;
     }
 
     ret = ProbeReqReport(netdev, report);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to probe req report,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to probe req report,%d", __func__, ret);
     }
     return ret;
 }
@@ -116,7 +116,7 @@ static int32_t CancelRemainOnChannel(struct NetDevice *netdev)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -137,18 +137,18 @@ static int32_t WifiCmdCancelRemainOnChannel(const RequestContext *context, struc
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     ret = CancelRemainOnChannel(netdev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to cancel remain on channel,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to cancel remain on channel,%d", __func__, ret);
     }
     return ret;
 }
@@ -157,7 +157,7 @@ static int32_t AddIf(struct NetDevice *netdev, WifiIfAdd *ifAdd)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -178,23 +178,23 @@ static int32_t WifiCmdAddIf(const RequestContext *context, struct HdfSBuf *reqDa
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint8(reqData, &(ifAdd.type))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
         return HDF_FAILURE;
     }
 
     ret = AddIf(netdev, &ifAdd);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to cancel remain on channel,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to cancel remain on channel,%d", __func__, ret);
     }
     return ret;
 }
@@ -203,7 +203,7 @@ static int32_t RemoveIf(struct NetDevice *netdev, WifiIfRemove *ifRemove)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -224,23 +224,23 @@ static int32_t WifiCmdRemoveIf(const RequestContext *context, struct HdfSBuf *re
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     dataSize = 0;
     if (!HdfSbufReadBuffer(reqData, (const void **)&(ifRemove), &dataSize) || dataSize != sizeof(WifiIfRemove)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     ret = RemoveIf(netdev, ifRemove);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to remove interface,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to remove interface,%d", __func__, ret);
     }
     return ret;
 }
@@ -249,7 +249,7 @@ static int32_t SetApWpsP2pIe(struct NetDevice *netdev, WifiAppIe *appIe)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -270,30 +270,30 @@ static int32_t WifiCmdSetApWpsP2pIe(const RequestContext *context, struct HdfSBu
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadUint32(reqData, &(appIe.ieLen))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ieLen");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ieLen");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint8(reqData, &(appIe.appIeType))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "appIeType");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "appIeType");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void**)&(appIe.ie), &(appIe.ieLen))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "appIeType");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "appIeType");
         return HDF_FAILURE;
     }
     ret = SetApWpsP2pIe(netdev, &appIe);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to setapwpsp2pie,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to setapwpsp2pie,%d", __func__, ret);
     }
     return ret;
 }
@@ -302,7 +302,7 @@ int32_t GetDriverFlag (struct NetDevice *netdev, WifiGetDrvFlags **params)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -323,27 +323,27 @@ static int32_t WifiCmdGetDriverFlag(const RequestContext *context, struct HdfSBu
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     ret = GetDriverFlag(netdev, &params);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to getdriverflag,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to getdriverflag,%d", __func__, ret);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufWriteUint64(rspData, params->drvFlags)) {
-        HDF_LOGE("%s:%s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:%s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         ret = HDF_ERR_IO;
     }
 
-    HDF_LOGI("WifiCmdGetDriverFlag:%llx", params->drvFlags);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "WifiCmdGetDriverFlag:%llx", params->drvFlags);
     return ret;
 }
 

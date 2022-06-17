@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -12,6 +12,7 @@
 #include "message/message_types.h"
 #include "../message_router_inner.h"
 #include "sidecar.h"
+#include "hdf_wlan_log.h"
 
 #ifdef USERSPACE_CLIENT_SUPPORT
 #define HDF_LOG_TAG UMsgEngine
@@ -36,7 +37,7 @@ static void HandleRequestMessage(const RemoteService *service, MessageContext *c
     struct MessageDef messageDef = { NULL, 0 };
 
     if (context == NULL || service == NULL) {
-        HDF_LOGE("%s:input is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:input is NULL", __func__);
         return;
     }
     if (localNodeService->mapper != NULL && context->commandId < localNodeService->mapper->messagesLength) {
@@ -69,7 +70,7 @@ static void HandleResponseMessage(const RemoteService *service, MessageContext *
         }
         ReleaseMessageContext(context);
     } else {
-        HDF_LOGE("%s:Response type not supported!type=%u", __func__, context->requestType);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Response type not supported!type=%u", __func__, context->requestType);
     }
 }
 
@@ -78,7 +79,7 @@ ErrorCode SendMessageLocalNode(const RemoteService *service, MessageContext *con
     LocalNodeService *localService = NULL;
     uint8_t pri = HIGHEST_PRIORITY;
     if (service == NULL || context == NULL) {
-        HDF_LOGE("%s:Input is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Input is NULL!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
@@ -92,18 +93,18 @@ ErrorCode SendMessageLocalNode(const RemoteService *service, MessageContext *con
     } else {
         localService = (LocalNodeService *)service;
         if (localService->dispatcher == NULL || localService->dispatcher->AppendMessage == NULL) {
-            HDF_LOGE("This service has no dispatcher!");
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "This service has no dispatcher!");
             return ME_ERROR_NOT_SUPPORTED;
         }
         if (context->requestType < MESSAGE_RSP_START) {
             if (localService->mapper == NULL || localService->mapper->messages == NULL) {
-                HDF_LOGE("%s:Bad message mapper!", __func__);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Bad message mapper!", __func__);
                 return ME_ERROR_NULL_PTR;
             }
 
             if (context->commandId >= localService->mapper->messagesLength ||
                 localService->mapper->messages[context->commandId].handler == NULL) {
-                HDF_LOGE("%s:Request command not found!", __func__);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Request command not found!", __func__);
                 return ME_ERROR_NO_SUCH_COMMAND;
             }
 
@@ -142,7 +143,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
         return NULL;
     }
     if (dispatcher == NULL || dispatcher->Ref == NULL) {
-        HDF_LOGE("%s:Bad dispatcher found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Bad dispatcher found!", __func__);
         return NULL;
     }
     service = (LocalNodeService *)OsalMemCalloc(sizeof(LocalNodeService));
@@ -192,7 +193,7 @@ static ErrorCode InitLocalNode(MessageNode *node)
     errCode = ME_SUCCESS;
     do {
         if (node->status != ME_STATUS_STOPPED) {
-            HDF_LOGE("%s:unexpected status %d", __func__, node->status);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:unexpected status %d", __func__, node->status);
             errCode = ME_ERROR_MUTI_INIT_NOT_ALLOWED;
             break;
         }
@@ -202,7 +203,7 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexUnlock(&node->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:unlock mutex failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:unlock mutex failed!", __func__);
     }
 
     if (errCode != ME_SUCCESS) {
@@ -211,7 +212,7 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexTimedLock(&node->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:lock mutex failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:lock mutex failed!", __func__);
     }
     if (errCode == ME_SUCCESS) {
         node->status = ME_STATUS_RUNNING;
@@ -221,7 +222,7 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexUnlock(&node->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:unlock mutex failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:unlock mutex failed!", __func__);
     }
     return errCode;
 }
@@ -234,7 +235,7 @@ static void DestroyLocalNode(MessageNode *node)
     }
     ret = OsalMutexDestroy(&node->mutex);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:Release mutex failed!ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Release mutex failed!ret=%d", __func__, ret);
     }
     DEINIT_SHARED_OBJ(MessageNode, node);
 }
@@ -247,7 +248,7 @@ ErrorCode CreateLocalNode(MessageNode **node)
     if (node == NULL) {
         return ME_ERROR_NULL_PTR;
     }
-    HDF_LOGI("Creating local node...");
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "Creating local node...");
     newNode = (LocalMessageNode *)OsalMemCalloc(sizeof(LocalMessageNode));
     if (newNode == NULL) {
         return ME_ERROR_RES_LAKE;
@@ -262,7 +263,7 @@ ErrorCode CreateLocalNode(MessageNode **node)
 
         ret = OsalMutexInit(&newNode->mutex);
         if (ret != HDF_SUCCESS) {
-            HDF_LOGE("%s:Init mutex failed!err=%d", __func__, ret);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Init mutex failed!err=%d", __func__, ret);
             errCode = ME_ERROR_OPER_MUTEX_FAILED;
             break;
         }

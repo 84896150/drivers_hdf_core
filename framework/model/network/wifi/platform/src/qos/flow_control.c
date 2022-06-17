@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -46,11 +46,11 @@ static FlowControlQueueID TosToFcQueueId(uint8_t priority)
 static bool IsDhcpPort(struct UdpHeader *udpHdr, uint32_t len)
 {
     if (udpHdr == NULL) {
-        HDF_LOGE("%s udpHdr:  = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s udpHdr:  = null!", __func__);
         return false;
     }
     if (len < sizeof(struct UdpHeader)) {
-        HDF_LOGE("%s len not right!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s len not right!", __func__);
         return false;
     }
     if ((ntohs(udpHdr->dest) == DHCP_UDP_SRC_PORT) || (ntohs(udpHdr->dest) == DHCP_UDP_DES_PORT)) {
@@ -68,15 +68,15 @@ static bool IsTcpKeyFrame(struct IpHeader *ipHeader, uint32_t len)
     uint8_t ipHdrLen;
     uint8_t *ip = NULL;
     if (ipHeader == NULL) {
-        HDF_LOGE("IsTcpAck Fail ipHeader = null");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "IsTcpAck Fail ipHeader = null");
         return false;
     }
     if (len < sizeof(struct IpHeader)) {
-        HDF_LOGE("%s len not right!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s len not right!", __func__);
         return false;
     }
     if ((len - sizeof(struct IpHeader)) < sizeof(struct TcpHeader)) {
-        HDF_LOGE("%s tcp hdr len not right!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s tcp hdr len not right!", __func__);
         return false;
     }
 
@@ -97,11 +97,11 @@ static FlowControlQueueID IpProcessFunc(const void *buff, uint32_t len)
     struct UdpHeader *udpHdr = NULL;
     FlowControlQueueID id = NORMAL_QUEUE_ID;
     if (buff == NULL) {
-        HDF_LOGE("%s fail: buff = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail: buff = null!", __func__);
         return QUEUE_ID_COUNT;
     }
     if (len < sizeof(struct IpHeader)) {
-        HDF_LOGE("%s fail: IpHeader len not right!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail: IpHeader len not right!", __func__);
         return QUEUE_ID_COUNT;
     }
     ipHeader = (struct IpHeader *)buff;
@@ -117,7 +117,7 @@ static FlowControlQueueID IpProcessFunc(const void *buff, uint32_t len)
          */
         id = TosToFcQueueId(ipHeader->tos >> IP_PRI_SHIFT);
         if ((len - sizeof(struct IpHeader)) < sizeof(struct UdpHeader)) {
-            HDF_LOGE("%s fail: UdpHeader len not right!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail: UdpHeader len not right!", __func__);
             return QUEUE_ID_COUNT;
         }
         udpHdr = (struct UdpHeader *)(ipHeader + 1);
@@ -138,7 +138,7 @@ static void FlowControlQueueInit(struct FlowControlModule *fcm)
 {
     int32_t i, j;
     if (fcm == NULL) {
-        HDF_LOGE("%s fail: fcm = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail: fcm = null!", __func__);
         return;
     }
     for (i = 0; i < FLOW_DIR_COUNT; i++) {
@@ -153,7 +153,7 @@ static void FlowControlQueueDeinit(struct FlowControlModule *fcm)
 {
     int32_t i, j;
     if (fcm == NULL) {
-        HDF_LOGE("%s fcm already free!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fcm already free!", __func__);
         return;
     }
 
@@ -169,7 +169,7 @@ static void FlowControlQueueDeinit(struct FlowControlModule *fcm)
 static int32_t SchedTransfer(struct FlowControlModule *fcm, FlowDir dir)
 {
     if (fcm == NULL || dir >= FLOW_DIR_COUNT) {
-        HDF_LOGE("%s : fcm = null dir=%d!", __func__, dir);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s : fcm = null dir=%d!", __func__, dir);
         return HDF_ERR_INVALID_PARAM;
     }
     OsalSemPost(&fcm->sem[dir]);
@@ -179,7 +179,7 @@ static int32_t SchedTransfer(struct FlowControlModule *fcm, FlowDir dir)
 static int32_t RegisterFlowControlOp(struct FlowControlModule *fcm, struct FlowControlOp *op)
 {
     if ((fcm == NULL) || (op == NULL)) {
-        HDF_LOGE("%s fail : fcm = null or op = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : fcm = null or op = null!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     fcm->op = op;
@@ -189,11 +189,11 @@ static int32_t RegisterFlowControlOp(struct FlowControlModule *fcm, struct FlowC
 static bool IsValidSentToFCMPra(const struct FlowControlModule *fcm, uint32_t id, uint32_t dir)
 {
     if (fcm == NULL) {
-        HDF_LOGE("%s fail : fcm = null or buff = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : fcm = null or buff = null!", __func__);
         return false;
     }
     if (id >= QUEUE_ID_COUNT || dir >= FLOW_DIR_COUNT) {
-        HDF_LOGE("%s fail : id or dir not right!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : id or dir not right!", __func__);
         return false;
     }
     return true;
@@ -203,7 +203,7 @@ static int32_t SetQueueThreshold(struct FlowControlModule *fcm, uint32_t queueTh
 {
     struct FlowControlQueue *fcmQueue = NULL;
     if (!IsValidSentToFCMPra(fcm, id, dir)) {
-        HDF_LOGE("%s fail IsValidSentToFCMPra FALSE!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail IsValidSentToFCMPra FALSE!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     fcmQueue = &fcm->fcmQueue[dir].queues[id];
@@ -218,7 +218,7 @@ static void FcmQueuePreProcess(struct FlowControlQueue *fcmQueue)
     uint32_t threshold = fcmQueue->queueThreshold;
     uint32_t qLen = NetBufQueueSize(dataQ);
     if (threshold > 0 && threshold < qLen) {
-        HDF_LOGE("%s abandon netbuff!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s abandon netbuff!", __func__);
         oldBuff = NetBufQueueDequeue(dataQ);
         if (oldBuff != NULL) {
             NetBufFree(oldBuff);
@@ -232,11 +232,11 @@ static int32_t SendBuffToFCM(struct FlowControlModule *fcm, NetBuf *buff, uint32
     struct FlowControlQueue *fcmQueue = NULL;
     NetBufQueue *dataQ = NULL;
     if ((buff == NULL) || (NetBufGetDataLen(buff) == 0)) {
-        HDF_LOGE("%s fail : buff=null or len=0!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : buff=null or len=0!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (!IsValidSentToFCMPra(fcm, id, dir)) {
-        HDF_LOGE("%s fail : IsValidSentToFCMPra FALSE!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : IsValidSentToFCMPra FALSE!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -258,12 +258,12 @@ static FlowControlQueueID GetQueueIdByEtherBuff(const NetBuf *buff)
     int i;
     uint16_t etherType = 0;
     if (buff == NULL) {
-        HDF_LOGE("%s fail : buff = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : buff = null!", __func__);
         return QUEUE_ID_COUNT;
     }
     len = NetBufGetDataLen(buff);
     if (len < sizeof(struct EtherHeader)) {
-        HDF_LOGE("%s fail : buff->data_len not right!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : buff->data_len not right!", __func__);
         return QUEUE_ID_COUNT;
     }
     header = (struct EtherHeader *)NetBufGetAddress(buff, E_DATA_BUF);
@@ -297,7 +297,7 @@ int32_t SendFlowControlQueue(struct FlowControlModule *fcm, uint32_t id, uint32_
     int32_t fwPriorityId = 0;
     int32_t rxPriorityId = 0;
     if (!IsValidSentToFCMPra(fcm, id, dir)) {
-        HDF_LOGE("%s fail : IsValidSentToFCMPra FALSE!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : IsValidSentToFCMPra FALSE!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     q = &fcm->fcmQueue[dir].queues[id].dataQueue;
@@ -311,7 +311,7 @@ int32_t SendFlowControlQueue(struct FlowControlModule *fcm, uint32_t id, uint32_
         if (fcm->op != NULL && fcm->op->txDataPacket != NULL) {
             fcm->op->txDataPacket(q, fcm->fcmPriv, fwPriorityId);
         } else {
-            HDF_LOGE("%s fail : fcm->op->txDataPacket = null!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : fcm->op->txDataPacket = null!", __func__);
             return HDF_ERR_INVALID_PARAM;
         }
     }
@@ -323,7 +323,7 @@ int32_t SendFlowControlQueue(struct FlowControlModule *fcm, uint32_t id, uint32_
         if (fcm->op != NULL && fcm->op->rxDataPacket != NULL) {
             fcm->op->rxDataPacket(q, fcm->fcmPriv, rxPriorityId);
         } else {
-            HDF_LOGE("%s fail : fcm->op->txDataPacket = null!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : fcm->op->txDataPacket = null!", __func__);
             return HDF_ERR_INVALID_PARAM;
         }
     }
@@ -335,12 +335,12 @@ struct FlowControlModule *InitFlowControl(void *fcmPriv)
     struct FlowControlModule *fcm = NULL;
     int i;
     if (g_fcm != NULL) {
-        HDF_LOGE("%s already init", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s already init", __func__);
         return g_fcm;
     }
     fcm = (struct FlowControlModule *)OsalMemCalloc(sizeof(struct FlowControlModule));
     if (fcm == NULL) {
-        HDF_LOGE("%s fail: malloc fail!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail: malloc fail!", __func__);
         return NULL;
     }
     (void)memset_s(fcm, sizeof(struct FlowControlModule), 0, sizeof(struct FlowControlModule));
@@ -351,7 +351,7 @@ struct FlowControlModule *InitFlowControl(void *fcmPriv)
     /* init wait */
     for (i = 0; i < FLOW_DIR_COUNT; i++) {
         if (OsalSemInit(&fcm->sem[i], 0) != HDF_SUCCESS) {
-            HDF_LOGE("%s init osalsem fail!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s init osalsem fail!", __func__);
             if (i == FLOW_RX) {
                 OsalSemDestroy(&fcm->sem[FLOW_TX]);
             }
@@ -362,7 +362,7 @@ struct FlowControlModule *InitFlowControl(void *fcmPriv)
 
     /* init task */
     if (CreateFlowControlTask(fcm) != HDF_SUCCESS) {
-        HDF_LOGE("%s fail: CreateFlowControlTask fail!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail: CreateFlowControlTask fail!", __func__);
         for (i = 0; i < FLOW_DIR_COUNT; i++) {
             (void)OsalSemDestroy(&fcm->sem[i]);
         }
@@ -381,7 +381,7 @@ void DeInitFlowControl(struct FlowControlModule *fcm)
 {
     int i;
     if (fcm == NULL) {
-        HDF_LOGE("%s fail : fcm already been free.", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : fcm already been free.", __func__);
         return;
     }
 
