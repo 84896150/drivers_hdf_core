@@ -21,7 +21,7 @@
 ## 目录<a name="section161941989596"></a>
 
 ```
-/drivers/framework
+/drivers/hdf_core/framework
 ├── core           #实现驱动框架的核心代码
 │   ├── adapter    #实现对内核操作接口适配，提供抽象化的接口供开发者使用
 │   ├── common     #驱动框架公共基础代码
