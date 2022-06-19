@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -29,12 +29,12 @@ static int32_t InitFeatures(struct WifiModule *module)
     uint32_t i;
 
     if (module == NULL) {
-        HDF_LOGE("%s: input module is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: input module is NULL", __func__);
         return HDF_FAILURE;
     }
     ret = BaseInit();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:BaseInit failed!ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:BaseInit failed!ret=%d", __func__, ret);
         return ret;
     }
 
@@ -55,7 +55,7 @@ static int32_t DeInitFeatures(struct WifiModule *module)
     int32_t ret;
     uint32_t i;
     if (module == NULL) {
-        HDF_LOGE("%s: no  module", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: no  module", __func__);
         return HDF_FAILURE;
     }
     // make sure the features should be free firstly
@@ -68,7 +68,7 @@ static int32_t DeInitFeatures(struct WifiModule *module)
 
     ret = BaseDeinit();
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:BaseDeinit failed!ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:BaseDeinit failed!ret=%d", __func__, ret);
     }
     return ret;
 }
@@ -77,7 +77,7 @@ int16_t InitWifiModule(struct WifiModule *module, const struct HdfConfigWlanModu
 {
     int32_t ret;
     if (module == NULL || config == NULL) {
-        HDF_LOGE("%s:Input is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Input is NULL!", __func__);
         return HDF_FAILURE;
     }
     module->iface.deInit = DeInitFeatures;
@@ -88,10 +88,10 @@ int16_t InitWifiModule(struct WifiModule *module, const struct HdfConfigWlanModu
 
     ret = InitFeatures(module);
     if (ret != 0) {
-        HDF_LOGE("%s: module int error ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: module int error ret=%d", __func__, ret);
         return HDF_FAILURE;
     }
-    HDF_LOGD("%s:hdf wifi module init succ", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s:hdf wifi module init succ", __func__);
     return HDF_SUCCESS;
 }
 

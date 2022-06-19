@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -13,6 +13,7 @@
 #include "shared_obj.h"
 #include "sidecar.h"
 #include "message_config.h"
+#include "hdf_wlan_log.h"
 
 #define BAD_DISPATCHER_ID 255
 #define DISPATCHER_ID_AUTO 254

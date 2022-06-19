@@ -65,7 +65,7 @@ static uint32_t SetMode(struct NetDevice *netDev, uint8_t iftype)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->ops, SetMode);
@@ -77,7 +77,7 @@ static uint32_t AddKey(
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->ops, AddKey);
@@ -88,7 +88,7 @@ static uint32_t DelKey(struct NetDevice *netDev, uint8_t keyIndex, bool pairwise
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->ops, DelKey);
@@ -99,7 +99,7 @@ static uint32_t SetDefaultKey(struct NetDevice *netDev, uint8_t keyIndex, bool u
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netDev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->ops, SetDefaultKey);
@@ -121,43 +121,43 @@ static int32_t WifiCmdFillKeyInner(struct HdfSBuf *reqData, WifiKeyExt *keyExt)
     uint32_t len = 0;
 
     if (!HdfSbufReadInt32(reqData, &(keyExt->type)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint32(reqData, &(keyExt->keyIdx)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyIdx");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyIdx");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint32(reqData, &(keyExt->cipher)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "cipher");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "cipher");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint8(reqData, &(keyExt->def)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "def");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "def");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint8(reqData, &(keyExt->defMgmt)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defMgmt");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defMgmt");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint8(reqData, &(keyExt->defaultTypes)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defaultTypes");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "defaultTypes");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint8(reqData, &(keyExt->resv)) || keyExt == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "resv");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "resv");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(keyExt->addr), &len)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "addr");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "addr");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(keyExt->key), &(keyExt->keyLen))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "key");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "key");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&(keyExt->seq), &(keyExt->seqLen))) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "seq");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "seq");
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -175,28 +175,28 @@ static int32_t WifiCmdNewKey(const RequestContext *context, struct HdfSBuf *reqD
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     keyExt = (WifiKeyExt *)OsalMemCalloc(sizeof(WifiKeyExt));
     if (keyExt == NULL) {
-        HDF_LOGE("%s:keyExt OsalMemCalloc failed", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:keyExt OsalMemCalloc failed", __func__);
         return HDF_FAILURE;
     }
     if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
         OsalMemFree(keyExt);
         return HDF_FAILURE;
     }
 
     netDev = NetDeviceGetInstByName(ifName);
     if (netDev == NULL) {
-        HDF_LOGE("%s:netDev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netDev not found!ifName=%s", __func__, ifName);
         OsalMemFree(keyExt);
         return HDF_FAILURE;
     }
@@ -219,28 +219,28 @@ static int32_t WifiCmdDelKey(const RequestContext *context, struct HdfSBuf *reqD
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     keyExt = (WifiKeyExt *)OsalMemCalloc(sizeof(WifiKeyExt));
     if (keyExt == NULL) {
-        HDF_LOGE("%s:keyExt OsalMemCalloc failed", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:keyExt OsalMemCalloc failed", __func__);
         return HDF_FAILURE;
     }
     if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
         OsalMemFree(keyExt);
         return HDF_FAILURE;
     }
 
     netDev = NetDeviceGetInstByName(ifName);
     if (netDev == NULL) {
-        HDF_LOGE("%s:netDev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netDev not found!ifName=%s", __func__, ifName);
         OsalMemFree(keyExt);
         return HDF_FAILURE;
     }
@@ -280,28 +280,28 @@ static int32_t WifiCmdSetKey(const RequestContext *context, struct HdfSBuf *reqD
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     keyExt = (WifiKeyExt *)OsalMemCalloc(sizeof(WifiKeyExt));
     if (keyExt == NULL) {
-        HDF_LOGE("%s:keyExt OsalMemCalloc failed", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:keyExt OsalMemCalloc failed", __func__);
         return HDF_FAILURE;
     }
     if (WifiCmdFillKeyInner(reqData, keyExt) != HDF_SUCCESS) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "keyExt");
         OsalMemFree(keyExt);
         return HDF_FAILURE;
     }
 
     netDev = NetDeviceGetInstByName(ifName);
     if (netDev == NULL) {
-        HDF_LOGE("%s:netDev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netDev not found!ifName=%s", __func__, ifName);
         OsalMemFree(keyExt);
         return HDF_FAILURE;
     }
@@ -323,23 +323,24 @@ static int32_t WifiCmdSendEapol(const RequestContext *context, struct HdfSBuf *r
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(reqData, (const void **)&(eapol.buf), &(eapol.len))) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "buf", eapol.len);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "buf",
+            eapol.len);
         return HDF_FAILURE;
     }
 
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
@@ -355,33 +356,33 @@ static int32_t WifiCmdReceiveEapol(const RequestContext *context, struct HdfSBuf
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
-        HDF_LOGE("%s: reqData or rspData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData or rspData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
 
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     eapol.len = DEFAULT_EAPOL_PACKAGE_SIZE;
     eapol.buf = OsalMemCalloc(DEFAULT_EAPOL_PACKAGE_SIZE);
     if (eapol.buf == NULL) {
-        HDF_LOGE("%s: oom", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: oom", __func__);
         return HDF_FAILURE;
     }
 
     ret = ReceiveEapol(netdev, &eapol);
-    HDF_LOGI("%s:receiveEapol ret=%d", __func__, ret);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s:receiveEapol ret=%d", __func__, ret);
     if (!ret) {
         if (!HdfSbufWriteBuffer(rspData, eapol.buf, eapol.len)) {
-            HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
             ret = HDF_ERR_IO;
         }
     }
@@ -398,17 +399,17 @@ static int32_t WifiCmdEnableEapol(const RequestContext *context, struct HdfSBuf 
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     eapol.callback = (void *)HdfWifiEventEapolRecv;
@@ -424,17 +425,17 @@ static int32_t WifiCmdDisableEapol(const RequestContext *context, struct HdfSBuf
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
@@ -448,21 +449,21 @@ static int32_t WifiCmdGetAddr(const RequestContext *context, struct HdfSBuf *req
     int32_t ret = HDF_SUCCESS;
     (void)context;
     if (reqData == NULL || rspData == NULL) {
-        HDF_LOGE("%s: reqData or rspData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData or rspData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: invalid netdev", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: invalid netdev", __func__);
         return HDF_FAILURE;
     }
     if (!HdfSbufWriteBuffer(rspData, netdev->macAddr, ETH_ADDR_LEN)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         ret = HDF_ERR_IO;
     }
     return ret;
@@ -479,28 +480,29 @@ static int32_t WifiCmdSetMode(const RequestContext *context, struct HdfSBuf *req
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&mode, &dataSize) || mode == NULL ||
         dataSize != sizeof(WifiSetMode)) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "mode", dataSize);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "mode",
+            dataSize);
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: invalid netdev", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: invalid netdev", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGW("%s:%s changing mode to %u ...", __func__, ifName, mode->iftype);
+    HdfWlanLog(HDF_WLAN_LOG_WARN, "%s:%s changing mode to %u ...", __func__, ifName, mode->iftype);
     ret = SetMode(netdev, mode->iftype);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to do change intf,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to do change intf,%d", __func__, ret);
     }
     return ret;
 }
@@ -510,7 +512,7 @@ static void WifiGetChannelData(
 {
     uint32_t loop;
     if (band == NULL || featureData == NULL || *featureData == NULL) {
-        HDF_LOGE("%s: band or featureData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: band or featureData is NULL", __func__);
         return;
     }
 
@@ -529,13 +531,13 @@ static int32_t WifiFillHwFeature(struct NetDevice *netdev, WifiHwFeatureData *fe
     int32_t ret = HDF_SUCCESS;
     struct WlanHwCapability *capability = GetHwCapability(netdev);
     if (capability == NULL) {
-        HDF_LOGE("%s:GetHwCapability failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:GetHwCapability failed!", __func__);
         return HDF_FAILURE;
     }
     do {
         uint32_t loop;
         if (capability->supportedRateCount > MAX_SUPPORTED_RATE) {
-            HDF_LOGE("%s: bitrates %u out of range", __func__, capability->supportedRateCount);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: bitrates %u out of range", __func__, capability->supportedRateCount);
             ret = HDF_FAILURE;
             break;
         }
@@ -547,7 +549,7 @@ static int32_t WifiFillHwFeature(struct NetDevice *netdev, WifiHwFeatureData *fe
         if (capability->bands[IEEE80211_BAND_2GHZ] != NULL) {
             struct WlanBand *band = capability->bands[IEEE80211_BAND_2GHZ];
             if (band->channelCount > WIFI_24G_CHANNEL_NUM) {
-                HDF_LOGE("%s: channels %u out of range", __func__, band->channelCount);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: channels %u out of range", __func__, band->channelCount);
                 ret = HDF_FAILURE;
                 break;
             }
@@ -556,7 +558,7 @@ static int32_t WifiFillHwFeature(struct NetDevice *netdev, WifiHwFeatureData *fe
         if (capability->bands[IEEE80211_BAND_5GHZ] != NULL) {
             struct WlanBand *band = capability->bands[IEEE80211_BAND_5GHZ];
             if (band->channelCount > WIFI_MAX_CHANNEL_NUM) {
-                HDF_LOGE("%s: channels %u out of range", __func__, band->channelCount);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: channels %u out of range", __func__, band->channelCount);
                 ret = HDF_FAILURE;
                 break;
             }
@@ -575,7 +577,7 @@ static uint32_t GetDeviceMacAddr(struct NetDevice *netdev, int32_t type, uint8_t
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -587,7 +589,7 @@ static uint32_t SetMacAddr(struct NetDevice *netdev, uint8_t *mac, uint8_t len)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->ops, SetMacAddr);
@@ -598,7 +600,7 @@ static uint32_t SetTxPower(struct NetDevice *netdev, int32_t power)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -610,7 +612,7 @@ static uint32_t GetValidFreqsWithBand(struct NetDevice *netdev, int32_t band, in
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -627,26 +629,26 @@ static int32_t WifiCmdGetHwFeature(const RequestContext *context, struct HdfSBuf
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
-        HDF_LOGE("%s: reqData or rspData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData or rspData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s: invalid netdev", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: invalid netdev", __func__);
         return HDF_FAILURE;
     }
     ret = WifiFillHwFeature(netdev, &featureData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: WifiFillHwFeature failed!ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: WifiFillHwFeature failed!ret=%d", __func__, ret);
         return HDF_FAILURE;
     }
     if (!HdfSbufWriteBuffer(rspData, &featureData, sizeof(featureData))) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         ret = HDF_ERR_IO;
     }
     return ret;
@@ -661,7 +663,7 @@ static int32_t SetNetIfInfo(struct NetDevice *netdev, uint32_t type)
     }
     if (type == WIFI_IFTYPE_AP) {
         if (NetIfDhcpsStart(netdev, NULL, 0) == 0) {
-            HDF_LOGI("dhcp servier start ok.");
+            HdfWlanLog(HDF_WLAN_LOG_INFO, "dhcp servier start ok.");
         }
     }
     return ret;
@@ -716,24 +718,25 @@ static int32_t WifiCmdSetNetdev(const RequestContext *context, struct HdfSBuf *r
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s: reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(reqData, (const void **)&info, &dataSize) || info == NULL ||
         dataSize != sizeof(WifiSetNewDev)) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "devinfo", dataSize);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED,
+            "devinfo", dataSize);
         return HDF_FAILURE;
     }
 
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL || netdev->netDeviceIf == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
@@ -759,7 +762,7 @@ int32_t SendAction(struct NetDevice *netdev, WifiActionData *actionData)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
 
@@ -777,43 +780,47 @@ static int32_t WifiCmdSendAction(const RequestContext *context, struct HdfSBuf *
     (void)context;
     (void)rspData;
     if (reqData == NULL) {
-        HDF_LOGE("%s:reqData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:reqData is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.bssid), &dataSize) || dataSize != ETH_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "bssid", dataSize);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED,
+            "bssid", dataSize);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.dst), &dataSize) || dataSize != ETH_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "dst", dataSize);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED,
+            "dst", dataSize);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.src), &dataSize) || dataSize != ETH_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "src", dataSize);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED,
+            "src", dataSize);
         return HDF_FAILURE;
     }
 
     if (!HdfSbufReadBuffer(reqData, (const void **)&(actionData.data), &(actionData.dataLen))) {
-        HDF_LOGE("%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED, "data", actionData.dataLen);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s,readSize=%u", __func__, ERROR_DESC_READ_REQ_FAILED,
+            "data", actionData.dataLen);
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL || netdev->netDeviceIf == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
 
     ret = SendAction(netdev, &actionData);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to remain on channel,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to remain on channel,%d", __func__, ret);
     }
     return ret;
 }
@@ -828,17 +835,17 @@ static int32_t WifiCmdGetNetworkInfo(const RequestContext *context, struct HdfSB
     (void)reqData;
 
     if (!HdfSbufWriteUint32(rspData, netDevNum)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     if (!HdfSbufWriteString(rspData, defaultIfName)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     supportMode[PROTOCOL_80211_IFTYPE_STATION] = 1;
     supportMode[PROTOCOL_80211_IFTYPE_AP] = 1;
     if (!HdfSbufWriteBuffer(rspData, supportMode, PROTOCOL_80211_IFTYPE_NUM)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -853,7 +860,7 @@ static int32_t WifiCmdIsSupportCombo(const RequestContext *context, struct HdfSB
     }
     isComboValid = false;
     if (!HdfSbufWriteUint8(rspData, isComboValid)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -868,7 +875,7 @@ static int32_t WifiCmdGetSupportCombo(const RequestContext *context, struct HdfS
     }
     isComboValid = false;
     if (!HdfSbufWriteUint8(rspData, isComboValid)) {
-        HDF_LOGE("%s: write fail", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: write fail", __func__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -889,30 +896,30 @@ static int32_t WifiCmdGetDevMacAddr(const RequestContext *context, struct HdfSBu
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadInt32(reqData, &type)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "type");
         return HDF_FAILURE;
     }
     ret = GetDeviceMacAddr(netdev, type, devMac, IEEE80211_MAC_ADDR_LEN);
     if (ret && ret != HDF_ERR_NOT_SUPPORT) {
-        HDF_LOGE("%s: fail to get device mac addr,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to get device mac addr,%d", __func__, ret);
         return ret;
     }
     isEfuseSavedMac = (ret == HDF_ERR_NOT_SUPPORT) ? false : true;
     if (!HdfSbufWriteUint8(rspData, isEfuseSavedMac)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     if (!HdfSbufWriteBuffer(rspData, devMac, IEEE80211_MAC_ADDR_LEN)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         ret = HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -932,22 +939,22 @@ static int32_t WifiCmdSetMacAddr(const RequestContext *context, struct HdfSBuf *
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)&mac, &replayDataSize) || mac == NULL ||
         replayDataSize != IEEE80211_MAC_ADDR_LEN) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "mac");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "mac");
         return HDF_FAILURE;
     }
     ret = SetMacAddr(netdev, mac, IEEE80211_MAC_ADDR_LEN);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to set mac addr,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to set mac addr,%d", __func__, ret);
     }
     return ret;
 }
@@ -968,29 +975,29 @@ static int32_t WifiCmdGetValidFreqsWithBand(
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadInt32(reqData, &band)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "band");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "band");
         return HDF_FAILURE;
     }
     ret = GetValidFreqsWithBand(netdev, band, freqs, &num);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to get valid freqs,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to get valid freqs,%d", __func__, ret);
         return ret;
     }
     if (!HdfSbufWriteUint32(rspData, num)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     if (!HdfSbufWriteBuffer(rspData, freqs, num * sizeof(int32_t))) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     return ret;
@@ -1009,21 +1016,21 @@ static int32_t WifiCmdSetTxPower(const RequestContext *context, struct HdfSBuf *
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifName);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadInt32(reqData, &power) || power < 0) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "power");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "power");
         return HDF_FAILURE;
     }
     ret = SetTxPower(netdev, power);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to set tx power,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to set tx power,%d", __func__, ret);
     }
     return ret;
 }
@@ -1038,13 +1045,13 @@ static int32_t WifiCmdSetClient(const RequestContext *context, struct HdfSBuf *r
     }
 
     if (!HdfSbufReadUint32(reqData, &clientNum)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "clientNum");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "clientNum");
         return HDF_FAILURE;
     }
 
     eventToClientMap = HdfWifiGetEventToClientMap();
     if (eventToClientMap == NULL) {
-        HDF_LOGE("%s:get HdfWifiEventToClientMap failed", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:get HdfWifiEventToClientMap failed", __func__);
         return HDF_FAILURE;
     }
 
@@ -1062,17 +1069,17 @@ static int32_t HdfdWlanGetChipId(const char *ifName, uint8_t *chipId)
     struct HdfWifiNetDeviceData *netDeviceData = NULL;
 
     if (ifName == NULL || chipId == NULL) {
-        HDF_LOGE("%s: para is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: para is NULL", __func__);
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s.", __func__, ifName);
         return HDF_FAILURE;
     }
     netDeviceData = GetPlatformData(netdev);
     if (netDeviceData == NULL) {
-        HDF_LOGE("%s:platform netDeviceData is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:platform netDeviceData is NULL!", __func__);
         return HDF_FAILURE;
     }
 
@@ -1092,18 +1099,18 @@ static int32_t WifiCmdGetChipId(const RequestContext *context, struct HdfSBuf *r
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
 
     ret = HdfdWlanGetChipId(ifName, &chipId);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to get chipId, %d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to get chipId, %d", __func__, ret);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: chipid = %hhu.", __func__, chipId);
+    HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipid = %hhu.", __func__, chipId);
     if (!HdfSbufWriteUint8(rspData, chipId)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     return ret;
@@ -1122,25 +1129,25 @@ static int32_t WifiCmdGetIfNamesByChipId(
         return HDF_ERR_INVALID_PARAM;
     }
     if (!HdfSbufReadUint8(reqData, &chipId)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "chipId");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "chipId");
         return HDF_FAILURE;
     }
 
     ifNames = HdfWlanGetIfNames(chipId, &ifNameCount);
     if (ifNames == NULL) {
-        HDF_LOGE("%s: fail to get ifnames!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to get ifnames!", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGI("%s: get ifName num: %hhu.\n", __func__, ifNameCount);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s: get ifName num: %hhu.\n", __func__, ifNameCount);
     do {
         if (!HdfSbufWriteUint32(rspData, ifNameCount)) {
-            HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
             ret = HDF_FAILURE;
             break;
         }
 
         if (!HdfSbufWriteBuffer(rspData, ifNames, ifNameCount * IFNAMSIZ)) {
-            HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
             ret = HDF_FAILURE;
             break;
         }
@@ -1159,18 +1166,18 @@ static int32_t WifiResetEntranceCheck(const uint8_t chipId)
 
     ifNames = HdfWlanGetIfNames(chipId, &ifNameCount);
     if (ifNames == NULL) {
-        HDF_LOGE("%s: HdfWlanGetIfNames failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: HdfWlanGetIfNames failed!", __func__);
         return HDF_FAILURE;
     }
     /* check the netDevice is busy or not, do reset when it is free. */
     for (i = 0; i < ifNameCount; i++) {
         netdev = NetDeviceGetInstByName(ifNames + i * IFNAMSIZ);
         if (netdev == NULL) {
-            HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifNames + i * IFNAMSIZ);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s", __func__, ifNames + i * IFNAMSIZ);
             continue;
         }
         if (NetDeviceIsInstRunning(netdev)) {
-            HDF_LOGE("%s: the netdevice is using!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: the netdevice is using!", __func__);
             ret = ERR_NETDEVICE_IS_USING;
             break;
         }
@@ -1182,12 +1189,12 @@ static int32_t WifiResetEntranceCheck(const uint8_t chipId)
 static int32_t ResetParaCheck(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     if (context == NULL || reqData == NULL || rspData == NULL) {
-        HDF_LOGE("%s: para is null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: para is null!", __func__);
         return HDF_FAILURE;
     }
 
     if (context->senderId != BASE_SERVICE_ID) {
-        HDF_LOGE("%s: the senderId is error!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: the senderId is error!", __func__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -1206,21 +1213,21 @@ static int32_t WifiCmdDoResetChip(const RequestContext *context, struct HdfSBuf 
     }
 
     if (!HdfSbufReadUint8(reqData, &chipId)) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "chipId");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "chipId");
         return HDF_FAILURE;
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     /* callback function use chipId */
     if (!HdfSbufWriteUint8(rspData, chipId)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     if (!HdfSbufWriteString(rspData, ifName)) {
-        HDF_LOGE("%s: Serialize failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Serialize failed!", __func__);
         return HDF_FAILURE;
     }
 
@@ -1231,7 +1238,7 @@ static int32_t WifiCmdDoResetChip(const RequestContext *context, struct HdfSBuf 
 
     wlanDevice = HdfWlanGetWlanDevice(chipId);
     if (wlanDevice == NULL || wlanDevice->reset == NULL) {
-        HDF_LOGE("%s: wlanDevice or wlanDevice->reset is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: wlanDevice or wlanDevice->reset is NULL!", __func__);
         return HDF_FAILURE;
     }
 
@@ -1243,7 +1250,7 @@ static int32_t WifiCmdDoResetChip(const RequestContext *context, struct HdfSBuf 
     /* power reset */
     ret = wlanDevice->reset->Reset(wlanDevice->reset);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:power reset failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:power reset failed!", __func__);
         return ERR_POWER_RESET_FAIL;
     }
     ret = HdfWifiInitDevice(wlanDevice);
@@ -1259,23 +1266,23 @@ void SendMessageResetDriverCallBack(
     (void)context;
 
     if (rspData == NULL || reqData == NULL) {
-        HDF_LOGE("%s: para is null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: para is null!", __func__);
         return;
     }
 
     if (!HdfSbufReadUint8(rspData, &chipId)) {
-        HDF_LOGE("%s: read data failed! ParamName=%s", __func__, "chipId");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read data failed! ParamName=%s", __func__, "chipId");
         return;
     }
     ifName = HdfSbufReadString(rspData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return;
     }
 
     ret = HdfWifiEventResetResult(chipId, rspCode, ifName);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: send resetDriver event fail!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: send resetDriver event fail!", __func__);
     }
     return;
 }
@@ -1291,7 +1298,7 @@ static int32_t WifiCmdResetDriver(const RequestContext *context, struct HdfSBuf 
 
     data = HdfSbufCopy(reqData);
     if (data == NULL) {
-        HDF_LOGE("%s: sbuf copy fail", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: sbuf copy fail", __func__);
         return HDF_FAILURE;
     }
 
@@ -1299,7 +1306,7 @@ static int32_t WifiCmdResetDriver(const RequestContext *context, struct HdfSBuf 
         g_baseService, BASE_SERVICE_ID, CMD_BASE_DO_RESET_PRIVATE, data, SendMessageResetDriverCallBack);
     if (ret != HDF_SUCCESS) {
         HdfSbufRecycle(data);
-        HDF_LOGE("%s: fail to reset the driver,%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to reset the driver,%d", __func__, ret);
     }
     return ret;
 }
@@ -1308,7 +1315,7 @@ static uint32_t GetIftype(struct NetDevice *netdev, uint8_t *iftype)
 {
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->ops, GetIftype);
@@ -1327,7 +1334,7 @@ static int32_t WifiCmdGetNetDevInfo(const RequestContext *context, struct HdfSBu
 
     netdevNum = NetDevGetRegisterCount();
     if (!HdfSbufWriteUint32(rspData, netdevNum)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
     for (i = 0; i < MAX_NETDEVICE_COUNT; i++) {
@@ -1340,7 +1347,7 @@ static int32_t WifiCmdGetNetDevInfo(const RequestContext *context, struct HdfSBu
                 !HdfSbufWriteBuffer(rspData, netDev->name, strlen(netDev->name) + 1) ||
                 !HdfSbufWriteUint8(rspData, iftype) ||
                 !HdfSbufWriteBuffer(rspData, GET_NET_DEV_MAC_ADDR(netDev), ETH_ADDR_LEN)) {
-                HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+                HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
                 return HDF_FAILURE;
             }
         }
@@ -1353,17 +1360,17 @@ static uint32_t HdfdWlanGetPowerMode(const char *ifName, uint8_t *mode)
     struct NetDevice *netdev = NULL;
 
     if (ifName == NULL || mode == NULL) {
-        HDF_LOGE("%s: Invalid parameter", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Invalid parameter", __func__);
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s.", __func__, ifName);
         return HDF_FAILURE;
     }
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     if (chipDriver->ops == NULL) {
@@ -1371,7 +1378,7 @@ static uint32_t HdfdWlanGetPowerMode(const char *ifName, uint8_t *mode)
     }
     if (chipDriver->ops->GetPowerMode == NULL) {
         *mode = WIFI_POWER_MODE_GENERAL;
-        HDF_LOGE("%s: chipDriver->ops->GetPowerMode is null\r\n", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipDriver->ops->GetPowerMode is null\r\n", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
     return chipDriver->ops->GetPowerMode(ifName, mode);
@@ -1389,16 +1396,16 @@ static int32_t WifiCmdGetPowerMode(const RequestContext *context, struct HdfSBuf
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     ret = HdfdWlanGetPowerMode(ifName, &mode);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to get power mode, %d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to get power mode, %d", __func__, ret);
         return ret;
     }
     if (!HdfSbufWriteUint8(rspData, mode)) {
-        HDF_LOGE("%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!", __func__, ERROR_DESC_WRITE_RSP_FAILED);
         return HDF_FAILURE;
     }
 
@@ -1410,17 +1417,17 @@ static uint32_t HdfdWlanSetPowerMode(const char *ifName, uint8_t mode)
     struct NetDevice *netdev = NULL;
 
     if (ifName == NULL || mode >= WIFI_POWER_MODE_NUM) {
-        HDF_LOGE("%s: Invalid parameter", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Invalid parameter", __func__);
         return HDF_FAILURE;
     }
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s.", __func__, ifName);
         return HDF_FAILURE;
     }
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     if (chipDriver->ops == NULL) {
@@ -1428,7 +1435,7 @@ static uint32_t HdfdWlanSetPowerMode(const char *ifName, uint8_t mode)
     }
 
     if (chipDriver->ops->SetPowerMode == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->SetPowerMode is null\r\n", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipDriver->ops->SetPowerMode is null\r\n", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
     return chipDriver->ops->SetPowerMode(ifName, mode);
@@ -1446,16 +1453,16 @@ static int32_t WifiCmdSetPowerMode(const RequestContext *context, struct HdfSBuf
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
         return HDF_FAILURE;
     }
     if (!HdfSbufReadUint8(reqData, &mode)) {
-        HDF_LOGE("%s: read data failed! ParamName=%s", __func__, "power mode");
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read data failed! ParamName=%s", __func__, "power mode");
         return HDF_FAILURE;
     }
     ret = HdfdWlanSetPowerMode(ifName, mode);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to set power mode, %d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to set power mode, %d", __func__, ret);
     }
 
     return ret;
@@ -1468,21 +1475,21 @@ static uint32_t HdfdWlanStartChannelMeas(const char *ifName, int32_t commandId, 
 
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s.", __func__, ifName);
         return HDF_FAILURE;
     }
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     if (chipDriver->ops == NULL) {
-        HDF_LOGE("%s: chipDriver->ops is null", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipDriver->ops is null", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (chipDriver->ops->StartChannelMeas == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->StartChannelMeas is null", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipDriver->ops->StartChannelMeas is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
     return chipDriver->ops->StartChannelMeas(ifName, commandId, paramBuf, paramBufLen);
@@ -1502,20 +1509,20 @@ static int32_t WifiCmdStartChannelMeas(const RequestContext *context, struct Hdf
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: read ifName failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read ifName failed!", __func__);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadInt32(reqData, &commandId)) {
-        HDF_LOGE("%s: read commandId failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read commandId failed!", __func__);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadBuffer(reqData, (const void **)(&paramBuf), &paramBufLen)) {
-        HDF_LOGE("%s: read paramBuf failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read paramBuf failed!", __func__);
         return HDF_FAILURE;
     }
     ret = HdfdWlanStartChannelMeas(ifName, commandId, paramBuf, paramBufLen);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to start channel meas, %d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to start channel meas, %d", __func__, ret);
     }
 
     return ret;
@@ -1528,21 +1535,21 @@ static uint32_t HdfdWlanGetChannelMeasResult(const char *ifName, int32_t command
 
     netdev = NetDeviceGetInstByName(ifName);
     if (netdev == NULL) {
-        HDF_LOGE("%s:netdev not found!ifName=%s.", __func__, ifName);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:netdev not found!ifName=%s.", __func__, ifName);
         return HDF_FAILURE;
     }
     struct HdfChipDriver *chipDriver = GetChipDriver(netdev);
     if (chipDriver == NULL) {
-        HDF_LOGE("%s:bad net device found!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:bad net device found!", __func__);
         return HDF_FAILURE;
     }
     if (chipDriver->ops == NULL) {
-        HDF_LOGE("%s: chipDriver->ops is null", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipDriver->ops is null", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (chipDriver->ops->GetChannelMeasResult == NULL) {
-        HDF_LOGE("%s: chipDriver->ops->GetChannelMeasResult is null", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: chipDriver->ops->GetChannelMeasResult is null", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
     return chipDriver->ops->GetChannelMeasResult(ifName, commandId, paramBuf, paramBufLen);
@@ -1563,20 +1570,20 @@ static int32_t WifiCmdGetChannelMeasResult(const RequestContext *context, struct
     }
     ifName = HdfSbufReadString(reqData);
     if (ifName == NULL) {
-        HDF_LOGE("%s: read ifName failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read ifName failed!", __func__);
         return HDF_FAILURE;
     }
     if (!HdfSbufReadInt32(reqData, &commandId)) {
-        HDF_LOGE("%s: read commandId failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: read commandId failed!", __func__);
         return HDF_FAILURE;
     }
     ret = HdfdWlanGetChannelMeasResult(ifName, commandId, paramBuf, &paramBufLen);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to get channel meas result, %d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: fail to get channel meas result, %d", __func__, ret);
         return ret;
     }
     if (!HdfSbufWriteBuffer(rspData, paramBuf, paramBufLen)) {
-        HDF_LOGE("%s: write paramBuf failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: write paramBuf failed!", __func__);
         ret = HDF_FAILURE;
     }
     return ret;

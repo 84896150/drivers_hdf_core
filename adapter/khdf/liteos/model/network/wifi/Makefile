@@ -45,6 +45,7 @@ NETDEV_PATH := $(HDM_WIFI_ROOT)/../common/netdevice
 MODULE_PATH := $(HDM_WIFI_ROOT)/core/module
 PLATFORM_PATH := $(HDM_WIFI_ROOT)/platform
 IBUS_PATH := $(HDM_WIFI_ROOT)/bus
+WLOG_PATH := $(HDM_WIFI_ROOT)/log
 QOS_PATH := $(PLATFORM_PATH)/src/qos
 INC_PATH := $(HDM_WIFI_ROOT)/include
 INC_WIFI_PATH := $(LITEOSTOPDIR)/../../drivers/hdf_core/framework/include/wifi
@@ -72,7 +73,8 @@ LOCAL_SRCS += $(WAP_PATH)/ap.c \
 			$(MODULE_PATH)/wifi_feature.c \
 			$(HDM_WIFI_ROOT)/core/hdf_wifi_core.c \
 			$(IBUS_PATH)/hdf_ibus_intf.c \
-			$(IBUS_PATH)/hdf_sdio_intf.c
+			$(IBUS_PATH)/hdf_sdio_intf.c \
+			$(WLOG_PATH)/hdf_wlan_log.c
 
 MESSAGE_INCLUDE += -I $(PLATFORM_PATH)/include/message \
 			-I $(PLATFORM_PATH)/include

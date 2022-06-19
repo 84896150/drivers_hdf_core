@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -16,11 +16,11 @@
 
 #define RETURN_IF_INPUT_VALID(netDevice, buff) do {                 \
         if ((netDevice) == NULL || (buff) == NULL) {                        \
-            HDF_LOGE("%s, netdevice = null or buf = null.", __func__); \
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s, netdevice = null or buf = null.", __func__); \
             return HDF_ERR_INVALID_PARAM;                               \
         }                                                               \
         if ((netDevice)->specialProcPriv == NULL) {                       \
-            HDF_LOGE("%s : specialProcPriv = null", __func__);          \
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s : specialProcPriv = null", __func__);          \
             return HDF_ERR_INVALID_PARAM;                               \
         }                                                               \
     } while (0)                                                          \
@@ -42,7 +42,7 @@ static int32_t DisableEapol(const struct NetDevice *netDevice)
     struct EapolData *eapol = NULL;
 
     if (netDevice == NULL || netDevice->specialProcPriv == NULL) {
-        HDF_LOGE("%s: netDevice = null or specialProcPriv = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: netDevice = null or specialProcPriv = null!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     eapol = (struct EapolData *)netDevice->specialProcPriv;
@@ -63,26 +63,26 @@ static int32_t GetEapol(const struct NetDevice *netDevice, struct EapolRx *buff)
     RETURN_IF_INPUT_VALID(netDevice, buff);
     eapol = (struct EapolData *)netDevice->specialProcPriv;
     if (NetBufQueueIsEmpty(&eapol->eapolQueue)) {
-        HDF_LOGE("%s fail : eapolQueue empty!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : eapolQueue empty!", __func__);
         return HDF_FAILURE;
     }
     netBuff = NetBufQueueDequeue(&eapol->eapolQueue);
     if (netBuff == NULL) {
-        HDF_LOGE("%s fail : dequeue netBuff = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : dequeue netBuff = null!", __func__);
         return HDF_FAILURE;
     }
 
     p = NetBufGetAddress(netBuff, E_DATA_BUF);
     len = NetBufGetDataLen(netBuff);
     if (len > eapolRx->len) {
-        HDF_LOGE("%s fail : eapolRx->len too small! netBuff->len(%u) > eapolRx->len(%u).",
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : eapolRx->len too small! netBuff->len(%u) > eapolRx->len(%u).",
             __func__, netBuff->len, eapolRx->len);
         NetBufFree(netBuff);
         return HDF_FAILURE;
     }
     if (p != NULL) {
         if (memcpy_s(eapolRx->buff, eapolRx->len, p, len) != EOK) {
-            HDF_LOGE("%s::mem safe function err!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s::mem safe function err!", __func__);
             NetBufFree(netBuff);
             return HDF_FAILURE;
         }
@@ -98,28 +98,28 @@ static int32_t SendEapol(struct NetDevice *netDevice, struct EapolTx *buff)
     NetBuf *netBuff = NULL;
 
     if (netDevice == NULL || buff == NULL) {
-        HDF_LOGE("%s : netdevice = null or buff = null.", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s : netdevice = null or buff = null.", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if ((netDevice->netDeviceIf == NULL) || (netDevice->netDeviceIf->xmit == NULL)) {
-        HDF_LOGE("%s : netDeviceIf NULL.", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s : netDeviceIf NULL.", __func__);
         return HDF_FAILURE;
     }
 
     if (eapolTx->buff == NULL) {
-        HDF_LOGE("%s::eapolTx->buff = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s::eapolTx->buff = null!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     netBuff = NetBufDevAlloc(netDevice, eapolTx->len);
     if (netBuff == NULL) {
-        HDF_LOGE("%s : netBuff alloc fail!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s : netBuff alloc fail!", __func__);
         return HDF_FAILURE;
     }
     NetBufPush(netBuff, E_DATA_BUF, eapolTx->len);
     if (memcpy_s(NetBufGetAddress(netBuff, E_DATA_BUF), eapolTx->len,
         eapolTx->buff, eapolTx->len) != EOK) {
         NetBufFree(netBuff);
-        HDF_LOGE("%s::mem safe function err!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s::mem safe function err!", __func__);
         return HDF_FAILURE;
     }
     return netDevice->netDeviceIf->xmit(netDevice, netBuff);
@@ -155,16 +155,17 @@ static void HandleEapolQueue(struct EapolData *eapol)
     if (intervalTime > EAPOL_MAX_ENQUEUE_TIME || eapol->count >= maxCount) {
         /* output log to solve problem */
         if (intervalTime > EAPOL_MAX_ENQUEUE_TIME) {
-            HDF_LOGE("%s discard pre netbuf : intervalTime(%lld) > EAPOL_MAX_ENQUEUE_TIME.", __func__,
-                intervalTime);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s discard pre netbuf : intervalTime(%lld) > EAPOL_MAX_ENQUEUE_TIME.",
+                __func__, intervalTime);
         } else {
-            HDF_LOGE("%s discard pre netbuf : eapol->count(%u) = maxCount(%hu).", __func__, eapol->count, maxCount);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s discard pre netbuf : eapol->count(%u) = maxCount(%hu).", __func__,
+                eapol->count, maxCount);
         }
         eapol->count--;
         eapol->enqueueTime = currentTime;
         netBuf = NetBufQueueDequeue(&eapol->eapolQueue);
         if (netBuf == NULL) {
-            HDF_LOGE("%s error : netbuff = null!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s error : netbuff = null!", __func__);
             return;
         }
         NetBufFree(netBuf);
@@ -188,7 +189,7 @@ static int32_t WriteEapolToQueue(const struct NetDevice *netDevice, NetBuf *buff
     } else {
         /* free netbuff when not register notify. */
         NetBufFree(buff);
-        HDF_LOGE("%s fail : eapol process is not register.", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : eapol process is not register.", __func__);
         return HDF_SUCCESS;
     }
 }
@@ -210,22 +211,22 @@ int32_t CreateEapolData(struct NetDevice *netDevice)
     struct EapolData *eapolData = NULL;
 
     if (netDevice == NULL) {
-        HDF_LOGE("%s fail : netdev = null!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : netdev = null!", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (netDevice->specialProcPriv != NULL) {
-        HDF_LOGI("%s already create!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_INFO, "%s already create!", __func__);
         return HDF_SUCCESS;
     }
     eapolData = (struct EapolData *)OsalMemCalloc(sizeof(struct EapolData));
     if (eapolData == NULL) {
-        HDF_LOGE("%s fail : malloc fail!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : malloc fail!", __func__);
         return HDF_FAILURE;
     }
     (void)memset_s(eapolData, sizeof(struct EapolData), 0, sizeof(struct EapolData));
     NetBufQueueInit(&eapolData->eapolQueue);
     netDevice->specialProcPriv = eapolData;
-    HDF_LOGI("%s success!", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_INFO, "%s success!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -234,14 +235,14 @@ void DestroyEapolData(struct NetDevice *netDevice)
     struct EapolData *eapolData = NULL;
 
     if (netDevice == NULL || netDevice->specialProcPriv == NULL) {
-        HDF_LOGE("%s already free!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s already free!", __func__);
         return;
     }
     eapolData = (struct EapolData *)netDevice->specialProcPriv;
     NetBufQueueClear(&eapolData->eapolQueue);
     OsalMemFree(eapolData);
     netDevice->specialProcPriv = NULL;
-    HDF_LOGE("%s success!", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s success!", __func__);
     return;
 }
 
