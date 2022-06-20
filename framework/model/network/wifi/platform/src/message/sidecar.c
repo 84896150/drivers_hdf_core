@@ -1,16 +1,17 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
-#include "hdf_base.h"
+#include "sidecar.h"
 #include "securec.h"
+#include "hdf_base.h"
 #include "utils/hdf_log.h"
 #include "message_router.h"
 #include "message_router_inner.h"
-#include "sidecar.h"
+#include "hdf_wlan_log.h"
 
 #ifdef USERSPACE_CLIENT_SUPPORT
 #define HDF_LOG_TAG UMsgEngine
@@ -28,7 +29,7 @@ static ErrorCode MessageInputCheck(const Service *sideCar, ServiceId receiver, s
 {
     SideCarPrivateData *privateData = NULL;
     if (sideCar == NULL || sideCar->privateData == NULL) {
-        HDF_LOGE("%s:sideCar or sideCar.privateData is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:sideCar or sideCar.privateData is NULL", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
@@ -93,7 +94,7 @@ int32_t DispatchToMessage(struct HdfDeviceIoClient *client, int id, struct HdfSB
     do {
         targetService = RefRemoteService(serviceId);
         if (targetService == NULL || targetService->SendMessage == NULL) {
-            HDF_LOGE("%s:Target service is NULL or has no SendMessage!", __func__);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Target service is NULL or has no SendMessage!", __func__);
             errCode = ME_ERROR_NO_SUCH_SERVICE;
             break;
         }
@@ -127,7 +128,7 @@ static ErrorCode SideCarSendSyncMessage(const Service *sideCar, ServiceId receiv
     do {
         targetService = RefRemoteService(receiver);
         if (targetService == NULL || targetService->SendMessage == NULL) {
-            HDF_LOGE("Target service is NULL or has no SendMessage!");
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "Target service is NULL or has no SendMessage!");
             errCode = ME_ERROR_NO_SUCH_SERVICE;
             break;
         }
@@ -169,7 +170,7 @@ static ErrorCode SideCarSendAsyncMessageInner(const Service *sideCar, ServiceId 
     do {
         targetService = RefRemoteService(receiver);
         if (targetService == NULL || targetService->SendMessage == NULL) {
-            HDF_LOGE("Target service is NULL or has no SendMessage!");
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "Target service is NULL or has no SendMessage!");
             errCode = ME_ERROR_NO_SUCH_SERVICE;
             break;
         }
@@ -190,7 +191,8 @@ static ErrorCode SideCarSendAsyncMessage(const Service *sideCar, ServiceId recei
     struct HdfSBuf *reqData, MessageCallBack callback)
 {
     if (callback == NULL) {
-        HDF_LOGE("%s:Callback function can not be NULL.Did you mean SendOnewayMessage?", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Callback function can not be NULL.Did you mean SendOnewayMessage?",
+            __func__);
         return ME_ERROR_PARA_WRONG;
     }
     return SideCarSendAsyncMessageInner(sideCar, receiver, commandId, reqData, callback);
@@ -211,14 +213,14 @@ static ErrorCode DestroyService(Service *service)
     }
 
     if (service->privateData == NULL) {
-        HDF_LOGE("%s:privateData is NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:privateData is NULL!", __func__);
         return ME_ERROR_PARA_WRONG;
     }
     data = (SideCarPrivateData *)service->privateData;
-    HDF_LOGE("Destroy service! id=%d", data->serviceId);
+    HdfWlanLog(HDF_WLAN_LOG_ERROR, "Destroy service! id=%d", data->serviceId);
     errCode = UnregistLocalService(data->dispatcherId, data->serviceId);
     if (errCode != ME_SUCCESS) {
-        HDF_LOGE("Unregist service failed!ret=%d", errCode);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Unregist service failed!ret=%d", errCode);
         return errCode;
     }
 
@@ -238,13 +240,13 @@ Service *InitService(struct ServiceDef *def, const ServiceCfg *cfg)
     }
 
     if (def->serviceId == RESERVED_SERVICE_ID) {
-        HDF_LOGE("%s:Init service with ID 0 is not allowed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Init service with ID 0 is not allowed!", __func__);
         return NULL;
     }
 
     service = (Service *)OsalMemCalloc(sizeof(Service));
     if (service == NULL) {
-        HDF_LOGE("%s:OsalMemAlloc return NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:OsalMemAlloc return NULL!", __func__);
         return NULL;
     }
     service->SendAsyncMessage = SideCarSendAsyncMessage;
@@ -255,7 +257,7 @@ Service *InitService(struct ServiceDef *def, const ServiceCfg *cfg)
     privateData = (SideCarPrivateData *)OsalMemCalloc(sizeof(SideCarPrivateData));
     if (privateData == NULL) {
         OsalMemFree(service);
-        HDF_LOGE("%s:OsalMemAlloc return NULL!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:OsalMemAlloc return NULL!", __func__);
         return NULL;
     }
     privateData->serviceId = def->serviceId;
@@ -269,7 +271,7 @@ Service *InitService(struct ServiceDef *def, const ServiceCfg *cfg)
         service->privateData = NULL;
         OsalMemFree(service);
         service = NULL;
-        HDF_LOGE("Register service failed!serviceId=%d,ret=%d", def->serviceId, errCode);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "Register service failed!serviceId=%d,ret=%d", def->serviceId, errCode);
         return NULL;
     }
     return service;

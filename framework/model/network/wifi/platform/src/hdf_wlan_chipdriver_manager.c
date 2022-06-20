@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -22,7 +22,7 @@ struct HdfChipDriverFactory *HdfWlanGetChipDriverByName(const char *driverName)
 {
     int32_t i;
     if (driverName == NULL) {
-        HDF_LOGE("%s fail : driverName is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s fail : driverName is NULL", __func__);
         return NULL;
     }
 
@@ -42,21 +42,22 @@ int32_t HdfWlanRegChipDriver(struct HdfChipDriverFactory *obj)
 {
     int32_t index;
     if (obj == NULL || obj->driverName == NULL) {
-        HDF_LOGE("%s: HdfChipDriverFactory obj is NULL", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: HdfChipDriverFactory obj is NULL", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     if (HdfWlanGetChipDriverByName(obj->driverName) != NULL) {
-        HDF_LOGW("%s: chipdriver factory is already registered.name=%s", __func__, obj->driverName);
+        HdfWlanLog(HDF_WLAN_LOG_WARN, "%s: chipdriver factory is already registered.name=%s", __func__,
+            obj->driverName);
         return HDF_SUCCESS;
     }
     for (index = 0; index < MAX_CHIPDRIVER_COUNT; index++) {
         if (g_wlanChipDriverManagerFactory[index] == NULL) {
             g_wlanChipDriverManagerFactory[index] = obj;
-            HDF_LOGI("%s:Chip driver %s registered.", __func__, obj->driverName);
+            HdfWlanLog(HDF_WLAN_LOG_INFO, "%s:Chip driver %s registered.", __func__, obj->driverName);
             return HDF_SUCCESS;
         }
     }
-    HDF_LOGE("%s:Factory table is full", __func__);
+    HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Factory table is full", __func__);
     return HDF_FAILURE;
 }
 

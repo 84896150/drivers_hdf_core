@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -11,6 +11,7 @@
 #include "osal/osal_mem.h"
 #include "utils/hdf_log.h"
 #include "hdf_wlan_queue.h"
+#include "hdf_wlan_log.h"
 
 #define MAX_PRIORITY_LEVEL 8
 
@@ -31,7 +32,7 @@ PriorityQueue *CreatePriorityQueue(uint16_t queueSize, uint8_t priorityLevelCoun
     uint32_t ret = HDF_SUCCESS;
     HDF_STATUS status;
     if (priorityLevelCount > MAX_PRIORITY_LEVEL || priorityLevelCount == 0) {
-        HDF_LOGE("%s:priorityLevelCount must in 1 to 8", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:priorityLevelCount must in 1 to 8", __func__);
         return NULL;
     }
     queueMemSize = sizeof(PriorityQueueImpl) + (priorityLevelCount * sizeof(HdfWlanQueue *));
@@ -44,7 +45,7 @@ PriorityQueue *CreatePriorityQueue(uint16_t queueSize, uint8_t priorityLevelCoun
         priorityQueue->queues[i] = CreateQueue(queueSize);
         if (priorityQueue->queues[i] == NULL) {
             ret = HDF_FAILURE;
-            HDF_LOGE("%s:Init message queue failed!QueueID=%d,ret=%d", __func__, i, ret);
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Init message queue failed!QueueID=%d,ret=%d", __func__, i, ret);
             break;
         }
     }
@@ -79,7 +80,7 @@ void DestroyPriorityQueue(PriorityQueue *queue)
     }
     status = OsalSemDestroy(&queueImpl->messageSemaphore);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:Destroy message queue semaphore failed!status=%d", __func__, status);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Destroy message queue semaphore failed!status=%d", __func__, status);
     }
 
     OsalMemFree(queueImpl);
@@ -101,7 +102,7 @@ int32_t PushPriorityQueue(PriorityQueue *queue, const uint8_t priority, void *co
 
     ret = PushQueue(queueImpl->queues[pri], context);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:Write queue failed!ret=%d", __func__, ret);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Write queue failed!ret=%d", __func__, ret);
         return ret;
     }
 

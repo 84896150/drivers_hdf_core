@@ -46,6 +46,7 @@ hdf_driver(module_name) {
     "$FRAMEWORKS_WIFI_ROOT/core/module/wifi_base.c",
     "$FRAMEWORKS_WIFI_ROOT/core/module/wifi_feature.c",
     "$FRAMEWORKS_WIFI_ROOT/core/module/wifi_module.c",
+    "$FRAMEWORKS_WIFI_ROOT/log/hdf_wlan_log.c",
     "$FRAMEWORKS_WIFI_ROOT/platform/src/hdf_wifi_event.c",
     "$FRAMEWORKS_WIFI_ROOT/platform/src/hdf_wlan_chipdriver_manager.c",
     "$FRAMEWORKS_WIFI_ROOT/platform/src/hdf_wlan_config_parser.c",
