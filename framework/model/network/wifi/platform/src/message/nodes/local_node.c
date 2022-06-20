@@ -54,6 +54,7 @@ static void HandleResponseMessage(const RemoteService *service, MessageContext *
     HDF_STATUS status;
     (void)service;
     if (context->requestType < MESSAGE_RSP_START) {
+        HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: Not expected requestType!", __func__);
         return;
     }
 
@@ -122,6 +123,7 @@ static void DestroyLocalNodeRemoteService(RemoteService *service)
 {
     LocalNodeService *localService = NULL;
     if (service == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return;
     }
     localService = (LocalNodeService *)service;
@@ -139,6 +141,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
     ErrorCode errCode;
     (void)node;
     if (mapper == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return NULL;
     }
     if (dispatcher == NULL || dispatcher->Ref == NULL) {
@@ -147,8 +150,10 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
     }
     service = (LocalNodeService *)OsalMemCalloc(sizeof(LocalNodeService));
     if (service == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Request memory failed!", __func__);
         return NULL;
     }
+
     do {
         service->status = ME_STATUS_RUNNING;
         service->ExecRequestMsg = HandleRequestMessage;
@@ -165,6 +170,7 @@ RemoteService *CreateLocalNodeService(MessageNode *node, MessageDispatcher *disp
 
         errCode = INIT_SHARED_OBJ(RemoteService, (RemoteService *)service, DestroyLocalNodeRemoteService);
         if (errCode != ME_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Init shared obj failed!", __func__);
             break;
         }
     } while (false);
@@ -182,11 +188,13 @@ static ErrorCode InitLocalNode(MessageNode *node)
     HDF_STATUS status;
     ErrorCode errCode;
     if (node == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
     status = OsalMutexTimedLock(&node->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Lock mutexTime failed!", __func__);
         return ME_ERROR_OPER_MUTEX_FAILED;
     }
     errCode = ME_SUCCESS;
@@ -221,8 +229,9 @@ static ErrorCode InitLocalNode(MessageNode *node)
 
     status = OsalMutexUnlock(&node->mutex);
     if (status != HDF_SUCCESS) {
-        HDF_LOGE("%s:unlock mutex failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_DBG, "%s:unlock mutex failed! status=%d", __func__, status);
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: InitLocalNode finished! errCode=%d", __func__, errCode);
     return errCode;
 }
 
@@ -230,6 +239,7 @@ static void DestroyLocalNode(MessageNode *node)
 {
     int32_t ret;
     if (node == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: Input param is null", __func__);
         return;
     }
     ret = OsalMutexDestroy(&node->mutex);
@@ -245,11 +255,13 @@ ErrorCode CreateLocalNode(MessageNode **node)
     LocalMessageNode *newNode = NULL;
     ErrorCode errCode;
     if (node == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
     HDF_LOGI("Creating local node...");
     newNode = (LocalMessageNode *)OsalMemCalloc(sizeof(LocalMessageNode));
     if (newNode == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Failed to request memory!", __func__);
         return ME_ERROR_RES_LAKE;
     }
     do {
@@ -269,6 +281,7 @@ ErrorCode CreateLocalNode(MessageNode **node)
 
         errCode = INIT_SHARED_OBJ(MessageNode, (MessageNode *)newNode, DestroyLocalNode);
         if (errCode != ME_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Init shared obj failed! err=%d", __func__, errCode);
             break;
         }
     } while (false);

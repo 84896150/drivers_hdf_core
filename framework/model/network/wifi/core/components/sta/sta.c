@@ -225,6 +225,7 @@ static int32_t WifiCmdAssoc(const RequestContext *context, struct HdfSBuf *reqDa
         return HDF_FAILURE;
     }
     if (WifiSetAssocParams(&assoc, netdev, &params) != HDF_SUCCESS) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: WifiSetAssocParams failed", __func__);
         return HDF_FAILURE;
     }
     capability = GetHwCapability(netdev);
@@ -306,6 +307,7 @@ static int32_t WifiCmdScan(const RequestContext *context, struct HdfSBuf *reqDat
     }
     ret = WifiFillScanParam(&params, reqData);
     if (ret != HDF_SUCCESS) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: WifiFillScanParam failed", __func__);
         return ret;
     }
     ret = ScanAll(netdev, &params);

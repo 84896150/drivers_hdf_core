@@ -65,22 +65,24 @@ static int32_t HdfWifiDriverBind(struct HdfDeviceObject *dev)
     };
 
     if (dev == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return HDF_FAILURE;
     }
 
     errCode = StartMessageRouter(MESSAGE_NODE_CONFIG_DEFAULT);
     if (errCode != ME_SUCCESS) {
-        HDF_LOGE("%s:Start message router failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:Start message router failed! errCode=%d", __func__, errCode);
         return HDF_FAILURE;
     }
 
     errCode = EnableDefaultDispatcher();
     if (errCode != ME_SUCCESS) {
         (void)ShutdownMessageRouter();
-        HDF_LOGE("%s:EnableDefaultDispatcher failed!", __func__);
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s:EnableDefaultDispatcher failed! errCode=%d", __func__, errCode);
         return errCode;
     }
     dev->service = &wifiService;
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: Wifi driver bind successed!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -339,8 +341,10 @@ static void ReleaseWlanDevice(struct HdfWlanDevice *device)
 static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConfig)
 {
     if (deviceConfig == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return NULL;
     }
+
     struct HdfWlanDevice *device = NULL;
     int32_t ret;
     struct HdfConfigWlanChipList *tmpChipList = NULL;
@@ -461,6 +465,7 @@ static int32_t HdfWlanInitThread(void *para)
     OsalSleep(initDelaySec);
     HDF_LOGW("Driver HdfWiFi initing...");
     if (device == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Device is null!", __func__);
         return HDF_FAILURE;
     }
 

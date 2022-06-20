@@ -101,6 +101,6 @@ struct ResetManager* HdfWlanCreateResetManager(const struct HdfConfWlanRest *con
     resetMgrImpl->resetData.bootUpHoldTime = bootUpTime;
     resetMgrImpl->base.Reset = HdfChipReset;
     resetMgrImpl->base.Release = HdfWlanResetMgrRelease;
-
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: CreateResetManager finished!", __func__);
     return (struct ResetManager*)resetMgrImpl;
 }

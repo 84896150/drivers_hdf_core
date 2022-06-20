@@ -29,8 +29,10 @@ typedef struct {
 void ReleaseMessageContext(MessageContext *context)
 {
     if (context == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null", __func__);
         return;
     }
+
     if (context->rspData != NULL) {
         HdfSbufRecycle(context->rspData);
         context->rspData = NULL;
@@ -45,6 +47,7 @@ void ReleaseMessageContext(MessageContext *context)
         }
         OsalMemFree(context);
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: ReleaseMessageContext finished", __func__);
 }
 
 void ReleaseMessageMapper(struct ServiceDef *mapper)
@@ -283,11 +286,13 @@ static ErrorCode StartDispatcher(MessageDispatcher *dispatcher)
     LocalMessageDispatcher *localDispatcher = NULL;
     struct OsalThreadParam config;
     if (dispatcher == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
     status = OsalMutexTimedLock(&dispatcher->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Request memory failed! status=%d", __func__, status);
         return ME_ERROR_OPER_MUTEX_FAILED;
     }
 
@@ -339,8 +344,10 @@ static void ShutdownDispatcher(MessageDispatcher *dispatcher)
 {
     HDF_STATUS status;
     if (dispatcher == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return;
     }
+
     status = OsalMutexTimedLock(&dispatcher->mutex, HDF_WAIT_FOREVER);
     if (status != HDF_SUCCESS) {
         HDF_LOGE("Get lock failed!status=%d", status);
@@ -366,6 +373,7 @@ static void DestroyLocalDispatcher(MessageDispatcher *dispatcher)
 {
     int32_t ret;
     if (dispatcher == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return;
     }
 
@@ -390,13 +398,16 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
     int32_t ret;
     ErrorCode errCode;
     if (dispatcher == NULL || config == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
     localDispatcher = (LocalMessageDispatcher *)OsalMemCalloc(sizeof(LocalMessageDispatcher));
     if (localDispatcher == NULL) {
+        HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Request memory failed!", __func__);
         return ME_ERROR_RES_LAKE;
     }
+
     do {
         localDispatcher->status = ME_STATUS_STOPPED;
         localDispatcher->AppendMessage = AppendToLocalDispatcher;
@@ -405,18 +416,21 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
 
         localDispatcher->messageQueue = CreatePriorityQueue(config->queueSize, config->priorityLevelCount);
         if (localDispatcher->messageQueue == NULL) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: localDispatcher->messageQueue is null!", __func__);
             errCode = ME_ERROR_OPER_QUEUE_FAILED;
             break;
         }
 
         ret = OsalMutexInit(&localDispatcher->mutex);
         if (ret != HDF_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: Init mutex failed! ret=%d", __func__, ret);
             errCode = ME_ERROR_OPER_MUTEX_FAILED;
             break;
         }
 
         errCode = INIT_SHARED_OBJ(MessageDispatcher, (MessageDispatcher *)localDispatcher, DestroyLocalDispatcher);
         if (errCode != ME_SUCCESS) {
+            HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: INIT_SHARED_OBJ failed! errCode=%d", __func__, errCode);
             break;
         }
     } while (false);
@@ -427,5 +441,6 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
         DestroyLocalDispatcher((MessageDispatcher *)localDispatcher);
         OsalMemFree(localDispatcher);
     }
+    HdfWlanLog(HDF_WLAN_LOG_DBG, "%s: errCode=%d", __func__, errCode);
     return errCode;
 }

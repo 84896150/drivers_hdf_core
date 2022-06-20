@@ -41,6 +41,7 @@ int32_t DelFeature(struct WifiModule *module, uint16_t featureType)
         featureData = NULL;
         return HDF_SUCCESS;
     }
+    HdfWlanLog(HDF_WLAN_LOG_ERROR, "%s: DelFeature fail!", __func__);
     return HDF_FAILURE;
 }
 
