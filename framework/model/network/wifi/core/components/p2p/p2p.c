@@ -40,6 +40,7 @@ static int32_t  WifiCmdRemainOnChannel(const RequestContext *context, struct Hdf
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
@@ -64,6 +65,7 @@ static int32_t  WifiCmdRemainOnChannel(const RequestContext *context, struct Hdf
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to remain on channel,%d", __func__, ret);
     }
+        HDF_LOGD("%s: wifiOnChannel.freq=%d ret=%d", __func__, wifiOnChannel.freq, ret);
     return ret;
 }
 
@@ -88,6 +90,7 @@ static int32_t WifiCmdProbeReqReport(const RequestContext *context, struct HdfSB
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
@@ -133,6 +136,7 @@ static int32_t WifiCmdCancelRemainOnChannel(const RequestContext *context, struc
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
@@ -174,6 +178,7 @@ static int32_t WifiCmdAddIf(const RequestContext *context, struct HdfSBuf *reqDa
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
@@ -194,8 +199,9 @@ static int32_t WifiCmdAddIf(const RequestContext *context, struct HdfSBuf *reqDa
 
     ret = AddIf(netdev, &ifAdd);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: fail to cancel remain on channel,%d", __func__, ret);
+        HDF_LOGE("%s: fail to add p2p device,%d", __func__, ret);
     }
+    HDF_LOGD("%s: ifName=%s ret=%d", __func__, ifName, ret);
     return ret;
 }
 
@@ -220,6 +226,7 @@ static int32_t WifiCmdRemoveIf(const RequestContext *context, struct HdfSBuf *re
     uint32_t dataSize;
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
@@ -242,6 +249,7 @@ static int32_t WifiCmdRemoveIf(const RequestContext *context, struct HdfSBuf *re
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to remove interface,%d", __func__, ret);
     }
+    HDF_LOGD("%s: ifName=%s ret=%d", __func__, ifName, ret);
     return ret;
 }
 
@@ -266,6 +274,7 @@ static int32_t WifiCmdSetApWpsP2pIe(const RequestContext *context, struct HdfSBu
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
@@ -319,6 +328,7 @@ static int32_t WifiCmdGetDriverFlag(const RequestContext *context, struct HdfSBu
 
     (void)context;
     if (reqData == NULL || rspData == NULL) {
+        HDF_LOGE("%s: input parameter invalid!", __FUNCTION__);
         return HDF_ERR_INVALID_PARAM;
     }
     ifName = HdfSbufReadString(reqData);
