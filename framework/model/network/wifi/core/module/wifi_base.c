@@ -815,6 +815,7 @@ static int32_t WifiCmdSendAction(const RequestContext *context, struct HdfSBuf *
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: fail to remain on channel,%d", __func__, ret);
     }
+    HDF_LOGD("%s: send action completed,ret =%d", __func__, ret);
     return ret;
 }
 
