@@ -24,6 +24,7 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
 {
     struct BusDev *bus = NULL;
     if (busConfig == NULL) {
+        HDF_LOGE("%s: Input param is null", __func__);
         return NULL;
     }
     if (busConfig->busType >= BUS_BUTT) {
@@ -33,10 +34,12 @@ struct BusDev *HdfWlanCreateBusManager(const struct HdfConfigWlanBus *busConfig)
     
     bus = (struct BusDev *)OsalMemCalloc(sizeof(struct BusDev));
     if (bus == NULL) {
+        HDF_LOGE("%s: Failed to request memory", __func__);
         return NULL;
     }
 
     if (HdfWlanBusAbsInit(bus, busConfig) != HDF_SUCCESS) {
+        HDF_LOGE("%s: BusAbs init failed", __func__);
         OsalMemFree(bus);
         return NULL;
     }
