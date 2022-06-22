@@ -1,10 +1,26 @@
+/*
+ * Copyright (C) 2021–2022 Beijing OSWare Technology Co., Ltd
+ * This file contains confidential and proprietary information of
+ * OSWare Technology Co., Ltd
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #include <securec.h>
 #include <asm/unaligned.h>
 #include "osal_mem.h"
 #include "hdf_device_desc.h"
 #include "hdf_touch.h"
 #include "input_i2c_ops.h"
-#include "touch_ft5x06.h"
 #include "hdf_log.h"
 #include "input_config.h"
 #include "hdf_input_device_manager.h"
@@ -13,6 +29,7 @@
 #include "gpio_if.h"
 #include "osal_io.h"
 #include "event_hub.h"
+#include "touch_ft5x06.h"
 
 static int32_t ChipInit(ChipDevice *device)
 {
@@ -40,8 +57,9 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     memset(fw_version, 0, sizeof(fw_version));
 
     error = InputI2cRead(i2cClient, "\xbb", 1, rdbuf, EDT_NAME_LEN - 1);
-    if (error)
+    if (error) {
         return error;
+    }
 
     /* Probe content for something consistent.
      * M06 starts with a response byte.
@@ -52,12 +70,14 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
         HDF_LOGI("%s: version = EDT_M06", __func__);
 
         rdbuf[EDT_NAME_LEN - 1] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 2] == '$')
+        if (rdbuf[EDT_NAME_LEN - 2] == '$') {
             rdbuf[EDT_NAME_LEN - 2] = '\0';
+        }
 
         p = strchr(rdbuf, '*');
-        if (p)
+        if (p) {
             *p++ = '\0';
+        }
         strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
     } else if (!strncasecmp(rdbuf, "EP0", 3)) {
         device->chipCfg->chipVersion = EDT_M12;
@@ -65,27 +85,31 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 
         /* remove last '$' end marker */
         rdbuf[EDT_NAME_LEN - 2] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 3] == '$')
+        if (rdbuf[EDT_NAME_LEN - 3] == '$') {
             rdbuf[EDT_NAME_LEN - 3] = '\0';
+        }
 
         /* look for Version */
         p = strchr(rdbuf, '*');
-        if (p)
+        if (p) {
             *p++ = '\0';
+        }
         strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
     } else {
         device->chipCfg->chipVersion = GENERIC_FT;
         HDF_LOGI("%s: version = GENERIC_FT;", __func__);
 
         error = InputI2cRead(i2cClient, "\xA6", 1, rdbuf, 2);
-        if (error)
+        if (error) {
             return error;
+        }
 
         strlcpy(fw_version, rdbuf, 2);
 
         error = InputI2cRead(i2cClient, "\xA8", 1, rdbuf, 1);
-        if (error)
+        if (error) {
             return error;
+        }
 
         switch (rdbuf[0]) {
             case 0x35: /* EDT EP0350M09 */
@@ -363,7 +387,8 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
 
     chipDev = ChipDeviceInstance();
     if (chipDev == NULL) {
-        goto EXIT;
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     chipDev->chipCfg = chipCfg;
@@ -371,20 +396,15 @@ static int32_t EdtFocalChipInit(struct HdfDeviceObject *device)
     chipDev->chipName = chipCfg->chipName;
     chipDev->vendorName = chipCfg->vendorName;
 
-    if (RegisterTouchChipDevice(chipDev) != HDF_SUCCESS)
-    {
+    if (RegisterTouchChipDevice(chipDev) != HDF_SUCCESS) {
         HDF_LOGI("%s: RegisterChipDevice fail", __func__);
-        goto EXIT1;
+        OsalMemFree(chipDev);
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     HDF_LOGI("%s: init succ, chipName = %s", __func__, chipCfg->chipName);
     return HDF_SUCCESS;
-
-EXIT1:
-    OsalMemFree(chipDev);
-EXIT:
-    FreeChipConfig(chipCfg);
-    return HDF_FAILURE;
 }
 
 struct HdfDriverEntry g_edtTouchFocalChipEntry = {
