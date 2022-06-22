@@ -408,6 +408,7 @@ int32_t NetIfSetStatus(const struct NetDevice *netDevice, NetIfStatus status)
     return HDF_ERR_INVALID_PARAM;
 }
 
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
             int (*poll)(struct napi_struct *, int), int weight)
 {
@@ -505,6 +506,7 @@ struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
     HDF_LOGE("%s: NetIfOfPhyConnect failed.", __func__);
     return NULL;
 }
+#endif
 
 int32_t NetIfSetLinkStatus(const struct NetDevice *netDevice, NetIfLinkStatus status)
 {

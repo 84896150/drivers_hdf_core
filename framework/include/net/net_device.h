@@ -37,7 +37,9 @@
 
 #ifndef HDF_NET_DEVICE_MODULE_H
 #define HDF_NET_DEVICE_MODULE_H
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 #include <linux/phy.h>
+#endif
 #include "hdf_base.h"
 #include "hdf_netbuf.h"
 #include "hdf_log.h"
@@ -806,6 +808,7 @@ int32_t NetIfDhcpStop(const struct NetDevice *netDevice);
  */
 int32_t NetIfDhcpIsBound(const struct NetDevice *netDevice);
 
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 /**
  * @brief Add napi of a specified network device.
  *
@@ -931,6 +934,7 @@ struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
                   struct device_node *phy_np,
                   void (*hndlr)(struct net_device *), u32 flags,
                   phy_interface_t iface);
+#endif
 
 #define GET_NET_DEV_FLAGS(dev) ((dev)->flags)
 #define GET_NET_DEV_HEAD_ROOM(dev) ((dev)->neededHeadRoom)

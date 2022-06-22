@@ -20,17 +20,21 @@
 #include <linux/etherdevice.h>
 #include <linux/rtnetlink.h>
 #include <linux/version.h>
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 #include <linux/phy.h>
+#endif
 #include "net_device.h"
 #include "net_device_impl.h"
 #include "osal_mem.h"
 #include "securec.h"
 
 #define HDF_LOG_TAG NetDeviceFull
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 extern struct phy_device *of_phy_connect(struct net_device *dev,
                   struct device_node *phy_np,
                   void (*hndlr)(struct net_device *), u32 flags,
                   phy_interface_t iface);
+#endif
 
 static int32_t NetDevXmitCheck(struct sk_buff *skb, struct net_device *dev)
 {
@@ -235,6 +239,7 @@ static int32_t NetDevDelete(struct NetDeviceImpl *impl)
     return HDF_SUCCESS;
 }
 
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
     int (*poll)(struct napi_struct *, int), int weight)
 {
@@ -315,6 +320,7 @@ struct phy_device *NetDevOfPhyConnect(struct NetDeviceImpl *impl,
     phy = of_phy_connect(ndev, phy_np, hndlr, 0, iface);
     return phy;
 }
+#endif
 
 static int32_t NetDevSetStatus(struct NetDeviceImpl *impl,
     NetIfStatus status)
@@ -402,6 +408,7 @@ static struct NetDeviceImplOp g_ndImplOps = {
     .setStatus = NetDevSetStatus,
     .receive = NetDevReceive,
     .changeMacAddr = NetDevChangeMacAddr,
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
     .netif_napi_add = NetDevApiAdd,
     .get_tx_queue = NetDevGetTxQueue,
     .type_trans = NetDevTypeTrans,
@@ -411,6 +418,7 @@ static struct NetDeviceImplOp g_ndImplOps = {
     .set_dev = NetDevSetDev,
     .wake_queue = NetDevWakeQueue,
     .of_phyconnect = NetDevOfPhyConnect,
+#endif
 };
 
 int32_t RegisterNetDeviceImpl(struct NetDeviceImpl *ndImpl)

@@ -10,7 +10,9 @@
 #define HDF_NET_DEVICE_IMPL_MODULE_H
 
 #include "net_device.h"
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 #include <linux/phy.h>
+#endif
 
 #define MAX_NETDEVICE_COUNT 20
 
@@ -42,6 +44,7 @@ struct NetDeviceImplOp {
     int32_t (*dhcpStop)(struct NetDeviceImpl *netDevice);
     int32_t (*dhcpIsBound)(struct NetDeviceImpl *netDevice);
     int32_t (*changeMacAddr)(struct NetDeviceImpl *netDevice);
+#if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
     void (*netif_napi_add)(struct NetDeviceImpl *impl, struct napi_struct *napi,
             int (*poll)(struct napi_struct *, int), int weight);
     struct netdev_queue *(*get_tx_queue)(struct NetDeviceImpl *impl, unsigned int queue);
@@ -55,6 +58,7 @@ struct NetDeviceImplOp {
                   struct device_node *phy_np,
                   void (*hndlr)(struct net_device *), u32 flags,
                   phy_interface_t iface);
+#endif
 };
 
 #endif /* HDF_NET_DEVICE_IMPL_MODULE_H */
