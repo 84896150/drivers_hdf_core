@@ -53,8 +53,8 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     int error;
     char fw_version[EDT_NAME_LEN];
 
-    memset(rdbuf, 0, sizeof(rdbuf));
-    memset(fw_version, 0, sizeof(fw_version));
+    memset_s(rdbuf, sizeof(rdbuf), 0, sizeof(rdbuf));
+    memset_s(fw_version, sizeof(fw_version), 0, sizeof(fw_version));
 
     error = InputI2cRead(i2cClient, "\xbb", 1, rdbuf, EDT_NAME_LEN - 1);
     if (error) {
