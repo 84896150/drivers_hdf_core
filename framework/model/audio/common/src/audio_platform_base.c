@@ -740,7 +740,7 @@ static int32_t AudioRenderBuffInit(struct PlatformData *platformData)
         AUDIO_DRIVER_LOG_ERR("Dma Buf Alloc fail.");
         return HDF_FAILURE;
     }
-
+#ifndef CONFIG_DRIVERS_HDF_AUDIO_IMX8MM
     if (platformData->renderBufInfo.virtAddr == NULL) {
         AUDIO_DRIVER_LOG_ERR("mem alloc failed.");
         return HDF_FAILURE;
@@ -748,7 +748,7 @@ static int32_t AudioRenderBuffInit(struct PlatformData *platformData)
 
     (void)memset_s(platformData->renderBufInfo.virtAddr, platformData->renderBufInfo.cirBufMax,
         0, platformData->renderBufInfo.cirBufMax);
-
+#endif
     return HDF_SUCCESS;
 }
 
@@ -792,7 +792,7 @@ static int32_t AudioCaptureBuffInit(struct PlatformData *platformData)
         AUDIO_DRIVER_LOG_ERR("Dma Buf Alloc fail.");
         return HDF_FAILURE;
     }
-
+#ifndef CONFIG_DRIVERS_HDF_AUDIO_IMX8MM
     if (platformData->captureBufInfo.virtAddr == NULL) {
         AUDIO_DRIVER_LOG_ERR("mem alloc failed.");
         return HDF_FAILURE;
@@ -800,7 +800,7 @@ static int32_t AudioCaptureBuffInit(struct PlatformData *platformData)
 
     (void)memset_s(platformData->captureBufInfo.virtAddr, platformData->captureBufInfo.cirBufMax, 0,
                    platformData->captureBufInfo.cirBufMax);
-
+#endif
     return HDF_SUCCESS;
 }
 

@@ -18,3 +18,10 @@ config DRIVERS_HDF_TP_2P35_FT6236
     depends on DRIVERS_HDF_INPUT
     help
       Answer Y to enable HDF TP 2P35 FT6236 driver.
+
+config ARCH_NXP_TOUCH
+    bool "Enable HDF tp nxp ft5x06 touch"
+    default n
+    depends on DRIVERS_HDF_INPUT
+    help
+      Answer Y to enable HDF TP nxp ft5x06 touch.
