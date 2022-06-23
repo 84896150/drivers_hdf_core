@@ -31,6 +31,8 @@
 #include "event_hub.h"
 #include "touch_ft5x06.h"
 
+char fw_version[EDT_NAME_LEN];
+
 static int32_t ChipInit(ChipDevice *device)
 {
     return HDF_SUCCESS;
@@ -46,12 +48,51 @@ static int32_t ChipSuspend(ChipDevice *device)
     return HDF_SUCCESS;
 }
 
+static int Ft5x06_EP00(u8 *rdbuf)
+{
+    char *p;
+
+    device->chipCfg->chipVersion = EDT_M06;
+    HDF_LOGI("%s: version = EDT_M06", __func__);
+
+    rdbuf[EDT_NAME_LEN - NUM_1] = '\0';
+    if (rdbuf[EDT_NAME_LEN - NUM_2] == '$') {
+        rdbuf[EDT_NAME_LEN - NUM_2] = '\0';
+    }
+
+    p = strchr(rdbuf, '*');
+    if (p) {
+        *p++ = '\0';
+    }
+    strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+}
+
+static int Ft5x06_EP01(u8 *rdbuf)
+{
+    char *p;
+
+    device->chipCfg->chipVersion = EDT_M12;
+    HDF_LOGI("%s: version = EDT_M12;", __func__);
+
+    /* remove last '$' end marker */
+    rdbuf[EDT_NAME_LEN - NUM_2] = '\0';
+    if (rdbuf[EDT_NAME_LEN - NUM_3] == '$') {
+        rdbuf[EDT_NAME_LEN - NUM_3] = '\0';
+    }
+
+    /* look for Version */
+    p = strchr(rdbuf, '*');
+    if (p) {
+        *p++ = '\0';
+    }
+    strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+}
+
 static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
 {
     u8 rdbuf[EDT_NAME_LEN];
     char *p;
     int error;
-    char fw_version[EDT_NAME_LEN];
 
     memset_s(rdbuf, sizeof(rdbuf), NUM_0, sizeof(rdbuf));
     memset_s(fw_version, sizeof(fw_version), NUM_0, sizeof(fw_version));
@@ -66,35 +107,9 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
      * M09/Generic does not provide model number information.
      */
     if (!(strncasecmp(rdbuf + NUM_1, "EP0", NUM_3))) {
-        device->chipCfg->chipVersion = EDT_M06;
-        HDF_LOGI("%s: version = EDT_M06", __func__);
-
-        rdbuf[EDT_NAME_LEN - NUM_1] = '\0';
-        if (rdbuf[EDT_NAME_LEN - NUM_2] == '$') {
-            rdbuf[EDT_NAME_LEN - NUM_2] = '\0';
-        }
-
-        p = strchr(rdbuf, '*');
-        if (p) {
-            *p++ = '\0';
-        }
-        strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+        Ft5x06_EP00(rdbuf);
     } else if (!strncasecmp(rdbuf, "EP0", NUM_3)) {
-        device->chipCfg->chipVersion = EDT_M12;
-        HDF_LOGI("%s: version = EDT_M12;", __func__);
-
-        /* remove last '$' end marker */
-        rdbuf[EDT_NAME_LEN - NUM_2] = '\0';
-        if (rdbuf[EDT_NAME_LEN - NUM_3] == '$') {
-            rdbuf[EDT_NAME_LEN - NUM_3] = '\0';
-        }
-
-        /* look for Version */
-        p = strchr(rdbuf, '*');
-        if (p) {
-            *p++ = '\0';
-        }
-        strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
+        Ft5x06_EP01(rdbuf);
     } else {
         device->chipCfg->chipVersion = GENERIC_FT;
         HDF_LOGI("%s: version = GENERIC_FT;", __func__);
