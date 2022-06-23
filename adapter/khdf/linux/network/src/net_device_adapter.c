@@ -246,7 +246,7 @@ void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
 
-    netif_napi_add(dev, napi, poll, 64);
+    netif_napi_add(dev, napi, poll, NAPI_WEIGHT);
 }
 
 struct netdev_queue *NetDevGetTxQueue(struct NetDeviceImpl *impl, unsigned int queue)

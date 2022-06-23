@@ -935,6 +935,8 @@ struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
                                      void (*hndlr)(struct net_device *),
                                      u32 flags,
                                      phy_interface_t iface);
+
+#define NAPI_WEIGHT  64
 #endif
 
 #define GET_NET_DEV_FLAGS(dev) ((dev)->flags)
