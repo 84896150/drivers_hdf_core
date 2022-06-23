@@ -495,7 +495,7 @@ void NetIfWakeQueue(struct NetDevice *netDevice)
 
 struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
                                      struct device_node *phy_np,
-                                     void (*hndlr)(struct net_device *), 
+                                     void (*hndlr)(struct net_device *),
                                      u32 flags,
                                      phy_interface_t iface)
 {
