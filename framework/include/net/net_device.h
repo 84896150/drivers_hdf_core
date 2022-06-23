@@ -883,7 +883,7 @@ void NetIfStartQueue(struct NetDevice *netDevice);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  *
- * @return 
+ * @return
  *
  * @since 1.0
  * @version 1.0
@@ -895,8 +895,8 @@ void NetIfDisableTx(struct NetDevice *netDevice);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  * @param dev parent device
- * 
- * @return 
+ *
+ * @return
  *
  * @since 1.0
  * @version 1.0
@@ -908,7 +908,7 @@ void NetIfSetDev(struct NetDevice *netDevice, struct device *dev);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  *
- * @return 
+ * @return
  *
  * @since 1.0
  * @version 1.0
@@ -923,7 +923,7 @@ void NetIfWakeQueue(struct NetDevice *netDevice);
  * @param hndlr call handler after phy connect
  * @param flags phy connnect flags
  * @param iface phy interface
- * 
+ *
  * @return  Returns the phy device structure {@link phy_device} if the operation is successful; returns <b>NULL</b>
  * if the operation fails.
  *
@@ -932,7 +932,7 @@ void NetIfWakeQueue(struct NetDevice *netDevice);
  */
 struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
                                      struct device_node *phy_np,
-                                     void (*hndlr)(struct net_device *), 
+                                     void (*hndlr)(struct net_device *),
                                      u32 flags,
                                      phy_interface_t iface);
 #endif

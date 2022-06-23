@@ -171,9 +171,9 @@ static void SetAbility(ChipDevice *device)
     device->driver->inputDev->abilitySet.eventType[NUM_0] = SET_BIT(EV_SYN) |
                                                         SET_BIT(EV_KEY) | SET_BIT(EV_ABS);
     device->driver->inputDev->abilitySet.absCode[NUM_0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y);
-    device->driver->inputDev->abilitySet.absCode[1] = SET_BIT(ABS_MT_POSITION_X) |
+    device->driver->inputDev->abilitySet.absCode[NUM_1] = SET_BIT(ABS_MT_POSITION_X) |
                                                       SET_BIT(ABS_MT_POSITION_Y) | SET_BIT(ABS_MT_TRACKING_ID);
-    device->driver->inputDev->abilitySet.keyCode[3] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
+    device->driver->inputDev->abilitySet.keyCode[NUM_3] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
     device->driver->inputDev->attrSet.axisInfo[ABS_X].min = NUM_0;
     device->driver->inputDev->attrSet.axisInfo[ABS_X].max = device->boardCfg->attr.resolutionX - NUM_1;
     device->driver->inputDev->attrSet.axisInfo[ABS_X].range = NUM_0;
@@ -191,10 +191,8 @@ static void SetAbility(ChipDevice *device)
 
 static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum, int32_t version)
 {
-    int32_t i = NUM_0;
-    int32_t x = NUM_0, y = NUM_0;
-    int32_t offset = NUM_0, tplen = NUM_0, crclen = NUM_0;
-    int32_t type = NUM_0;
+    int32_t i = NUM_0, x = NUM_0, y = NUM_0;
+    int32_t offset = NUM_0, tplen = NUM_0, crclen = NUM_0, type = NUM_0;
     switch (version) {
         case EDT_M06:
             offset = NUM_5; /* where the actual touch data starts */
@@ -218,7 +216,7 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
     for (i = NUM_0; i < pointNum; i++) {
         u8 *rdbuf = &buf[i * tplen + offset];
 
-        type = rdbuf[NUM_0] >> 6;
+        type = rdbuf[NUM_0] >> NUM_6;
         /* ignore Reserved events */
         if (type == TOUCH_EVENT_RESERVED) {
             return HDF_FAILURE;
@@ -248,8 +246,8 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         frame->fingers[i].valid = true;
         frame->definedEvent = frame->fingers[i].status;
 
-        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) && (pointNum == NUM_0)) {
-            HDF_LOGE("%s: abnormal event data from driver chip", __func__);
+        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) 
+        && (pointNum == NUM_0)) {
             return HDF_FAILURE;
         }
     }

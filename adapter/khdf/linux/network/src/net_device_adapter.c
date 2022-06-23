@@ -31,9 +31,10 @@
 #define HDF_LOG_TAG NetDeviceFull
 #if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 extern struct phy_device *of_phy_connect(struct net_device *dev,
-                  struct device_node *phy_np,
-                  void (*hndlr)(struct net_device *), u32 flags,
-                  phy_interface_t iface);
+    struct device_node *phy_np,
+    void (*hndlr)(struct net_device *),
+    u32 flags,
+    phy_interface_t iface);
 #endif
 
 static int32_t NetDevXmitCheck(struct sk_buff *skb, struct net_device *dev)
@@ -264,7 +265,6 @@ __be16 NetDevTypeTrans(struct NetDeviceImpl *impl, struct sk_buff *skb)
     struct net_device *dev = GetDevFromDevImpl(impl);
 
     ret = eth_type_trans(skb, dev);
-
 
     return ret;
 }
