@@ -13,9 +13,8 @@
 
 HDF_FRAMEWORK_TEST_ROOT = drivers/hdf/framework/test/unittest
 HDF_FRAMEWORK_ROOT = drivers/hdf/framework
-HDF_AUDIO_ADM_TEST_INC_DIR = drivers/hdf/framework/model/audio
-HDF_AUDIO_DRIVER_TEST_ROOT = ../../../../../device/board/hisilicon/hispark_taurus/audio_drivers/unittest
-HDF_AUDIO_DRIVER_TEST_INC_DIR = drivers/hdf/framework/../../device/board/hisilicon/hispark_taurus/audio_drivers/unittest
+HDF_AUDIO_DRIVER_TEST_INC = ../../../../../device/board/hisilicon/hispark_taurus/audio_drivers/unittest
+HDF_AUDIO_DRIVER_TEST_ROOT = ../../../../../../device/board/hisilicon/hispark_taurus/audio_drivers/unittest
 #$(error HDF_FRAMEWORK_ROOT is $(HDF_FRAMEWORK_ROOT))
 
 ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include/platform \
@@ -72,13 +71,13 @@ ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include
     -I$(srctree)/$(HDF_FRAMEWORK_TEST_ROOT)/sensor \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/sensor/driver/include \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/sensor/driver/common/include \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/sapm/include \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/dispatch/include \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/core/include \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/common/include \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../include/audio \
-    -I$(srctree)/$(HDF_AUDIO_ADM_TEST_INC_DIR)/../../test/unittest/model/audio/include \
-    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC_DIR)/include \
-    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC_DIR)/../codec/hi3516/include \
-    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC_DIR)/../soc/include \
-    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC_DIR)/../include
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/audio/sapm/include \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/audio/dispatch/include \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/audio/core/include \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/audio/common/include \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/audio/../../include/audio \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/audio/../../test/unittest/model/audio/include \
+    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC)/include \
+    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC)/../codec/hi3516/include \
+    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC)/../soc/include \
+    -I$(srctree)/$(HDF_AUDIO_DRIVER_TEST_INC)/../dsp/include
