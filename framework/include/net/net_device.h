@@ -823,7 +823,7 @@ int32_t NetIfDhcpIsBound(const struct NetDevice *netDevice);
  * @version 1.0
  */
 void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
-            int (*poll)(struct napi_struct *, int), int weight);
+    int (*poll)(struct napi_struct *, int), int weight);
 
 /**
  * @brief Get Tx Queue of a specified network device.
@@ -871,7 +871,7 @@ struct sk_buff *NetIfEnteAllocBuf(struct NetDevice *netDevice, uint32_t length);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  *
- * @return
+ * @return 
  *
  * @since 1.0
  * @version 1.0
@@ -883,7 +883,7 @@ void NetIfStartQueue(struct NetDevice *netDevice);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  *
- * @return
+ * @return 
  *
  * @since 1.0
  * @version 1.0
@@ -895,8 +895,8 @@ void NetIfDisableTx(struct NetDevice *netDevice);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  * @param dev parent device
- *
- * @return
+ * 
+ * @return 
  *
  * @since 1.0
  * @version 1.0
@@ -908,7 +908,7 @@ void NetIfSetDev(struct NetDevice *netDevice, struct device *dev);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  *
- * @return
+ * @return 
  *
  * @since 1.0
  * @version 1.0
@@ -923,17 +923,18 @@ void NetIfWakeQueue(struct NetDevice *netDevice);
  * @param hndlr call handler after phy connect
  * @param flags phy connnect flags
  * @param iface phy interface
- *
- * @return Returns the phy device structure {@link phy_device} if the operation is successful; returns <b>NULL</b>
+ * 
+ * @return  Returns the phy device structure {@link phy_device} if the operation is successful; returns <b>NULL</b>
  * if the operation fails.
  *
  * @since 1.0
  * @version 1.0
  */
 struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
-                  struct device_node *phy_np,
-                  void (*hndlr)(struct net_device *), u32 flags,
-                  phy_interface_t iface);
+                                     struct device_node *phy_np,
+                                     void (*hndlr)(struct net_device *), 
+                                     u32 flags,
+                                     phy_interface_t iface);
 #endif
 
 #define GET_NET_DEV_FLAGS(dev) ((dev)->flags)

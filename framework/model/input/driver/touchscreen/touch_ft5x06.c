@@ -53,10 +53,10 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     int error;
     char fw_version[EDT_NAME_LEN];
 
-    memset_s(rdbuf, sizeof(rdbuf), 0, sizeof(rdbuf));
-    memset_s(fw_version, sizeof(fw_version), 0, sizeof(fw_version));
+    memset_s(rdbuf, sizeof(rdbuf), NUM_0, sizeof(rdbuf));
+    memset_s(fw_version, sizeof(fw_version), NUM_0, sizeof(fw_version));
 
-    error = InputI2cRead(i2cClient, "\xbb", 1, rdbuf, EDT_NAME_LEN - 1);
+    error = InputI2cRead(i2cClient, "\xbb", NUM_1, rdbuf, EDT_NAME_LEN - NUM_1);
     if (error) {
         return error;
     }
@@ -65,13 +65,13 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
      * M06 starts with a response byte.
      * M09/Generic does not provide model number information.
      */
-    if (!(strncasecmp(rdbuf + 1, "EP0", 3))) {
+    if (!(strncasecmp(rdbuf + NUM_1, "EP0", NUM_3))) {
         device->chipCfg->chipVersion = EDT_M06;
         HDF_LOGI("%s: version = EDT_M06", __func__);
 
-        rdbuf[EDT_NAME_LEN - 1] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 2] == '$') {
-            rdbuf[EDT_NAME_LEN - 2] = '\0';
+        rdbuf[EDT_NAME_LEN - NUM_1] = '\0';
+        if (rdbuf[EDT_NAME_LEN - NUM_2] == '$') {
+            rdbuf[EDT_NAME_LEN - NUM_2] = '\0';
         }
 
         p = strchr(rdbuf, '*');
@@ -79,14 +79,14 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
             *p++ = '\0';
         }
         strlcpy(fw_version, p ? p : "", EDT_NAME_LEN);
-    } else if (!strncasecmp(rdbuf, "EP0", 3)) {
+    } else if (!strncasecmp(rdbuf, "EP0", NUM_3)) {
         device->chipCfg->chipVersion = EDT_M12;
         HDF_LOGI("%s: version = EDT_M12;", __func__);
 
         /* remove last '$' end marker */
-        rdbuf[EDT_NAME_LEN - 2] = '\0';
-        if (rdbuf[EDT_NAME_LEN - 3] == '$') {
-            rdbuf[EDT_NAME_LEN - 3] = '\0';
+        rdbuf[EDT_NAME_LEN - NUM_2] = '\0';
+        if (rdbuf[EDT_NAME_LEN - NUM_3] == '$') {
+            rdbuf[EDT_NAME_LEN - NUM_3] = '\0';
         }
 
         /* look for Version */
@@ -99,37 +99,37 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
         device->chipCfg->chipVersion = GENERIC_FT;
         HDF_LOGI("%s: version = GENERIC_FT;", __func__);
 
-        error = InputI2cRead(i2cClient, "\xA6", 1, rdbuf, 2);
+        error = InputI2cRead(i2cClient, "\xA6", NUM_1, rdbuf, NUM_2);
         if (error) {
             return error;
         }
 
-        strlcpy(fw_version, rdbuf, 2);
+        strlcpy(fw_version, rdbuf, NUM_2);
 
-        error = InputI2cRead(i2cClient, "\xA8", 1, rdbuf, 1);
+        error = InputI2cRead(i2cClient, "\xA8", NUM_1, rdbuf, NUM_1);
         if (error) {
             return error;
         }
 
         switch (rdbuf[0]) {
-            case 0x35: /* EDT EP0350M09 */
-            case 0x43: /* EDT EP0430M09 */
-            case 0x50: /* EDT EP0500M09 */
-            case 0x57: /* EDT EP0570M09 */
-            case 0x70: /* EDT EP0700M09 */
-            case 0xa1: /* EDT EP1010ML00 */
+            case EP0350M09:
+            case EP0430M09:
+            case EP0500M09:
+            case EP0570M09:
+            case EP0700M09:
+            case EP1010ML0:
                 device->chipCfg->chipVersion = EDT_M09;
                 HDF_LOGI("%s: version = EDT_M09;", __func__);
                 break;
 
-            case 0x59: /* Evervision Display with FT5xx6 TS */
+            case EPDISPLAY:
                 device->chipCfg->chipVersion = EV_FT;
                 HDF_LOGI("%s: version = EV_FT;", __func__);
 
-                error = InputI2cRead(i2cClient, "\x53", 1, rdbuf, 1);
+                error = InputI2cRead(i2cClient, "\x53", NUM_1, rdbuf, NUM_1);
                 if (error)
                     return error;
-                strlcpy(fw_version, rdbuf, 1);
+                strlcpy(fw_version, rdbuf, NUM_1);
                 break;
 
             default:
@@ -138,21 +138,21 @@ static int Ft5x06_Identify(ChipDevice *device, const InputI2cClient *i2cClient)
     }
 
     HDF_LOGI("%s: fw_version = %s", __func__, fw_version);
-    return 0;
+    return NUM_0;
 }
 
 static int32_t ChipDetect(ChipDevice *device)
 {
-    uint8_t regAddr;
-    uint8_t regValue = 0;
-    int32_t ret;
+    uint8_t regAddr = NUM_0;
+    uint8_t regValue = NUM_0;
+    int32_t ret = NUM_0;
 
     InputI2cClient *i2cClient = &device->driver->i2cClient;
 
     regAddr = WORK_REGISTER_REPORT_RATE;
-    ret = InputI2cWrite(i2cClient, &regAddr, 1);
+    ret = InputI2cWrite(i2cClient, &regAddr, NUM_1);
     CHIP_CHECK_RETURN(ret);
-    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue, 1);
+    ret = InputI2cRead(i2cClient, &regAddr, NUM_1, &regValue, NUM_1);
     CHIP_CHECK_RETURN(ret);
     HDF_LOGI("%s: Report rate is %u * 10", __func__, regValue);
 
@@ -167,58 +167,58 @@ static int32_t ChipDetect(ChipDevice *device)
 
 static void SetAbility(ChipDevice *device)
 {
-    device->driver->inputDev->abilitySet.devProp[0] = SET_BIT(INPUT_PROP_DIRECT);
-    device->driver->inputDev->abilitySet.eventType[0] = SET_BIT(EV_SYN) |
+    device->driver->inputDev->abilitySet.devProp[NUM_0] = SET_BIT(INPUT_PROP_DIRECT);
+    device->driver->inputDev->abilitySet.eventType[NUM_0] = SET_BIT(EV_SYN) |
                                                         SET_BIT(EV_KEY) | SET_BIT(EV_ABS);
-    device->driver->inputDev->abilitySet.absCode[0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y);
+    device->driver->inputDev->abilitySet.absCode[NUM_0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y);
     device->driver->inputDev->abilitySet.absCode[1] = SET_BIT(ABS_MT_POSITION_X) |
                                                       SET_BIT(ABS_MT_POSITION_Y) | SET_BIT(ABS_MT_TRACKING_ID);
     device->driver->inputDev->abilitySet.keyCode[3] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
-    device->driver->inputDev->attrSet.axisInfo[ABS_X].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_X].max = device->boardCfg->attr.resolutionX - 1;
-    device->driver->inputDev->attrSet.axisInfo[ABS_X].range = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_Y].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_Y].max = device->boardCfg->attr.resolutionY - 1;
-    device->driver->inputDev->attrSet.axisInfo[ABS_Y].range = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].max = device->boardCfg->attr.resolutionX - 1;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].range = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].min = 0;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].max = device->boardCfg->attr.resolutionY - 1;
-    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].range = 0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_X].min = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_X].max = device->boardCfg->attr.resolutionX - NUM_1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_X].range = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_Y].min = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_Y].max = device->boardCfg->attr.resolutionY - NUM_1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_Y].range = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].min = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].max = device->boardCfg->attr.resolutionX - NUM_1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_X].range = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].min = NUM_0;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].max = device->boardCfg->attr.resolutionY - NUM_1;
+    device->driver->inputDev->attrSet.axisInfo[ABS_MT_POSITION_Y].range = NUM_0;
     device->driver->inputDev->attrSet.axisInfo[ABS_MT_TRACKING_ID].max = MAX_POINT;
 }
 
 static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, uint8_t pointNum, int32_t version)
 {
-    int32_t i;
-    int32_t x, y;
-    int32_t offset, tplen, crclen;
-    int32_t type;
+    int32_t i = NUM_0;
+    int32_t x = NUM_0, y = NUM_0;
+    int32_t offset = NUM_0, tplen = NUM_0, crclen = NUM_0;
+    int32_t type = NUM_0;
     switch (version) {
         case EDT_M06:
-            offset = 5; /* where the actual touch data starts */
-            tplen = 4;  /* data comes in so called frames */
-            crclen = 1; /* length of the crc data */
+            offset = NUM_5; /* where the actual touch data starts */
+            tplen = NUM_4;  /* data comes in so called frames */
+            crclen = NUM_1; /* length of the crc data */
             break;
 
         case EDT_M09:
         case EDT_M12:
         case EV_FT:
         case GENERIC_FT:
-            offset = 3;
-            tplen = 6;
-            crclen = 0;
+            offset = NUM_3;
+            tplen = NUM_6;
+            crclen = NUM_0;
             break;
 
         default:
             return HDF_FAILURE;
     }
 
-    for (i = 0; i < pointNum; i++) {
+    for (i = NUM_0; i < pointNum; i++) {
         u8 *rdbuf = &buf[i * tplen + offset];
 
-        type = rdbuf[0] >> 6;
+        type = rdbuf[NUM_0] >> 6;
         /* ignore Reserved events */
         if (type == TOUCH_EVENT_RESERVED) {
             return HDF_FAILURE;
@@ -236,19 +236,19 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         }
 
         x = get_unaligned_be16(rdbuf) & 0x0fff;
-        y = get_unaligned_be16(rdbuf + 2) & 0x0fff;
+        y = get_unaligned_be16(rdbuf + NUM_2) & 0x0fff;
 
         if (device->chipCfg->chipVersion == EV_FT)
             swap(x, y);
 
         frame->fingers[i].x = x;
         frame->fingers[i].y = y;
-        frame->fingers[i].trackId = (rdbuf[2] >> 4) & 0x0f;
+        frame->fingers[i].trackId = (rdbuf[NUM_2] >> NUM_4) & 0x0f;
         frame->fingers[i].status = type;
         frame->fingers[i].valid = true;
         frame->definedEvent = frame->fingers[i].status;
 
-        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) && (pointNum == 0)) {
+        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) && (pointNum == NUM_0)) {
             HDF_LOGE("%s: abnormal event data from driver chip", __func__);
             return HDF_FAILURE;
         }
@@ -259,25 +259,25 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
 
 static int32_t ChipDataHandle(ChipDevice *device)
 {
-    uint8_t reg = 0x0;
-    uint8_t pointNum;
-    uint8_t buf[POINT_BUFFER_LEN_M09] = {0};
-    int32_t ret = 0;
+    uint8_t reg = NUM_0;
+    uint8_t pointNum = NUM_0;
+    uint8_t buf[POINT_BUFFER_LEN_M09] = {NUM_0};
+    int32_t ret = NUM_0;
 
     InputI2cClient *i2cClient = &device->driver->i2cClient;
     FrameData *frame = &device->driver->frameData;
 
     switch (device->chipCfg->chipVersion) {
         case EDT_M06:
-            reg = 0xf9; /* tell the controller to send touch data */
-            ret = InputI2cRead(i2cClient, &reg, 1, buf, POINT_BUFFER_LEN_M06);
+            reg = EDT_M06_CON; /* tell the controller to send touch data */
+            ret = InputI2cRead(i2cClient, &reg, NUM_1, buf, POINT_BUFFER_LEN_M06);
             break;
 
         case EDT_M09:
         case EDT_M12:
         case EV_FT:
         case GENERIC_FT:
-            ret = InputI2cRead(i2cClient, &reg, 1, buf, POINT_BUFFER_LEN_M09);
+            ret = InputI2cRead(i2cClient, &reg, NUM_1, buf, POINT_BUFFER_LEN_M09);
             break;
 
         default:
@@ -286,17 +286,17 @@ static int32_t ChipDataHandle(ChipDevice *device)
     CHIP_CHECK_RETURN(ret);
 
     OsalMutexLock(&device->driver->mutex);
-    (void)memset_s(frame, sizeof(FrameData), 0, sizeof(FrameData));
+    (void)memset_s(frame, sizeof(FrameData), NUM_0, sizeof(FrameData));
 
-    pointNum = buf[2] & GT_FINGER_NUM_MASK;
+    pointNum = buf[NUM_2] & GT_FINGER_NUM_MASK;
     if (pointNum > MAX_POINT) {
         HDF_LOGI("%s: pointNum is invalid-------------", __func__);
         OsalMutexUnlock(&device->driver->mutex);
         return HDF_FAILURE;
     }
 
-    if (pointNum == 0) {
-        frame->realPointNum = 0;
+    if (pointNum == NUM_0) {
+        frame->realPointNum = NUM_0;
         frame->definedEvent = TOUCH_EVENT_UP;
         OsalMutexUnlock(&device->driver->mutex);
         return HDF_SUCCESS;
@@ -350,7 +350,7 @@ static TouchChipCfg *ChipConfigInstance(struct HdfDeviceObject *device)
         HDF_LOGE("%s: instance chip config failed", __func__);
         return NULL;
     }
-    (void)memset_s(chipCfg, sizeof(TouchChipCfg), 0, sizeof(TouchChipCfg));
+    (void)memset_s(chipCfg, sizeof(TouchChipCfg), NUM_0, sizeof(TouchChipCfg));
 
     if (ParseTouchChipConfig(device->property, chipCfg) != HDF_SUCCESS) {
         HDF_LOGE("%s: parse chip config failed", __func__);
@@ -367,7 +367,7 @@ static ChipDevice *ChipDeviceInstance(void)
         HDF_LOGE("%s: instance chip device failed", __func__);
         return NULL;
     }
-    (void)memset_s(chipDev, sizeof(ChipDevice), 0, sizeof(ChipDevice));
+    (void)memset_s(chipDev, sizeof(ChipDevice), NUM_0, sizeof(ChipDevice));
     return chipDev;
 }
 

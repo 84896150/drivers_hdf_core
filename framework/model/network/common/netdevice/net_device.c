@@ -410,7 +410,7 @@ int32_t NetIfSetStatus(const struct NetDevice *netDevice, NetIfStatus status)
 
 #if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
 void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
-            int (*poll)(struct napi_struct *, int), int weight)
+    int (*poll)(struct napi_struct *, int), int weight)
 {
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
 
@@ -494,9 +494,10 @@ void NetIfWakeQueue(struct NetDevice *netDevice)
 }
 
 struct phy_device *NetIfOfPhyConnect(struct NetDevice *netDevice,
-                  struct device_node *phy_np,
-                  void (*hndlr)(struct net_device *), u32 flags,
-                  phy_interface_t iface)
+                                     struct device_node *phy_np,
+                                     void (*hndlr)(struct net_device *), 
+                                     u32 flags,
+                                     phy_interface_t iface)
 {
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
 
