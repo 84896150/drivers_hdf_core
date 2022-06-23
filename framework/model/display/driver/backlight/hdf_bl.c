@@ -34,19 +34,16 @@ struct BacklightDev {
     struct BacklightOps *ops;
     struct OsalMutex mutex;
     bool isRegister;
-    void *priv;
+    struct HdfDeviceObject *hdfObj;
+    struct DListHead listNode;
+    int32_t devId;
 };
 
-struct BlDevManager {
-    struct BacklightDev *blDev[MAX_BL_DEV];
-    uint32_t devNum;
-};
+static struct DListHead devHead;
 
-static struct BlDevManager g_blDevManager;
-
-static struct BlDevManager *GetBlDevManager(void)
+static struct DListHead* GetDListHead(void)
 {
-    return &g_blDevManager;
+    return &devHead;
 }
 
 static struct BacklightDev *BlDevInstance(const char *devName,
@@ -72,6 +69,7 @@ static struct BacklightDev *BlDevInstance(const char *devName,
         HDF_LOGE("%s props memcpy fail", __func__);
         goto FAIL;
     }
+    DListHeadInit(&blDev->listNode);
     return blDev;
 FAIL:
     OsalMemFree(blDev);
@@ -79,25 +77,20 @@ FAIL:
 }
 
 struct BacklightDev *RegisterBlDev(const char *name, struct BacklightProperties *props,
-    struct BacklightOps *ops, void *priv)
+    struct BacklightOps *ops, struct HdfDeviceObject *object)
 {
-    int32_t devNum;
-    int32_t i;
     struct BacklightDev *blDev = NULL;
-    struct BlDevManager *blDevManager = NULL;
+    struct DListHead *blDevList = NULL;
+    struct BacklightDev *pos = NULL;
+    static int32_t devId = 0;
 
-    if ((name == NULL) || (ops == NULL) || (props == NULL)) {
-        HDF_LOGE("%s: name , ops or props is null", __func__);
+    if ((name == NULL) || (ops == NULL) || (props == NULL) || (object == NULL)) {
+        HDF_LOGE("%s: name , ops or props or object is null", __func__);
         return NULL;
     }
-    blDevManager = GetBlDevManager();
-    devNum = blDevManager->devNum;
-    if (devNum >= MAX_BL_DEV) {
-        HDF_LOGE("%s: number of backlight device registrations exceeded", __func__);
-        return NULL;
-    }
-    for (i = 0; i < devNum; i++) {
-        if (strcmp(name, blDevManager->blDev[i]->name) == 0) {
+    blDevList = GetDListHead();
+    DLIST_FOR_EACH_ENTRY(pos, blDevList, struct BacklightDev, listNode) {
+        if (strcmp(name, pos->name) == 0) {
             HDF_LOGE("%s: backlight name should be unique", __func__);
             return NULL;
         }
@@ -107,12 +100,27 @@ struct BacklightDev *RegisterBlDev(const char *name, struct BacklightProperties 
         HDF_LOGE("%s: BlDevInstance fail", __func__);
         return NULL;
     }
-    blDev->priv = priv;
-    blDevManager->blDev[devNum] = blDev;
-    blDevManager->devNum++;
+    HDF_LOGE("%s: blDev->hdfObj shh", __func__);
+    blDev->hdfObj = object;
+    DListInsertTail(&blDev->listNode, blDevList);
     OsalMutexInit(&blDev->mutex);
-    HDF_LOGE("%s: success", __func__);
+    blDev->isRegister = true;
+    blDev->devId = devId;
+    ++devId;
+    HDF_LOGI("%s: success", __func__);
     return blDev;
+}
+
+int32_t UnRegisterBlDev(struct BacklightDev *blDev)
+{
+    if (blDev == NULL) {
+        HDF_LOGE("%s: UnRegisterBlDev(BacklightDev *blDev) is null", __func__);
+        return HDF_FAILURE;
+    }
+    DListRemove(&blDev->listNode);
+    OsalMemFree(blDev);
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
 }
 
 void *ToBlDevPriv(struct BacklightDev *blDev)
@@ -121,22 +129,23 @@ void *ToBlDevPriv(struct BacklightDev *blDev)
         HDF_LOGE("%s blDev is null", __func__);
         return NULL;
     }
-    return blDev->priv;
+    HDF_LOGE("%s blDev->hdfObj->priv shh", __func__);
+    return blDev->hdfObj->priv;
 }
 
 struct BacklightDev *GetBacklightDev(const char *name)
 {
-    struct BlDevManager *blDevManager = NULL;
-    int32_t i;
+    struct DListHead *blDevList = NULL;
 
     if (name == NULL) {
         HDF_LOGE("%s name is null", __func__);
         return NULL;
     }
-    blDevManager = GetBlDevManager();
-    for (i = 0; i < blDevManager->devNum; i++) {
-        if (strcmp(name, blDevManager->blDev[i]->name) == 0) {
-            return blDevManager->blDev[i];
+    blDevList = GetDListHead();
+    struct BacklightDev *pos = NULL;
+    DLIST_FOR_EACH_ENTRY(pos, blDevList, struct BacklightDev, listNode) {
+        if (strcmp(name, pos->name) == 0) {
+            return pos;
         }
     }
     return NULL;
@@ -272,7 +281,7 @@ static int32_t HdfGetBrightness(enum BrightnessType type,
 {
     uint32_t devId;
     uint32_t brightness;
-    struct BlDevManager *blDevManager = NULL;
+    struct DListHead *blDevList = NULL;
     struct BacklightDev *blDev = NULL;
 
     if (reqData == NULL) {
@@ -282,12 +291,18 @@ static int32_t HdfGetBrightness(enum BrightnessType type,
         HDF_LOGE("%s: HdfSbufReadBuffer failed", __func__);
         return HDF_FAILURE;
     }
-    blDevManager = GetBlDevManager();
-    if (devId >= blDevManager->devNum) {
+    blDevList = GetDListHead();
+    struct BacklightDev *pos = NULL;
+    DLIST_FOR_EACH_ENTRY(pos, blDevList, struct BacklightDev, listNode) {
+        if (devId == pos->devId) {
+            blDev = pos;
+        }
+    }
+    
+    if (blDev == NULL) {
         HDF_LOGE("%s: devId is illegal", __func__);
         return HDF_FAILURE;
     }
-    blDev = blDevManager->blDev[devId];
     brightness = GetBlDevBrightness(blDev, type);
     if (!HdfSbufWriteUint32(rspData, brightness)) {
         HDF_LOGE("%s: HdfSbufWriteUint32 failed", __func__);
@@ -327,7 +342,7 @@ static int32_t HdfGetMaxBrightness(struct HdfDeviceObject *device,
 static int32_t HdfSetBrightness(struct HdfDeviceObject *device,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
-    struct BlDevManager *blDevManager = NULL;
+    struct DListHead *blDevList = NULL;
     struct BacklightDev *blDev = NULL;
 
     (void)device;
@@ -342,31 +357,37 @@ static int32_t HdfSetBrightness(struct HdfDeviceObject *device,
     }
     uint32_t devId = (para >> OFFSET_TWO_BYTE) & 0xffff;
     uint32_t level = para & 0xffff;
-    blDevManager = GetBlDevManager();
-    if (devId >= blDevManager->devNum) {
+    blDevList = GetDListHead();
+    struct BacklightDev *pos = NULL;
+    DLIST_FOR_EACH_ENTRY(pos, blDevList, struct BacklightDev, listNode) {
+        if (devId == pos->devId) {
+            blDev = pos;
+        }
+    }
+    if (blDev == NULL) {
         HDF_LOGE("%s: devId is illegal", __func__);
         return HDF_FAILURE;
     }
-    blDev = blDevManager->blDev[devId];
     return UpdateBrightness(blDev, level);
 }
 
-static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
+static int32_t HdfGetDListHead(struct HdfDeviceObject *device,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
     (void)device;
     (void)reqData;
     int32_t ret;
-    int32_t i;
     char *devName = NULL;
     char *tmp = NULL;
     char buffer[NAME_BUFFER_LEN] = {0};
-    struct BlDevManager *blDevManager = NULL;
+    struct DListHead *blDevList = NULL;
+    int32_t i = 0;
 
-    blDevManager = GetBlDevManager();
+    blDevList = GetDListHead();
     tmp = buffer;
-    for (i = 0; i < blDevManager->devNum; i++) {
-        devName = blDevManager->blDev[i]->name;
+    struct BacklightDev *pos = NULL;
+    DLIST_FOR_EACH_ENTRY(pos, blDevList, struct BacklightDev, listNode) {
+        devName = pos->name;
         if ((tmp + MAX_DEST_STRING_LEN) > &buffer[NAME_BUFFER_LEN]) {
             HDF_LOGE("%s: Memory out of bounds", __func__);
             break;
@@ -378,7 +399,9 @@ static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
             return HDF_FAILURE;
         }
         tmp = tmp + strlen(tmp) + 1;
+        ++i;
     }
+
     if (!HdfSbufWriteBuffer(rspData, buffer, strlen(buffer) + 1) != 0) {
         HDF_LOGE("%s: copy info failed", __func__);
         return HDF_FAILURE;
@@ -391,7 +414,7 @@ static BlCmdHandle g_blDevCmdHandle[] = {
     HdfGetCurrBrightness,
     HdfGetDefBrightness,
     HdfGetMaxBrightness,
-    HdfGetBlDevList,
+    HdfGetDListHead,
     HdfSetBrightness,
 };
 
@@ -429,6 +452,9 @@ static int32_t BacklightInit(struct HdfDeviceObject *object)
         HDF_LOGE("%s: object is null!", __func__);
         return HDF_FAILURE;
     }
+    struct DListHead *blDevList = NULL;
+    blDevList = GetDListHead();
+    DListHeadInit(blDevList);
     HDF_LOGI("%s success", __func__);
     return HDF_SUCCESS;
 }

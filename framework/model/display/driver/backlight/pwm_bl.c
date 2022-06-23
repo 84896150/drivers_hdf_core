@@ -31,6 +31,7 @@ struct BlPwmDev {
     DevHandle pwmHandle;
     struct PwmConfig config;
     struct BacklightProperties props;
+    struct BacklightDev *blDev;
 };
 
 static int32_t BlPwmUpdateBrightness(struct BacklightDev *blDev, uint32_t brightness)
@@ -82,6 +83,7 @@ static int32_t ParsePwmNum(const struct DeviceResourceNode *node, uint8_t *pwmNu
     CHECK_PARSER_RET(ret, "GetUint8");
     return HDF_SUCCESS;
 }
+
 static int32_t ParseBlPwmCfg(const struct DeviceResourceNode *node, struct BlPwmDev *blPwmDev)
 {
     int32_t ret;
@@ -156,7 +158,8 @@ static int32_t BlPwmEntryInit(struct HdfDeviceObject *object)
         HDF_LOGE("%s: BlPwmDevInit fail", __func__);
         goto FAIL;
     }
-    blDev = RegisterBlDev(blPwmDev->name, &blPwmDev->props, &g_blDevOps, blPwmDev);
+    object->priv = blPwmDev;
+    blDev = RegisterBlDev(blPwmDev->name, &blPwmDev->props, &g_blDevOps, object);
     if (blDev == NULL) {
         HDF_LOGE("%s: RegisterBlDev fail", __func__);
         goto FAIL;
@@ -167,6 +170,7 @@ static int32_t BlPwmEntryInit(struct HdfDeviceObject *object)
     if (UpdateBrightness(blDev, blPwmDev->props.defBrightness) != HDF_SUCCESS) {
         HDF_LOGE("%s: UpdateBrightness fail", __func__);
     }
+    blPwmDev->blDev = blDev;
     HDF_LOGI("%s: success", __func__);
     return HDF_SUCCESS;
 
@@ -175,10 +179,29 @@ FAIL:
     return HDF_FAILURE;
 }
 
+static void BlPwmEntryRelease(struct HdfDeviceObject *object)
+{
+    int32_t ret;
+    struct BlPwmDev *blPwmDev = NULL;
+    blPwmDev = object->priv;
+    ret = UnRegisterBlDev(blPwmDev->blDev);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: UnRegisterBlDev fail", __func__);
+        goto FAIL;
+    }
+    OsalMemFree(blPwmDev);
+    HDF_LOGI("%s: success", __func__);
+    return;
+FAIL:
+    OsalMemFree(blPwmDev);
+    return;
+}
+
 struct HdfDriverEntry g_pwmBlDevEntry = {
     .moduleVersion = 1,
     .moduleName = "PWM_BL",
     .Init = BlPwmEntryInit,
+    .Release = BlPwmEntryRelease,
 };
 
 HDF_INIT(g_pwmBlDevEntry);
