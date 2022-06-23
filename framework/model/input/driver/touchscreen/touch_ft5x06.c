@@ -246,7 +246,7 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf
         frame->fingers[i].valid = true;
         frame->definedEvent = frame->fingers[i].status;
 
-        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT) 
+        if ((frame->fingers[i].status == TOUCH_DOWN || frame->fingers[i].status == TOUCH_CONTACT)
         && (pointNum == NUM_0)) {
             return HDF_FAILURE;
         }

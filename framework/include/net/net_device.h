@@ -871,7 +871,7 @@ struct sk_buff *NetIfEnteAllocBuf(struct NetDevice *netDevice, uint32_t length);
  *
  * @param netDevice Indicates the pointer to the network device obtained during initialization.
  *
- * @return 
+ * @return
  *
  * @since 1.0
  * @version 1.0

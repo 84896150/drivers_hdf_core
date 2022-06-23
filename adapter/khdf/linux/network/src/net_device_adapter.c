@@ -311,9 +311,10 @@ void NetDevWakeQueue(struct NetDeviceImpl *impl)
 }
 
 struct phy_device *NetDevOfPhyConnect(struct NetDeviceImpl *impl,
-                  struct device_node *phy_np,
-                  void (*hndlr)(struct net_device *), u32 flags,
-                  phy_interface_t iface)
+                                      struct device_node *phy_np,
+                                      void (*hndlr)(struct net_device *),
+                                      u32 flags,
+                                      phy_interface_t iface)
 {
     struct phy_device *phy = NULL;
     struct net_device *ndev = GetDevFromDevImpl(impl);
