@@ -220,7 +220,7 @@ template("hdi") {
     }
   }
 
-  group("$target_name") {
+  group("drivers_$target_name") {
     deps = [
       ":$lib_client",
       ":$lib_server",
