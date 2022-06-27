@@ -43,7 +43,9 @@ class MainEditor {
             oldy: -1
         }
         this.nodeBtns = [];
+        this.nodeMoreBtns = [];
         this.nodeBtnPoint_ = 0;
+        this.nodeMoreBtnPoint_ = 0;
         XMessage.gi().registRecvCallback(this.onReceive);
         XMessage.gi().send("inited", "");
         AttrEditor.gi().freshEditor();
@@ -82,9 +84,13 @@ class MainEditor {
             case 5://string
                 y += MainEditor.LINE_HEIGHT;
                 break;
-            case 6://ConfigNode
+            case 6://ConfigNode   
                 for (let i in data.value_) {
-                    y = this.calcPostionY(data.value_[i], y)
+                    if (!data.value_[i].parent_.isOpen_) {
+                        NapiLog.logInfo("Node collapse does not need to calculate the offset");
+                    } else {
+                        y = this.calcPostionY(data.value_[i], y)
+                    }
                 }
                 break;
             case 7://ConfigTerm
@@ -102,7 +108,7 @@ class MainEditor {
             case 11://bool
                 y += MainEditor.LINE_HEIGHT
                 break;
-            default:                
+            default:
                 NapiLog.logError("unknow" + data.type_);
                 break;
         }
@@ -147,11 +153,30 @@ class MainEditor {
 
     configNodeProc(w, pm2f, data, offx, offy, path) {
         this.setNodeButton(pm2f, offx, offy + data.posY, w, 20, path, data);
-
-        for (let i in data.value_) {
-          this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
-          pm2f.drawLine(data.posX + w, offy + data.posY + 10,
-              data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+        if (data.value_.length > 0) {
+            this.setNodeMoreButton(pm2f, offx, offy + data.posY, w, 20, data);
+        }
+        if (data.type_ == 6) {
+            for (let i in data.value_) {
+                if (data.value_[i].parent_.type_ == 6 && data.value_[i].parent_.isOpen_) {
+                    this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                    pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                        data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+                } else if (data.value_[i].parent_.type_ == 7) {
+                    this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                    pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                        data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+                }
+                else {
+                    NapiLog.logInfo("Node collapse does not need to draw child node");
+                }
+            }
+        } else {
+            for (let i in data.value_) {
+                this.drawObj(pm2f, data.value_[i], offx + w + 50, offy, path + ".");
+                pm2f.drawLine(data.posX + w, offy + data.posY + 10,
+                    data.value_[i].posX, offy + data.value_[i].posY + 10, 0xffffffff, 2)
+            }
         }
     }
     drawObj(pm2f, data, offx, offy, path) {
@@ -165,14 +190,14 @@ class MainEditor {
             case 3://uint32
             case 4://uint64
                 w = pm2f.drawText(NodeTools.jinZhi10ToX(data.value_, data.jinzhi_),
-                  18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
+                    18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
                 break;
             case 5://string
                 w = pm2f.drawText('"' + data.value_ + '"', 18, offx, offy + data.posY, 1, 1, 0, -1, -1, 0xffff0000);
                 break;
             case 6://ConfigNode
                 w = this.drawNode(pm2f, this.getNodeText(data), 18, offx, offy + data.posY,
-                  0xffffffff, rgba(67, 95, 188));
+                    0xffffffff, rgba(67, 95, 188));
                 this.configNodeProc(w, pm2f, data, offx, offy, path)
                 break;
             case 7://ConfigTerm
@@ -204,6 +229,7 @@ class MainEditor {
             pm2f.drawText(data.errMsg_, 18, offx + w - 5, offy + data.posY + 5, 1, 1, 0, -1, -3, 0xffff0000);
         }
     }
+
     setNodeButton(pm2f, x, y, w, h, path, node) {
         if (this.nodePoint_ == node) {
             pm2f.drawRect(x - 3, y - 3, w + 6, h + 6, 0xff00ff00, 2);
@@ -217,6 +243,22 @@ class MainEditor {
         pbtn.node_ = node;
         this.nodeBtnPoint_ += 1;
     }
+
+    setNodeMoreButton(pm2f, x, y, w, h, node) {
+        if (this.nodeMoreBtnPoint_ >= this.nodeMoreBtns.length) {
+            this.nodeMoreBtns.push(new XButton());
+        }
+        let pbtn = this.nodeMoreBtns[this.nodeMoreBtnPoint_];
+        pbtn.move(x + w + 3, y - 3, 15, h + 6);
+        pbtn.draw();
+        pm2f.drawLine(x + w + 3, y + 10, x + w + 13, y + 10, 0xffffffff, 2)
+        if(!node.isOpen_){
+            pm2f.drawLine(x + w + 8, y + 5, x + w + 8, y + 15, 0xffffffff, 2)
+        }
+        pbtn.node_ = node;
+        this.nodeMoreBtnPoint_ += 1;
+    }
+
     draw(pm2f) {
         pm2f.fillRect(0, 0, Scr.logicw, Scr.logich, 0xff303030);
 
@@ -225,6 +267,7 @@ class MainEditor {
             this.calcPostionY(data, 0);
 
             this.nodeBtnPoint_ = 0;
+            this.nodeMoreBtnPoint_ = 0;
             this.drawObj(pm2f, data, this.offX_, this.offY_, "");
         }
         this.btnSelectTemp.move(Scr.logicw - 120, 20, 100, 25).draw();
@@ -237,12 +280,12 @@ class MainEditor {
             }
             else if (this.selectNode_.type == "copy_node") {
                 pm2f.drawText("已复制" + this.selectNode_.pnode.name_, 18, this.mousePos_.x, this.mousePos_.y, 1,
-                  1, 0, -3, -3, 0xff00ff00);
+                    1, 0, -3, -3, 0xff00ff00);
                 this.btnCancelSelect_.name_ = "取消复制";
             }
             else if (this.selectNode_.type == "cut_node") {
                 pm2f.drawText("已剪切" + this.selectNode_.pnode.name_, 18, this.mousePos_.x, this.mousePos_.y, 1,
-                  1, 0, -3, -3, 0xff00ff00);
+                    1, 0, -3, -3, 0xff00ff00);
                 this.btnCancelSelect_.name_ = "取消剪切";
             }
 
@@ -304,7 +347,7 @@ class MainEditor {
                 AttrEditor.gi().freshEditor(this.filePoint_, this.nodePoint_);
                 this.onAttributeChange("writefile");
             }
-        }        
+        }
         return true
     }
 
@@ -342,10 +385,21 @@ class MainEditor {
         }
 
         for (let i = 0; i < this.nodeBtnPoint_; i++) {
-            if (this.nodeBtns[i].procTouch(msg, x, y)) {                  
-                let nodeBtns = this.nodeBtns[i]; 
+            if (this.nodeBtns[i].procTouch(msg, x, y)) {
+                let nodeBtns = this.nodeBtns[i];
                 if (nodeBtns.isClicked()) {
                     this.buttonClickedProc(nodeBtns);
+                }
+                return true;
+            }
+        }
+
+        for (let i = 0; i < this.nodeMoreBtnPoint_; i++) {
+            if (this.nodeMoreBtns[i].procTouch(msg, x, y)) {
+                let nodeMoreBtn = this.nodeMoreBtns[i];
+                if (nodeMoreBtn.isClicked()) {
+                    this.buttonClickedProc(nodeMoreBtn);
+                    this.nodeMoreBtns[i].node_.isOpen_ = !this.nodeMoreBtns[i].node_.isOpen_;
                 }
                 return true;
             }
@@ -416,7 +470,7 @@ class MainEditor {
             pme.checkAllError();
             XMessage.gi().send("writefile", {
                 fn: pme.filePoint_,
-                data: Generator.gi().makeHcs(pme.filePoint_,pme.files_[pme.filePoint_])
+                data: Generator.gi().makeHcs(pme.filePoint_, pme.files_[pme.filePoint_])
             })
         }
         else if (type.substring(0, 13) == "change_target") {
@@ -443,7 +497,7 @@ class MainEditor {
             Lexer.FILE_AND_DATA[data.fn] = data.data;
             me.parse(data.fn)
         }
-        else if (type == "freshfiledata"){
+        else if (type == "freshfiledata") {
             Lexer.FILE_AND_DATA[data.fn] = data.data;
         }
     }
