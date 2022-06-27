@@ -80,6 +80,7 @@ static int32_t I3cTestGetTestConfig(struct I3cTestConfig *config)
     }
     HdfSbufRecycle(reply);
     HDF_LOGD("%s: Done", __func__);
+
     return HDF_SUCCESS;
 }
 
