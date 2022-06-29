@@ -17,6 +17,8 @@ KHDF_FRAMEWORK_ROOT_DIR = drivers/hdf/framework
 KHDF_AUDIO_ROOT_DIR = ../../../../../framework/model/audio
 KHDF_AUDIO_HI3516DV300_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/hispark_taurus/audio_drivers
 KHDF_AUDIO_HI3516DV300_INC_DIR = drivers/hdf/framework/../../../device/board/hisilicon/hispark_taurus/audio_drivers
+KHDF_AUDIO_HI3751V350_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/hispark_phoenix/audio_drivers
+KHDF_AUDIO_HI3751V350_INC_DIR = drivers/hdf/framework/../../../device/board/hisilicon/hispark_phoenix/audio_drivers
 KHDF_AUDIO_RK3568_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/$(DEVICE_NAME)/audio_drivers
 KHDF_AUDIO_RK3568_INC_DIR = drivers/hdf/framework/../../../device/board/hihope/$(DEVICE_NAME)/audio_drivers
 
@@ -59,6 +61,18 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_RK3568_DIR)/soc/src/rk3568_dma_adapter.o \
           $(KHDF_AUDIO_RK3568_DIR)/soc/src/rk3568_dma_ops.o
 
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3751CODEC) += \
+          $(KHDF_AUDIO_HI3751V350_DIR)/codec/hi3751/src/hi3751_codec_adapter.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/codec/hi3751/src/hi3751_codec_impl.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/codec/hi3751/src/hi3751_codec_ops.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/dsp/src/dsp_adapter.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/dsp/src/dsp_ops.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/soc/src/hi3751_dai_adapter.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/soc/src/hi3751_dai_ops.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/soc/src/hi3751_aiao_impl.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/soc/src/hi3751_dma_ops.o \
+          $(KHDF_AUDIO_HI3751V350_DIR)/soc/src/hi3751_dma_adapter.o
+
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
           $(KHDF_AUDIO_RK3568_DIR)/headset_monitor/src/analog_headset_base.o \
           $(KHDF_AUDIO_RK3568_DIR)/headset_monitor/src/analog_headset_core.o \
@@ -94,6 +108,11 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/dsp/include \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/codec/rk809_codec/include \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/include
+
+ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_HI3751CODEC) += \
+             -I$(srctree)/$(KHDF_AUDIO_HI3751V350_INC_DIR)/codec/hi3751/include \
+             -I$(srctree)/$(KHDF_AUDIO_HI3751V350_INC_DIR)/soc/include \
+             -I$(srctree)/$(KHDF_AUDIO_HI3751V350_INC_DIR)/dsp/include
 
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/input/driver \

@@ -18,6 +18,13 @@ config DRIVERS_HDF_AUDIO_RK3568
     help
         Answer Y to choice HDF Audio Codec driver.
 
+config DRIVERS_HDF_AUDIO_HI3751CODEC
+    bool "Enable HDF Audio Codec driver"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice HDF Audio Codec driver.
+
 config DRIVERS_HDF_AUDIO_ANA_HEADSET
     bool "Audio Headset support"
     default n
