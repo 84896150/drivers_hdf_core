@@ -40,35 +40,38 @@ static int32_t AdcTestGetConfig(struct AdcTestConfig *config)
     reply = HdfSbufObtain(sizeof(*config) + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("%s: failed to obtain reply", __func__);
+        HdfIoServiceRecycle(service);
         return HDF_ERR_MALLOC_FAIL;
     }
 
     ret = service->dispatcher->Dispatch(&service->object, 0, NULL, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: remote dispatch failed", __func__);
-        return ret;
+        goto EXIT;
     }
 
     if (!HdfSbufReadBuffer(reply, &buf, &len)) {
         HDF_LOGE("%s: read buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
+        ret = HDF_ERR_IO;
+        goto EXIT;
     }
 
     if (len != sizeof(*config)) {
         HDF_LOGE("%s: config size:%zu, read size:%u", __func__, sizeof(*config), len);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
+        ret = HDF_ERR_IO;
+        goto EXIT;
     }
 
     if (memcpy_s(config, sizeof(*config), buf, sizeof(*config)) != EOK) {
         HDF_LOGE("%s: memcpy buf failed", __func__);
-        HdfSbufRecycle(reply);
-        return HDF_ERR_IO;
+        ret = HDF_ERR_IO;
+        goto EXIT;
     }
-    HdfSbufRecycle(reply);
     HDF_LOGD("%s: exit", __func__);
-    return HDF_SUCCESS;
+EXIT:
+    HdfSbufRecycle(reply);
+    HdfIoServiceRecycle(service);
+    return ret;
 }
 
 struct AdcTester *AdcTesterGet(void)

@@ -380,8 +380,9 @@ int32_t HwTimerGet(DevHandle handle, uint32_t *useconds, bool *isPeriod)
     reply = HdfSbufObtainDefaultSize();
     if (reply == NULL) {
         HDF_LOGE("%s: failed to obtain reply", __func__);
+        HdfSbufRecycle(data);
         ret = HDF_ERR_MALLOC_FAIL;
-        goto __EXIT;
+        return ret;
     }
 
     if (!HdfSbufWriteUint32(data, (uint32_t)(uintptr_t)handle)) {
