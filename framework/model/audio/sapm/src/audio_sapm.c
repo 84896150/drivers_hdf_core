@@ -10,17 +10,16 @@
 #include "audio_driver_log.h"
 #include "osal_io.h"
 #include "osal_time.h"
-#include "osal_timer.h"
-#include <linux/sched.h>
-#include <linux/kthread.h>
+#include "osal_thread.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_SAPM
 
-#define SAPM_POLL_TIME  10        /* 10s */
-#define SAPM_SLEEP_TIME (3 * 6) /* 3min */
-#define SAPM_THREAD_NAME 60
-#define SAPM_POWER_DOWN 0
-#define SAPM_POWER_UP 1
+#define SAPM_POLL_TIME     10        /* 10s */
+#define SAPM_SLEEP_TIME    (3 * 6) /* 3min */
+#define SAPM_THREAD_NAME   60
+#define SAPM_POWER_DOWN    0
+#define SAPM_POWER_UP      1
+#define SAPM_STACK_SIZE    10000
 
 #define CONNECT_CODEC_PIN 1
 #define UNCONNECT_CODEC_PIN 0
@@ -1119,20 +1118,21 @@ static int AudioSapmThread(void *data)
     struct AudioCard *audioCard = (struct AudioCard *)data;
     audioCard->time = 0;
 
-    while(!kthread_should_stop())
+    while(true)
     {
         OsalSleep(SAPM_POLL_TIME);
         AudioSapmTimerCallback(audioCard);
         audioCard->time++;
     }
-
     return 0;
 }
 
 int32_t AudioSapmSleep(struct AudioCard *audioCard)
 {
     char *sapmThreadName = NULL;
-    static struct task_struct *sapmThread = NULL;
+    struct OsalThread audioSapmThread;
+    struct OsalThreadParam threadCfg;
+    int32_t ret;
     if (audioCard == NULL) {
         ADM_LOG_ERR("input param audioCard is NULL.");
         return HDF_ERR_INVALID_OBJECT;
@@ -1153,14 +1153,31 @@ int32_t AudioSapmSleep(struct AudioCard *audioCard)
         return HDF_FAILURE;
     }
 
-    sapmThread =  kthread_run(AudioSapmThread, audioCard, sapmThreadName);
-    if (sapmThread == NULL) {
-        ADM_LOG_ERR("kthread_run failed.");
-        OsalMemFree(sapmThreadName);
+    ret = OsalThreadCreate(&audioSapmThread, (OsalThreadEntry)AudioSapmThread, (void *)audioCard);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("start test thread1 fail:%d", ret);
         return HDF_FAILURE;
     }
-    g_cardNum++;
 
+    ret = memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg));
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("memset_s failed");
+        OsalThreadDestroy(&audioSapmThread);
+        OsalMemFree(sapmThreadName);
+        return ret;
+    }
+    threadCfg.name = sapmThreadName;
+    threadCfg.priority = OSAL_THREAD_PRI_DEFAULT;
+    threadCfg.stackSize = SAPM_STACK_SIZE;
+
+    ret = OsalThreadStart(&audioSapmThread, &threadCfg);
+    if (HDF_SUCCESS != ret) {
+        ADM_LOG_ERR("OsalThreadStart faile, ret=%d ", ret);
+        OsalThreadDestroy(&audioSapmThread);
+        OsalMemFree(sapmThreadName);
+        return ret;
+    }
+    g_cardNum++;
     audioCard->sapmStandbyState = false;
     audioCard->sapmSleepState = false;
     OsalMemFree(sapmThreadName);
