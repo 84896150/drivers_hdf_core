@@ -69,13 +69,13 @@ struct AudioEvent {
     uint32_t deviceType;
 };
 
-unsigned int SysReadl(unsigned long addr);
-void SysWritel(unsigned long addr, unsigned int value);
+uint32_t SysReadl(unsigned long addr);
+void SysWritel(unsigned long addr, uint32_t value);
 
 struct PlatformData *PlatformDataFromCard(const struct AudioCard *card);
 uint32_t AudioBytesToFrames(uint32_t frameBits, uint32_t size);
 int32_t AudioDataBigEndianChange(char *srcData, uint32_t audioLen, enum DataBitWidth bitWidth);
-int32_t AudioFormatToBitWidth(enum AudioFormat format, unsigned int *bitWidth);
+int32_t AudioFormatToBitWidth(enum AudioFormat format, uint32_t *bitWidth);
 int32_t AudioSetPcmInfo(struct PlatformData *platformData, const struct AudioPcmHwParams *param);
 int32_t AudioSetRenderBufInfo(struct PlatformData *data, const struct AudioPcmHwParams *param);
 int32_t AudioSetCaptureBufInfo(struct PlatformData *data, const struct AudioPcmHwParams *param);
@@ -91,8 +91,8 @@ int32_t AudioCaptureClose(const struct AudioCard *card);
 int32_t AudioHwParams(const struct AudioCard *card, const struct AudioPcmHwParams *param);
 int32_t AudioRenderPrepare(const struct AudioCard *card);
 int32_t AudioCapturePrepare(const struct AudioCard *card);
-int32_t AudioRenderTrigger(struct AudioCard *card, int cmd);
-int32_t AudioCaptureTrigger(struct AudioCard *card, int cmd);
+int32_t AudioRenderTrigger(struct AudioCard *card, int32_t cmd);
+int32_t AudioCaptureTrigger(struct AudioCard *card, int32_t cmd);
 int32_t AudioCapSilenceThresholdEvent(struct HdfDeviceObject *device, const struct AudioEvent *reportMsg);
 
 #ifdef __cplusplus

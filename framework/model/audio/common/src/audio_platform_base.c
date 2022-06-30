@@ -20,23 +20,23 @@
 #define MIN_PERIOD_SIZE (2 * 1024)
 #define SECOND_TO_MILLISECOND  1000
 
-const int PERIOD_COUNT = 4;
-const int RENDER_TRAF_BUF_SIZE = 1024;
-const int TIME_OUT_CONST = 50;
-const int SLEEP_TIME = 5;
+const int32_t PERIOD_COUNT = 4;
+const int32_t RENDER_TRAF_BUF_SIZE = 1024;
+const int32_t TIME_OUT_CONST = 50;
+const int32_t SLEEP_TIME = 5;
 #define AUDIO_PNP_MSG_LEN 256
 #define INTERLEAVED 1
-const int MIN_PERIOD_SILENCE_THRESHOLD = (4 * 1024);
-const int MAX_PERIOD_SILENCE_THRESHOLD = (16 * 1024);
+const int32_t MIN_PERIOD_SILENCE_THRESHOLD = (4 * 1024);
+const int32_t MAX_PERIOD_SILENCE_THRESHOLD = (16 * 1024);
 
-unsigned int SysReadl(unsigned long addr)
+uint32_t SysReadl(unsigned long addr)
 {
-    return *(volatile unsigned int *)(uintptr_t)(addr);
+    return *(volatile uint32_t *)(uintptr_t)(addr);
 }
 
-void SysWritel(unsigned long addr, unsigned int value)
+void SysWritel(unsigned long addr, uint32_t value)
 {
-    *(volatile unsigned int *)(uintptr_t)(addr) = value;
+    *(volatile uint32_t *)(uintptr_t)(addr) = value;
 }
 
 struct PlatformData *PlatformDataFromCard(const struct AudioCard *card)
@@ -100,7 +100,7 @@ int32_t AudioDataBigEndianChange(char *srcData, uint32_t audioLen, enum DataBitW
     return HDF_SUCCESS;
 }
 
-int32_t AudioFormatToBitWidth(enum AudioFormat format, unsigned int *bitWidth)
+int32_t AudioFormatToBitWidth(enum AudioFormat format, uint32_t *bitWidth)
 {
     if (bitWidth == NULL) {
         AUDIO_DRIVER_LOG_ERR("bitWidth is null.");
@@ -318,7 +318,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     struct PlatformData *data = NULL;
     int32_t status;
     uint32_t wPtr;
-    int ret;
+    int32_t ret;
 
     if (card == NULL || txData == NULL || txData->buf == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is null.");
@@ -459,7 +459,7 @@ int32_t AudioPcmRead(const struct AudioCard *card, struct AudioRxData *rxData)
 static int32_t MmapWriteData(struct PlatformData *data, char *tmpBuf)
 {
     uint32_t wPtr;
-    int ret;
+    int32_t ret;
 
     if (data->renderBufInfo.trafBufSize > data->renderBufInfo.cirBufSize) {
         AUDIO_DRIVER_LOG_ERR("transferFrameSize is tool big.");
@@ -732,7 +732,7 @@ int32_t AudioPcmMmapRead(const struct AudioCard *card, const struct AudioMmapDat
 
 static int32_t AudioRenderBuffInit(struct PlatformData *platformData)
 {
-    int ret;
+    int32_t ret;
 
     if (platformData == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
@@ -765,7 +765,7 @@ static int32_t AudioRenderBuffInit(struct PlatformData *platformData)
 
 static int32_t AudioRenderBuffFree(struct PlatformData *platformData)
 {
-    int ret;
+    int32_t ret;
 
     if (platformData == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is NULL.");
@@ -785,7 +785,7 @@ static int32_t AudioRenderBuffFree(struct PlatformData *platformData)
 
 static int32_t AudioCaptureBuffInit(struct PlatformData *platformData)
 {
-    int ret;
+    int32_t ret;
 
     if (platformData == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is NULL.");
@@ -817,7 +817,7 @@ static int32_t AudioCaptureBuffInit(struct PlatformData *platformData)
 
 static int32_t AudioCaptureBuffFree(struct PlatformData *platformData)
 {
-    int ret;
+    int32_t ret;
 
     if (platformData == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is NULL.");
@@ -968,7 +968,7 @@ static int32_t AudioPcmResume(struct AudioCard *card, enum AudioStreamType strea
     return HDF_SUCCESS;
 }
 
-int32_t AudioRenderTrigger(struct AudioCard *card, int cmd)
+int32_t AudioRenderTrigger(struct AudioCard *card, int32_t cmd)
 {
     struct PlatformData *data = PlatformDataFromCard(card);
     if (data == NULL) {
@@ -1015,7 +1015,7 @@ int32_t AudioRenderTrigger(struct AudioCard *card, int cmd)
     return HDF_SUCCESS;
 }
 
-int32_t AudioCaptureTrigger(struct AudioCard *card, int cmd)
+int32_t AudioCaptureTrigger(struct AudioCard *card, int32_t cmd)
 {
     struct PlatformData *data = PlatformDataFromCard(card);
     if (data == NULL) {
@@ -1065,7 +1065,7 @@ int32_t AudioCaptureTrigger(struct AudioCard *card, int cmd)
 
 static int32_t AudioDmaConfig(struct PlatformData *data, enum AudioStreamType streamType)
 {
-    int ret;
+    int32_t ret;
     if (data == NULL) {
         AUDIO_DRIVER_LOG_ERR("platform is NULL.");
         return HDF_FAILURE;
@@ -1199,8 +1199,8 @@ static int32_t AudioSetCaptureHwParams(const struct AudioPcmHwParams *param, str
 
 int32_t AudioHwParams(const struct AudioCard *card, const struct AudioPcmHwParams *param)
 {
-    const int chnlCntMin = 1;
-    const int chnlCntMax = 2;
+    const int32_t chnlCntMin = 1;
+    const int32_t chnlCntMax = 2;
     struct PlatformData *platformData;
     if (card == NULL || param == NULL || param->cardServiceName == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is NULL.");
@@ -1242,7 +1242,7 @@ int32_t AudioHwParams(const struct AudioCard *card, const struct AudioPcmHwParam
 
 int32_t AudioRenderPrepare(const struct AudioCard *card)
 {
-    int ret;
+    int32_t ret;
     struct PlatformData *platformData;
     if (card == NULL) {
         AUDIO_DRIVER_LOG_ERR("param card is NULL.");
@@ -1266,7 +1266,7 @@ int32_t AudioRenderPrepare(const struct AudioCard *card)
 
 int32_t AudioCapturePrepare(const struct AudioCard *card)
 {
-    int ret;
+    int32_t ret;
     struct PlatformData *platformData;
     if (card == NULL) {
         AUDIO_DRIVER_LOG_ERR("param card is NULL.");
@@ -1290,7 +1290,7 @@ int32_t AudioCapturePrepare(const struct AudioCard *card)
 
 int32_t AudioPcmPointer(const struct AudioCard *card, uint32_t *pointer, enum AudioStreamType streamType)
 {
-    int ret;
+    int32_t ret;
     struct PlatformData *data;
     if (card == NULL || pointer == NULL) {
         AUDIO_DRIVER_LOG_ERR("param card is NULL.");
@@ -1314,7 +1314,7 @@ int32_t AudioPcmPointer(const struct AudioCard *card, uint32_t *pointer, enum Au
 
 int32_t AudioCapSilenceThresholdEvent(struct HdfDeviceObject *device, const struct AudioEvent *reportMsg)
 {
-    int ret;
+    int32_t ret;
     char msgBuf[AUDIO_PNP_MSG_LEN] = {0};
 
     if (device == NULL || reportMsg == NULL) {

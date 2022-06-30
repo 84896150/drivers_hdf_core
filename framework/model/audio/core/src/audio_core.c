@@ -7,9 +7,9 @@
  */
 
 #include "audio_core.h"
+#include "audio_sapm.h"
 #include "audio_driver_log.h"
 #include "osal_io.h"
-#include "audio_sapm.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
@@ -398,6 +398,7 @@ int32_t AudioUpdateCodecRegBits(struct CodecDevice *codec, uint32_t reg,
     int32_t ret;
     uint32_t curValue = 0;
     uint32_t controlMask;
+    uint32_t tempVal;
     if (codec == NULL || codec->devData == NULL) {
         ADM_LOG_ERR("Invalid input param.");
         return HDF_ERR_INVALID_OBJECT;
@@ -414,6 +415,12 @@ int32_t AudioUpdateCodecRegBits(struct CodecDevice *codec, uint32_t reg,
         return HDF_FAILURE;
     }
 
+    tempVal = curValue & controlMask;
+    if (tempVal == value) {
+        OsalMutexUnlock(&codec->devData->mutex);
+        ADM_LOG_DEBUG("Success.");
+        return HDF_SUCCESS;
+    }
     curValue = (curValue & ~controlMask) | (value & controlMask);
     ret = AudioCodecWriteReg(codec, reg, curValue);
     if (ret != HDF_SUCCESS) {
@@ -433,6 +440,7 @@ int32_t AudioUpdateDaiRegBits(const struct DaiDevice *dai, uint32_t reg,
     int32_t ret;
     uint32_t curValue = 0;
     uint32_t mixerControlMask;
+    uint32_t tempVal;
     struct DaiData *data = NULL;
 
     if (dai == NULL || dai->devData == NULL) {
@@ -451,6 +459,12 @@ int32_t AudioUpdateDaiRegBits(const struct DaiDevice *dai, uint32_t reg,
         return HDF_FAILURE;
     }
 
+    tempVal = curValue & mixerControlMask;
+    if (tempVal == value) {
+        OsalMutexUnlock(&data->mutex);
+        ADM_LOG_DEBUG("Success.");
+        return HDF_SUCCESS;
+    }
     curValue = (curValue & ~mixerControlMask) | (value & mixerControlMask);
 
     ADM_LOG_DEBUG("reg: 0x%x curValue: 0x%x.", reg, curValue);
@@ -1008,7 +1022,7 @@ int32_t AudioCodecSetEnumCtrlOps(const struct AudioKcontrol *kcontrol, const str
 {
     struct CodecDevice *codec = NULL;
     struct AudioEnumKcontrol *enumCtrl = NULL;
-    int ret;
+    int32_t ret;
     if (kcontrol == NULL || (kcontrol->privateValue <= 0) || elemValue == NULL) {
         ADM_LOG_ERR("Audio input param is NULL.");
         return HDF_ERR_INVALID_OBJECT;

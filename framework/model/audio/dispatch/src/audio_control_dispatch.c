@@ -345,7 +345,7 @@ static int32_t ControlHostElemList(const struct HdfDeviceIoClient *client,
     uint64_t listAddress = 0;
     struct AudioCtlElemList ctlEleList;
     struct AudioCtlElemListReport *dst = NULL;
-    int ret;
+    int32_t ret;
 
     if ((client == NULL) || (reqData == NULL) || (rspData == NULL)) {
         ADM_LOG_ERR("Input params check error: client=%p, reqData=%p, rspData=%p.", client, reqData, rspData);
@@ -394,10 +394,10 @@ static struct ControlDispCmdHandleList g_controlDispCmdHandle[] = {
     {AUDIODRV_CTRL_IOCTRL_ELEM_LIST, ControlHostElemList},
 };
 
-static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int cmdId,
+static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int32_t cmdId,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    unsigned int i;
+    uint32_t i;
 
     if (client == NULL) {
         ADM_LOG_ERR("Input params check error: client is NULL.");
@@ -414,7 +414,7 @@ static int32_t ControlDispatch(struct HdfDeviceIoClient *client, int cmdId,
     }
 
     for (i = 0; i < HDF_ARRAY_SIZE(g_controlDispCmdHandle); ++i) {
-        if ((cmdId == (int)(g_controlDispCmdHandle[i].cmd)) && (g_controlDispCmdHandle[i].func != NULL)) {
+        if ((cmdId == (int32_t)(g_controlDispCmdHandle[i].cmd)) && (g_controlDispCmdHandle[i].func != NULL)) {
             return g_controlDispCmdHandle[i].func(client, data, reply);
         }
     }

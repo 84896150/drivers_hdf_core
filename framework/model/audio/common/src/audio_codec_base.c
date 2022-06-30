@@ -756,7 +756,7 @@ int32_t CodecDeviceInitRegConfig(const struct CodecDevice *device)
 
 int32_t CodecDaiDeviceStartupRegConfig(const struct DaiDevice *device)
 {
-    int ret;
+    int32_t ret;
     uint16_t index;
     struct AudioMixerControl *startupRegCfgItem = NULL;
     uint16_t regCfgItemCount;

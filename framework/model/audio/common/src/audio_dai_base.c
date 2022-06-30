@@ -57,7 +57,7 @@ int32_t DaiGetConfigInfo(const struct HdfDeviceObject *device, struct DaiData *d
     return HDF_SUCCESS;
 }
 
-int32_t DaiCheckSampleRate(unsigned int sampleRates)
+int32_t DaiCheckSampleRate(uint32_t sampleRates)
 {
     bool check = (sampleRates == AUDIO_SAMPLE_RATE_8000 || sampleRates == AUDIO_SAMPLE_RATE_12000 ||
                   sampleRates == AUDIO_SAMPLE_RATE_11025 || sampleRates == AUDIO_SAMPLE_RATE_16000 ||
