@@ -17,7 +17,6 @@ ohos_fuzztest("IoserviceNameGetByDeviceClassFuzzTest") {
   cflags = [
     "-g",
     "-O0",
-    "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
   if (is_standard_system) {

@@ -23,7 +23,6 @@ ohos_fuzztest("RegisterServiceStatusListenerFuzzTest") {
   cflags = [
     "-g",
     "-O0",
-    "-Wno-unused-variable",
     "-fno-omit-frame-pointer",
   ]
   sources = [ "registerservicestatuslistener_fuzzer.cpp" ]
