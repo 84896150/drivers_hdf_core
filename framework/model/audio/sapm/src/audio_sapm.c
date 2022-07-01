@@ -78,8 +78,6 @@ static int32_t g_audioSapmPowerDownSeq[] = {
     [AUDIO_SAPM_POST] = 12,           /* 12 is audio sapm power down sequences */
 };
 
-OSAL_DECLARE_TIMER(g_sleepTimer);
-
 static int32_t ConnectedInputEndPoint(const struct AudioSapmComponent *sapmComponent)
 {
     struct AudioSapmpath *path = NULL;
