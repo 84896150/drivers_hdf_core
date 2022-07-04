@@ -38,7 +38,5 @@ executable("hello_uart_dispatch") {
   cflags = [
     "-Wall",
     "-Wextra",
-    "-Wno-format",
-    "-Wno-format-extra-args",
   ]
 }

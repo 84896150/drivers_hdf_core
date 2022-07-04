@@ -35,7 +35,5 @@ executable("hello_uart") {
   cflags = [
     "-Wall",
     "-Wextra",
-    "-Wno-format",
-    "-Wno-format-extra-args",
   ]
 }

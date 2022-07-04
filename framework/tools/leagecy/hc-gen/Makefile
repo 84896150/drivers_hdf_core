@@ -6,7 +6,7 @@
 
 TARGET := hc-gen
 YACC_LEX_PREFIX :=HcsCompiler
-C_FLAGS := -std=gnu99 -Wall -Werror -Wno-attributes -Wall
+C_FLAGS := -std=gnu99 -Wall -Werror -Wall
 CC := gcc
 YACC := bison
 LEX := flex
