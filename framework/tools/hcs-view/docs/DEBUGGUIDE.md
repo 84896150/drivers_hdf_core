@@ -28,24 +28,24 @@ visual studio code 版本需1.62.0及以上。
 
 #### 安装依赖
 
-1. 右键windows开始菜单，单击运行，输入cmd，单击确定。
+1.右键windows开始菜单，单击运行，输入cmd，单击确定。
 
-	![](../figures/pic-cmd.png)
+![](../figures/pic-cmd.png)
 
-2. 在命令行中进入到hcsWebView目录下，安装依赖库，命令如下：
+2.在命令行中进入到hcsWebView目录下，安装依赖库，命令如下：
 
 		npm i
 
 #### 运行脚本
 
-1. 修改启动方式，将hcsWebView目录下build.py文件内容修改为以下代码，其他代码注释掉。
+1.修改启动方式，将hcsWebView目录下build.py文件内容修改为以下代码，其他代码注释掉。
 
 		import os
 		os.system("npx webpack --mode=development")
 
-2. 命令行进入hcsWebView目录下，运行build.py文件更新本地代码，运行成功后命令行中显示“successfully”，表示代码更新成功，如下图所示：
+2.命令行进入hcsWebView目录下，运行build.py文件更新本地代码，运行成功后命令行中显示“successfully”，表示代码更新成功，如下图所示：
 
-	![](../figures/run-code-mock-succss.png)
+![](../figures/run-code-mock-succss.png)
 
 #### 启动服务
 
@@ -75,15 +75,15 @@ visual studio code 版本需1.62.0及以上。
 
 #### 安装依赖
 
-1. 右键windows开始菜单，单击运行，输入cmd，单击确定。
+1.右键windows开始菜单，单击运行，输入cmd，单击确定。
 
-	![](../figures/pic-cmd.png)
+![](../figures/pic-cmd.png)
 
-2. 在命令行中进入到hcsVSCode目录下，安装依赖库，命令如下：
+2.在命令行中进入到hcsVSCode目录下，安装依赖库，命令如下：
 
 		npm i
 
-3. 在命令行中进入到hcsWebView目录下，安装依赖库，命令如下：
+3.在命令行中进入到hcsWebView目录下，安装依赖库，命令如下：
 
 		npm i
 
