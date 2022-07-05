@@ -19,6 +19,8 @@ KHDF_AUDIO_HI3516DV300_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/
 KHDF_AUDIO_HI3516DV300_INC_DIR = drivers/hdf/framework/../../../device/board/hisilicon/hispark_taurus/audio_drivers
 KHDF_AUDIO_RK3568_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/$(DEVICE_NAME)/audio_drivers
 KHDF_AUDIO_RK3568_INC_DIR = drivers/hdf/framework/../../../device/board/hihope/$(DEVICE_NAME)/audio_drivers
+KHDF_AUDIO_T507_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/$(PRODUCT_COMPANY)/$(DEVICE_NAME)/kernel/hdf/driver/audio
+KHDF_AUDIO_T507_INC_DIR = drivers/hdf/framework/../../../device/board/$(PRODUCT_COMPANY)/$(DEVICE_NAME)/kernel/hdf/driver/audio
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_core.o \
@@ -59,6 +61,18 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_RK3568_DIR)/soc/src/rk3568_dma_adapter.o \
           $(KHDF_AUDIO_RK3568_DIR)/soc/src/rk3568_dma_ops.o
 
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_T507) += \
+          $(KHDF_AUDIO_T507_DIR)/codec/t507/src/t507_codec_adapter.o \
+          $(KHDF_AUDIO_T507_DIR)/codec/t507/src/t507_codec_impl_linux.o \
+          $(KHDF_AUDIO_T507_DIR)/codec/t507/src/t507_codec_ops.o \
+          $(KHDF_AUDIO_T507_DIR)/dai/src/t507_dai_ahub_adapter.o \
+          $(KHDF_AUDIO_T507_DIR)/dai/src/t507_dai_ahub_impl_linux.o \
+          $(KHDF_AUDIO_T507_DIR)/dai/src/t507_dai_ahub_ops.o \
+          $(KHDF_AUDIO_T507_DIR)/dsp/src/dsp_adapter.o \
+          $(KHDF_AUDIO_T507_DIR)/dsp/src/dsp_ops.o \
+          $(KHDF_AUDIO_T507_DIR)/soc/src/t507_dma_adapter.o \
+          $(KHDF_AUDIO_T507_DIR)/soc/src/t507_dma_ops.o
+
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
           $(KHDF_AUDIO_RK3568_DIR)/headset_monitor/src/analog_headset_base.o \
           $(KHDF_AUDIO_RK3568_DIR)/headset_monitor/src/analog_headset_core.o \
@@ -94,6 +108,12 @@ ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/dsp/include \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/codec/rk809_codec/include \
              -I$(srctree)/$(KHDF_AUDIO_RK3568_INC_DIR)/include
+
+ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_T507) += \
+             -I$(srctree)/$(KHDF_AUDIO_T507_INC_DIR)/codec/t507/include \
+             -I$(srctree)/$(KHDF_AUDIO_T507_INC_DIR)/dai/include \
+             -I$(srctree)/$(KHDF_AUDIO_T507_INC_DIR)/dsp/include \
+             -I$(srctree)/$(KHDF_AUDIO_T507_INC_DIR)/soc/include
 
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_ANA_HEADSET) += \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/model/input/driver \

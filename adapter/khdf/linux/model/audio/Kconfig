@@ -27,6 +27,13 @@ config DRIVERS_HDF_AUDIO_ANA_HEADSET
             support hook interrupt mode.
             support hook adc mode.
 
+config DRIVERS_HDF_AUDIO_T507
+    bool "Enable HDF Audio Codec driver for T507"
+    default n
+    depends on DRIVERS_HDF_AUDIO
+    help
+        Answer Y to choice HDF Audio Codec driver.
+
 config DRIVERS_HDF_AUDIO_TEST
     bool "Enable HDF Audio driver Test"
     default n

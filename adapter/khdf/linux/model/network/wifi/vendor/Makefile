@@ -28,3 +28,8 @@ endif
 ifneq ($(CONFIG_DRIVERS_RTL8723DU),)
 obj-$(CONFIG_DRIVERS_RTL8723DU) += $(HDF_VENDOR_PREFIX)/$(KERNEL_SRC_DIR)/drivers/net/wireless/rtl/
 endif
+
+ifneq ($(CONFIG_DRIVERS_HDF_XR829),)
+AWWIFI_PATH := $(HDF_VENDOR_PREFIX)/device/board/$(PRODUCT_COMPANY)/$(DEVICE_NAME)/kernel/hdf/driver/wifi
+obj-$(CONFIG_DRIVERS_HDF_XR829) += $(AWWIFI_PATH)/xr829_hdfadapter/
+endif

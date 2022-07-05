@@ -741,6 +741,9 @@ int32_t NetIfRx(const struct NetDevice *netDevice, NetBuf *buff);
  */
 int32_t NetIfRxNi(const struct NetDevice *netDevice, NetBuf *buff);
 
+
+int32_t NetIfRxReceive(const struct NetDevice *netDevice, NetBuf *buff);
+
 /**
  * @brief Starts the DHCP server.
  *
