@@ -41,6 +41,13 @@ config DRIVERS_RTL8723DU
     help
       Answer Y to enable rtl8723du wifi chip driver.
 
+config DRIVERS_HDF_XR829
+    bool "Enable xr829"
+    depends on DRIVERS_HDF_WIFI
+        select DRIVERS_HDF_NETDEV_EXT
+    help
+      Answer Y to enable xr829 wifi chip driver.
+
 config AP6XXX_WIFI6_HDF
     tristate "support ap6xxx wifi6(80211ax) HDF"
     depends on DRIVERS_HDF_WIFI
