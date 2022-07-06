@@ -21,6 +21,7 @@ struct NetDeviceImpl {
 typedef enum {
     NO_IN_INTERRUPT,
     IN_INTERRUPT,
+    NAPI_METHOD,
     MAX_RECEIVE_FLAG
 } ReceiveFlag;
 

@@ -387,7 +387,11 @@ int32_t HdfWlanBusAbsInit(struct BusDev *dev, const struct HdfConfigWlanBus *bus
 
 int32_t HdfWlanConfigBusAbs(uint8_t busId)
 {
+#ifndef CONFIG_DRIVERS_HDF_XR829
     return HdfWlanConfigSDIO(busId);
+#else
+    return HDF_SUCCESS;
+#endif
 }
 
 #ifdef __cplusplus
