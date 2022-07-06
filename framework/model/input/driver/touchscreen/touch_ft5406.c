@@ -34,7 +34,7 @@ static int32_t ChipSuspend(ChipDevice *device)
     return HDF_SUCCESS;
 }
 
-static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_t writeLen, 
+static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_t writeLen,
     uint8_t *readBuf, uint32_t readLen)
 {
     struct I2cMsg msg[2];
