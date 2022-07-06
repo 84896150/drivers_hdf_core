@@ -108,7 +108,11 @@ static struct net_device *CreateNetDevice(struct NetDevice *hdfDev)
 {
     struct net_device *dev = NULL;
 
+#ifndef CONFIG_DRIVERS_HDF_XR829
     dev = alloc_etherdev(sizeof(struct FullNetDevicePriv));
+#else
+    dev = alloc_etherdev_mqs(sizeof(struct FullNetDevicePriv), 4, 1);
+#endif
     if (dev == NULL) {
         return NULL;
     }
@@ -284,6 +288,8 @@ static int32_t NetDevReceive(struct NetDeviceImpl *impl,
     buff->protocol = eth_type_trans(buff, dev);
     if (flag & IN_INTERRUPT) {
         netif_rx(buff);
+    } else if (flag & NO_IN_INTERRUPT) {
+        netif_receive_skb(buff);
     } else {
         netif_rx_ni(buff);
     }
