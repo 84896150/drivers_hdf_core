@@ -43,12 +43,14 @@
 #define FT_FINGER_POS     2
 #define FT_Y_L_POS        3
 
-#define POLL_INTERVAL_MS  17	/* 17ms = 60fps */
+#define KEY_CODE_4TH      3
+
+#define POLL_INTERVAL_MS  17 /* 17ms = 60fps */
 
 typedef struct {
     void *data;
-	struct timer_list timer;
-	struct work_struct work_poll;
+    struct timer_list timer;
+    struct work_struct work_poll;
 }FT5406TouchData;
 
 #endif

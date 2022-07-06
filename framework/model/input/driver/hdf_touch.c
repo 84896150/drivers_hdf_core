@@ -161,7 +161,8 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
 
 static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regValue)
 {
-#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || defined(CONFIG_ARCH_MESON)
+#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || \
+    defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
 #endif
     uint8_t *base = NULL;

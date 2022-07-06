@@ -31,7 +31,7 @@ static int32_t ChipSuspend(ChipDevice *device)
     return HDF_SUCCESS;
 }
 
-static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_t writeLen, 
+static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_t writeLen, \
     uint8_t *readBuf, uint32_t readLen)
 {
     struct I2cMsg msg[2];
@@ -69,21 +69,22 @@ static int32_t ChipDetect(ChipDevice *device)
     uint8_t regValue[3] = {0};
     int32_t ret;
     InputI2cClient *i2cClient = &device->driver->i2cClient;
+    const int idx0 = 0, idx1 = 1, idx2 = 2;
 
     regAddr = FTS_REG_FW_VER;
-    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[0], 1);
+    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[idx0], 1);
     CHIP_CHECK_RETURN(ret);
 
     regAddr = FTS_REG_FW_MIN_VER;
-    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[1], 1);
+    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[idx1], 1);
     CHIP_CHECK_RETURN(ret);
 
     regAddr = FTS_REG_FW_SUB_MIN_VER;
-    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[2], 1);
+    ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[idx2], 1);
     CHIP_CHECK_RETURN(ret);
 
-    HDF_LOGI("%s: Firmware version = %d.%d.%d", __func__, regValue[0],
-            regValue[1], regValue[2]);
+    HDF_LOGI("%s: Firmware version = %d.%d.%d", __func__, regValue[idx0], \
+        regValue[idx1], regValue[idx2]);
 
     (void)ChipInit(device);
     (void)ChipResume(device);
@@ -97,26 +98,30 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t poin
     int32_t ret;
     u8 reg_addr;
     u8 touchId;
+    short fingers_x;
+    short fingers_y;
     u8 buf[POINT_BUFFER_LEN] = { 0 };
     InputI2cClient *i2cClient = &device->driver->i2cClient;
 
     for (i = 0; i < pointNum; i++) {
         reg_addr = FTS_REG_X_H + (i * FT_POINT_SIZE);
-		ret = ChipRead(i2cClient, &reg_addr, 1, buf, POINT_BUFFER_LEN);
-		if (ret != HDF_SUCCESS) {
-			HDF_LOGE("Unable to fetch data, error: %d\n", ret);
-			return ret;
-		}
+        ret = ChipRead(i2cClient, &reg_addr, 1, buf, POINT_BUFFER_LEN);
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("Unable to fetch data, error: %d\n", ret);
+            return ret;
+        }
 
         touchId = (buf[FT_POINT_NUM_POS]) >> HALF_BYTE_OFFSET;
-		if (touchId >= MAX_SUPPORT_POINT) {
-			break;
-		}
+        if (touchId >= MAX_SUPPORT_POINT) {
+            break;
+        }
 
-		frame->fingers[i].x = (short) (buf[FT_X_H_POS] & 0x0F) << ONE_BYTE_OFFSET | (short) buf[FT_X_L_POS];
-		frame->fingers[i].y = (short) (buf[FT_Y_H_POS] & 0x0F) << ONE_BYTE_OFFSET | (short) buf[FT_Y_L_POS];
-		frame->fingers[i].x = device->boardCfg->attr.resolutionX - frame->fingers[i].x - 1;
-		frame->fingers[i].y = device->boardCfg->attr.resolutionY - frame->fingers[i].y - 1;
+        fingers_x = (short) (buf[FT_X_H_POS] & 0x0F) << ONE_BYTE_OFFSET;
+        frame->fingers[i].x = fingers_x | (short) buf[FT_X_L_POS];
+        fingers_y = (short) (buf[FT_Y_H_POS] & 0x0F) << ONE_BYTE_OFFSET;
+        frame->fingers[i].y = fingers_y | (short) buf[FT_Y_L_POS];
+        frame->fingers[i].x = device->boardCfg->attr.resolutionX - frame->fingers[i].x - 1;
+        frame->fingers[i].y = device->boardCfg->attr.resolutionY - frame->fingers[i].y - 1;
         frame->fingers[i].trackId = touchId;
         frame->fingers[i].status = buf[FT_EVENT_POS] >> SIX_BIT_OFFSET;
         frame->fingers[i].valid = true;
@@ -148,8 +153,8 @@ static int32_t ChipDataHandle(ChipDevice *device)
     (void)memset_s(frame, sizeof(FrameData), 0, sizeof(FrameData));
 
     pointNum = touchStatus & HALF_BYTE_MASK;
-    if (0 == pointNum) {
-        if (1 == lastTouchStatus) {
+    if (pointNum == 0) {
+        if (lastTouchStatus == 1) {
             lastTouchStatus = 0;
             frame->realPointNum = 0;
             frame->definedEvent = TOUCH_UP;
@@ -157,7 +162,9 @@ static int32_t ChipDataHandle(ChipDevice *device)
         } else {
             ret = HDF_FAILURE;
         }
-        goto EXIT;
+
+        OsalMutexUnlock(&device->driver->mutex);
+        return ret;
     }
 
     if (lastTouchStatus != touchStatus) {
@@ -173,7 +180,6 @@ static int32_t ChipDataHandle(ChipDevice *device)
         return ret;
     }
 
-EXIT:
     OsalMutexUnlock(&device->driver->mutex);
     return ret;
 }
@@ -185,13 +191,15 @@ static int32_t UpdateFirmware(ChipDevice *device)
 
 static void SetAbility(ChipDevice *device)
 {
+    const int idx0 = 0, idx1 = 1, idx2 = 2;
+
     device->driver->inputDev->abilitySet.devProp[0] = SET_BIT(INPUT_PROP_DIRECT);
     device->driver->inputDev->abilitySet.eventType[0] = SET_BIT(EV_SYN) |
         SET_BIT(EV_KEY) | SET_BIT(EV_ABS);
     device->driver->inputDev->abilitySet.absCode[0] = SET_BIT(ABS_X) | SET_BIT(ABS_Y);
     device->driver->inputDev->abilitySet.absCode[1] = SET_BIT(ABS_MT_POSITION_X) |
         SET_BIT(ABS_MT_POSITION_Y) | SET_BIT(ABS_MT_TRACKING_ID);
-    device->driver->inputDev->abilitySet.keyCode[3] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
+    device->driver->inputDev->abilitySet.keyCode[KEY_CODE_4TH] = SET_BIT(KEY_UP) | SET_BIT(KEY_DOWN);
     device->driver->inputDev->attrSet.axisInfo[ABS_X].min = 0;
     device->driver->inputDev->attrSet.axisInfo[ABS_X].max = device->boardCfg->attr.resolutionX - 1;
     device->driver->inputDev->attrSet.axisInfo[ABS_X].range = 0;
@@ -219,10 +227,10 @@ static struct TouchChipOps g_ft5406ChipOps = {
 
 static void ChipTimer(struct timer_list *t)
 {
-	FT5406TouchData *touchData = from_timer(touchData, t, timer);
+    FT5406TouchData *touchData = from_timer(touchData, t, timer);
 
-	schedule_work(&touchData->work_poll);
-	mod_timer(&touchData->timer, jiffies + msecs_to_jiffies(POLL_INTERVAL_MS));
+    schedule_work(&touchData->work_poll);
+    mod_timer(&touchData->timer, jiffies + msecs_to_jiffies(POLL_INTERVAL_MS));
 }
 
 static void ChipWorkPoll(struct work_struct *work)
@@ -324,7 +332,8 @@ static int32_t HdfFocalChipInit(struct HdfDeviceObject *device)
 
     chipDev = ChipDeviceInstance();
     if (chipDev == NULL) {
-        goto EXIT;
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     chipDev->chipCfg = chipCfg;
@@ -333,13 +342,17 @@ static int32_t HdfFocalChipInit(struct HdfDeviceObject *device)
     chipDev->vendorName = chipCfg->vendorName;
 
     if (RegisterTouchChipDevice(chipDev) != HDF_SUCCESS) {
-        goto EXIT1;
+        OsalMemFree(chipDev);
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     touchData = (FT5406TouchData *)OsalMemAlloc(sizeof(FT5406TouchData));
     if (touchData == NULL) {
         HDF_LOGE("OsalMemAlloc touchData failed!");
-        goto EXIT1;
+        OsalMemFree(chipDev);
+        FreeChipConfig(chipCfg);
+        return HDF_FAILURE;
     }
 
     (void)memset_s(touchData, sizeof(FT5406TouchData), 0, sizeof(FT5406TouchData));
@@ -355,12 +368,6 @@ static int32_t HdfFocalChipInit(struct HdfDeviceObject *device)
 
     HDF_LOGI("%s: exit succ, chipName = %s", __func__, chipCfg->chipName);
     return HDF_SUCCESS;
-
-EXIT1:
-    OsalMemFree(chipDev);
-EXIT:
-    FreeChipConfig(chipCfg);
-    return HDF_FAILURE;
 }
 
 struct HdfDriverEntry g_touchFocalChipEntry = {
