@@ -103,16 +103,16 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t poin
 {
     int32_t i;
     int32_t ret;
-    uint8_t reg_addr;
+    uint8_t regAddr;
     uint8_t touchId;
-    short fingers_x;
-    short fingers_y;
+    short fingersX;
+    short fingersY;
     uint8_t buf[POINT_BUFFER_LEN] = { 0 };
     InputI2cClient *i2cClient = &device->driver->i2cClient;
 
     for (i = 0; i < pointNum; i++) {
-        reg_addr = FTS_REG_X_H + (i * FT_POINT_SIZE);
-        ret = ChipRead(i2cClient, &reg_addr, 1, buf, POINT_BUFFER_LEN);
+        regAddr = FTS_REG_X_H + (i * FT_POINT_SIZE);
+        ret = ChipRead(i2cClient, &regAddr, 1, buf, POINT_BUFFER_LEN);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("Unable to fetch data, error: %d\n", ret);
             return ret;
@@ -123,10 +123,10 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t poin
             break;
         }
 
-        fingers_x = (short) (buf[FT_X_H_POS] & 0x0F) << ONE_BYTE_OFFSET;
-        frame->fingers[i].x = fingers_x | (short) buf[FT_X_L_POS];
-        fingers_y = (short) (buf[FT_Y_H_POS] & 0x0F) << ONE_BYTE_OFFSET;
-        frame->fingers[i].y = fingers_y | (short) buf[FT_Y_L_POS];
+        fingersX = (short) (buf[FT_X_H_POS] & 0x0F) << ONE_BYTE_OFFSET;
+        frame->fingers[i].x = fingersX | (short) buf[FT_X_L_POS];
+        fingersY = (short) (buf[FT_Y_H_POS] & 0x0F) << ONE_BYTE_OFFSET;
+        frame->fingers[i].y = fingersY | (short) buf[FT_Y_L_POS];
         frame->fingers[i].x = device->boardCfg->attr.resolutionX - frame->fingers[i].x - 1;
         frame->fingers[i].y = device->boardCfg->attr.resolutionY - frame->fingers[i].y - 1;
         frame->fingers[i].trackId = touchId;
