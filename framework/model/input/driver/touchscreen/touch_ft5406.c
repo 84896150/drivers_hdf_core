@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -18,20 +18,23 @@
 
 static int32_t ChipInit(ChipDevice *device)
 {
+    (void)device;
     return HDF_SUCCESS;
 }
 
 static int32_t ChipResume(ChipDevice *device)
 {
+    (void)device;
     return HDF_SUCCESS;
 }
 
 static int32_t ChipSuspend(ChipDevice *device)
 {
+    (void)device;
     return HDF_SUCCESS;
 }
 
-static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_t writeLen, \
+static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_t writeLen, 
     uint8_t *readBuf, uint32_t readLen)
 {
     struct I2cMsg msg[2];
@@ -57,6 +60,7 @@ static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_
 
     ret = I2cTransfer(client->i2cHandle, msg, i);
     if (ret < 0) {
+        HDF_LOGE("I2cTransfer error: %d\n", ret);
         return HDF_FAILURE;
     }
 
@@ -66,10 +70,12 @@ static int32_t ChipRead(const InputI2cClient *client, uint8_t *writeBuf, uint32_
 static int32_t ChipDetect(ChipDevice *device)
 {
     uint8_t regAddr;
-    uint8_t regValue[3] = {0};
+    uint8_t regValue[FTS_REG_IDX_MAX] = {0};
     int32_t ret;
     InputI2cClient *i2cClient = &device->driver->i2cClient;
-    const int idx0 = 0, idx1 = 1, idx2 = 2;
+    const int idx0 = 0;
+    const int idx1 = 1;
+    const int idx2 = 2;
 
     regAddr = FTS_REG_FW_VER;
     ret = InputI2cRead(i2cClient, &regAddr, 1, &regValue[idx0], 1);
@@ -89,6 +95,7 @@ static int32_t ChipDetect(ChipDevice *device)
     (void)ChipInit(device);
     (void)ChipResume(device);
     (void)ChipSuspend(device);
+
     return HDF_SUCCESS;
 }
 
@@ -96,11 +103,11 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t poin
 {
     int32_t i;
     int32_t ret;
-    u8 reg_addr;
-    u8 touchId;
+    uint8_t reg_addr;
+    uint8_t touchId;
     short fingers_x;
     short fingers_y;
-    u8 buf[POINT_BUFFER_LEN] = { 0 };
+    uint8_t buf[POINT_BUFFER_LEN] = { 0 };
     InputI2cClient *i2cClient = &device->driver->i2cClient;
 
     for (i = 0; i < pointNum; i++) {
@@ -138,7 +145,7 @@ static int32_t ParsePointData(ChipDevice *device, FrameData *frame, uint8_t poin
 
 static int32_t ChipDataHandle(ChipDevice *device)
 {
-    uint8_t reg = 0x02;
+    uint8_t reg = FTS_REG_STATUS;
     uint8_t touchStatus = 0;
     static uint8_t lastTouchStatus = 0;
     uint8_t pointNum = 0;
@@ -281,7 +288,7 @@ static void FreeChipConfig(TouchChipCfg *config)
     if (config->pwrSeq.suspend.buf != NULL) {
         OsalMemFree(config->pwrSeq.suspend.buf);
     }
-    
+
     OsalMemFree(config);
 }
 

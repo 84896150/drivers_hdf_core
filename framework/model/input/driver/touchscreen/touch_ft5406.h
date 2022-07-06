@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -9,11 +9,14 @@
 #ifndef TOUCH_FT5406_H
 #define TOUCH_FT5406_H
 
+#define FTS_REG_IDX_MAX    3
+
 /* register address */
 #define FTS_REG_FW_VER          0xA6    // FW version
 #define FTS_REG_FW_MIN_VER      0xB2    // FW min version
 #define FTS_REG_FW_SUB_MIN_VER  0xB3    // FW sub min version
-#define FTS_REG_X_H	            0x03
+#define FTS_REG_STATUS          0x02
+#define FTS_REG_X_H             0x03
 
 /* the config for parsing event buffer */
 #define HALF_BYTE_MASK     0x0F
