@@ -16,6 +16,8 @@
 #include "input_i2c_ops.h"
 #include "touch_ft5406.h"
 
+static FT5406TouchData *g_touchData = NULL;
+
 static int32_t ChipInit(ChipDevice *device)
 {
     (void)device;
@@ -324,7 +326,6 @@ static int32_t HdfFocalChipInit(struct HdfDeviceObject *device)
 {
     TouchChipCfg *chipCfg = NULL;
     ChipDevice *chipDev = NULL;
-    FT5406TouchData *touchData = NULL;
 
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
@@ -347,6 +348,7 @@ static int32_t HdfFocalChipInit(struct HdfDeviceObject *device)
     chipDev->ops = &g_ft5406ChipOps;
     chipDev->chipName = chipCfg->chipName;
     chipDev->vendorName = chipCfg->vendorName;
+    device->priv = (void *)chipDev;
 
     if (RegisterTouchChipDevice(chipDev) != HDF_SUCCESS) {
         OsalMemFree(chipDev);
@@ -354,33 +356,52 @@ static int32_t HdfFocalChipInit(struct HdfDeviceObject *device)
         return HDF_FAILURE;
     }
 
-    touchData = (FT5406TouchData *)OsalMemAlloc(sizeof(FT5406TouchData));
-    if (touchData == NULL) {
+    g_touchData = (FT5406TouchData *)OsalMemAlloc(sizeof(FT5406TouchData));
+    if (g_touchData == NULL) {
         HDF_LOGE("OsalMemAlloc touchData failed!");
         OsalMemFree(chipDev);
         FreeChipConfig(chipCfg);
         return HDF_FAILURE;
     }
 
-    (void)memset_s(touchData, sizeof(FT5406TouchData), 0, sizeof(FT5406TouchData));
+    (void)memset_s(g_touchData, sizeof(FT5406TouchData), 0, sizeof(FT5406TouchData));
 
     if (chipDev->driver != NULL) {
-        touchData->data = chipDev->driver;
+        g_touchData->data = chipDev->driver;
     }
 
-    INIT_WORK(&touchData->work_poll, ChipWorkPoll);
-    timer_setup(&touchData->timer, ChipTimer, 0);
-    touchData->timer.expires = jiffies + msecs_to_jiffies(POLL_INTERVAL_MS);
-    add_timer(&touchData->timer);
+    INIT_WORK(&g_touchData->work_poll, ChipWorkPoll);
+    timer_setup(&g_touchData->timer, ChipTimer, 0);
+    g_touchData->timer.expires = jiffies + msecs_to_jiffies(POLL_INTERVAL_MS);
+    add_timer(&g_touchData->timer);
 
     HDF_LOGI("%s: exit succ, chipName = %s", __func__, chipCfg->chipName);
     return HDF_SUCCESS;
+}
+
+static void HdfFocalChipRelease(struct HdfDeviceObject *device)
+{
+    HDF_LOGI("HdfFocalChipRelease enter.");
+
+    if (device == NULL || device->priv == NULL) {
+        HDF_LOGE("%s: param is null", __func__);
+        return;
+    }
+
+    del_timer_sync(&g_touchData->timer);
+    cancel_work_sync(&g_touchData->work_poll);
+
+    OsalMemFree(g_touchData);
+    g_touchData = NULL;
+
+    return;
 }
 
 struct HdfDriverEntry g_touchFocalChipEntry = {
     .moduleVersion = 1,
     .moduleName = "HDF_TOUCH_FT5406",
     .Init = HdfFocalChipInit,
+    .Release = HdfFocalChipRelease,
 };
 
 HDF_INIT(g_touchFocalChipEntry);
