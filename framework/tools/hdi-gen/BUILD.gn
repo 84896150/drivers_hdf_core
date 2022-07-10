@@ -7,7 +7,7 @@
 action("build_hdi_gen") {
   script = "/usr/bin/env"
   if (defined(ohos_lite)) {
-    script = "//build/lite/run_shell_cmd.py"
+    script = "//build/hb/run_shell_cmd.py"
   }
 
   outputs = [ "$target_out_dir/hdi-gen" ]

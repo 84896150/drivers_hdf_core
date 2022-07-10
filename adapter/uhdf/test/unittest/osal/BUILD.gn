@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/lite/config/test.gni")
+import("//build/hb/config/test.gni")
 
 unittest("hdf_adapter_uhdf_test_osal") {
   output_extension = "bin"

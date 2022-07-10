@@ -72,7 +72,7 @@ template("hdi") {
     deps = [ "$hdf_fwk_path/tools/hdi-gen:build_hdi_gen" ]
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
-      script = "//build/lite/run_shell_cmd.py"
+      script = "//build/hb/run_shell_cmd.py"
     }
 
     sources = invoker.sources

@@ -4,7 +4,7 @@
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
-import("//build/lite/config/component/lite_component.gni")
+import("//build/hb/config/component/lite_component.gni")
 
 lite_component("hello_uart_sample") {
   features = [

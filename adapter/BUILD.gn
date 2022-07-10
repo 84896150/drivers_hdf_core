@@ -47,7 +47,7 @@ if (defined(ohos_lite)) {
     hcs_dir =
         rebase_path("//vendor/$product_company/$product_name/hdf_config/uhdf/")
     if (exec_script(
-        "//build/lite/run_shell_cmd.py",
+        "//build/hb/run_shell_cmd.py",
         [ "if [ -d ${hcs_dir} ]; then echo true; else echo false; fi" ],
         "value")) {
       deps += [
