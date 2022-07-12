@@ -54,27 +54,27 @@ struct HdfDriverEntry g_i2cDriverEntry = {
 HDF_INIT(g_i2cDriverEntry);
 
 /*Set JieLi iic Default*/
-struct hw_iic_config hw_iic_cfg[] = { 
-	{
-	.port = 'A',
-	.baudrate = 100000,
-	.hdrive   = 0,
-	.io_filter = 1,
-	.io_pu      =1,
-	},
+struct hw_iic_config hw_iic_cfg[] = {
+    {
+        .port = 'A',
+        .baudrate = 100000,
+        .hdrive   = 0,
+        .io_filter = 1,
+        .io_pu      = 1,
+    },
 };
 struct iic_iomapping {
     u8 scl;
     u8 sda;
-	char group;
+    char group;
 };
 static const struct iic_iomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
-{	
-    {IO_PORT_DP, IO_PORT_DM},    //group a
-    {IO_PORTC_04, IO_PORTC_05},  //group b
-    {IO_PORTB_04, IO_PORTB_06},  //group c
-    {IO_PORTA_05, IO_PORTA_06},  //group d
-},
+    {
+        {IO_PORT_DP, IO_PORT_DM},    //group a
+        {IO_PORTC_04, IO_PORTC_05},  //group b
+        {IO_PORTB_04, IO_PORTB_06},  //group c
+        {IO_PORTA_05, IO_PORTA_06},  //group d
+    },
 };
 
 
@@ -90,12 +90,12 @@ int32_t InitI2cDevice(struct I2cDevice *device)
     int32_t ret = -1;
     uint32_t i2cPort;
     struct I2cResource *resource = NULL;
-    
+
     if (device == NULL) {
         HDF_LOGE("device is NULL\r\n");
         return HDF_ERR_INVALID_PARAM;
     }
-    
+
     resource = &device->resource;
     device->port = resource->port;
     i2cPort = device->port;
@@ -114,17 +114,17 @@ int32_t InitI2cDevice(struct I2cDevice *device)
         return HDF_ERR_TIMEOUT;
     }
 
-	for(int i = 0;i < GROUP_PIN_NUM ;i++) {
-		if( resource->sclPin == hwiic_iomap[device->port][i].scl
-				&& resource->sdaPin == hwiic_iomap[device->port][i].sda) {
-			hw_iic_cfg[device->port].port = 'A' + i;
-			break;
-		}
-	}
+    for (int i = 0; i < GROUP_PIN_NUM ; i++) {
+        if (resource->sclPin == hwiic_iomap[device->port][i].scl
+            && resource->sdaPin == hwiic_iomap[device->port][i].sda) {
+            hw_iic_cfg[device->port].port = 'A' + i;
+            break;
+        }
+    }
 
-	HDF_LOGI("hw iic port%d  group%c\n",device->port,hw_iic_cfg[device->port].port);
+    HDF_LOGI("hw iic port%d  group%c\n", device->port, hw_iic_cfg[device->port].port);
 
-	hw_iic_init(device->port);
+    hw_iic_init(device->port);
     OsalMutexUnlock(&device->mutex);
     return HDF_SUCCESS;
 }
@@ -134,7 +134,7 @@ static int32_t HostRestI2cDevice(struct I2cDevice *device)
     int32_t ret = -1;
     struct I2cResource *resource = NULL;
     uint32_t i2cPort;
-    
+
     if (device == NULL) {
         HDF_LOGE("%s %d device is null\r\n", __func__, __LINE__);
         return HDF_ERR_INVALID_PARAM;
@@ -158,7 +158,7 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
                                      const struct DeviceResourceNode *resourceNode)
 {
     /* uint32_t tempPin = 0; */
-	char * tempString = NULL;
+    char *tempString = NULL;
     struct I2cResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
     if (device == NULL || resourceNode == NULL) {
@@ -181,27 +181,27 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
         return HDF_FAILURE;
     }
 
-	if (dri->GetString(resourceNode, "sclPin", &tempString, NULL) != HDF_SUCCESS) {
-		HDF_LOGE("i2c config sclPin fail\r\n");
-		return HDF_FAILURE;
-	}
-	
-	resource->sclPin = get_gpio(tempString); //gpio.h
+    if (dri->GetString(resourceNode, "sclPin", &tempString, NULL) != HDF_SUCCESS) {
+        HDF_LOGE("i2c config sclPin fail\r\n");
+        return HDF_FAILURE;
+    }
+
+    resource->sclPin = get_gpio(tempString); //gpio.h
 
     /* resource->sclPin = ((tempPin / DEC_NUM) * GROUP_PIN_NUM) + (tempPin % DEC_NUM); */
 
-	if (dri->GetString(resourceNode, "sdaPin", &tempString, NULL) != HDF_SUCCESS) {
-		HDF_LOGE("i2c config sdaPin fail\r\n");
-		return HDF_FAILURE;
-	}
-	resource->sdaPin = get_gpio(tempString); //gpio.h
+    if (dri->GetString(resourceNode, "sdaPin", &tempString, NULL) != HDF_SUCCESS) {
+        HDF_LOGE("i2c config sdaPin fail\r\n");
+        return HDF_FAILURE;
+    }
+    resource->sdaPin = get_gpio(tempString); //gpio.h
     /* resource->sdaPin = ((tempPin / DEC_NUM) * GROUP_PIN_NUM) + (tempPin % DEC_NUM); */
 
     if (dri->GetUint32(resourceNode, "speed", &resource->speed, 0) != HDF_SUCCESS) {
         HDF_LOGE("i2c config speed fail\r\n");
         return HDF_FAILURE;
     }
-	HDF_LOGI("i2c%d speed:%d\n",resource->port,resource->speed);
+    HDF_LOGI("i2c%d speed:%d\n", resource->port, resource->speed);
     return HDF_SUCCESS;
 }
 
@@ -302,24 +302,25 @@ static void i2cDriverRelease(struct HdfDeviceObject *device)
     }
 }
 
-static char i2c_read_byte(uint8_t ifack,uint8_t ifstop)
+static char i2c_read_byte(uint8_t ifack, uint8_t ifstop)
 {
-	uint8_t data;
-	hw_iic_start(0);
-	data = hw_iic_rx_byte(0,ifack);
-	if(ifstop)
-	hw_iic_stop(0);
-	return data;
+    uint8_t data;
+    hw_iic_start(0);
+    data = hw_iic_rx_byte(0, ifack);
+    if (ifstop) {
+        hw_iic_stop(0);
+    }
+    return data;
 
 }
 
-static void i2c_write_byte(uint8_t data,uint8_t ifstart)
+static void i2c_write_byte(uint8_t data, uint8_t ifstart)
 {
-	if(ifstart) {
-		hw_iic_start(0);
-	}
-	hw_iic_tx_byte(0,data);
-	hw_iic_stop(0);
+    if (ifstart) {
+        hw_iic_start(0);
+    }
+    hw_iic_tx_byte(0, data);
+    hw_iic_stop(0);
 }
 
 
@@ -337,9 +338,9 @@ static int32_t i2c_send(struct I2cMsg *msg)
                 ifstop = 1;
             }
 
-			msg->buf[j] = i2c_read_byte(ifack,ifstop);
+            msg->buf[j] = i2c_read_byte(ifack, ifstop);
 
-			HDF_LOGI("%s read %c\n",__func__,msg->buf[j]);
+            HDF_LOGI("%s read %c\n", __func__, msg->buf[j]);
         }
     } else {
         ifack = msg->flags & I2C_FLAG_IGNORE_NO_ACK ? 0 : 1;
@@ -347,8 +348,8 @@ static int32_t i2c_send(struct I2cMsg *msg)
             if (((msg->flags & I2C_FLAG_NO_START) == 0) && (j == 0)) {
                 ifstart = 1;
             }
-			HDF_LOGI("%s write %x\n",__func__,msg->buf[j]);
-			i2c_write_byte(msg->buf[j],ifstart);
+            HDF_LOGI("%s write %x\n", __func__, msg->buf[j]);
+            i2c_write_byte(msg->buf[j], ifstart);
         }
     }
 }
@@ -357,7 +358,7 @@ static int32_t i2c_transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16
 {
     int ret;
     struct I2cMsg *msg = NULL;
-    
+
     uint32_t i2cPort;
     if (device == NULL || msgs == NULL) {
         HDF_LOGE("%s: device or  msgs is NULL\r\n", __func__);

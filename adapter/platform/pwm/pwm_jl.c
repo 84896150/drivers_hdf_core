@@ -15,6 +15,13 @@
 #include "gpio.h"
 #include "mcpwm.h"
 
+
+#define PWM_CH0   0
+#define PWM_CH1   1
+#define PWM_CH2   2
+#define PWM_CH3   3
+#define PWM_CH4   4
+#define PWM_CH5   5
 struct PwmResource {
     uint32_t channel;
     uint32_t aligned_mode;
@@ -39,7 +46,7 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     struct pwm_platform_data pwmCfg;
     uint32_t aligned_mode;
     uint32_t channel;
-	
+
     if (pwm == NULL || config == NULL) {
         HDF_LOGE("%s\r\n", __FUNCTION__);
         return HDF_FAILURE;
@@ -50,56 +57,56 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
         return HDF_FAILURE;
     }
 
-	pwmCfg.duty = config->duty * 100;
-	pwmCfg.frequency = prvPwm->resource.freq;
-	channel = prvPwm->resource.channel;
+    pwmCfg.duty = config->duty * 100;
+    pwmCfg.frequency = prvPwm->resource.freq;
+    channel = prvPwm->resource.channel;
     aligned_mode = prvPwm->resource.aligned_mode;
-	pwmCfg.complementary_en = 1;                   //两个引脚的波形, 1: 互补, 0: 同步;
+    pwmCfg.complementary_en = 1;                   //两个引脚的波形, 1: 互补, 0: 同步;
 
-    switch(channel) {
-        case 0:
-            pwmCfg.pwm_ch_num = pwm_ch0;
-            pwmCfg.pwm_timer_num = pwm_timer0;
-            pwmCfg.h_pin = IO_PORTA_00;
-            pwmCfg.l_pin = IO_PORTA_01;
-            break;
-        case 1:
-            pwmCfg.pwm_ch_num = pwm_ch1;
-            pwmCfg.pwm_timer_num = pwm_timer1;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = IO_PORTB_02;
-            break;
-        case 2:
-            pwmCfg.pwm_ch_num = pwm_ch2;
-            pwmCfg.pwm_timer_num = pwm_timer2;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = -1;
-            break;
-        case 3:
-            pwmCfg.pwm_ch_num = pwm_ch3;
-            pwmCfg.pwm_timer_num = pwm_timer3;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = IO_PORTB_10;
-            break;
-        case 4:
-            pwmCfg.pwm_ch_num = pwm_ch4;
-            pwmCfg.pwm_timer_num = pwm_timer4;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = IO_PORTA_10;
-            break;
-        case 5:
-            pwmCfg.pwm_ch_num = pwm_ch5;
-            pwmCfg.pwm_timer_num = pwm_timer5;
-            pwmCfg.h_pin = IO_PORTC_04;
-            pwmCfg.l_pin = IO_PORTC_05;
-            break;
-        default:
-            break;
+    switch (channel) {
+    case PWM_CH0:
+        pwmCfg.pwm_ch_num = pwm_ch0;
+        pwmCfg.pwm_timer_num = pwm_timer0;
+        pwmCfg.h_pin = IO_PORTA_00;
+        pwmCfg.l_pin = IO_PORTA_01;
+        break;
+    case PWM_CH1:
+        pwmCfg.pwm_ch_num = pwm_ch1;
+        pwmCfg.pwm_timer_num = pwm_timer1;
+        pwmCfg.h_pin = -1;
+        pwmCfg.l_pin = IO_PORTB_02;
+        break;
+    case PWM_CH2:
+        pwmCfg.pwm_ch_num = pwm_ch2;
+        pwmCfg.pwm_timer_num = pwm_timer2;
+        pwmCfg.h_pin = -1;
+        pwmCfg.l_pin = -1;
+        break;
+    case PWM_CH3:
+        pwmCfg.pwm_ch_num = pwm_ch3;
+        pwmCfg.pwm_timer_num = pwm_timer3;
+        pwmCfg.h_pin = -1;
+        pwmCfg.l_pin = IO_PORTB_10;
+        break;
+    case PWM_CH4:
+        pwmCfg.pwm_ch_num = pwm_ch4;
+        pwmCfg.pwm_timer_num = pwm_timer4;
+        pwmCfg.h_pin = -1;
+        pwmCfg.l_pin = IO_PORTA_10;
+        break;
+    case PWM_CH5:
+        pwmCfg.pwm_ch_num = pwm_ch5;
+        pwmCfg.pwm_timer_num = pwm_timer5;
+        pwmCfg.h_pin = IO_PORTC_04;
+        pwmCfg.l_pin = IO_PORTC_05;
+        break;
+    default:
+        break;
     }
 
-    if(aligned_mode == 0) {
+    if (aligned_mode == 0) {
         pwmCfg.pwm_aligned_mode = pwm_edge_aligned;       // 边沿对齐模式
-    }else {
+    } else {
         pwmCfg.pwm_aligned_mode = pwm_center_aligned;     // 中心对齐模式
     }
 

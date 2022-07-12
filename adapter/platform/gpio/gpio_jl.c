@@ -11,7 +11,6 @@
 #include "gpio_if.h"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #include "hcs_macro.h"
-//#include "hdf_config_macro.h"
 #else
 #include "device_resource_if.h"
 #endif
@@ -22,6 +21,7 @@
 #define JL_GROUP_MAX 4
 #define JL_BIT_MAX   16
 #define JL_IO_MAX_GPIO_PIN_NUM 48
+#define JL_GPIO_PRI  3
 static uint32_t user_realpin = -1;
 
 struct GpioResource {
@@ -56,10 +56,10 @@ ___interrupt
 GpioIrqFunc GpioIrqHdl()
 {
     uint16_t ret;
-	if(JL_WAKEUP->CON3 & BIT(0)) {
-		JL_WAKEUP->CON2 |= BIT(0) ;
+    if (JL_WAKEUP->CON3 & BIT(0)) {
+        JL_WAKEUP->CON2 |= BIT(0) ;
         GpioCntlrIrqCallback(&g_gpioCntlr, user_realpin);
-	}
+    }
 
 }
 
@@ -90,13 +90,8 @@ struct GpioMethod g_GpioCntlrMethod = {
 static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val)
 {
     (void)cntlr;
-    /* uint32_t gnum, bnum, realpin; */
-    /* gnum = jlToGroupNum(gpio); */
-    /* bnum = jlToBitNum(gpio); */
-    /* realpin = jlToGpioNum(gnum, bnum); */
-	/* printf("IO_PORTB_02:%d   gpio:%d\n",IO_PORTB_02,gpio); */
-	uint32_t ret = gpio_direction_output(gpio, (uint32_t)val);
-    if(ret != 0) {
+    uint32_t ret = gpio_direction_output(gpio, (uint32_t)val);
+    if (ret != 0) {
         HDF_LOGE("%s gpio_write failed", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -106,12 +101,7 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
 static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
     (void)cntlr;
-    /* uint32_t gnum, bnum, realpin; */
-	uint16_t value;
-    /* gnum = jlToGroupNum(gpio); */
-    /* bnum = jlToBitNum(gpio); */
-    /* realpin = jlToGpioNum(gnum, bnum); */
-	/* gpio_direction_input(gpio); */
+    uint16_t value;
     value = gpio_read(gpio);
     *val = value;
     return HDF_SUCCESS;
@@ -119,22 +109,17 @@ static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val
 
 static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t dir)
 {
-    /* (void)cntlr; */
-    /* uint32_t gnum, bnum, realpin; */
     int32_t direction;
-    /* gnum = jlToGroupNum(gpio); */
-    /* bnum = jlToBitNum(gpio); */
-    /* realpin = jlToGpioNum(gnum, bnum); */
     switch (dir) {
-        case GPIO_DIR_OUT:
-            direction = 0;
-            break;
-        case GPIO_DIR_IN:
-            direction = 1;
-            break;
+    case GPIO_DIR_OUT:
+        direction = 0;
+        break;
+    case GPIO_DIR_IN:
+        direction = 1;
+        break;
     }
     int ret = gpio_set_direction(gpio, direction);
-    if(ret != 0) {
+    if (ret != 0) {
         HDF_LOGE("%s gpio_set_direction failed", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
@@ -145,21 +130,17 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
 static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mode)
 {
     (void)cntlr;
-    /* uint32_t gnum, bnum, realpin; */
     uint8_t trigger_edge;
-    /* gnum = jlToGroupNum(gpio); */
-    /* bnum = jlToBitNum(gpio); */
-    /* realpin = jlToGpioNum(gnum, bnum); */
 
     switch (mode) {
-        case OSAL_IRQF_TRIGGER_RISING:
-            trigger_edge = 0;
-            break;
-        case OSAL_IRQF_TRIGGER_FALLING:
-            trigger_edge = 1;
-            break;
-        default:
-            break;
+    case OSAL_IRQF_TRIGGER_RISING:
+        trigger_edge = 0;
+        break;
+    case OSAL_IRQF_TRIGGER_FALLING:
+        trigger_edge = 1;
+        break;
+    default:
+        break;
     }
 
     JL_WAKEUP->CON0 &= ~BIT(0);
@@ -175,12 +156,12 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
         gpio_set_pull_down(gpio, 0);
     }
 
-	user_realpin = gpio;
-    request_irq(IRQ_PORT_IDX, 3, (void *)GpioIrqHdl, 0); //$)AW"2aVP6O:/J}
-    JL_IOMAP->CON2 &= ~(0b111111 << 0);                 //$)AJ9SCinputchannel 0
+    user_realpin = gpio;
+    request_irq(IRQ_PORT_IDX, JL_GPIO_PRI, (void *)GpioIrqHdl, 0);
+    JL_IOMAP->CON2 &= ~(0b111111 << 0);                
     JL_IOMAP->CON2 |= (gpio << 0);
-    JL_WAKEUP->CON2 |= BIT(0);                          //$)AGeR;4Npnd
-    JL_WAKEUP->CON0 |= BIT(0);                          //$)AR}=EVP6OJ9D\
+    JL_WAKEUP->CON2 |= BIT(0);                          
+    JL_WAKEUP->CON0 |= BIT(0);                          
 
     return HDF_SUCCESS;
 }
@@ -189,17 +170,12 @@ static int32_t GpioDevUnSetIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
     (void)cntlr;
     uint32_t gnum, bnum, realpin;
-    /* gnum = jlToGroupNum(gpio); */
-    /* bnum = jlToBitNum(gpio); */
-    /* realpin = jlToGpioNum(gnum, bnum); */
 
     JL_WAKEUP->CON0 &= ~BIT(0);
-    /* if (realpin == user_realpin) { */
-        gpio_set_die(gpio, 0);
-        gpio_set_direction(gpio, 1);
-        gpio_set_pull_up(gpio, 0);
-        gpio_set_pull_down(gpio, 0);
-    /* } */
+    gpio_set_die(gpio, 0);
+    gpio_set_direction(gpio, 1);
+    gpio_set_pull_up(gpio, 0);
+    gpio_set_pull_down(gpio, 0);
     return HDF_SUCCESS;
 }
 
@@ -233,20 +209,12 @@ static uint32_t GetGpioDeviceResource(struct GpioDevice *device)
         HDF_LOGE("%s: resource is NULL", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-printf("%s", HCS_PROP(HCS_NODE(HCS_ROOT, device_info), match_attr)); 
-/*    resource->groupNum = HCS_PROP(PLATFORM_GPIO_CONFIG, groupNum);
-    resource->iogroupNum = HCS_PROP(PLATFORM_GPIO_CONFIG, iogroupNum);
-    resource->pinNum = HCS_PROP(PLATFORM_GPIO_CONFIG, pinNum);
-
-    HDF_LOGE("%s: resource->groupNum %d\n", __func__, resource->groupNum);
-    HDF_LOGE("%s: resource->iogroupNum %d\n", __func__, resource->iogroupNum);
-    HDF_LOGE("%s: resource->pinNum %d\n", __func__, resource->pinNum);
-*/
+    printf("%s", HCS_PROP(HCS_NODE(HCS_ROOT, device_info), match_attr));
     return HDF_SUCCESS;
 }
 #else
 static uint32_t GetGpioDeviceResource(struct GpioDevice *device,
-    const struct DeviceResourceNode *resourceNode)
+                                      const struct DeviceResourceNode *resourceNode)
 {
     printf("%s: entry!\n", __func__);
     uint32_t relPin;

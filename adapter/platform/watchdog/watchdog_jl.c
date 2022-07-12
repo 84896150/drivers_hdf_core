@@ -14,7 +14,30 @@
 #include "watchdog_if.h"
 #include "watchdog_core.h"
 #include "los_typedef.h"
-#include "wdt.h" 
+#include "wdt.h"
+
+#define OHOS_WDT_1MS       1
+#define OHOS_WDT_2MS       2
+#define OHOS_WDT_4MS       4
+#define OHOS_WDT_8MS       8
+#define OHOS_WDT_16MS      16
+#define OHOS_WDT_32MS      32
+#define OHOS_WDT_64MS      64
+#define OHOS_WDT_128MS     128
+#define OHOS_WDT_256MS     256
+#define OHOS_WDT_512MS     512
+#define OHOS_WDT_1S        1000
+#define OHOS_WDT_2S        2000
+#define OHOS_WDT_4S        4000
+#define OHOS_WDT_8S        8000
+#define OHOS_WDT_16S       16000
+#define OHOS_WDT_32S       32000
+#define JL_WDT_1S          1024
+#define JL_WDT_2S          2048
+#define JL_WDT_4S          4096
+#define JL_WDT_8S          8192
+#define JL_WDT_16S         16384
+#define JL_WDT_32S         32768
 
 struct WatchdogResource {
     int32_t watchdogId;
@@ -23,7 +46,7 @@ struct WatchdogResource {
 struct WatchdogDevice {
     struct WatchdogResource resource;
 };
-    
+
 static int g_watchdogStart;
 static int g_watchdogTimeout;
 
@@ -52,63 +75,63 @@ static int32_t WatchdogDevStart(struct WatchdogCntlr *watchdogCntlr)
 
 static int32_t WatchdogDevSetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32_t seconds)
 {
-printf("%s: seconds %d\n", __func__, seconds);
-    switch(seconds) {
-        case(1):
-            seconds = WDT_1MS;
-            break;
-        case(2):
-            seconds = WDT_2MS;
-            break;
-        case(4):
-            seconds = WDT_4MS;
-            break;
-        case(8):
-            seconds = WDT_8MS;
-            break;
-        case(16):
-            seconds = WDT_16MS;
-            break;
-        case(32):
-            seconds = WDT_32MS;
-            break;
-        case(64):
-            seconds = WDT_64MS;
-            break;
-        case(128):
-            seconds = WDT_128MS;
-            break;
-        case(256):
-            seconds = WDT_256MS;
-            break;
-        case(512):
-            seconds = WDT_512MS;
-            break;
-        case(1000):
-            seconds = WDT_1S;
-            break;
-        case(2000):
-            seconds = WDT_2S;
-            break;
-        case(4000):
-            seconds = WDT_4S;
-            break;
-        case(8000):
-            seconds = WDT_8S;
-            break;
-        case(16000):
-            seconds = WDT_16S;
-            break;
-        case(32000):
-            seconds = WDT_32S;
-            break;
-        default:
-            break;
+    printf("%s: seconds %d\n", __func__, seconds);
+    switch (seconds) {
+    case OHOS_WDT_1MS:
+        seconds = WDT_1MS;
+        break;
+    case OHOS_WDT_2MS:
+        seconds = WDT_2MS;
+        break;
+    case OHOS_WDT_4MS:
+        seconds = WDT_4MS;
+        break;
+    case OHOS_WDT_8MS:
+        seconds = WDT_8MS;
+        break;
+    case OHOS_WDT_16MS:
+        seconds = WDT_16MS;
+        break;
+    case OHOS_WDT_32MS:
+        seconds = WDT_32MS;
+        break;
+    case OHOS_WDT_64MS:
+        seconds = WDT_64MS;
+        break;
+    case OHOS_WDT_128MS:
+        seconds = WDT_128MS;
+        break;
+    case OHOS_WDT_256MS:
+        seconds = WDT_256MS;
+        break;
+    case OHOS_WDT_512MS:
+        seconds = WDT_512MS;
+        break;
+    case OHOS_WDT_1S:
+        seconds = WDT_1S;
+        break;
+    case OHOS_WDT_2S:
+        seconds = WDT_2S;
+        break;
+    case OHOS_WDT_4S:
+        seconds = WDT_4S;
+        break;
+    case OHOS_WDT_8S:
+        seconds = WDT_8S;
+        break;
+    case OHOS_WDT_16S:
+        seconds = WDT_16S;
+        break;
+    case OHOS_WDT_32S:
+        seconds = WDT_32S;
+        break;
+    default:
+        break;
     }
-        
+
     wdt_init(seconds);
     if (g_watchdogStart == 1) {
-      wdt_enable();
+        wdt_enable();
     }
     return HDF_SUCCESS;
 }
@@ -121,37 +144,37 @@ static int32_t WatchdogDevGetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32
     }
 
     g_watchdogTimeout = wdt_get_time();
-printf("%s: g_watchdogTimeout %d\n", __func__, g_watchdogTimeout);
+
     switch(g_watchdogTimeout) {
-        case(1):
-        case(2):
-        case(4):
-        case(8):
-        case(16):
-        case(32):
-        case(64):
-        case(128):
-        case(256):
-        case(512):
+        case(OHOS_WDT_1MS):
+        case(OHOS_WDT_2MS):
+        case(OHOS_WDT_4MS):
+        case(OHOS_WDT_8MS):
+        case(OHOS_WDT_16MS):
+        case(OHOS_WDT_32MS):
+        case(OHOS_WDT_64MS):
+        case(OHOS_WDT_128MS):
+        case(OHOS_WDT_256MS):
+        case(OHOS_WDT_512MS):
             *seconds = g_watchdogTimeout;
             break;
-        case(1024):
-            *seconds = 1000;
+        case(JL_WDT_1S):
+            *seconds = OHOS_WDT_1S;
             break;
-        case(2048):
-            *seconds = 2000;
+        case(JL_WDT_2S):
+            *seconds = OHOS_WDT_2S;
             break;
-        case(4096):
-            *seconds = 4000;
+        case(JL_WDT_4S):
+            *seconds = OHOS_WDT_4S;
             break;
-        case(8192):
-            *seconds = 8000;
+        case(JL_WDT_8S):
+            *seconds = OHOS_WDT_8S;
             break;
-        case(16384):
-            *seconds = 16000;
+        case(JL_WDT_16S):
+            *seconds = OHOS_WDT_16S;
             break;
-        case(32768):
-            *seconds = 32000;
+        case(JL_WDT_32S):
+            *seconds = OHOS_WDT_32S;
             break;
         default:
             break;
@@ -304,7 +327,7 @@ static int32_t WatchdogDriverInit(struct HdfDeviceObject *device)
     }
 
     watchdogCntlr->ops = &g_WatchdogCntlrMethod;
-  
+
     HDF_LOGE("WatchdogDriverInit success!\r\n");
     return ret;
 }

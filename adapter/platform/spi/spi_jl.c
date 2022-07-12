@@ -21,6 +21,7 @@
 #define SPI_DMA_MAX 65535
 #define MAX_SPI_NUMBER 1
 #define TIMEOUT 1000
+#define PORT_STRING_OFFSET  0x5
 
 struct SpiResource {
     uint32_t num;
@@ -33,7 +34,7 @@ struct SpiResource {
     uint32_t spiMosiPin;
     uint32_t spiMisoPin;
     uint32_t spiCsPin;
-	uint8_t    port;
+    uint8_t    port;
 };
 
 struct SpiDevice {
@@ -43,10 +44,10 @@ struct SpiDevice {
 };
 
 struct spi_platform_data spi1_p_data = {
-	    .port = 'A',
-	    .mode = SPI_MODE_BIDIR_1BIT,
-	    .clk = 1000000,
-	    .role = SPI_ROLE_MASTER,
+    .port = 'A',
+    .mode = SPI_MODE_BIDIR_1BIT,
+    .clk = 1000000,
+    .role = SPI_ROLE_MASTER,
 };
 
 static void SpiIomuxInit(struct SpiDevice *spiDevice)
@@ -63,24 +64,11 @@ static void SpiIomuxInit(struct SpiDevice *spiDevice)
     resource = &spiDevice->resource;
     if (resource == NULL) {
         HDF_LOGE("resource is null\r\n");
-		/* return HDF_ERR_INVALID_OBJECT; */
     }
 
-    /* spiPort = spiDevice->spiId; */
- 
+
 }
 
-/**
- * Spi send
- *
- * @param[in]  spiId   the spi bus id
- * @param[in]  data     spi send data
- * @param[in]  size     spi send data size
- * @param[in]  timeOut  timeOut in milisecond, set this value to HAL_WAIT_FOREVER
- *                      if you want to wait forever
- *
- * @return  0 : on success, EIO : if the SPI device could not be initialised
- */
 int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret = 0;
@@ -104,28 +92,17 @@ int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t si
         HDF_LOGE("%s spi_mutex wait error = 0x%X!\r\n", __func__, status);
         return HDF_ERR_TIMEOUT;
     }
-	ret = spi_dma_send(spiDevice->spiId,data,size);
-	if(ret == size) {
-		ret = 0;
-	} else {
+    ret = spi_dma_send(spiDevice->spiId, data, size);
+    if (ret == size) {
+        ret = 0;
+    } else {
         HDF_LOGE("%s spi dma send error = 0x%X!\r\n", __func__, ret);
-		ret = -1;
-	}
+        ret = -1;
+    }
     OsalMutexUnlock(&spiDevice->mutex);
     return ret;
 }
 
-/**
- * SpiRecv
- *
- * @param[in]   spiId   the spi bus id
- * @param[out]  data     spi recv data
- * @param[in]   size     spi recv data size
- * @param[in]   timeOut  timeOut in milisecond, set this value to HAL_WAIT_FOREVER
- *                       if you want to wait forever
- *
- * @return  0 : on success, EIO : if the SPI device could not be initialised
- */
 int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret = 0;
@@ -162,13 +139,13 @@ int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, ui
     }
     remainder = len <= SPI_DMA_MAX ? len : SPI_DMA_MAX;
 
-    ret = spi_dma_recv(spiDevice->spiId,data, remainder);
-	if(ret == remainder) {
-		ret = 0;
-	} else {
+    ret = spi_dma_recv(spiDevice->spiId, data, remainder);
+    if (ret == remainder) {
+        ret = 0;
+    } else {
         HDF_LOGE("%s spi dma recv error = 0x%X!\r\n", __func__, ret);
-		ret = -1;
-	}
+        ret = -1;
+    }
 
     len -= remainder;
     data += remainder;
@@ -182,7 +159,7 @@ int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, ui
 }
 
 int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
-    uint16_t rxSize)
+                       uint16_t rxSize)
 {
     int32_t ret;
     int32_t status;
@@ -199,16 +176,16 @@ int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t tx
         HDF_LOGE("%s spi_mutex wait error = 0x%X!\r\n", __func__, status);
         return HDF_ERR_TIMEOUT;
     }
-	ret = HalSpiSend(spiDevice,txData,txSize,TIMEOUT);
-	if(ret !=0) {
+    ret = HalSpiSend(spiDevice, txData, txSize, TIMEOUT);
+    if (ret != 0) {
         HDF_LOGE("spi dma tail fail %d\r\n", ret);
-	}
+    }
 
-	ret = HalSpiRecv(spiDevice,rxData,rxSize,TIMEOUT);
-	if(ret != 0) {
-	
+    ret = HalSpiRecv(spiDevice, rxData, rxSize, TIMEOUT);
+    if (ret != 0) {
+
         HDF_LOGE("spi dma tail fail %d\r\n", ret);
-	}
+    }
 
     OsalMutexUnlock(&spiDevice->mutex);
     return ret;
@@ -227,14 +204,13 @@ static int32_t InitSpiDevice(struct SpiDevice *spiDevice)
     spiPort = spiDevice->spiId;
 
     SpiIomuxInit(spiDevice);
-	
+
     if (spiDevice->mutex.realMutex == NULL) {
         if (OsalMutexInit(&spiDevice->mutex) != HDF_SUCCESS) {
             HDF_LOGE("spi Mutex create failed!\r\n");
             return HDF_FAILURE;
         }
     }
-    /* tls_spi_init(); */
     return HDF_SUCCESS;
 }
 
@@ -274,13 +250,13 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
         HDF_LOGE("spi config read transmode fail\r\n");
         return HDF_FAILURE;
     }
-	char * tmpString = NULL;
-    if (dri->GetString(resourceNode, "port", &tmpString, NULL) != HDF_SUCCESS) {
+    char *port = NULL;
+    if (dri->GetString(resourceNode, "port", &port, NULL) != HDF_SUCCESS) {
         HDF_LOGE("spi config read port fail\r\n");
         return HDF_FAILURE;
     }
 
-	resource->port = tmpString[5];
+    resource->port = port[PORT_STRING_OFFSET];
 
 
 
@@ -441,14 +417,14 @@ static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
         return HDF_DEV_ERR_NO_DEVICE;
     }
     resource = &spiDevice->resource;
-	spi1_p_data.port  = resource->port;
-	spi1_p_data.clk   = resource->speed;
-	spi1_p_data.role  = 0; //master
-	spi1_p_data.mode  = 0; //resource->mode;
+    spi1_p_data.port  = resource->port;
+    spi1_p_data.clk   = resource->speed;
+    spi1_p_data.role  = 0; 
+    spi1_p_data.mode  = 0; 
 
 
-	HDF_LOGI("port%c  clk:%d   rold:%d   mode:%d\n",spi1_p_data.port,spi1_p_data.clk,spi1_p_data.role,spi1_p_data.mode);
-	spi_open(spiDevice->spiId);
+    HDF_LOGI("port%c  clk:%d   rold:%d   mode:%d\n", spi1_p_data.port, spi1_p_data.clk, spi1_p_data.role, spi1_p_data.mode);
+    spi_open(spiDevice->spiId);
 
     return HDF_SUCCESS;
 }
@@ -521,7 +497,6 @@ static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, 
         msg = &spiMsg[i];
         /* pull down cs at first */
         if (spiDevice->resource.spiCsSoft) {
-            /* tls_gpio_write(WM_IO_PB_00 + spiDevice->resource.spiCsPin, 0); */
         }
 
         if ((msg->wbuf != NULL) && (msg->rbuf == NULL)) {
@@ -535,9 +510,8 @@ static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, 
         }
 
         /* pull pull up cs at the end */
-/*         if (msg->csChange && spiDevice->resource.spiCsSoft) {
-             tls_gpio_write(WM_IO_PB_00 + spiDevice->resource.spiCsPin, 1);
-        } */
+        if (msg->csChange && spiDevice->resource.spiCsSoft) {
+        }
     }
     return HDF_SUCCESS;
 }
