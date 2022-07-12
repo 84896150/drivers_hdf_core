@@ -19,8 +19,8 @@
 		 				├── figures        # 图片文件               
 		 				├── hcsVSCode      # VSCode工程代码，用于hcs文件与hcsWebView之间传递数据
 		 				├── hcsWebView     # hcs可视化处理WebView源码，用于界面的绘制呈现等处理
-		      			│		├── src    # hcs源码 
-		     			│		└── test   # 工具单元测试用例
+		      			│	    ├── src    # hcs源码 
+		     			│	    └── test   # 工具单元测试用例
 		 				├── FAQ.md         # 工具约束说明  
 		 				├── OWNER          # 所有者说明
 		 				└── README_zh.md   # 工具使用指导文档 
@@ -57,7 +57,7 @@ HDF驱动开发者
 		drivers_hdf_core\framework\tools\hcs-view\examples
 		```
 	
-	在window环境下，根据输入文件生成可视化窗口，如下图所示：
+在window环境下，根据输入文件生成可视化窗口，如下图所示：
 
  	![](./figures/node-config.png)
 
