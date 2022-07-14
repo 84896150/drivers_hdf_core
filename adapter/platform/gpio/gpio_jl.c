@@ -111,12 +111,12 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
 {
     int32_t direction;
     switch (dir) {
-    case GPIO_DIR_OUT:
-        direction = 0;
-        break;
-    case GPIO_DIR_IN:
-        direction = 1;
-        break;
+    	case GPIO_DIR_OUT:
+        	direction = false;
+        	break;
+    	case GPIO_DIR_IN:
+        	direction = true;
+        	break;
     }
     int ret = gpio_set_direction(gpio, direction);
     if (ret != 0) {
@@ -133,14 +133,14 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
     uint8_t trigger_edge;
 
     switch (mode) {
-    case OSAL_IRQF_TRIGGER_RISING:
-        trigger_edge = 0;
-        break;
-    case OSAL_IRQF_TRIGGER_FALLING:
-        trigger_edge = 1;
-        break;
-    default:
-        break;
+    	case OSAL_IRQF_TRIGGER_RISING:
+        	trigger_edge = false;
+        	break;
+    	case OSAL_IRQF_TRIGGER_FALLING:
+        	trigger_edge = true;
+        	break;
+    	default:
+        	break;
     }
 
     JL_WAKEUP->CON0 &= ~BIT(0);
@@ -158,11 +158,10 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
 
     user_realpin = gpio;
     request_irq(IRQ_PORT_IDX, JL_GPIO_PRI, (void *)GpioIrqHdl, 0);
-    JL_IOMAP->CON2 &= ~(0b111111 << 0);                
+    JL_IOMAP->CON2 &= ~(0b111111 << 0);
     JL_IOMAP->CON2 |= (gpio << 0);
-    JL_WAKEUP->CON2 |= BIT(0);                          
-    JL_WAKEUP->CON0 |= BIT(0);                          
-
+    JL_WAKEUP->CON2 |= BIT(0);
+    JL_WAKEUP->CON0 |= BIT(0);
     return HDF_SUCCESS;
 }
 

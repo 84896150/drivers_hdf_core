@@ -29,19 +29,17 @@ struct I2cResource {
 };
 
 struct I2cDevice {
-    uint16_t devAddr;      /**< slave device addr */
-    uint32_t addressWidth; /**< Addressing mode: 7 bit or 10 bit */
+    uint16_t devAddr;      
+    uint32_t addressWidth;
     struct OsalMutex mutex;
     uint32_t port;
     struct I2cResource resource;
 };
 
-/* HdfDriverEntry method definitions */
 static int32_t i2cDriverBind(struct HdfDeviceObject *device);
 static int32_t i2cDriverInit(struct HdfDeviceObject *device);
 static void i2cDriverRelease(struct HdfDeviceObject *device);
 
-/* HdfDriverEntry definitions */
 struct HdfDriverEntry g_i2cDriverEntry = {
     .moduleVersion = 1,
     .moduleName = "HDF_PLATFORM_I2C",
@@ -50,10 +48,8 @@ struct HdfDriverEntry g_i2cDriverEntry = {
     .Release = i2cDriverRelease,
 };
 
-// Initialize HdfDriverEntry
 HDF_INIT(g_i2cDriverEntry);
 
-/*Set JieLi iic Default*/
 struct hw_iic_config hw_iic_cfg[] = {
     {
         .port = 'A',
@@ -70,15 +66,13 @@ struct iic_iomapping {
 };
 static const struct iic_iomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
     {
-        {IO_PORT_DP, IO_PORT_DM},    //group a
-        {IO_PORTC_04, IO_PORTC_05},  //group b
-        {IO_PORTB_04, IO_PORTB_06},  //group c
-        {IO_PORTA_05, IO_PORTA_06},  //group d
+        {IO_PORT_DP, IO_PORT_DM},    
+        {IO_PORTC_04, IO_PORTC_05},  
+        {IO_PORTB_04, IO_PORTB_06},  
+        {IO_PORTA_05, IO_PORTA_06},  
     },
 };
 
-
-/* I2cHostMethod method definitions */
 static int32_t i2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t count);
 
 struct I2cMethod g_i2cHostMethod = {
@@ -157,7 +151,6 @@ static int32_t HostRestI2cDevice(struct I2cDevice *device)
 static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
                                      const struct DeviceResourceNode *resourceNode)
 {
-    /* uint32_t tempPin = 0; */
     char *tempString = NULL;
     struct I2cResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
@@ -186,16 +179,13 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
         return HDF_FAILURE;
     }
 
-    resource->sclPin = get_gpio(tempString); //gpio.h
-
-    /* resource->sclPin = ((tempPin / DEC_NUM) * GROUP_PIN_NUM) + (tempPin % DEC_NUM); */
+    resource->sclPin = get_gpio(tempString);
 
     if (dri->GetString(resourceNode, "sdaPin", &tempString, NULL) != HDF_SUCCESS) {
         HDF_LOGE("i2c config sdaPin fail\r\n");
         return HDF_FAILURE;
     }
-    resource->sdaPin = get_gpio(tempString); //gpio.h
-    /* resource->sdaPin = ((tempPin / DEC_NUM) * GROUP_PIN_NUM) + (tempPin % DEC_NUM); */
+    resource->sdaPin = get_gpio(tempString);
 
     if (dri->GetUint32(resourceNode, "speed", &resource->speed, 0) != HDF_SUCCESS) {
         HDF_LOGE("i2c config speed fail\r\n");

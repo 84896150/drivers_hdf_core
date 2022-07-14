@@ -65,8 +65,6 @@ static void SpiIomuxInit(struct SpiDevice *spiDevice)
     if (resource == NULL) {
         HDF_LOGE("resource is null\r\n");
     }
-
-
 }
 
 int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
@@ -214,7 +212,6 @@ static int32_t InitSpiDevice(struct SpiDevice *spiDevice)
     return HDF_SUCCESS;
 }
 
-/* get spi config from hcs file */
 static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct DeviceResourceNode *resourceNode)
 {
     uint32_t relPin;
@@ -258,9 +255,6 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
 
     resource->port = port[PORT_STRING_OFFSET];
 
-
-
-
     return HDF_SUCCESS;
 }
 
@@ -291,7 +285,6 @@ int32_t AttachSpiDevice(struct SpiCntlr *spiCntlr, struct HdfDeviceObject *devic
     spiCntlr->busNum = spiDevice->spiId;
     return InitSpiDevice(spiDevice);
 }
-/* SPI Method */
 static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg);
 static int32_t SpiDevSetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg);
 static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, uint32_t count);
@@ -306,12 +299,10 @@ struct SpiCntlrMethod g_SpiCntlrMethod = {
     .Close = SpiDevClose,
 };
 
-/* HdfDriverEntry method definitions */
 static int32_t SpiDriverBind(struct HdfDeviceObject *device);
 static int32_t SpiDriverInit(struct HdfDeviceObject *device);
 static void SpiDriverRelease(struct HdfDeviceObject *device);
 
-/* HdfDriverEntry definitions */
 struct HdfDriverEntry g_SpiDriverEntry = {
     .moduleVersion = 1,
     .moduleName = "HDF_PLATFORM_SPI",
@@ -369,8 +360,6 @@ static int32_t SpiDriverInit(struct HdfDeviceObject *device)
         return HDF_FAILURE;
     }
 
-
-
     spiCntlr->method = &g_SpiCntlrMethod; // register callback
 
     return ret;
@@ -419,11 +408,9 @@ static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
     resource = &spiDevice->resource;
     spi1_p_data.port  = resource->port;
     spi1_p_data.clk   = resource->speed;
-    spi1_p_data.role  = 0; 
-    spi1_p_data.mode  = 0; 
+    spi1_p_data.role  = SPI_ROLE_MASTER;
+    spi1_p_data.mode  = SPI_MODE_BIDIR_1BIT;
 
-
-    HDF_LOGI("port%c  clk:%d   rold:%d   mode:%d\n", spi1_p_data.port, spi1_p_data.clk, spi1_p_data.role, spi1_p_data.mode);
     spi_open(spiDevice->spiId);
 
     return HDF_SUCCESS;
