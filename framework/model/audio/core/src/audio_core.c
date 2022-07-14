@@ -331,7 +331,7 @@ int32_t AudioDaiReadReg(const struct DaiDevice *dai, uint32_t reg, uint32_t *val
 
     if (dai == NULL || dai->devData == NULL || dai->devData->Read == NULL || val == NULL) {
         ADM_LOG_ERR("Input param is NULL.");
-        return HDF_FAILURE;
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = dai->devData->Read(dai, reg, val);
@@ -347,7 +347,7 @@ int32_t AudioDaiWriteReg(const struct DaiDevice *dai, uint32_t reg, uint32_t val
     int32_t ret;
     if (dai == NULL || dai->devData == NULL || dai->devData->Write == NULL) {
         ADM_LOG_ERR("Input param codec is NULL.");
-        return HDF_FAILURE;
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = dai->devData->Write(dai, reg, val);
@@ -364,7 +364,7 @@ int32_t AudioCodecReadReg(const struct CodecDevice *codec, uint32_t reg, uint32_
 
     if (codec == NULL || codec->devData == NULL || codec->devData->Read == NULL || val == NULL) {
         ADM_LOG_ERR("Input param codec is NULL.");
-        return HDF_FAILURE;
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = codec->devData->Read(codec, reg, val);
@@ -381,7 +381,7 @@ int32_t AudioCodecWriteReg(const struct CodecDevice *codec, uint32_t reg, uint32
 
     if (codec == NULL || codec->devData == NULL || codec->devData->Write == NULL) {
         ADM_LOG_ERR("Input param codec is NULL.");
-        return HDF_FAILURE;
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     ret = codec->devData->Write(codec, reg, val);
@@ -466,8 +466,6 @@ int32_t AudioUpdateDaiRegBits(const struct DaiDevice *dai, uint32_t reg,
         return HDF_SUCCESS;
     }
     curValue = (curValue & ~mixerControlMask) | (value & mixerControlMask);
-
-    ADM_LOG_DEBUG("reg: 0x%x curValue: 0x%x.", reg, curValue);
     ret = AudioDaiWriteReg(dai, reg, curValue);
     if (ret != HDF_SUCCESS) {
         OsalMutexUnlock(&data->mutex);
@@ -515,41 +513,43 @@ int32_t AudioCodecRegUpdate(struct CodecDevice *codec, struct AudioMixerControl 
 
 int32_t AudioCodecMuxRegUpdate(struct CodecDevice *codec, struct AudioEnumKcontrol *enumCtrl, const uint32_t *value)
 {
+    uint32_t val[2];
+    int32_t ret;
+
     if (codec == NULL || enumCtrl == NULL || value == NULL) {
         ADM_LOG_ERR("input para is null.");
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (enumCtrl->values != NULL) {
-        if (AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft,
-            enumCtrl->values[value[0]]) != HDF_SUCCESS) {
-            ADM_LOG_ERR("update reg bits fail!");
-            return HDF_FAILURE;
-        }
-
-        if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
-            if (AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight,
-                enumCtrl->values[value[1]]) != HDF_SUCCESS) {
-                ADM_LOG_ERR("update reg bits fail!");
-                return HDF_FAILURE;
-            }
-        }
+        val[0] = enumCtrl->values[value[0]];
+        val[1] = enumCtrl->values[value[1]];
     } else {
-        if (AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft,
-            value[0]) != HDF_SUCCESS) {
-            ADM_LOG_ERR("update reg bits fail!");
-            return HDF_FAILURE;
-        }
-
-        if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
-            if (AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight,
-                value[1]) != HDF_SUCCESS) {
-                ADM_LOG_ERR("update reg bits fail!");
-                return HDF_FAILURE;
-            }
-        }
+        val[0] = value[0];
+        val[1] = value[1];
     }
 
+    if (val[0] > enumCtrl->max) {
+        ADM_LOG_ERR("Audio invalid value=%d", val[0]);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft, val[0]);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("update left reg bits fail!");
+        return ret;
+    }
+
+    if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
+        if (val[1] > enumCtrl->max) {
+            ADM_LOG_ERR("Audio invalid value=%d", val[1]);
+            return HDF_ERR_INVALID_OBJECT;
+        }
+        ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight, val[1]);
+        if (ret != HDF_SUCCESS) {
+            ADM_LOG_ERR("update right reg bits fail!");
+            return ret;
+        }
+    }
     return HDF_SUCCESS;
 }
 
@@ -655,7 +655,7 @@ int32_t AudioAddControls(struct AudioCard *audioCard, const struct AudioKcontrol
 
     if (audioCard == NULL) {
         ADM_LOG_ERR("Input params check error: audioCard is NULL.");
-        return HDF_FAILURE;
+        return HDF_ERR_INVALID_OBJECT;
     }
     if (controls == NULL) {
         ADM_LOG_ERR("Input params check error: controls is NULL.");
@@ -969,52 +969,44 @@ int32_t AudioCodecSetCtrlOps(const struct AudioKcontrol *kcontrol, const struct 
 int32_t AudioCodecSetEnumRegUpdate(struct CodecDevice *codec, const struct AudioEnumKcontrol *enumCtrl,
     uint32_t *value)
 {
+    uint32_t val[2];
+    int32_t ret;
+
     if (codec == NULL || enumCtrl == NULL || value == NULL) {
         ADM_LOG_ERR("Audio input param is NULL.");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    if (value[0] > enumCtrl->max - 1) {
-        ADM_LOG_ERR("Audio invalid value=%d", value[0]);
+    if (enumCtrl->values != NULL) {
+        val[0] = enumCtrl->values[value[0]];
+        val[1] = enumCtrl->values[value[1]];
+    } else {
+        val[0] = value[0];
+        val[1] = value[1];
+    }
+
+    if (val[0] > enumCtrl->max) {
+        ADM_LOG_ERR("Audio invalid value=%d", val[0]);
         return HDF_ERR_INVALID_OBJECT;
     }
+    ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft, val[0]);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
+        return HDF_FAILURE;
+    }
 
-    if (enumCtrl->values != NULL) {
-        if (AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft,
-            enumCtrl->values[value[0]]) != HDF_SUCCESS) {
+    if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
+        if (val[1] > enumCtrl->max) {
+            ADM_LOG_ERR("Audio invalid value=%d", val[1]);
+            return HDF_ERR_INVALID_OBJECT;
+        }
+        ret = AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight, val[1]);
+        if (ret != HDF_SUCCESS) {
             ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
             return HDF_FAILURE;
-        }
-        if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
-            if (value[1] > enumCtrl->max - 1) {
-                ADM_LOG_ERR("Audio invalid value=%d", value[1]);
-                return HDF_ERR_INVALID_OBJECT;
-            }
-            if (AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight,
-                enumCtrl->values[value[1]]) != HDF_SUCCESS) {
-                ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
-                return HDF_FAILURE;
-            }
-        }
-    } else {
-        if (AudioUpdateCodecRegBits(codec, enumCtrl->reg, enumCtrl->mask, enumCtrl->shiftLeft,
-            value[0]) != HDF_SUCCESS) {
-            ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
-            return HDF_FAILURE;
-        }
-
-        if (enumCtrl->reg != enumCtrl->reg2 || enumCtrl->shiftLeft != enumCtrl->shiftRight) {
-            if (value[1] > enumCtrl->max - 1) {
-                ADM_LOG_ERR("Audio invalid value=%d", value[1]);
-                return HDF_ERR_INVALID_OBJECT;
-            }
-            if (AudioUpdateCodecRegBits(codec, enumCtrl->reg2, enumCtrl->mask, enumCtrl->shiftRight,
-                value[1]) != HDF_SUCCESS) {
-                ADM_LOG_ERR("Audio codec stereo update reg bits fail.");
-                return HDF_FAILURE;
-            }
         }
     }
+
     return HDF_SUCCESS;
 }
 

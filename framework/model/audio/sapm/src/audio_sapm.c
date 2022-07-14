@@ -1296,7 +1296,7 @@ static int32_t MuxUpdatePowerStatus(const struct AudioKcontrol *kcontrol, int32_
         if (path->sink->sapmType != AUDIO_SAPM_MUX &&
             path->sink->sapmType != AUDIO_SAPM_VIRT_MUX &&
             path->sink->sapmType != AUDIO_SAPM_VALUE_MUX) {
-            ADM_LOG_DEBUG("no mux device.");
+            ADM_LOG_ERR("no mux device.");
             return HDF_DEV_ERR_NO_DEVICE;
         }
 
