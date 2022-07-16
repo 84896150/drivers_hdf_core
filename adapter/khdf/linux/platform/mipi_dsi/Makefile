@@ -16,9 +16,14 @@ include drivers/hdf/khdf/platform/platform.mk
 
 obj-y  += $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/mipi/mipi_dsi_core.o \
           $(HDF_PLATFORM_FRAMEWORKS_ROOT)/src/mipi/mipi_dsi_if.o
+
+ifeq ($(CONFIG_DRIVERS_HDF_PLATFORM_IMX8MM_MIPI_DSI), y)
+obj-$(CONFIG_DRM_MIPI_DSI) += mipi_drm_imx8mm.o
+else
 obj-$(CONFIG_DRM_MIPI_DSI) += mipi_drm_adapter.o
 
 obj-y  += mipi_tx_dev.o \
           mipi_tx_hi35xx.o
+endif
 
 EXTRA_CFLAGS += -Wno-error=date-time
