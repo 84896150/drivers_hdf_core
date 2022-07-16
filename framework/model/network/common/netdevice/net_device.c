@@ -409,13 +409,14 @@ int32_t NetIfSetStatus(const struct NetDevice *netDevice, NetIfStatus status)
 }
 
 #if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+#define NAPI_ADD_NUM   (64)
 void NetIfNapiAdd(struct NetDevice *netDevice, struct napi_struct *napi,
     int (*poll)(struct napi_struct *, int), int weight)
 {
     struct NetDeviceImpl *ndImpl = GetImplByNetDevice(netDevice);
 
     if (ndImpl != NULL && ndImpl->interFace != NULL && ndImpl->interFace->netif_napi_add != NULL) {
-        ndImpl->interFace->netif_napi_add(ndImpl, napi, poll, 64);
+        ndImpl->interFace->netif_napi_add(ndImpl, napi, poll, NAPI_ADD_NUM);
     }
     HDF_LOGE("%s: NetIfNapiAdd failed.", __func__);
 }

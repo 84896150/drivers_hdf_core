@@ -241,12 +241,13 @@ static int32_t NetDevDelete(struct NetDeviceImpl *impl)
 }
 
 #if defined(CONFIG_DRIVERS_HDF_IMX8MM_ETHERNET)
+#define NAPI_ADD_NUM   (64)
 void NetDevApiAdd(struct NetDeviceImpl *impl, struct napi_struct *napi,
     int (*poll)(struct napi_struct *, int), int weight)
 {
     struct net_device *dev = GetDevFromDevImpl(impl);
 
-    netif_napi_add(dev, napi, poll, 64);
+    netif_napi_add(dev, napi, poll, NAPI_ADD_NUM);
 }
 
 struct netdev_queue *NetDevGetTxQueue(struct NetDeviceImpl *impl, unsigned int queue)
