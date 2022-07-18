@@ -58,7 +58,7 @@ int32_t AudioSocRegisterPlatformTest(void)
         return HDF_FAILURE;
     }
 
-    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_dev0");
+    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_primary_dev0");
     (void)memset_s(&platformData, sizeof(struct PlatformData), 0, sizeof(struct PlatformData));
     platformData.drvPlatformName = "dma_service_0";
     if (AudioSocRegisterPlatform(device, &platformData) != HDF_SUCCESS) {
@@ -79,7 +79,7 @@ int32_t AudioSocRegisterDaiTest(void)
         return HDF_FAILURE;
     }
 
-    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_dev0");
+    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_primary_dev0");
     (void)memset_s(&data, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     data.drvDaiName = "dai_service";
     if (AudioSocRegisterDai(device, &data) != HDF_SUCCESS) {
@@ -103,7 +103,7 @@ int32_t AudioRegisterDspTest(void)
         return HDF_FAILURE;
     }
 
-    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_dev0");
+    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_primary_dev0");
     (void)memset_s(&daiData, sizeof(struct DspData), 0, sizeof(struct DspData));
     (void)memset_s(&daiData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     dspData.drvDspName = "dsp_service_0",
@@ -129,7 +129,7 @@ int32_t AudioRegisterCodecTest(void)
         return HDF_FAILURE;
     }
 
-    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_dev0");
+    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_primary_dev0");
     (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
     (void)memset_s(&daiData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     codecData.drvCodecName = "codec_dai";
@@ -252,7 +252,7 @@ int32_t AudioAddControlTest(void)
     struct AudioKcontrol control;
     HDF_LOGI("%s: enter", __func__);
 
-    audioCard = GetCardInstance("hdf_audio_codec_dev0");
+    audioCard = GetCardInstance("hdf_audio_codec_primary_dev0");
     (void)memset_s(&control, sizeof(struct AudioKcontrol), 0, sizeof(struct AudioKcontrol));
     if (AudioAddControl(audioCard, &control) == NULL) {
         HDF_LOGE("%s_[%d] AudioAddControl fail!", __func__, __LINE__);
