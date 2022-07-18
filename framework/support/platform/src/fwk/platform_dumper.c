@@ -7,10 +7,17 @@
  */
 #include "platform_dumper.h"
 #include "hdf_log.h"
+#include "osal_file.h"
 #include "osal_io.h"
 #include "osal_mem.h"
 #include "osal_sem.h"
 #include "securec.h"
+#ifdef __LITEOS__
+#include <fcntl.h>
+#else
+#include <asm/uaccess.h>
+#include <linux/fs.h>
+#endif
 
 struct DumperDataMgrNode {
     struct PlatformDumperData data;
@@ -26,65 +33,172 @@ struct PlatformDumper {
     struct PlatformDumperMethod *ops;
 };
 
+#define DUMPER_INFO_FILE_LEN 256
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE) || defined(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE)
+static OsalFile g_file;
+#define DUMPER_INFO_FILE_MAX_LEN 4096
+#endif
+
 #ifdef __LITEOS__
 #define DUMPER_PRINT(fmt, args...) dprintf(fmt, ##args)
 #else
 #define DUMPER_PRINT(fmt, args...) printk(fmt, ##args)
 #endif
 
+static void OpenDumperInfoFile(void)
+{
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE) || defined(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE)
+#ifdef __LITEOS__
+    const char *filePath = "/storage/data/log/dumperInfo.log";
+    int32_t fd = -1;
+    g_file.realFile = (void *)(uintptr_t)fd;
+    fd = open(filePath, O_CREAT | OSAL_O_RDWR, OSAL_S_IWRITE);
+    if (fd < 0) {
+        HDF_LOGE("%s open file fail %d", __func__, errno);
+        return;
+    }
+    g_file.realFile = (void *)(uintptr_t)fd;
+#else
+    const char *filePath = "/data/log/dumperInfo.log";
+    int32_t ret = OsalFileOpen(&g_file, filePath, O_CREAT | OSAL_O_RDWR, OSAL_S_IWRITE);
+    if (ret < 0) {
+        HDF_LOGE("[%s] OsalFileOpen [%s] ret[%d] error\n", __func__, filePath, ret);
+        return;
+    }
+#endif
+#endif
+}
+
+static void WriteDumperInfo(const char *info)
+{
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER_PRINT) || defined(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER_PRINT)
+    DUMPER_PRINT("%s\r\n", info);
+#endif
+
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE) || defined(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE)
+    static uint16_t len = 0;
+    off_t off;
+    ssize_t writeLen;
+    if (len >= DUMPER_INFO_FILE_MAX_LEN) {
+        len = 0;
+    }
+    off = OsalFileLseek(&g_file, len, 0);
+    if (off < 0) {
+        HDF_LOGE("%s lseek error[%lld]", __func__, off);
+        return;
+    }
+    writeLen = OsalFileWrite(&g_file, info, strlen(info));
+    if (writeLen > 0) {
+        len += writeLen;
+    }
+#endif
+}
+
+static void CloseDumperInfoFile(void)
+{
+#if defined(LOSCFG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE) || defined(CONFIG_DRIVERS_HDF_PLATFORM_DUMPER_WRITE)
+    OsalFileClose(&g_file);
+#endif
+}
+
 static void DumperPrintUint8Info(const struct DumperDataMgrNode *data)
 {
     uint8_t *val = (uint8_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintUint16Info(const struct DumperDataMgrNode *data)
 {
     uint16_t *val = (uint16_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintUint32Info(const struct DumperDataMgrNode *data)
 {
     uint32_t *val = (uint32_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintUint64Info(const struct DumperDataMgrNode *data)
 {
     uint64_t *val = (uint64_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintInt8Info(const struct DumperDataMgrNode *data)
 {
     int8_t *val = (int8_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintInt16Info(const struct DumperDataMgrNode *data)
 {
     int16_t *val = (int16_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintInt32Info(const struct DumperDataMgrNode *data)
 {
     int32_t *val = (int32_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintInt64Info(const struct DumperDataMgrNode *data)
 {
     int64_t *val = (int64_t *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintFloatInfo(const struct DumperDataMgrNode *data)
 {
 #ifdef __LITEOS__
     float *val = (float *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 #endif
 }
 
@@ -92,20 +206,34 @@ static void DumperPrintDoubleInfo(const struct DumperDataMgrNode *data)
 {
 #ifdef __LITEOS__
     double *val = (double *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 #endif
 }
 
 static void DumperPrintCharInfo(const struct DumperDataMgrNode *data)
 {
     char *val = (char *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, *val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, *val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintStringInfo(const struct DumperDataMgrNode *data)
 {
     char *val = (char *)(data->data.paddr);
-    DUMPER_PRINT(data->printFormat, data->data.name, val);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret = snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, val);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 static void DumperPrintRegisterInfo(const struct DumperDataMgrNode *data)
@@ -123,7 +251,12 @@ static void DumperPrintRegisterInfo(const struct DumperDataMgrNode *data)
         return;
     }
 
-    DUMPER_PRINT(data->printFormat, data->data.name, value);
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret =
+        snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, data->printFormat, data->data.name, value);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
 }
 
 struct PlatformDumperDataFormatter {
@@ -356,19 +489,28 @@ static void PlatformGetDumperOpsInfo(struct PlatformDumperMethod *ops)
 int32_t PlatformDumperDump(struct PlatformDumper *dumper)
 {
     struct DumperDataMgrNode *pos = NULL;
+    char info[DUMPER_INFO_FILE_LEN + 1] = {0};
+    int ret;
     if (dumper == NULL) {
         HDF_LOGE("PlatformDumperDump: dumper null");
         return HDF_FAILURE;
     }
 
     PlatformGetDumperOpsInfo(dumper->ops);
-    DUMPER_PRINT("The dumper %s's data list as follows:\r\n", dumper->name);
-    DUMPER_PRINT("type               name\t                              value\r\n");
+    OpenDumperInfoFile();
+
+    ret = snprintf_s(info, DUMPER_INFO_FILE_LEN + 1, DUMPER_INFO_FILE_LEN, "The dumper %s's data list as follows:\r\n",
+        (void *)dumper->name);
+    if (ret > 0) {
+        WriteDumperInfo(info);
+    }
+    WriteDumperInfo("type               name                              value\r\n");
 
     (void)OsalSpinLock(&dumper->spin);
     DLIST_FOR_EACH_ENTRY(pos, &dumper->dumperDatas, struct DumperDataMgrNode, node) {
         pos->printFunc(pos);
     }
     (void)OsalSpinUnlock(&dumper->spin);
+    CloseDumperInfoFile();
     return HDF_SUCCESS;
 }
