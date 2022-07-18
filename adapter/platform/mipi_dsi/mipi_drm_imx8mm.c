@@ -3,7 +3,7 @@
  *
  * Mipi drm adapter driver.
  *
- * Copyright (c) 2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
  *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
@@ -50,9 +50,9 @@ static int32_t MipiDsiAdapterSetConfig(struct MipiDsiCntlr *cntlr)
 // "toshiba,panel-tc358775"
 static int32_t MipiDsiAdapterAttach(struct MipiDsiCntlr *cntlr, uint8_t *name)
 {
-    int32_t ret;
-    struct device_node *panelNode;
-    struct mipi_dsi_device *linuxPanel;
+    int32_t ret = 0;
+    struct device_node *panelNode = NULL;
+    struct mipi_dsi_device *linuxPanel = NULL;
 
     if ((cntlr == NULL) || (name == NULL)) {
         HDF_LOGE("%s: cntlr or name is NULL!", __func__);
@@ -86,11 +86,11 @@ static int32_t MipiDsiAdapterAttach(struct MipiDsiCntlr *cntlr, uint8_t *name)
 extern void hdf_drm_mode_to_videomode(void);
 static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDesc *cmd)
 {
-    int32_t ret;
-    struct mipi_dsi_device *linuxPanel;
+    int32_t ret = 0;
+    struct mipi_dsi_device *linuxPanel = NULL;
 
-    if (cntlr == NULL) {
-        HDF_LOGE("%s: cntlr is NULL.", __func__);
+    if (cntlr == NULL || cmd == NULL) {
+        HDF_LOGE("%s: cntlr or cmd is NULL.", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
     linuxPanel = GetLinuxPanel(cntlr);
@@ -98,6 +98,12 @@ static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
         HDF_LOGE("%s: linuxPanel is NULL!", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
+
+    if (cmd->payload == NULL) {
+        HDF_LOGE("%s: payload is NULL!", __func__);
+        return HDF_ERR_INVALID_OBJECT;       
+    }
+
     hdf_drm_mode_to_videomode();
     if ((cmd->dataType == MIPI_DSI_GENERIC_SHORT_WRITE_1_PARAM) ||    // 0x13,
         (cmd->dataType == MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM) ||    // 0x23
@@ -157,7 +163,12 @@ static struct MipiDsiCntlrMethod g_method = {
 
 static int32_t MipiDsiAdapterBind(struct HdfDeviceObject *device)
 {
-    int32_t ret;
+    int32_t ret = 0;
+
+    if (device == NULL) {
+        HDF_LOGE("%s: device is NULL!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
 
     HDF_LOGI("%s: enter.", __func__);
     g_mipiTx.priv = NULL;
@@ -182,7 +193,7 @@ static int32_t MipiDsiAdapterInit(struct HdfDeviceObject *device)
 
 static void MipiDsiAdapterRelease(struct HdfDeviceObject *device)
 {
-    struct MipiDsiCntlr *cntlr;
+    struct MipiDsiCntlr *cntlr = NULL;
 
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL.", __func__);
