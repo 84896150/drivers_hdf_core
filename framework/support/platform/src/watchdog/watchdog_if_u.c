@@ -96,6 +96,10 @@ void WatchdogClose(DevHandle handle)
     int32_t ret;
     struct HdfIoService *service = NULL;
 
+    if (handle == NULL) {
+        HDF_LOGE("%s: handle is NULL", __func__);
+        return;
+    }
     service = (struct HdfIoService *)handle;
     if (service == NULL ||service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
         HDF_LOGE("%s: service is invalid", __func__);

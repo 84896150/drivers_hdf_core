@@ -306,22 +306,28 @@ void SpiClose(DevHandle handle)
         return;
     }
     client = (struct SpiClient *)handle;
+    service = (struct HdfIoService *)client->cntlr;
+    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
+        HDF_LOGE("%s: service is invalid", __func__);
+        if (service != NULL) {
+            HdfIoServiceRecycle(service);
+        }
+        OsalMemFree(client);
+        return;
+    }
 
     data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("%s: failed to obtain data", __func__);
-        goto EXIT;
+        HdfIoServiceRecycle(service);
+        OsalMemFree(client);
+        return;
     }
     if (!HdfSbufWriteUint32(data, client->csNum)) {
         HDF_LOGE("%s: write csNum failed!", __func__);
         goto EXIT;
     }
 
-    service = (struct HdfIoService *)client->cntlr;
-    if (service == NULL || service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {
-        HDF_LOGE("%s: service is invalid", __func__);
-        goto EXIT;
-    }
     ret = service->dispatcher->Dispatch(&service->object, SPI_IO_CLOSE, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: failed, ret is %d", __func__, ret);
