@@ -25,8 +25,4 @@ group("hdf_test_uhdf") {
     "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
     "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
   ]
-
-  if ("${product_name}" == "imx8mm") {
-      deps += [ "//device/board/osware/imx8mm/common/unittest/platform:hdf_adapter_uhdf_test_platform" ]
-  }
 }
