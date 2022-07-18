@@ -1,19 +1,19 @@
 /*
- * mipi_drm_adapter.c
+ * Copyright (C) 2021–2022 Beijing OSWare Technology Co., Ltd
+ * This file contains confidential and proprietary information of
+ * OSWare Technology Co., Ltd
  *
- * Mipi drm adapter driver.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Copyright (c) 2022 Huawei Device Co., Ltd.
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- * This software is licensed under the terms of the GNU General Public
- * License version 2, as published by the Free Software Foundation, and
- * may be copied, distributed, and modified under those terms.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 #include <drm/drm_mipi_dsi.h>
