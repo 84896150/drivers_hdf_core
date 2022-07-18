@@ -101,7 +101,7 @@ static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
 
     if (cmd->payload == NULL) {
         HDF_LOGE("%s: payload is NULL!", __func__);
-        return HDF_ERR_INVALID_OBJECT;       
+        return HDF_ERR_INVALID_OBJECT;
     }
 
     hdf_drm_mode_to_videomode();
@@ -109,8 +109,6 @@ static int32_t MipiDsiAdapterSetCmd(struct MipiDsiCntlr *cntlr, struct DsiCmdDes
         (cmd->dataType == MIPI_DSI_GENERIC_SHORT_WRITE_2_PARAM) ||    // 0x23
         (cmd->dataType == MIPI_DSI_GENERIC_LONG_WRITE)) {             // 0x29
         ret = mipi_dsi_generic_write(linuxPanel, cmd->payload, cmd->dataLen);
-        HDF_LOGE("%s: [mipi_dsi_generic_write] dataType = 0x%x, payload = 0x%x, dataLen = 0x%x",
-            __func__, cmd->dataType, cmd->payload[0], cmd->dataLen);
         if (ret < 0) {
             HDF_LOGE("%s: [mipi_dsi_generic_write] failed.", __func__);
             return HDF_FAILURE;
