@@ -17,6 +17,7 @@ int32_t CodecGetServiceNameTest(void)
     struct HdfDeviceObject device;
     const char *drvCodecName = "";
 
+    (void)memset_s(&device, sizeof(struct HdfDeviceObject), 0, sizeof(struct HdfDeviceObject));
     if (CodecGetServiceName(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -33,6 +34,7 @@ int32_t CodecGetDaiNameTest(void)
     struct HdfDeviceObject device;
     const char *drvCodecName = "";
 
+    (void)memset_s(&device, sizeof(struct HdfDeviceObject), 0, sizeof(struct HdfDeviceObject));
     if (CodecGetDaiName(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -48,6 +50,8 @@ int32_t CodecGetConfigInfoTest(void)
 {
     struct HdfDeviceObject device;
     struct CodecData codecData;
+    (void)memset_s(&device, sizeof(struct HdfDeviceObject), 0, sizeof(struct HdfDeviceObject));
+    (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
 
     if (CodecGetConfigInfo(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
@@ -80,13 +84,14 @@ int32_t CodecSetConfigInfoTest(void)
 
 int32_t CodecSetCtlFuncTest(void)
 {
-    struct CodecData codeData;
+    struct CodecData codecData;
 
+    (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
     if (CodecSetCtlFunc(NULL, 0, NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    if (CodecSetCtlFunc(&codeData, 0, NULL, NULL) == HDF_SUCCESS) {
+    if (CodecSetCtlFunc(&codecData, 0, NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
