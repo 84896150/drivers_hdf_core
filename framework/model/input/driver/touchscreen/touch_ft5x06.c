@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Beijing OSWare Technology Co., Ltd.
+ * Copyright (c) 2022 Beijing OSWare Technology Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
