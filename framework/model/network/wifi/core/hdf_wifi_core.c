@@ -40,6 +40,21 @@ int32_t HdfWifiGetBusIdx(void)
  */
 static int HdfWlanBusInit(struct HdfWlanDevice *data, const struct HdfConfigWlanBus *busConfig)
 {
+    if (busConfig->busEnable == 0) {
+        OsalMSleep(SLEEPTIME);
+        data->bus = NULL;
+        
+        struct HdfConfigWlanChipList *tmpChipList = NULL;
+        struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
+        if (rootConfig == NULL) {
+            HDF_LOGE("%s:ProbeDevice rootConfig NULL", __func__);
+            return HDF_FAILURE;
+        }
+        tmpChipList = &rootConfig->wlanConfig.chipList;
+        data->driverName = tmpChipList->chipInst[0].driverName;  // from BDH6_DRIVER_NAME
+        HDF_LOGW("Do not call GPIO and HdfWlanBusInit");
+        return HDF_SUCCESS;
+    }
     struct BusDev *bus = NULL;
     bus = HdfWlanCreateBusManager(busConfig);
     if (bus == NULL) {
@@ -139,7 +154,6 @@ static int32_t HdfWlanGetConfig(const struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
-#ifndef CONFIG_AP6XXX_WIFI6_HDF
 static int32_t HdfWlanPowerOnProcess(struct PowerManager *powerMgr)
 {
     if (powerMgr == NULL) {
@@ -167,7 +181,6 @@ static int32_t HdfWlanResetProcess(struct ResetManager *resetMgr)
     HDF_LOGI("%s: HdfWlanResetProcess success!", __func__);
     return HDF_SUCCESS;
 }
-#endif
 
 static struct HdfChipDriverFactory *HdfWlanGetDriverFactory(const char *driverName)
 {
@@ -350,24 +363,17 @@ static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConf
     }
     struct HdfWlanDevice *device = NULL;
     int32_t ret;
-    struct HdfConfigWlanChipList *tmpChipList = NULL;
-    struct HdfConfigWlanRoot *rootConfig = HdfWlanGetModuleConfigRoot();
-    if (rootConfig == NULL) {
-        HDF_LOGE("%s:ProbeDevice rootConfig NULL", __func__);
-        return NULL;
-    }
+    
     device = (struct HdfWlanDevice *)OsalMemCalloc(sizeof(struct HdfWlanDevice));
     if (device == NULL) {
         HDF_LOGE("%s:ProbeDevice device NULL", __func__);
         return NULL;
     }
 
-    tmpChipList = &rootConfig->wlanConfig.chipList;
     do {
         device->powers = HdfWlanCreatePowerManager(&deviceConfig->powers);
         device->reset = HdfWlanCreateResetManager(&deviceConfig->reset, deviceConfig->bootUpTimeOut);
 
-#ifndef CONFIG_AP6XXX_WIFI6_HDF
         ret = HdfWlanPowerOnProcess(device->powers);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:HdfWlanPowerOnProcess failed!", __func__);
@@ -381,14 +387,6 @@ static struct HdfWlanDevice *ProbeDevice(struct HdfConfigWlanDevInst *deviceConf
         }
 
         ret = HdfWlanBusInit(device, &deviceConfig->bus);
-#else
-        ret = HDF_SUCCESS;
-        OsalMSleep(SLEEPTIME);
-        device->bus = NULL;
-        device->driverName = tmpChipList->chipInst[0].driverName;  // from BDH6_DRIVER_NAME
-        HDF_LOGW("Do not call GPIO and HdfWlanBusInit");
-#endif
-
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:NO Sdio Card in hdf wlan init proc", __func__);
             break;

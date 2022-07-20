@@ -80,6 +80,7 @@ struct HdfConfigWlanBus {
     uint32_t funcNumSize;
     uint16_t timeout;
     uint16_t blockSize;
+    uint8_t busEnable;
 };
 
 struct HdfConfigWlanDevInst {
