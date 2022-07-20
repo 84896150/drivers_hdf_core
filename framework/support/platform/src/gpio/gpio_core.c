@@ -7,6 +7,9 @@
  */
 
 #include "gpio/gpio_core.h"
+#ifdef __LITEOS_M__
+#include "los_interrupt.h"
+#endif
 #include "osal_mem.h"
 #include "platform_core.h"
 
@@ -16,12 +19,20 @@
 
 static inline void GpioInfoLock(struct GpioInfo *ginfo)
 {
+#ifndef __LITEOS_M__
     (void)OsalSpinLockIrqSave(&ginfo->spin, &ginfo->irqSave);
+#else
+    ginfo->irqSave = LOS_IntLock();
+#endif
 }
 
 static inline void GpioInfoUnlock(struct GpioInfo *ginfo)
 {
+#ifndef __LITEOS_M__
     (void)OsalSpinUnlockIrqRestore(&ginfo->spin, &ginfo->irqSave);
+#else
+    LOS_IntRestore(ginfo->irqSave);
+#endif
 }
 
 int32_t GpioCntlrWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t val)
@@ -135,9 +146,11 @@ static int32_t GpioCntlrIrqThreadHandler(void *data)
             (void)irqRecord->btmFunc(irqRecord->global, irqRecord->irqData);
         }
     }
+#ifndef __LITEOS_M__
     (void)OsalSpinLockIrqSave(&irqRecord->spin, &irqSave);
     (void)OsalSpinUnlockIrqRestore(&irqRecord->spin, &irqSave); // last post done
-    PLAT_LOGI("GpioCntlrIrqThreadHandler: gpio(%hu) thread exit", irqRecord->global);
+#endif
+    HDF_LOGI("%s: gpio(%hu) thread exit!", __func__, irqRecord->global);
     (void)OsalSemDestroy(&irqRecord->sem);
     (void)OsalSpinDestroy(&irqRecord->spin);
     (void)OsalThreadDestroy(&irqRecord->thread);
