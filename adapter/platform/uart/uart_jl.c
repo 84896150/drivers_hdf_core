@@ -117,34 +117,25 @@ static void UartStart(struct UartDevice *device)
         return;
     }
     uartId = device->uartId;
-
-
     struct uart_platform_data_t u_arg = {0};
 
     u_arg.tx_pin = resource->tx_pin;
     u_arg.rx_pin = resource->rx_pin;
 
     if (resource->rxDMA) {
-
         u_arg.rx_cbuf_size = UART_RX_CBUF_SIZE;
         u_arg.frame_length = UART_RX_FRAME_LENGTH;
-
         u_arg.rx_cbuf = OsalMemAlloc(u_arg.rx_cbuf_size * u_arg.frame_length);
         if (!u_arg.rx_cbuf) {
-
             HDF_LOGE("%s  malloc fail\n", __func__);
         }
     }
     u_arg.rx_timeout = UART_RX_TIMEOUT;
     u_arg.isr_cbfun = NULL;
-
     u_arg.baud = resource->baudRate;
     u_arg.is_9bit = 0;
 
-
-
     device->uart_bus = uart_dev_open(&u_arg);
-
     HDF_LOGI("%s %ld\r\n", __FUNCTION__, uartId);
     HalUartHandlerInit(device);
 }
@@ -327,7 +318,6 @@ static void UartDriverRelease(struct HdfDeviceObject *device)
     }
     uartId = uartDevice->uartId;
     host->method = NULL;
-
 }
 
 static int32_t UartDriverInit(struct HdfDeviceObject *device)
@@ -482,15 +472,15 @@ static int32_t UartHostDevSetAttribute(struct UartHost *host, struct UartAttribu
     uartId = uartDevice->uartId;
     uartDevice->config.parity = attribute->parity;
     switch (attribute->stopBits) {
-    	case UART_ATTR_STOPBIT_1:
-        	uartDevice->config.stopBits = UART_ATTR_STOPBIT_1;
-        	break;
-    	case UART_ATTR_STOPBIT_2:
-        	uartDevice->config.stopBits = UART_ATTR_STOPBIT_2;
-        	break;
-    		default:
-        	uartDevice->config.stopBits = UART_ATTR_STOPBIT_1;
-        	break;
+        case UART_ATTR_STOPBIT_1:
+            uartDevice->config.stopBits = UART_ATTR_STOPBIT_1;
+            break;
+        case UART_ATTR_STOPBIT_2:
+            uartDevice->config.stopBits = UART_ATTR_STOPBIT_2;
+            break;
+        default:
+            uartDevice->config.stopBits = UART_ATTR_STOPBIT_1;
+            break;
     }
     uartDevice->config.rts = attribute->rts;
     uartDevice->config.cts = attribute->cts;
@@ -534,21 +524,21 @@ static int32_t UartHostDevSetTransMode(struct UartHost *host, enum UartTransMode
     uartId = uartDevice->uartId;
 
     switch (mode) {
-    	case UART_MODE_RD_BLOCK:
-        	break;
-    	case UART_MODE_RD_NONBLOCK:
-        	break;
-    	case UART_MODE_DMA_RX_EN:
-        	break;
-    	case UART_MODE_DMA_RX_DIS:
-        	break;
-    	case UART_MODE_DMA_TX_EN:
-        	break;
-    	case UART_MODE_DMA_TX_DIS:
-        	break;
-    	default:
-        	HDF_LOGE("%s: UartTransMode(%d) invalid", __func__, mode);
-        	break;
+        case UART_MODE_RD_BLOCK:
+            break;
+        case UART_MODE_RD_NONBLOCK:
+            break;
+        case UART_MODE_DMA_RX_EN:
+            break;
+        case UART_MODE_DMA_RX_DIS:
+            break;
+        case UART_MODE_DMA_TX_EN:
+            break;
+        case UART_MODE_DMA_TX_DIS:
+            break;
+        default:
+            HDF_LOGE("%s: UartTransMode(%d) invalid", __func__, mode);
+            break;
     }
     return HDF_SUCCESS;
 }

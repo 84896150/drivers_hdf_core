@@ -60,7 +60,6 @@ GpioIrqFunc GpioIrqHdl()
         JL_WAKEUP->CON2 |= BIT(0) ;
         GpioCntlrIrqCallback(&g_gpioCntlr, user_realpin);
     }
-
 }
 
 /* GpioMethod method definitions */

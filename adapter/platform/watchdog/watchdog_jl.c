@@ -16,8 +16,6 @@
 #include "los_typedef.h"
 #include "wdt.h"
 
-
-
 #define OHOS_WDT_1MS       1
 #define OHOS_WDT_2MS       2
 #define OHOS_WDT_4MS       4
@@ -79,56 +77,56 @@ static int32_t WatchdogDevSetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32
 {
     printf("%s: seconds %d\n", __func__, seconds);
     switch (seconds) {
-    	case OHOS_WDT_1MS:
-        	seconds = WDT_1MS;
-        	break;
-    	case OHOS_WDT_2MS:
-       		seconds = WDT_2MS;
-       		break;
-    	case OHOS_WDT_4MS:
-        	seconds = WDT_4MS;
-        	break;
-    	case OHOS_WDT_8MS:
-        	seconds = WDT_8MS;
-        	break;
-    	case OHOS_WDT_16MS:
-       		seconds = WDT_16MS;
-       		break;
-    	case OHOS_WDT_32MS:
-        	seconds = WDT_32MS;
-        	break;
-    	case OHOS_WDT_64MS:
-        	seconds = WDT_64MS;
-        	break;
-    	case OHOS_WDT_128MS:
-        	seconds = WDT_128MS;
-        	break;
-    	case OHOS_WDT_256MS:
-        	seconds = WDT_256MS;
-        	break;
-    	case OHOS_WDT_512MS:
-        	seconds = WDT_512MS;
-        	break;
-    	case OHOS_WDT_1S:
-        	seconds = WDT_1S;
-        	break;
-    	case OHOS_WDT_2S:
-        	seconds = WDT_2S;
-        	break;
-    	case OHOS_WDT_4S:
-        	seconds = WDT_4S;
-        	break;
-    	case OHOS_WDT_8S:
-        	seconds = WDT_8S;
-        	break;
-    	case OHOS_WDT_16S:
-        	seconds = WDT_16S;
-        	break;
-    	case OHOS_WDT_32S:
-        	seconds = WDT_32S;
-        	break;
-    	default:
-        	break;
+        case OHOS_WDT_1MS:
+            seconds = WDT_1MS;
+            break;
+        case OHOS_WDT_2MS:
+            seconds = WDT_2MS;
+            break;
+        case OHOS_WDT_4MS:
+            seconds = WDT_4MS;
+            break;
+        case OHOS_WDT_8MS:
+            seconds = WDT_8MS;
+            break;
+        case OHOS_WDT_16MS:
+            seconds = WDT_16MS;
+            break;
+        case OHOS_WDT_32MS:
+            seconds = WDT_32MS;
+            break;
+        case OHOS_WDT_64MS:
+            seconds = WDT_64MS;
+            break;
+        case OHOS_WDT_128MS:
+            seconds = WDT_128MS;
+            break;
+        case OHOS_WDT_256MS:
+            seconds = WDT_256MS;
+            break;
+        case OHOS_WDT_512MS:
+            seconds = WDT_512MS;
+            break;
+        case OHOS_WDT_1S:
+            seconds = WDT_1S;
+            break;
+        case OHOS_WDT_2S:
+            seconds = WDT_2S;
+            break;
+        case OHOS_WDT_4S:
+            seconds = WDT_4S;
+            break;
+        case OHOS_WDT_8S:
+            seconds = WDT_8S;
+            break;
+        case OHOS_WDT_16S:
+            seconds = WDT_16S;
+            break;
+        case OHOS_WDT_32S:
+            seconds = WDT_32S;
+            break;
+        default:
+            break;
     }
 
     wdt_init(seconds);

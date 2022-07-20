@@ -15,7 +15,6 @@
 #include "gpio.h"
 #include "mcpwm.h"
 
-
 #define PWM_CH0   0
 #define PWM_CH1   1
 #define PWM_CH2   2
@@ -23,6 +22,7 @@
 #define PWM_CH4   4
 #define PWM_CH5   5
 #define PERCENT   100
+
 struct PwmResource {
     uint32_t channel;
     uint32_t aligned_mode;
@@ -65,44 +65,44 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     pwmCfg.complementary_en = 1;                  
 
     switch (channel) {
-    	case PWM_CH0:
-        	pwmCfg.pwm_ch_num = pwm_ch0;
-        	pwmCfg.pwm_timer_num = pwm_timer0;
-        	pwmCfg.h_pin = IO_PORTA_00;
-        	pwmCfg.l_pin = IO_PORTA_01;
-        	break;
-    	case PWM_CH1:
-        	pwmCfg.pwm_ch_num = pwm_ch1;
-        	pwmCfg.pwm_timer_num = pwm_timer1;
-        	pwmCfg.h_pin = -1;
-        	pwmCfg.l_pin = IO_PORTB_02;
-        	break;
-    	case PWM_CH2:
-        	pwmCfg.pwm_ch_num = pwm_ch2;
-        	pwmCfg.pwm_timer_num = pwm_timer2;
-        	pwmCfg.h_pin = -1;
-        	pwmCfg.l_pin = -1;
-        	break;
-    	case PWM_CH3:
-        	pwmCfg.pwm_ch_num = pwm_ch3;
-        	pwmCfg.pwm_timer_num = pwm_timer3;
-        	pwmCfg.h_pin = -1;
-        	pwmCfg.l_pin = IO_PORTB_10;
-        	break;
-    	case PWM_CH4:
-        	pwmCfg.pwm_ch_num = pwm_ch4;
-        	pwmCfg.pwm_timer_num = pwm_timer4;
-        	pwmCfg.h_pin = -1;
-        	pwmCfg.l_pin = IO_PORTA_10;
-        	break;
-    	case PWM_CH5:
-        	pwmCfg.pwm_ch_num = pwm_ch5;
-        	pwmCfg.pwm_timer_num = pwm_timer5;
-        	pwmCfg.h_pin = IO_PORTC_04;
-        	pwmCfg.l_pin = IO_PORTC_05;
-        	break;
-    	default:
-        	break;
+        case PWM_CH0:
+            pwmCfg.pwm_ch_num = pwm_ch0;
+            pwmCfg.pwm_timer_num = pwm_timer0;
+            pwmCfg.h_pin = IO_PORTA_00;
+            pwmCfg.l_pin = IO_PORTA_01;
+            break;
+        case PWM_CH1:
+            pwmCfg.pwm_ch_num = pwm_ch1;
+            pwmCfg.pwm_timer_num = pwm_timer1;
+            pwmCfg.h_pin = -1;
+            pwmCfg.l_pin = IO_PORTB_02;
+            break;
+        case PWM_CH2:
+            pwmCfg.pwm_ch_num = pwm_ch2;
+            pwmCfg.pwm_timer_num = pwm_timer2;
+            pwmCfg.h_pin = -1;
+            pwmCfg.l_pin = -1;
+            break;
+        case PWM_CH3:
+            pwmCfg.pwm_ch_num = pwm_ch3;
+            pwmCfg.pwm_timer_num = pwm_timer3;
+            pwmCfg.h_pin = -1;
+            pwmCfg.l_pin = IO_PORTB_10;
+            break;
+        case PWM_CH4:
+            pwmCfg.pwm_ch_num = pwm_ch4;
+            pwmCfg.pwm_timer_num = pwm_timer4;
+            pwmCfg.h_pin = -1;
+            pwmCfg.l_pin = IO_PORTA_10;
+            break;
+        case PWM_CH5:
+            pwmCfg.pwm_ch_num = pwm_ch5;
+            pwmCfg.pwm_timer_num = pwm_timer5;
+            pwmCfg.h_pin = IO_PORTC_04;
+            pwmCfg.l_pin = IO_PORTC_05;
+            break;
+        default:
+            break;
     }
 
     if (aligned_mode == 0) {
@@ -237,8 +237,6 @@ static int32_t PwmDriverInit(struct HdfDeviceObject *device)
         OsalMemFree(host);
         return HDF_DEV_ERR_NO_DEVICE;
     }
-
-
 
     HDF_LOGI("PwmDriverInit success!\r\n");
     return HDF_SUCCESS;

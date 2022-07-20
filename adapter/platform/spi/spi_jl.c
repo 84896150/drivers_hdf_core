@@ -15,7 +15,6 @@
 #include "osal_mutex.h"
 #include "osal_sem.h"
 
-
 #include "spi.h"
 
 #define SPI_DMA_MAX 65535
@@ -181,7 +180,6 @@ int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t tx
 
     ret = HalSpiRecv(spiDevice, rxData, rxSize, TIMEOUT);
     if (ret != 0) {
-
         HDF_LOGE("spi dma tail fail %d\r\n", ret);
     }
 

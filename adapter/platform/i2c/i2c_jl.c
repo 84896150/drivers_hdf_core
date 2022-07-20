@@ -29,7 +29,7 @@ struct I2cResource {
 };
 
 struct I2cDevice {
-    uint16_t devAddr;      
+    uint16_t devAddr;
     uint32_t addressWidth;
     struct OsalMutex mutex;
     uint32_t port;
@@ -66,10 +66,10 @@ struct iic_iomapping {
 };
 static const struct iic_iomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
     {
-        {IO_PORT_DP, IO_PORT_DM},    
-        {IO_PORTC_04, IO_PORTC_05},  
-        {IO_PORTB_04, IO_PORTB_06},  
-        {IO_PORTA_05, IO_PORTA_06},  
+        {IO_PORT_DP, IO_PORT_DM},
+        {IO_PORTC_04, IO_PORTC_05},
+        {IO_PORTB_04, IO_PORTB_06},
+        {IO_PORTA_05, IO_PORTA_06},
     },
 };
 
@@ -301,7 +301,6 @@ static char i2c_read_byte(uint8_t ifack, uint8_t ifstop)
         hw_iic_stop(0);
     }
     return data;
-
 }
 
 static void i2c_write_byte(uint8_t data, uint8_t ifstart)
