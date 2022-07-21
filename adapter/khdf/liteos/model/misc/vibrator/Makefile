@@ -31,16 +31,17 @@ include $(LITEOSTOPDIR)/../../drivers/hdf_core/adapter/khdf/liteos/lite.mk
 MODULE_NAME := hdf_vibrator_driver
 
 FRAMEWORKS_VIBRATOR_ROOT = $(LITEOSTOPDIR)/../../drivers/hdf_core/framework/model/misc/vibrator/driver
-PERIPHERAL_VIBRATOR_ROOT = $(LITEOSTOPDIR)/../../drivers/peripheral/misc/vibrator
+PERIPHERAL_VIBRATOR_ROOT = $(LITEOSTOPDIR)/../../drivers/peripheral/vibrator
 
 LOCAL_INCLUDE := $(FRAMEWORKS_VIBRATOR_ROOT)/include \
-                 $(PERIPHERAL_VIBRATOR_ROOT)/chipset
+                 $(PERIPHERAL_VIBRATOR_ROOT)/chipset/linear
 
 LOCAL_SRCS += $(FRAMEWORKS_VIBRATOR_ROOT)/src/vibrator_driver.c \
-              $(FRAMEWORKS_VIBRATOR_ROOT)/src/vibrator_haptic.c
+              $(FRAMEWORKS_VIBRATOR_ROOT)/src/vibrator_haptic.c \
+              $(FRAMEWORKS_VIBRATOR_ROOT)/src/vibrator_parser.c
 
 ifeq ($(LOSCFG_DRIVERS_HDF_VIBRATOR_LINEAR), y)
-LOCAL_SRCS += $(PERIPHERAL_VIBRATOR_ROOT)/chipset/vibrator_linear_driver.c
+LOCAL_SRCS += $(PERIPHERAL_VIBRATOR_ROOT)/chipset/linear/vibrator_linear_driver.c
 endif
 
 include $(HDF_DRIVER)

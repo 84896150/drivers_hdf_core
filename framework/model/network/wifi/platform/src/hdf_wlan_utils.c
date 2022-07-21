@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -12,6 +12,7 @@
 #include "wifi_module.h"
 #include "hdf_wlan_chipdriver_manager.h"
 
+#define HDF_LOG_TAG HDF_WIFI_CORE
 const char * const HDF_WIFI_PLATFORM_DRIVER_NAME = "HDF_WIFI_PLATFORM_DRIVER";
 
 const char *GetPlatformDriverName(void)
@@ -22,10 +23,12 @@ const char *GetPlatformDriverName(void)
 struct HdfWifiNetDeviceData *GetPlatformData(const struct NetDevice *netDev)
 {
     if (netDev == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
 
     if (netDev->classDriverName != HDF_WIFI_PLATFORM_DRIVER_NAME) {
+        HDF_LOGE("%s: Unexpected classDriverName!", __func__);
         return NULL;
     }
 
@@ -38,6 +41,7 @@ struct HdfChipDriver *GetChipDriver(const struct NetDevice *netDev)
     if (data != NULL) {
         return data->chipDriver;
     }
+    HDF_LOGD("%s: The data is null!", __func__);
     return NULL;
 }
 
@@ -59,6 +63,7 @@ struct WlanHwCapability *GetHwCapability(struct NetDevice *netDev)
         HDF_LOGE("%s:GetHwCapability failed!ifName=%s,ret=%d", __func__, netDev->name, ret);
         return NULL;
     }
+    HDF_LOGD("%s: GetHwCapability finished!", __func__);
     return capability;
 }
 
@@ -140,8 +145,10 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
     char ifName[IFNAMSIZ] = {0};
     struct HdfWifiNetDeviceData *data = NULL;
     if (device == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return NULL;
     }
+    HDF_LOGD("%s: AllocPlatformNetDevice starting...!", __func__);
     data = (struct HdfWifiNetDeviceData *)OsalMemCalloc(sizeof(struct HdfWifiNetDeviceData));
     if (data == NULL) {
         HDF_LOGE("%s:AllocPlatformNetDevice data NULL ptr!", __func__);
@@ -179,6 +186,7 @@ struct NetDevice *AllocPlatformNetDevice(struct HdfWlanDevice *device)
     data->netInterfaceId = id;
     SET_BIT(device->netIfMap, id);
     SET_BIT(g_allocatedIfMap, id);
+    HDF_LOGD("%s: AllocPlatformNetDevice finished!", __func__);
     return result;
 }
 
@@ -213,6 +221,7 @@ int32_t ReleasePlatformNetDevice(struct NetDevice *netDev)
     }
     CLEAR_BIT(g_allocatedIfMap, id);
     OsalMemFree(data);
+    HDF_LOGD("%s:ReleasePlatformNetDevice successful!", __func__);
     return HDF_SUCCESS;
 }
 
@@ -267,6 +276,6 @@ char *HdfWlanGetIfNames(const uint8_t chipId, uint8_t *ifNameCount)
         }
         j++;
     }
-
+    HDF_LOGI("%s: Wlan get ifNames finished! ifNames=%s", __func__, ifNames);
     return ifNames;
 }

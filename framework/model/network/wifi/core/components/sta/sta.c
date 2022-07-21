@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -51,6 +51,7 @@ inline static int32_t ScanAll(struct NetDevice *netDev, struct WlanScanRequest *
         return HDF_FAILURE;
     }
     RETURN_IF_CHIPOPS_NOT_IMPLEMENT(chipDriver->staOps, StartScan);
+    HDF_LOGI("%s: ScanAll finished!", __func__);
     return chipDriver->staOps->StartScan(netDev, params);
 }
 
@@ -225,6 +226,7 @@ static int32_t WifiCmdAssoc(const RequestContext *context, struct HdfSBuf *reqDa
         return HDF_FAILURE;
     }
     if (WifiSetAssocParams(&assoc, netdev, &params) != HDF_SUCCESS) {
+        HDF_LOGE("%s: WifiSetAssocParams failed", __func__);
         return HDF_FAILURE;
     }
     capability = GetHwCapability(netdev);
@@ -234,7 +236,7 @@ static int32_t WifiCmdAssoc(const RequestContext *context, struct HdfSBuf *reqDa
     }
     do {
         params.centerFreq = assoc.freq;
-        HDF_LOGI("%s:%s connecting to AP ...", __func__, ifName);
+        HDF_LOGI("%s: %s connecting to AP ...", __func__, ifName);
         ret = Connect(netdev, &params);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:fail to do connect,%d", __func__, ret);
@@ -245,6 +247,7 @@ static int32_t WifiCmdAssoc(const RequestContext *context, struct HdfSBuf *reqDa
         capability->Release(capability);
         capability = NULL;
     }
+    HDF_LOGI("%s: Wifi cmd Assoc finished!", __func__);
     return ret;
 }
 
@@ -279,6 +282,7 @@ static int32_t WifiCmdDisconnect(const RequestContext *context, struct HdfSBuf *
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s:fail to do disconnect,%d", __func__, ret);
     }
+    HDF_LOGI("%s: WifiCmdDisconnect finished!", __func__);
     return ret;
 }
 
@@ -306,12 +310,14 @@ static int32_t WifiCmdScan(const RequestContext *context, struct HdfSBuf *reqDat
     }
     ret = WifiFillScanParam(&params, reqData);
     if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: WifiFillScanParam failed", __func__);
         return ret;
     }
     ret = ScanAll(netdev, &params);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s:ScanAll failed!ret=%d", __func__, ret);
+        HDF_LOGE("%s: ScanAll failed! ret=%d", __func__, ret);
     }
+    HDF_LOGI("%s: WifiCmdScan finished!", __func__);
     return ret;
 }
 
@@ -407,6 +413,7 @@ int32_t StaInit(struct WifiFeature *feature)
         };
         g_staService = CreateService(STAService, &cfg);
         if (g_staService == NULL) {
+            HDF_LOGE("%s: The g_staService is null, CreateService failed!", __func__);
             return HDF_FAILURE;
         }
     }

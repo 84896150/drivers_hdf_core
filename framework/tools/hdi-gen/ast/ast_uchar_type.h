@@ -15,9 +15,11 @@ namespace OHOS {
 namespace HDI {
 class ASTUcharType : public ASTType {
 public:
+    ASTUcharType() : ASTType(TypeKind::TYPE_UCHAR, true) {}
+
     bool IsUcharType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

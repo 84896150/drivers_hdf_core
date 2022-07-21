@@ -210,11 +210,12 @@ typedef struct {
 } WifiOnChannel;
 
 typedef struct {
+    uint8_t ifName[IFNAMSIZ];
     uint8_t type;
 } WifiIfAdd;
 
 typedef struct {
-    uint8_t ifname[IFNAMSIZ];
+    uint8_t ifName[IFNAMSIZ];
 } WifiIfRemove;
 
 typedef struct {
@@ -429,6 +430,17 @@ typedef enum {
     WIFI_CHAN_NO_80MHZ      = 1 << 7,
     WIFI_CHAN_NO_160MHZ     = 1 << 8,
 } WifiChannelFlags;
+
+typedef struct {
+    int32_t channelId;
+    int32_t measTime;
+} MeasParam;
+
+typedef struct {
+    int32_t channelId;
+    int32_t chload;
+    int32_t noise;
+} MeasResult;
 
 #ifdef __cplusplus
 #if __cplusplus

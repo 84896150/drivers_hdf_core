@@ -161,7 +161,8 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
 
 static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regValue)
 {
-#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157)
+#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || \
+    defined(CONFIG_ARCH_MESON) || defined(CONFIG_ARCH_NXP_TOUCH)
     return HDF_SUCCESS;
 #endif
     uint8_t *base = NULL;
@@ -237,6 +238,9 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 
 static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
 {
+#if defined(CONFIG_ARCH_MESON)
+    return HDF_SUCCESS;
+#endif
     int32_t i;
     int32_t ret;
     uint32_t rstPinAddr;
@@ -349,6 +353,9 @@ static void InputFrameReport(TouchDriver *driver)
 
 static int32_t SetupChipIrq(ChipDevice *chipDev)
 {
+#if defined(CONFIG_ARCH_MESON)
+    return HDF_SUCCESS;
+#endif
     int32_t ret;
     uint16_t intGpioNum = chipDev->boardCfg->pins.intGpio;
     uint16_t irqFlag = chipDev->chipCfg->bus.chipI2c.irqFlag;
@@ -592,6 +599,8 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 
 #if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157)
     HDF_LOGI("%s: do not update firmware", __func__);
+#elif defined(CONFIG_ARCH_NXP_TOUCH)
+    HDF_LOGI("%s: NXP TOUCH do not update firmware", __func__);
 #else
     ret = chipDev->ops->UpdateFirmware(chipDev);
     CHECK_RETURN_VALUE(ret);

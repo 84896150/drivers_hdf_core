@@ -16,7 +16,20 @@ bool ASTListType::IsListType()
     return true;
 }
 
-String ASTListType::ToString()
+bool ASTListType::HasInnerType(TypeKind innerTypeKind) const
+{
+    if (elementType_ == nullptr) {
+        return false;
+    }
+
+    if (elementType_->GetTypeKind() == innerTypeKind) {
+        return true;
+    }
+
+    return elementType_->HasInnerType(innerTypeKind);
+}
+
+String ASTListType::ToString() const
 {
     return String::Format("List<%s>", elementType_->ToString().string());
 }
@@ -513,6 +526,16 @@ void ASTListType::EmitCStubReadStrElement(const String &parcelName, const String
     } else {
         sb.Append(newPrefix).AppendFormat("%s[i] = strdup(%sCp);\n", name.string(), name.string());
     }
+}
+
+void ASTListType::RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    elementType_->RegisterWriteMethod(language, methods);
+}
+
+void ASTListType::RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const
+{
+    elementType_->RegisterReadMethod(language, methods);
 }
 } // namespace HDI
 } // namespace OHOS

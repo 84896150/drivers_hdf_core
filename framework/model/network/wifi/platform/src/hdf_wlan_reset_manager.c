@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -66,7 +66,7 @@ int32_t HdfChipReset(struct ResetManager *resetManager)
         return ret;
     }
     OsalMSleep(resetMgrImpl->resetData.bootUpHoldTime);
-
+    HDF_LOGI("%s: HdfChipReset successful!", __func__);
     return HDF_SUCCESS;
 }
 /* to release reset manager resource */
@@ -101,6 +101,6 @@ struct ResetManager* HdfWlanCreateResetManager(const struct HdfConfWlanRest *con
     resetMgrImpl->resetData.bootUpHoldTime = bootUpTime;
     resetMgrImpl->base.Reset = HdfChipReset;
     resetMgrImpl->base.Release = HdfWlanResetMgrRelease;
-
+    HDF_LOGD("%s: CreateResetManager finished!", __func__);
     return (struct ResetManager*)resetMgrImpl;
 }

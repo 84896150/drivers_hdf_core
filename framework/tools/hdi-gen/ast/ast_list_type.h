@@ -16,6 +16,8 @@ namespace OHOS {
 namespace HDI {
 class ASTListType : public ASTType {
 public:
+    ASTListType() : ASTType(TypeKind::TYPE_LIST, false), elementType_() {}
+
     inline void SetElementType(const AutoPtr<ASTType> &elementType)
     {
         elementType_ = elementType;
@@ -28,7 +30,9 @@ public:
 
     bool IsListType() override;
 
-    String ToString() override;
+    bool HasInnerType(TypeKind innerType) const override;
+
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 
@@ -83,6 +87,10 @@ public:
     void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
         const String &prefix) const override;
 
+    void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const override;
+
+    void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const override;
+
 private:
     void EmitCMallocVar(const String &name, const String &lenName, bool isClient, const String &ecName,
         const String &gotoLabel, StringBuilder &sb, const String &prefix) const;
@@ -96,7 +104,7 @@ private:
     void EmitCStringElementUnMarshalling(const String &name, const String &gotoLabel, StringBuilder &sb,
         const String &newPrefix, std::vector<String> &freeObjStatements) const;
 
-    AutoPtr<ASTType> elementType_ = nullptr;
+    AutoPtr<ASTType> elementType_;
 };
 } // namespace HDI
 } // namespace OHOS

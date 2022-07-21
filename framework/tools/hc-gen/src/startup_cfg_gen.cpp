@@ -101,8 +101,8 @@ void StartupCfgGen::HostInfoOutput(const std::string &name, bool end)
     }
     ofs_ << PATH_INFO << "\"" << hostInfoMap_[name].hostId << "\", \"" << name <<"\"],\n";
     ofs_ << UID_INFO << "\"" << hostInfoMap_[name].hostUID <<"\",\n";
-    ofs_ << GID_INFO << "\"" << hostInfoMap_[name].hostGID <<"\"],\n";
-    if (hostInfoMap_[name].hostCaps != "") {
+    ofs_ << GID_INFO << hostInfoMap_[name].hostGID <<"],\n";
+    if (!hostInfoMap_[name].hostCaps.empty()) {
         ofs_ << CAPS_INFO << hostInfoMap_[name].hostCaps <<"],\n";
     }
     ofs_ << SECON_INFO << name << ":s0\"\n";
@@ -147,7 +147,8 @@ void StartupCfgGen::HostInfosOutput()
 {
     bool end = false;
     uint32_t cnt = 1;
-    uint32_t size = hostInfoMap_.size();
+    const uint32_t size = hostInfoMap_.size();
+
     std::vector<std::pair<std::string, HostInfo>> vect(hostInfoMap_.begin(), hostInfoMap_.end());
     sort(vect.begin(), vect.end(), compare());
     std::vector<std::pair<std::string, HostInfo>>::iterator it = vect.begin();
@@ -159,27 +160,29 @@ void StartupCfgGen::HostInfosOutput()
     }
 }
 
-void StartupCfgGen::GetHostCaps(const std::shared_ptr<AstObject> &capsTerm, HostInfo &hostData)
+void StartupCfgGen::GetConfigArray(const std::shared_ptr<AstObject> &term, std::string &config)
 {
-    if (capsTerm == nullptr) {
+    if (term == nullptr) {
         return;
     }
-    std::shared_ptr<AstObject> capsArray = capsTerm->Child();
-    if (capsArray == nullptr) {
+
+    std::shared_ptr<AstObject> arrayObj = term->Child();
+    if (arrayObj == nullptr) {
         return;
     }
-    uint16_t capArraySize = ConfigArray::CastFrom(capsArray)->ArraySize();
-    std::shared_ptr<AstObject> capsInfo = capsArray->Child();
-    while (capArraySize && capsInfo != nullptr) {
-        if (!capsInfo->StringValue().empty()) {
-            hostData.hostCaps.append("\"").append(capsInfo->StringValue()).append("\"");
-            if (capArraySize != 1) {
-                hostData.hostCaps.append(", ");
+
+    uint16_t arraySize = ConfigArray::CastFrom(arrayObj)->ArraySize();
+    std::shared_ptr<AstObject> object = arrayObj->Child();
+    while (arraySize && object != nullptr) {
+        if (!object->StringValue().empty()) {
+            config.append("\"").append(object->StringValue()).append("\"");
+            if (arraySize != 1) {
+                config.append(", ");
             }
         }
 
-        capsInfo = capsInfo->Next();
-        capArraySize--;
+        object = object->Next();
+        arraySize--;
     }
 }
 
@@ -209,6 +212,24 @@ void StartupCfgGen::GetHostLoadMode(const std::shared_ptr<AstObject> &hostInfo, 
             devNodeInfo = devNodeInfo->Next();
         }
         devInfo = devInfo->Next();
+    }
+}
+
+void StartupCfgGen::GetHostGID(const std::shared_ptr<AstObject> &term, std::string &config, const std::string &name)
+{
+    // get array format configuration
+    GetConfigArray(term, config);
+
+    // if the array format is not available, get the string format configuration
+    if (config.empty()) {
+        if (term != nullptr && !term->Child()->StringValue().empty()) {
+            config.append("\"").append(term->Child()->StringValue()).append("\"");
+        }
+    }
+
+    // use the default name as gid
+    if (config.empty()) {
+        config.append("\"").append(name).append("\"");
     }
 }
 
@@ -246,13 +267,11 @@ bool StartupCfgGen::GetHostInfo()
             hostData.hostUID = object->Child()->StringValue();
         }
 
-        hostData.hostGID = serviceName;
         object = hostInfo->Lookup("gid", PARSEROP_CONFTERM);
-        if (object != nullptr && !object->Child()->StringValue().empty()) {
-            hostData.hostGID = object->Child()->StringValue();
-        }
+        GetHostGID(object, hostData.hostGID, serviceName);
+
         object = hostInfo->Lookup("caps", PARSEROP_CONFTERM);
-        GetHostCaps(object, hostData);
+        GetConfigArray(object, hostData.hostCaps);
         GetHostLoadMode(hostInfo, hostData);
         hostData.hostId = hostId;
         hostInfoMap_.insert(make_pair(serviceName, hostData));

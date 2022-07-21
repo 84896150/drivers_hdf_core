@@ -15,7 +15,20 @@ bool ASTSmqType::IsSmqType()
     return true;
 }
 
-String ASTSmqType::ToString()
+bool ASTSmqType::HasInnerType(TypeKind innerTypeKind) const
+{
+    if (innerType_ == nullptr) {
+        return false;
+    }
+
+    if (innerType_->GetTypeKind() == innerTypeKind) {
+        return true;
+    }
+
+    return innerType_->HasInnerType(innerTypeKind);
+}
+
+String ASTSmqType::ToString() const
 {
     return String::Format("SharedMemQueue<%s>", innerType_->ToString().string());
 }
@@ -29,7 +42,7 @@ String ASTSmqType::EmitCppType(TypeMode mode) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
-            return String::Format("SharedMemQueue<%s>", innerType_->EmitCppType().string());
+            return String::Format("std::shared_ptr<SharedMemQueue<%s>>", innerType_->EmitCppType().string());
         case TypeMode::PARAM_IN:
             return String::Format("const std::shared_ptr<SharedMemQueue<%s>>&", innerType_->EmitCppType().string());
         case TypeMode::PARAM_OUT:
@@ -80,7 +93,7 @@ bool ASTAshmemType::IsAshmemType()
     return true;
 }
 
-String ASTAshmemType::ToString()
+String ASTAshmemType::ToString() const
 {
     return "Ashmem";
 }

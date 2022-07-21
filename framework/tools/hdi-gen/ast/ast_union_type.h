@@ -21,6 +21,8 @@ namespace OHOS {
 namespace HDI {
 class ASTUnionType : public ASTType {
 public:
+    ASTUnionType() : ASTType(TypeKind::TYPE_UNION, true), attr_(new ASTTypeAttr()), members_() {}
+
     inline void SetName(const String &name)
     {
         name_ = name;
@@ -73,7 +75,7 @@ public:
 
     bool IsUnionType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 

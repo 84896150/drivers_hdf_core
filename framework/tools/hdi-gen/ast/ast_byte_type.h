@@ -15,9 +15,11 @@ namespace OHOS {
 namespace HDI {
 class ASTByteType : public ASTType {
 public:
+    ASTByteType() : ASTType(TypeKind::TYPE_BYTE, true) {}
+
     bool IsByteType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

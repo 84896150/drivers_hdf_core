@@ -15,11 +15,13 @@ namespace OHOS {
 namespace HDI {
 class ASTSequenceableType : public ASTType {
 public:
+    ASTSequenceableType() : ASTType(TypeKind::TYPE_SEQUENCEABLE, false) {}
+
     void SetNamespace(const AutoPtr<ASTNamespace> &nspace) override;
 
     bool IsSequenceableType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     String Dump(const String &prefix) override;
 

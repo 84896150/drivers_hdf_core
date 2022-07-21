@@ -26,6 +26,7 @@ static struct HdfIoService *TimerManagerGetService(void)
     service = HdfIoServiceBind(TIMER_SERVICE_NAME);
     if (service == NULL) {
         HDF_LOGE("%s: fail to get timer manager!", __func__);
+        return NULL;
     }
 
     if (service->priv == NULL) {
@@ -269,6 +270,7 @@ int32_t HwTimerSet(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
     if (!HdfSbufWriteUint32(buf, (uint32_t)(uintptr_t)handle)) {
         HDF_LOGE("%s: sbuf write handle failed", __func__);
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
+        HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteBuffer(buf, &cfg, sizeof(cfg))) {
@@ -329,6 +331,7 @@ int32_t HwTimerSetOnce(DevHandle handle, uint32_t useconds, TimerHandleCb cb)
     if (!HdfSbufWriteUint32(buf, (uint32_t)(uintptr_t)handle)) {
         HDF_LOGE("%s: sbuf write handle failed", __func__);
         PlatformUserListenerDestory(service->priv, (uint32_t)(uintptr_t)handle);
+        HdfSbufRecycle(buf);
         return HDF_ERR_IO;
     }
     if (!HdfSbufWriteBuffer(buf, &cfg, sizeof(cfg))) {

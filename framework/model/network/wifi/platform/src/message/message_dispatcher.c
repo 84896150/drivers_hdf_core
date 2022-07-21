@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -29,6 +29,7 @@ typedef struct {
 void ReleaseMessageContext(MessageContext *context)
 {
     if (context == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return;
     }
     if (context->rspData != NULL) {
@@ -45,6 +46,7 @@ void ReleaseMessageContext(MessageContext *context)
         }
         OsalMemFree(context);
     }
+    HDF_LOGD("%s: ReleaseMessageContext finished!", __func__);
 }
 
 void ReleaseMessageMapper(struct ServiceDef *mapper)
@@ -96,9 +98,10 @@ ErrorCode AppendToLocalDispatcher(MessageDispatcher *dispatcher, const uint8_t p
     }
 
     if (dispatcher->status != ME_STATUS_RUNNING) {
-        HDF_LOGE("%s:dispatcher is not running", __func__);
+        HDF_LOGE("%s:Dispatcher is not running", __func__);
         return ME_ERROR_DISPATCHER_NOT_RUNNING;
     }
+    HDF_LOGD("%s:AppendToLocalDispatcher finished!", __func__);
     return PushPriorityQueue(dispatcher->messageQueue, priority, context);
 }
 
@@ -113,6 +116,7 @@ void SetToResponse(MessageContext *context)
     context->senderId = context->receiverId;
     context->receiverId = senderId;
     context->requestType = MESSAGE_RSP_START + context->requestType - MESSAGE_REQ_START;
+    HDF_LOGD("%s:SetToResponse finished", __func__);
 }
 
 static void HandleAsyncResponse(MessageContext *context)
@@ -225,6 +229,7 @@ static void ReleaseAllMessage(MessageDispatcher *dispatcher)
 {
     MessageContext *context = NULL;
     do {
+        HDF_LOGD("%s: ReleaseAllMessage starting...!", __func__);
         context = PopPriorityQueue(dispatcher->messageQueue, 0);
         ReleaseMessageContext(context);
     } while (context != NULL);
@@ -339,6 +344,7 @@ static void ShutdownDispatcher(MessageDispatcher *dispatcher)
 {
     HDF_STATUS status;
     if (dispatcher == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return;
     }
     status = OsalMutexTimedLock(&dispatcher->mutex, HDF_WAIT_FOREVER);
@@ -359,6 +365,7 @@ static void ShutdownDispatcher(MessageDispatcher *dispatcher)
     if (status != HDF_SUCCESS) {
         HDF_LOGE("%s:Destroy mutex failed!", __func__);
     }
+    HDF_LOGD("%s:ShutdownDispatcher successful!", __func__);
 }
 
 IMPLEMENT_SHARED_OBJ(MessageDispatcher);
@@ -366,6 +373,7 @@ static void DestroyLocalDispatcher(MessageDispatcher *dispatcher)
 {
     int32_t ret;
     if (dispatcher == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return;
     }
 
@@ -382,6 +390,7 @@ static void DestroyLocalDispatcher(MessageDispatcher *dispatcher)
     }
 
     DEINIT_SHARED_OBJ(MessageDispatcher, dispatcher);
+    HDF_LOGD("%s:DestroyLocalDispatcher finished!", __func__);
 }
 
 ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const DispatcherConfig *config)
@@ -390,14 +399,17 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
     int32_t ret;
     ErrorCode errCode;
     if (dispatcher == NULL || config == NULL) {
+        HDF_LOGE("%s: Input param is null!", __func__);
         return ME_ERROR_NULL_PTR;
     }
 
     localDispatcher = (LocalMessageDispatcher *)OsalMemCalloc(sizeof(LocalMessageDispatcher));
     if (localDispatcher == NULL) {
+        HDF_LOGE("%s: Request memory failed!", __func__);
         return ME_ERROR_RES_LAKE;
     }
     do {
+        HDF_LOGI("%s: Create local dispatcher...!", __func__);
         localDispatcher->status = ME_STATUS_STOPPED;
         localDispatcher->AppendMessage = AppendToLocalDispatcher;
         localDispatcher->Shutdown = ShutdownDispatcher;
@@ -405,18 +417,21 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
 
         localDispatcher->messageQueue = CreatePriorityQueue(config->queueSize, config->priorityLevelCount);
         if (localDispatcher->messageQueue == NULL) {
+            HDF_LOGE("%s: CreatePriorityQueue failed!", __func__);
             errCode = ME_ERROR_OPER_QUEUE_FAILED;
             break;
         }
 
         ret = OsalMutexInit(&localDispatcher->mutex);
         if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: Init mutex failed! ret=%d", __func__, ret);
             errCode = ME_ERROR_OPER_MUTEX_FAILED;
             break;
         }
 
         errCode = INIT_SHARED_OBJ(MessageDispatcher, (MessageDispatcher *)localDispatcher, DestroyLocalDispatcher);
         if (errCode != ME_SUCCESS) {
+            HDF_LOGE("%s: INIT_SHARED_OBJ failed! errCode=%d", __func__, errCode);
             break;
         }
     } while (false);
@@ -427,5 +442,6 @@ ErrorCode CreateLocalDispatcher(MessageDispatcher **dispatcher, const Dispatcher
         DestroyLocalDispatcher((MessageDispatcher *)localDispatcher);
         OsalMemFree(localDispatcher);
     }
+    HDF_LOGI("%s: CreateLocalDispatcher finished! errCode=%d", __func__, errCode);
     return errCode;
 }

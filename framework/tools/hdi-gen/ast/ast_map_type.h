@@ -16,6 +16,8 @@ namespace OHOS {
 namespace HDI {
 class ASTMapType : public ASTType {
 public:
+    ASTMapType() : ASTType(TypeKind::TYPE_MAP, false), keyType_(), valueType_() {}
+
     inline void SetKeyType(const AutoPtr<ASTType> &keyType)
     {
         keyType_ = keyType;
@@ -38,7 +40,9 @@ public:
 
     bool IsMapType() override;
 
-    String ToString() override;
+    bool HasInnerType(TypeKind innerType) const override;
+
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 
@@ -69,6 +73,9 @@ public:
     void EmitJavaReadInnerVar(const String &parcelName, const String &name, bool isInner, StringBuilder &sb,
         const String &prefix) const override;
 
+    void RegisterWriteMethod(Options::Language language, UtilMethodMap &methods) const override;
+
+    void RegisterReadMethod(Options::Language language, UtilMethodMap &methods) const override;
 private:
     AutoPtr<ASTType> keyType_;
     AutoPtr<ASTType> valueType_;

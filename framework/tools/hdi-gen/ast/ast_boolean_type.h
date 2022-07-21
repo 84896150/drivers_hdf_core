@@ -15,9 +15,11 @@ namespace OHOS {
 namespace HDI {
 class ASTBooleanType : public ASTType {
 public:
+    ASTBooleanType() : ASTType(TypeKind::TYPE_BOOLEAN, true) {}
+
     bool IsBooleanType() override;
 
-    String ToString() override;
+    String ToString() const override;
 
     TypeKind GetTypeKind() override;
 

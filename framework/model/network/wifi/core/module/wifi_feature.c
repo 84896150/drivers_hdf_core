@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2020-2022 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -7,6 +7,8 @@
  */
 
 #include "wifi_module.h"
+
+#define HDF_LOG_TAG HDF_WIFI_CORE
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +22,7 @@ int32_t AddFeature(struct WifiModule *module, uint16_t featureType, struct WifiF
     }
     module->feList.fe[featureType] = (struct WifiFeature *)feature;
     if (feature->init != NULL) {
+        HDF_LOGD("%s: AddFeature finished!", __func__);
         return feature->init(feature);
     }
 
@@ -39,8 +42,10 @@ int32_t DelFeature(struct WifiModule *module, uint16_t featureType)
     if ((featureData != NULL) && (featureData->deInit != NULL)) {
         featureData->deInit(module->feList.fe[featureType]);
         featureData = NULL;
+        HDF_LOGD("%s: DelFeature finished!", __func__);
         return HDF_SUCCESS;
     }
+    HDF_LOGE("%s: DelFeature fail!", __func__);
     return HDF_FAILURE;
 }
 

@@ -52,10 +52,12 @@ static void SetProcTitle(char **argv, const char *newTitle)
 {
     size_t len = strlen(argv[0]);
     if (strlen(newTitle) > len) {
+        HDF_LOGE("failed to set new process title because the '%{public}s' is too long", newTitle);
         return;
     }
     (void)memset_s(argv[0], len, 0, len);
     if (strcpy_s(argv[0], len + 1, newTitle) != EOK) {
+        HDF_LOGE("failed to set new process title");
         return;
     }
     prctl(PR_SET_NAME, newTitle);
@@ -76,7 +78,7 @@ int main(int argc, char **argv)
         return HDF_ERR_INVALID_PARAM;
     }
     const char *hostName = argv[argc - 1];
-    HDF_LOGD("hdf device host %{public}s %{public}d start", hostName, hostId);
+    HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetProcTitle(argv, hostName);
 
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
@@ -99,7 +101,7 @@ int main(int argc, char **argv)
 
     DevHostServiceFreeInstance(instance);
     HdfPowerManagerExit();
-    HDF_LOGD("hdf device host %{public}s %{public}d exit", hostName, hostId);
+    HDF_LOGI("hdf device host %{public}s %{public}d exit", hostName, hostId);
     return status;
 }
 

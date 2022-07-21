@@ -72,7 +72,7 @@ Lexer::StrTokenTypeMap Lexer::symbols_ = {
     {"--", TokenType::MMINUS              },
 };
 
-Lexer::Lexer() : file_(nullptr), havePeek_(false), curToken_() {}
+Lexer::Lexer() : file_(nullptr), havePeek_(false), curToken_(), mode_(ParseMode::DECL_MODE) {}
 
 bool Lexer::Reset(const String &filePath)
 {
@@ -109,24 +109,29 @@ void Lexer::SkipCurrentLine()
         char c = file_->GetChar();
         if (c == '\n') {
             file_->GetChar();
-            return;
+            break;
         }
     }
+    havePeek_ = false;
 }
 
 bool Lexer::SkipCurrentLine(char untilChar)
 {
+    bool ret = true;
     while (!file_->IsEof()) {
         int c = file_->GetChar();
         if (c == untilChar) {
-            return true;
+            ret = true;
+            break;
         }
         if (c == '\n') {
             file_->GetChar();
-            return false;
+            ret = false;
+            break;
         }
     }
-    return true;
+    havePeek_ = false;
+    return ret;
 }
 
 void Lexer::Skip(char untilChar)
@@ -134,9 +139,10 @@ void Lexer::Skip(char untilChar)
     while (!file_->IsEof()) {
         int c = file_->GetChar();
         if (c == untilChar) {
-            return;
+            break;
         }
     }
+    havePeek_ = false;
 }
 
 void Lexer::SkipToken(TokenType tokenType)
@@ -158,6 +164,7 @@ void Lexer::SkipUntilToken(TokenType tokenType)
 void Lexer::SkipEof()
 {
     while (!file_->IsEof()) {}
+    havePeek_ = false;
 }
 
 void Lexer::ReadToken(Token &token, bool skipComment)
@@ -377,7 +384,7 @@ void Lexer::ReadShiftRightOp(Token &token)
 {
     char c = file_->GetChar();
     char next = file_->PeekChar();
-    if (next == '>') {
+    if (next == '>' && mode_ == ParseMode::EXPR_MODE) {
         file_->GetChar();
         token.kind_ = TokenType::RIGHT_SHIFT;
         token.value_ = ">>";
