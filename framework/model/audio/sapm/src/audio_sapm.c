@@ -14,7 +14,7 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_SAPM
 
-#define SAPM_POLL_TIME     10        /* 10s */
+#define SAPM_POLL_TIME     10      /* 10s */
 #define SAPM_SLEEP_TIME    (3 * 6) /* 3min */
 #define SAPM_THREAD_NAME   60
 #define SAPM_POWER_DOWN    0
@@ -1108,6 +1108,7 @@ static void ReadInitComponentPowerStatus(struct AudioSapmComponent *sapmComponen
             sapmComponent->power = SAPM_POWER_DOWN;
         }
     }
+
     return;
 }
 
