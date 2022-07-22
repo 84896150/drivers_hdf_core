@@ -1117,12 +1117,12 @@ static int AudioSapmThread(void *data)
     struct AudioCard *audioCard = (struct AudioCard *)data;
     audioCard->time = 0;
 
-    while(true)
-    {
+    while (true) {
         OsalSleep(SAPM_POLL_TIME);
         AudioSapmTimerCallback(audioCard);
         audioCard->time++;
     }
+
     return 0;
 }
 
