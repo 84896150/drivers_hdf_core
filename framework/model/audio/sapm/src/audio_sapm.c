@@ -169,12 +169,22 @@ static int32_t AudioSapmGenericCheckPower(const struct AudioSapmComponent *sapmC
 
 static int32_t AudioSapmAdcPowerClock(struct AudioSapmComponent *sapmComponent)
 {
+    if (sapmComponent == NULL) {
+        ADM_LOG_ERR("param sapmComponent is NULL.");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     ADM_LOG_INFO("%s standby mode entry!", sapmComponent->componentName);
     return HDF_SUCCESS;
 }
 
 static int32_t AudioSapmDacPowerClock(struct AudioSapmComponent *sapmComponent)
 {
+    if (sapmComponent == NULL) {
+        ADM_LOG_ERR("param sapmComponent is NULL.");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     ADM_LOG_INFO("%s standby mode entry!", sapmComponent->componentName);
     return HDF_SUCCESS;
 }
@@ -1030,7 +1040,6 @@ static void AudioSapmPowerDownSeqRun(const struct DListHead *list)
 
                 AudioUpdateCodecRegBits(sapmComponent->codec, mixerControl.reg, mixerControl.mask,
                     mixerControl.shift, val);
-                ADM_LOG_DEBUG("Sapm Codec Power Down.");
                 ADM_LOG_INFO("Sapm Codec %s Power Down.", sapmComponent->componentName);
             }
         }
