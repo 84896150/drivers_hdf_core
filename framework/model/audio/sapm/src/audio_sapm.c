@@ -169,15 +169,13 @@ static int32_t AudioSapmGenericCheckPower(const struct AudioSapmComponent *sapmC
 
 static int32_t AudioSapmAdcPowerClock(struct AudioSapmComponent *sapmComponent)
 {
-    (void)sapmComponent;
-    ADM_LOG_INFO("Adc standby mode entry!");
+    ADM_LOG_INFO("%s standby mode entry!", sapmComponent->componentName);
     return HDF_SUCCESS;
 }
 
 static int32_t AudioSapmDacPowerClock(struct AudioSapmComponent *sapmComponent)
 {
-    (void)sapmComponent;
-    ADM_LOG_INFO("Dac standby mode entry!");
+    ADM_LOG_INFO("%s standby mode entry!", sapmComponent->componentName);
     return HDF_SUCCESS;
 }
 
@@ -997,6 +995,7 @@ static void AudioSapmPowerUpSeqRun(const struct DListHead *list)
                 mixerControl.shift = sapmComponent->shift;
                 AudioUpdateCodecRegBits(sapmComponent->codec, mixerControl.reg, mixerControl.mask,
                     mixerControl.shift, val);
+                ADM_LOG_INFO("Sapm Codec %s Power Up.", sapmComponent->componentName);
             }
         }
     }
@@ -1032,6 +1031,7 @@ static void AudioSapmPowerDownSeqRun(const struct DListHead *list)
                 AudioUpdateCodecRegBits(sapmComponent->codec, mixerControl.reg, mixerControl.mask,
                     mixerControl.shift, val);
                 ADM_LOG_DEBUG("Sapm Codec Power Down.");
+                ADM_LOG_INFO("Sapm Codec %s Power Down.", sapmComponent->componentName);
             }
         }
     }
@@ -1601,6 +1601,7 @@ static void AudioSapmEnterSleep(struct AudioCard *audioCard)
         }
     }
     AudioSapmPowerDownSeqRun(&downList);
+    audioCard->sapmStandbyState = false;
     audioCard->sapmSleepState = true;
 }
 
