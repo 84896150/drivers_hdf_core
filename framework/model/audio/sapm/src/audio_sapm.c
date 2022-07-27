@@ -1137,9 +1137,10 @@ static int AudioSapmThread(void *data)
 
 int32_t AudioSapmSleep(struct AudioCard *audioCard)
 {
+    int32_t ret;
     char *sapmThreadName = NULL;
     struct OsalThreadParam threadCfg;
-    int32_t ret;
+    OSAL_DECLARE_THREAD(audioSapmThread);
 
     if (audioCard == NULL) {
         ADM_LOG_ERR("input param audioCard is NULL.");
@@ -1157,7 +1158,6 @@ int32_t AudioSapmSleep(struct AudioCard *audioCard)
         return HDF_FAILURE;
     }
 
-    OSAL_DECLARE_THREAD(audioSapmThread);
     ret = OsalThreadCreate(&audioSapmThread, (OsalThreadEntry)AudioSapmThread, (void *)audioCard);
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("create sapm thread fail, ret=%d", ret);
