@@ -74,13 +74,13 @@ struct HdfConfWlanRest {
 };
 
 struct HdfConfigWlanBus {
+    uint8_t busEnable;
     uint8_t busType;
     uint8_t busIdx;
     uint8_t funcNum[BUS_FUNC_MAX];
     uint32_t funcNumSize;
     uint16_t timeout;
     uint16_t blockSize;
-    uint8_t busEnable;
 };
 
 struct HdfConfigWlanDevInst {
