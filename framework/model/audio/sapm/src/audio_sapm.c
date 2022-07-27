@@ -1147,13 +1147,12 @@ int32_t AudioSapmSleep(struct AudioCard *audioCard)
     }
 
     if (AudioSapmRefreshTime(audioCard, true) != HDF_SUCCESS) {
-        ADM_LOG_ERR("AudioSapmRefreshTime failed.");
         return HDF_FAILURE;
     }
     sapmThreadName = OsalMemCalloc(SAPM_THREAD_NAME);
     if (sapmThreadName == NULL) {
         ADM_LOG_ERR("OsalMemCalloc failed.");
-        return HDF_FAILURE;
+        return HDF_ERR_MALLOC_FAIL;
     }
     if (snprintf_s(sapmThreadName, SAPM_THREAD_NAME, SAPM_THREAD_NAME - 1, "AudioSapmThread%u", g_cardNum) < 0) {
         ADM_LOG_ERR("snprintf_s failed.");
@@ -1161,29 +1160,28 @@ int32_t AudioSapmSleep(struct AudioCard *audioCard)
         return HDF_FAILURE;
     }
 
-    ret = OsalThreadCreate(&audioSapmThread, (OsalThreadEntry)AudioSapmThread, (void *)audioCard);
-    if (ret != HDF_SUCCESS) {
-        ADM_LOG_ERR("start test thread1 fail:%d", ret);
-        return HDF_FAILURE;
-    }
-
     ret = memset_s(&threadCfg, sizeof(threadCfg), 0, sizeof(threadCfg));
     if (ret != HDF_SUCCESS) {
         ADM_LOG_ERR("memset_s failed");
-        OsalThreadDestroy(&audioSapmThread);
         OsalMemFree(sapmThreadName);
-        return ret;
+        return HDF_FAILURE;
     }
     threadCfg.name = sapmThreadName;
     threadCfg.priority = OSAL_THREAD_PRI_DEFAULT;
     threadCfg.stackSize = SAPM_STACK_SIZE;
 
+    ret = OsalThreadCreate(&audioSapmThread, (OsalThreadEntry)AudioSapmThread, (void *)audioCard);
+    if (ret != HDF_SUCCESS) {
+        ADM_LOG_ERR("start test thread1 fail:%d", ret);
+        OsalMemFree(sapmThreadName);
+        return HDF_FAILURE;
+    }
     ret = OsalThreadStart(&audioSapmThread, &threadCfg);
     if (HDF_SUCCESS != ret) {
         ADM_LOG_ERR("OsalThreadStart faile, ret=%d ", ret);
         OsalThreadDestroy(&audioSapmThread);
         OsalMemFree(sapmThreadName);
-        return ret;
+        return HDF_FAILURE;
     }
     g_cardNum++;
     audioCard->sapmStandbyState = false;
