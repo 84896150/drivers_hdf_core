@@ -7,6 +7,9 @@
  */
 
 #include "gpio/gpio_core.h"
+#ifdef __LITEOS_M__
+#include "los_interrupt.h"
+#endif
 #include "osal_mem.h"
 #include "platform_core.h"
 
@@ -16,12 +19,20 @@
 
 static inline void GpioInfoLock(struct GpioInfo *ginfo)
 {
+#ifndef __LITEOS_M__
     (void)OsalSpinLockIrqSave(&ginfo->spin, &ginfo->irqSave);
+#else
+    ginfo->irqSave = LOS_IntLock();
+#endif
 }
 
 static inline void GpioInfoUnlock(struct GpioInfo *ginfo)
 {
+#ifndef __LITEOS_M__
     (void)OsalSpinUnlockIrqRestore(&ginfo->spin, &ginfo->irqSave);
+#else
+    LOS_IntRestore(ginfo->irqSave);
+#endif
 }
 
 int32_t GpioCntlrWrite(struct GpioCntlr *cntlr, uint16_t local, uint16_t val)
@@ -132,7 +143,6 @@ void GpioCntlrIrqCallback(struct GpioCntlr *cntlr, uint16_t local)
 static int32_t GpioCntlrIrqThreadHandler(void *data)
 {
     int32_t ret;
-    uint32_t irqSave;
     struct GpioIrqRecord *irqRecord = (struct GpioIrqRecord *)data;
 
     while (true) {
@@ -147,11 +157,8 @@ static int32_t GpioCntlrIrqThreadHandler(void *data)
             (void)irqRecord->btmFunc(irqRecord->global, irqRecord->irqData);
         }
     }
-    (void)OsalSpinLockIrqSave(&irqRecord->spin, &irqSave);
-    (void)OsalSpinUnlockIrqRestore(&irqRecord->spin, &irqSave); // last post done
     HDF_LOGI("%s: gpio(%hu) thread exit!", __func__, irqRecord->global);
     (void)OsalSemDestroy(&irqRecord->sem);
-    (void)OsalSpinDestroy(&irqRecord->spin);
     (void)OsalThreadDestroy(&irqRecord->thread);
     OsalMemFree(irqRecord);
     return HDF_SUCCESS;
@@ -212,7 +219,6 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
             HDF_LOGE("%s: failed to create irq thread:%d!", __func__, ret);
             return ret;
         }
-        (void)OsalSpinInit(&irqRecord->spin);
         (void)OsalSemInit(&irqRecord->sem, 0);
         cfg.name = (char *)ginfo->name;
         cfg.priority = OSAL_THREAD_PRI_HIGHEST;
@@ -220,7 +226,6 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
         ret = OsalThreadStart(&irqRecord->thread, &cfg);
         if (ret != HDF_SUCCESS) {
             (void)OsalSemDestroy(&irqRecord->sem);
-            (void)OsalSpinDestroy(&irqRecord->spin);
             (void)OsalThreadDestroy(&irqRecord->thread);
             OsalMemFree(irqRecord);
             HDF_LOGE("%s: failed to start irq thread:%d!", __func__, ret);
