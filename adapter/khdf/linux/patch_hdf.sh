@@ -35,12 +35,11 @@ cp_list=(
 )
 
 specify_device_list=(
-    rk3568,
-    imx8mm,
-    rk3399,
-    t507
+    rk3568
+    imx8mm
+    yangfan
+    zhiyuan
 )
-
 
 function copy_external_compents()
 {
@@ -62,17 +61,21 @@ function ln_hdf_repos()
 
 function get_hdf_patch_patch()
 {
-    if [[ "$specify_device_list" =~ "$DEVICE_NAME" ]]; then
-	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
-	else
-	    HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${HDF_COMMON_PATCH}_patch/hdf.patch
-	fi
+  for i in ${specify_device_list[@]}
+  do
+    if [[ $i =~ $DEVICE_NAME ]] && [ $# -eq 1 ]; then
+        HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${DEVICE_NAME}_patch/hdf.patch
+        break
+    else
+        HDF_PATCH_FILE=${KERNEL_PATCH_PATH}/${HDF_COMMON_PATCH}_patch/hdf.patch
+    fi
+  done
 }
 
 function main()
 {
     cd $KERNEL_BUILD_ROOT
-    get_hdf_patch_patch
+    get_hdf_patch_patch $DEVICE_NAME
     patch -p1 < $HDF_PATCH_FILE
     ln_hdf_repos
     copy_external_compents
