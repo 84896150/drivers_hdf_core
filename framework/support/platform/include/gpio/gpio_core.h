@@ -80,7 +80,6 @@ struct GpioIrqRecord {
     GpioIrqFunc btmFunc;
     void *irqData;
     uint16_t global;
-    OsalSpinlock spin;
     struct OsalSem sem;
     struct OsalThread thread;
     bool removed;
@@ -103,10 +102,8 @@ static inline void GpioIrqRecordDestroy(struct GpioIrqRecord *irqRecord)
     if (irqRecord->btmFunc == NULL) {
         OsalMemFree(irqRecord);  // the last access to this record
     } else {
-        (void)OsalSpinLockIrqSave(&irqRecord->spin, &irqSave);
         irqRecord->removed = true;
         (void)OsalSemPost(&irqRecord->sem); // this is the last post ...
-        (void)OsalSpinUnlockIrqRestore(&irqRecord->spin, &irqSave);
     }
 }
 
