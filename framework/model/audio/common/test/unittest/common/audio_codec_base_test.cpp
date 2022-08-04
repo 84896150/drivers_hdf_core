@@ -68,4 +68,53 @@ HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_SetCtlFunc, TestSize.Level1)
     struct HdfTestMsg msg = {g_testAudioType, TESTSETCTLFUNC, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DeviceReadReg, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDEVREADREG, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DeviceWriteReg, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDEVWRITEREG, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DaiRegI2cRead, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDAIREGI2CREAD, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DaiRegI2cWrite, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDAIREGI2CWRITE, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DeviceRegI2cRead, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDEVREGI2CREAD, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DeviceRegI2cWrite, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDEVREGI2CWRITE, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DeviceInitRegConfig, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDEVINITREGCONFIG, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
+HWTEST_F(AudioCodecBaseTest, AudioCodecBaseTest_DaiDeviceStartupRegConfig, TestSize.Level1)
+{
+    struct HdfTestMsg msg = {g_testAudioType, TESTCODECDAIDEVSTARTUPREGCONFIG, -1};
+    EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
+}
+
 }

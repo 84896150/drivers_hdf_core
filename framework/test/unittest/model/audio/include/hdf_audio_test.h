@@ -113,6 +113,15 @@ typedef enum {
     AUDIO_ADM_TEST_CAPTUREPREPARE,                    // 97
     AUDIO_ADM_TEST_RENDERTRIGGER,                     // 98
     AUDIO_ADM_TEST_CAPTURETRIGGER,                    // 99
+
+    AUDIO_ADM_TEST_CODECDEVREADREG,                   // 100
+    AUDIO_ADM_TEST_CODECDEVWRITEREG,                  // 101
+    AUDIO_ADM_TEST_CODECDAIREGI2CREAD,                // 102
+    AUDIO_ADM_TEST_CODECDAIREGI2CWRITE,               // 103
+    AUDIO_ADM_TEST_CODECDEVREGI2CREAD,                // 104
+    AUDIO_ADM_TEST_CODECDEVREGI2CWRITE,               // 105
+    AUDIO_ADM_TEST_CODECDEVINITREGCONFIG,             // 106
+    AUDIO_ADM_TEST_CODECDAIDEVSTARTUPREGCONFIG,       // 107
 } HdfAudioTestCaseCmd;
 
 int32_t HdfAudioEntry(HdfTestMsg *msg);

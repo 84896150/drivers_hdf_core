@@ -24,12 +24,33 @@ static struct AudioMixerControl g_audioTestReg = {
     .invert = 0,    /* invert */
 };
 
+uint32_t g_value[4] = {5, 4, 3, 2};   //test value2
+struct AudioEnumKcontrol g_enumCtrl = {
+    .mask = 0xf,        /* test mask */
+    .max = 0xf,         /* test max */
+    .reg = 0xffff,      /* test reg left */
+    .reg2 = 0xffff,     /* test reg right */
+    .shiftLeft = 0x5,   /* test shift left */
+    .shiftRight = 0x6,  /* test shift right */
+    .values = g_value,
+    };
+
 static int32_t AudioDeviceReadRegMock(const struct CodecDevice *codec, uint32_t reg, uint32_t *value)
 {
     return HDF_SUCCESS;
 }
 
 static int32_t AudioDeviceWriteRegMock(const struct CodecDevice *codec, uint32_t reg, uint32_t value)
+{
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioDaiDeviceReadRegMock(const struct DaiDevice *codec, uint32_t reg, uint32_t *value)
+{
+    return HDF_SUCCESS;
+}
+
+static int32_t AudioDaiDeviceWriteRegMock(const struct DaiDevice *codec, uint32_t reg, uint32_t value)
 {
     return HDF_SUCCESS;
 }
@@ -189,6 +210,7 @@ int32_t AudioUpdateCodecRegBitsTest(void)
 int32_t AudioUpdateDaiRegBitsTest(void)
 {
     struct DaiDevice dai;
+    struct DaiData devData;
     HDF_LOGI("%s: enter", __func__);
 
     if (AudioUpdateDaiRegBits(NULL, 0, 0, 0, 0) == HDF_SUCCESS) {
@@ -197,12 +219,198 @@ int32_t AudioUpdateDaiRegBitsTest(void)
     }
 
     (void)memset_s(&dai, sizeof(struct DaiDevice), 0, sizeof(struct DaiDevice));
-    dai.devDaiName = "dai_service";
+    (void)memset_s(&devData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
+    devData.Read = AudioDaiDeviceReadRegMock;
+    devData.Write = AudioDaiDeviceWriteRegMock,
+
     if (AudioUpdateDaiRegBits(&dai, g_audioTestReg.reg, g_audioTestReg.mask,
         g_audioTestReg.shift, g_audioTestReg.min + 1) != HDF_SUCCESS) {
         HDF_LOGE("%s_[%d] AudioUpdateCodecRegBits fail", __func__, __LINE__);
+        return HDF_FAILURE;
     }
 
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioCodecRegUpdateTest(void)
+{
+    struct CodecDevice codec;
+    struct CodecData codecData;
+
+    (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
+    (void)memset_s(&codec, sizeof(struct CodecDevice), 0, sizeof(struct CodecDevice));
+    codecData.Read = AudioDeviceReadRegMock;
+    codecData.Write = AudioDeviceWriteRegMock,
+    codec.devCodecName = "codec_service_0";
+    OsalMutexInit(&codecData.mutex);
+    codec.devData = &codecData;
+
+    if (AudioCodecRegUpdate(NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecRegUpdate fail", __func__, __LINE__);
+        OsalMutexDestroy(&codecData.mutex);
+        return HDF_FAILURE;
+    }
+
+    if (AudioCodecRegUpdate(&codec, &g_audioTestReg) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecRegUpdate fail", __func__, __LINE__);
+        OsalMutexDestroy(&codecData.mutex);
+        return HDF_FAILURE;
+    }
+    OsalMutexDestroy(&codecData.mutex);
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioCodecMuxRegUpdateTest(void)
+{
+    struct CodecDevice codec;
+    struct CodecData codecData;
+    uint32_t value[2] = {1, 2};          //test value
+    uint32_t value2[4] = {5, 4, 3, 2};   //test value2
+
+    if (AudioCodecMuxRegUpdate(NULL, NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecMuxRegUpdate fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+    (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
+    (void)memset_s(&codec, sizeof(struct CodecDevice), 0, sizeof(struct CodecDevice));
+    codecData.Read = AudioDeviceReadRegMock;
+    codecData.Write = AudioDeviceWriteRegMock,
+    codec.devCodecName = "codec_service_0";
+    OsalMutexInit(&codecData.mutex);
+    codec.devData = &codecData;
+
+    if (AudioCodecMuxRegUpdate(&codec, &g_enumCtrl, &value) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecMuxRegUpdate fail", __func__, __LINE__);
+        OsalMutexDestroy(&codecData.mutex);
+        return HDF_FAILURE;
+    }
+    g_enumCtrl.values = NULL;
+    if (AudioCodecMuxRegUpdate(&codec, &g_enumCtrl, &value) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecMuxRegUpdate fail", __func__, __LINE__);
+        OsalMutexDestroy(&codecData.mutex);
+        return HDF_FAILURE;
+    }
+    g_enumCtrl.values = g_value;
+    OsalMutexDestroy(&codecData.mutex);
+
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioDaiRegUpdateTest(void)
+{
+    struct DaiDevice dai;
+    struct DaiData devData;
+
+    if (AudioDaiRegUpdate(NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioDaiRegUpdate fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+
+    (void)memset_s(&dai, sizeof(struct DaiDevice), 0, sizeof(struct DaiDevice));
+    (void)memset_s(&devData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
+    devData.Read = AudioDaiDeviceReadRegMock;
+    devData.Write = AudioDaiDeviceWriteRegMock,
+    OsalMutexInit(&devData.mutex);
+    dai.devData = &devData;
+
+    if (AudioDaiRegUpdate(&dai, &g_audioTestReg) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioDaiRegUpdate fail", __func__, __LINE__);
+        OsalMutexDestroy(&devData.mutex);
+        return HDF_FAILURE;
+    }
+    OsalMutexDestroy(&devData.mutex);
+
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioInfoEnumCtrlOpsTest(void)
+{
+    struct AudioKcontrol kcontrol;
+    struct AudioCtrlElemInfo elemInfo;
+
+    if (AudioInfoEnumCtrlOps(NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioInfoEnumCtrlOps fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+
+    (void)memset_s(&kcontrol, sizeof(struct AudioKcontrol), 0, sizeof(struct AudioKcontrol));
+    kcontrol.privateValue = &g_enumCtrl;
+    if (AudioInfoEnumCtrlOps(&kcontrol, &elemInfo) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioInfoEnumCtrlOps fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioCodecGetEnumCtrlOpsTest(void)
+{
+    struct AudioKcontrol kcontrol;
+    struct AudioCtrlElemValue elemValue;
+    struct AudioCard audioCard;
+    struct AudioRuntimeDeivces rtd;
+    struct CodecDevice codec;
+    struct CodecData codecData;
+
+    if (AudioCodecGetEnumCtrlOps(NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioInfoEnumCtrlOps fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+    (void)memset_s(&audioCard, sizeof(struct AudioCard), 0, sizeof(struct AudioCard));
+    (void)memset_s(&kcontrol, sizeof(struct AudioKcontrol), 0, sizeof(struct AudioKcontrol));
+
+    codecData.Read = AudioDeviceReadRegMock;
+    OsalMutexInit(&codecData.mutex);
+    codec.devData = &codecData;
+    rtd.codec = CodecDevice;
+    audioCard.rtd = &rtd;
+    kcontrol.pri = audioCard;
+    kcontrol.privateValue = &g_enumCtrl;
+
+    if (AudioCodecGetEnumCtrlOps(&kcontrol, &elemValue) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioInfoEnumCtrlOps fail", __func__, __LINE__);
+        OsalMutexDestroy(&codecData.mutex);
+        return HDF_FAILURE;
+    }
+    OsalMutexDestroy(&codecData.mutex);
+    HDF_LOGI("%s: success", __func__);
+    return HDF_SUCCESS;
+}
+
+int32_t AudioCodecSetEnumCtrlOpsTest()
+{
+    struct AudioKcontrol kcontrol;
+    struct AudioCtrlElemValue elemValue;
+    struct AudioCard audioCard;
+    struct AudioRuntimeDeivces rtd;
+    struct CodecDevice codec;
+    struct CodecData codecData;
+
+    if (AudioCodecSetEnumCtrlOps(NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecSetEnumCtrlOps fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+    codecData.Read = AudioDeviceReadRegMock;
+    codecData.Write = AudioDeviceWriteRegMock,
+    OsalMutexInit(&codecData.mutex);
+    codec.devData = &codecData;
+    rtd.codec = CodecDevice;
+    audioCard.rtd = &rtd;
+    kcontrol.pri = audioCard;
+    kcontrol.privateValue = &g_enumCtrl;
+    elemValue.value = {1, 2};
+
+    if (AudioCodecSetEnumCtrlOps(&kcontrol, &elemValue) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] AudioCodecSetEnumCtrlOps fail", __func__, __LINE__);
+        OsalMutexDestroy(&codecData.mutex);
+        return HDF_FAILURE;
+    }
+    OsalMutexDestroy(&codecData.mutex);
     HDF_LOGI("%s: success", __func__);
     return HDF_SUCCESS;
 }
