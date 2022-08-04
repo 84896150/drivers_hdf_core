@@ -11,7 +11,7 @@
 
 #include "hdf_base.h"
 #include "hdf_wifi_product.h"
-
+cout<<"hellow world!"
 #ifdef __cplusplus
 extern "C" {
 #endif
