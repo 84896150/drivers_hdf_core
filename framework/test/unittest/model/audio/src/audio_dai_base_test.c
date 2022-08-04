@@ -83,6 +83,7 @@ int32_t DaiDeviceReadRegTest(void)
         HDF_LOGE("%s_[%d] DaiSetConfigInfoOfControls fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
+    return HDF_SUCCESS;
 }
 
 int32_t DaiDeviceWriteRegTest(void)
@@ -91,5 +92,6 @@ int32_t DaiDeviceWriteRegTest(void)
         HDF_LOGE("%s_[%d] DaiSetConfigInfoOfControls fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
+    return HDF_SUCCESS;
 }
 

@@ -221,7 +221,7 @@ int32_t AudioUpdateDaiRegBitsTest(void)
     (void)memset_s(&dai, sizeof(struct DaiDevice), 0, sizeof(struct DaiDevice));
     (void)memset_s(&devData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     devData.Read = AudioDaiDeviceReadRegMock;
-    devData.Write = AudioDaiDeviceWriteRegMock,
+    devData.Write = AudioDaiDeviceWriteRegMock;
 
     if (AudioUpdateDaiRegBits(&dai, g_audioTestReg.reg, g_audioTestReg.mask,
         g_audioTestReg.shift, g_audioTestReg.min + 1) != HDF_SUCCESS) {
@@ -241,7 +241,7 @@ int32_t AudioCodecRegUpdateTest(void)
     (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
     (void)memset_s(&codec, sizeof(struct CodecDevice), 0, sizeof(struct CodecDevice));
     codecData.Read = AudioDeviceReadRegMock;
-    codecData.Write = AudioDeviceWriteRegMock,
+    codecData.Write = AudioDeviceWriteRegMock;
     codec.devCodecName = "codec_service_0";
     OsalMutexInit(&codecData.mutex);
     codec.devData = &codecData;
@@ -276,7 +276,7 @@ int32_t AudioCodecMuxRegUpdateTest(void)
     (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
     (void)memset_s(&codec, sizeof(struct CodecDevice), 0, sizeof(struct CodecDevice));
     codecData.Read = AudioDeviceReadRegMock;
-    codecData.Write = AudioDeviceWriteRegMock,
+    codecData.Write = AudioDeviceWriteRegMock;
     codec.devCodecName = "codec_service_0";
     OsalMutexInit(&codecData.mutex);
     codec.devData = &codecData;
@@ -312,7 +312,7 @@ int32_t AudioDaiRegUpdateTest(void)
     (void)memset_s(&dai, sizeof(struct DaiDevice), 0, sizeof(struct DaiDevice));
     (void)memset_s(&devData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     devData.Read = AudioDaiDeviceReadRegMock;
-    devData.Write = AudioDaiDeviceWriteRegMock,
+    devData.Write = AudioDaiDeviceWriteRegMock;
     OsalMutexInit(&devData.mutex);
     dai.devData = &devData;
 
@@ -367,9 +367,9 @@ int32_t AudioCodecGetEnumCtrlOpsTest(void)
     codecData.Read = AudioDeviceReadRegMock;
     OsalMutexInit(&codecData.mutex);
     codec.devData = &codecData;
-    rtd.codec = CodecDevice;
+    rtd.codec = &codec;
     audioCard.rtd = &rtd;
-    kcontrol.pri = audioCard;
+    kcontrol.pri = &audioCard;
     kcontrol.privateValue = &g_enumCtrl;
 
     if (AudioCodecGetEnumCtrlOps(&kcontrol, &elemValue) != HDF_SUCCESS) {
@@ -396,14 +396,15 @@ int32_t AudioCodecSetEnumCtrlOpsTest()
         return HDF_FAILURE;
     }
     codecData.Read = AudioDeviceReadRegMock;
-    codecData.Write = AudioDeviceWriteRegMock,
+    codecData.Write = AudioDeviceWriteRegMock;
     OsalMutexInit(&codecData.mutex);
     codec.devData = &codecData;
-    rtd.codec = CodecDevice;
+    rtd.codec = &codec;
     audioCard.rtd = &rtd;
-    kcontrol.pri = audioCard;
+    kcontrol.pri = &audioCard;
     kcontrol.privateValue = &g_enumCtrl;
-    elemValue.value = {1, 2};
+    elemValue.value[0] = 1;
+    elemValue.value[1] = 2;
 
     if (AudioCodecSetEnumCtrlOps(&kcontrol, &elemValue) != HDF_SUCCESS) {
         HDF_LOGE("%s_[%d] AudioCodecSetEnumCtrlOps fail", __func__, __LINE__);
