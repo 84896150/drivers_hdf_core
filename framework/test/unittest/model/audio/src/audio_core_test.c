@@ -222,13 +222,17 @@ int32_t AudioUpdateDaiRegBitsTest(void)
     (void)memset_s(&devData, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     devData.Read = AudioDaiDeviceReadRegMock;
     devData.Write = AudioDaiDeviceWriteRegMock;
+    dai.devDaiName = "dai_service_0";
+    OsalMutexInit(&devData.mutex);
+    dai.devData = &devData;
 
     if (AudioUpdateDaiRegBits(&dai, g_audioTestReg.reg, g_audioTestReg.mask,
         g_audioTestReg.shift, g_audioTestReg.min + 1) != HDF_SUCCESS) {
         HDF_LOGE("%s_[%d] AudioUpdateCodecRegBits fail", __func__, __LINE__);
+        OsalMutexDestroy(&devData.mutex);
         return HDF_FAILURE;
     }
-
+    OsalMutexDestroy(&devData.mutex);
     HDF_LOGI("%s: success", __func__);
     return HDF_SUCCESS;
 }

@@ -39,13 +39,13 @@ void AudioParseTest::TearDown()
 {
 }
 
-HWTEST_F(AudioParseTest, AudioParseTest_AudioFillConfigData, TestSize.Level1)
+HWTEST_F(AudioParseTest, AudioFillConfigData_001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TEST_AUDIOFILLCONFIGDATA, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
 
-HWTEST_F(AudioParseTest, AudioParseTest_CodecGetRegConfig, TestSize.Level1)
+HWTEST_F(AudioParseTest, CodecGetRegConfig_001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TEST_CODECGETREGCONFIG, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
