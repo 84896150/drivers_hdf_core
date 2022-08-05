@@ -22,6 +22,14 @@ int32_t CodecGetDaiNameTest(void);
 int32_t CodecGetConfigInfoTest(void);
 int32_t CodecSetConfigInfoTest(void);
 int32_t CodecSetCtlFuncTest(void);
+int32_t CodecDeviceReadRegTest(void);
+int32_t CodecDeviceWriteRegTest(void);
+int32_t CodecDaiRegI2cReadTest(void);
+int32_t CodecDaiRegI2cWriteTest(void);
+int32_t CodecDeviceRegI2cReadTest(void);
+int32_t CodecDeviceRegI2cWriteTest(void);
+int32_t CodecDeviceInitRegConfigTest(void);
+int32_t CodecDaiDeviceStartupRegConfigTest(void);
 
 #ifdef __cplusplus
 #if __cplusplus

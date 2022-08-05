@@ -109,7 +109,16 @@ static HdfTestCaseList g_hdfAudioTestCaseList[] = {
     {AUDIO_ADM_TEST_RENDERPREPARE, AudioRenderPrepareTest},
     {AUDIO_ADM_TEST_CAPTUREPREPARE, AudioCapturePrepareTest},
     {AUDIO_ADM_TEST_RENDERTRIGGER, AudioRenderTriggerTest},
-    {AUDIO_ADM_TEST_CAPTURETRIGGER, AudioCaptureTriggerTest}
+    {AUDIO_ADM_TEST_CAPTURETRIGGER, AudioCaptureTriggerTest},
+
+    {AUDIO_ADM_TEST_CODECDEVREADREG, CodecDeviceReadRegTest},
+    {AUDIO_ADM_TEST_CODECDEVWRITEREG, CodecDeviceWriteRegTest},
+    {AUDIO_ADM_TEST_CODECDAIREGI2CREAD, CodecDaiRegI2cReadTest},
+    {AUDIO_ADM_TEST_CODECDAIREGI2CWRITE, CodecDaiRegI2cWriteTest},
+    {AUDIO_ADM_TEST_CODECDEVREGI2CREAD, CodecDeviceRegI2cReadTest},
+    {AUDIO_ADM_TEST_CODECDEVREGI2CWRITE, CodecDeviceRegI2cWriteTest},
+    {AUDIO_ADM_TEST_CODECDEVINITREGCONFIG, CodecDeviceInitRegConfigTest},
+    {AUDIO_ADM_TEST_CODECDAIDEVSTARTUPREGCONFIG, CodecDaiDeviceStartupRegConfigTest}
 };
 
 int32_t HdfAudioEntry(HdfTestMsg *msg)

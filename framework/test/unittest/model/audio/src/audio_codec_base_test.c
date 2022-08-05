@@ -17,6 +17,7 @@ int32_t CodecGetServiceNameTest(void)
     struct HdfDeviceObject device;
     const char *drvCodecName = "";
 
+    (void)memset_s(&device, sizeof(struct HdfDeviceObject), 0, sizeof(struct HdfDeviceObject));
     if (CodecGetServiceName(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -33,6 +34,7 @@ int32_t CodecGetDaiNameTest(void)
     struct HdfDeviceObject device;
     const char *drvCodecName = "";
 
+    (void)memset_s(&device, sizeof(struct HdfDeviceObject), 0, sizeof(struct HdfDeviceObject));
     if (CodecGetDaiName(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
@@ -48,6 +50,8 @@ int32_t CodecGetConfigInfoTest(void)
 {
     struct HdfDeviceObject device;
     struct CodecData codecData;
+    (void)memset_s(&device, sizeof(struct HdfDeviceObject), 0, sizeof(struct HdfDeviceObject));
+    (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
 
     if (CodecGetConfigInfo(NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
@@ -80,15 +84,107 @@ int32_t CodecSetConfigInfoTest(void)
 
 int32_t CodecSetCtlFuncTest(void)
 {
-    struct CodecData codeData;
+    struct CodecData codecData;
 
+    (void)memset_s(&codecData, sizeof(struct CodecData), 0, sizeof(struct CodecData));
     if (CodecSetCtlFunc(NULL, 0, NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
-    if (CodecSetCtlFunc(&codeData, 0, NULL, NULL) == HDF_SUCCESS) {
+    if (CodecSetCtlFunc(&codecData, 0, NULL, NULL) == HDF_SUCCESS) {
         return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
 }
+
+int32_t CodecDeviceReadRegTest(void)
+{
+    const struct CodecDevice codec;
+
+    if (CodecDeviceReadReg(NULL, 0, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (CodecDeviceReadReg(&codec, 0, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDeviceWriteRegTest(void)
+{
+    if (CodecDeviceWriteReg(NULL, 0, 0) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDaiRegI2cReadTest(void)
+{
+    const struct DaiDevice dai;
+
+    if (CodecDaiRegI2cRead(NULL, 0, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (CodecDaiRegI2cRead(&dai, 0, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDaiRegI2cWriteTest(void)
+{
+    if (CodecDaiRegI2cWrite(NULL, 0, 0) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDeviceRegI2cReadTest(void)
+{
+    const struct CodecDevice codec;
+
+    if (CodecDeviceRegI2cRead(NULL, 0, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    if (CodecDeviceRegI2cRead(&codec, 0, NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDeviceRegI2cWriteTest(void)
+{
+    if (CodecDeviceRegI2cWrite(NULL, 0, 0) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDeviceInitRegConfigTest(void)
+{
+    if (CodecDeviceInitRegConfig(NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+int32_t CodecDaiDeviceStartupRegConfigTest(void)
+{
+    if (CodecDaiDeviceStartupRegConfig(NULL) == HDF_SUCCESS) {
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+

@@ -22,7 +22,7 @@ int32_t AudioFillConfigDataTest(void)
         return HDF_FAILURE;
     }
 
-    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_dev0");
+    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_primary_dev0");
     if (AudioFillConfigData(device, &configData) != HDF_SUCCESS) {
         HDF_LOGE("AudioFillConfigData fail");
         return HDF_FAILURE;
@@ -43,7 +43,7 @@ int32_t CodecGetRegConfigTest(void)
         return HDF_FAILURE;
     }
 
-    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_dev0");
+    device = DevSvcManagerClntGetDeviceObject("hdf_audio_codec_primary_dev0");
     if (CodecGetRegConfig(device, &regCfgData) != HDF_SUCCESS) {
         HDF_LOGE("AudioFillConfigData fail");
     }

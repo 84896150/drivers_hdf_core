@@ -16,11 +16,13 @@ int32_t DaiDataFromCardTest(void)
 {
     struct AudioCard card;
     if (DaiDataFromCard(NULL) != NULL) {
+        HDF_LOGE("%s_[%d] DaiDataFromCard fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
 
     (void)memset_s(&card, sizeof(struct AudioCard), 0, sizeof(struct AudioCard));
     if (DaiDataFromCard(&card) != NULL) {
+        HDF_LOGE("%s_[%d] DaiDataFromCard fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -34,10 +36,12 @@ int32_t DaiGetConfigInfoTest(void)
     (void)memset_s(&data, sizeof(struct DaiData), 0, sizeof(struct DaiData));
 
     if (DaiGetConfigInfo(NULL, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiGetConfigInfo fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
 
     if (DaiGetConfigInfo(&device, &data) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiGetConfigInfo fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -46,10 +50,12 @@ int32_t DaiGetConfigInfoTest(void)
 int32_t DaiCheckSampleRateTest(void)
 {
     if (DaiCheckSampleRate(0) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiCheckSampleRate fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
 
     if (DaiCheckSampleRate(AUDIO_SAMPLE_RATE_8000) != HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiCheckSampleRate fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;
@@ -59,11 +65,31 @@ int32_t DaiSetConfigInfoTest(void)
 {
     struct DaiData data;
     if (DaiSetConfigInfoOfControls(NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiSetConfigInfoOfControls fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
 
     (void)memset_s(&data, sizeof(struct DaiData), 0, sizeof(struct DaiData));
     if (DaiSetConfigInfoOfControls(&data) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiSetConfigInfoOfControls fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
+int32_t DaiDeviceReadRegTest(void)
+{
+    if (DaiDeviceReadReg(NULL, 0, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiSetConfigInfoOfControls fail", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
+}
+
+int32_t DaiDeviceWriteRegTest(void)
+{
+    if (DaiDeviceWriteReg(NULL, 0, NULL) == HDF_SUCCESS) {
+        HDF_LOGE("%s_[%d] DaiSetConfigInfoOfControls fail", __func__, __LINE__);
         return HDF_FAILURE;
     }
     return HDF_SUCCESS;

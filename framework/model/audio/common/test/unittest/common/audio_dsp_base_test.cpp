@@ -39,13 +39,13 @@ void AudioDspBaseTest::TearDown()
 {
 }
 
-HWTEST_F(AudioDspBaseTest, AudioDspBaseTest_DspGetServiceName, TestSize.Level1)
+HWTEST_F(AudioDspBaseTest, DspGetServiceName_001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TESTDSPGETSERVICENAME, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
 
-HWTEST_F(AudioDspBaseTest, AudioDspBaseTest_DspGetDaiName, TestSize.Level1)
+HWTEST_F(AudioDspBaseTest, DspGetDaiName_001, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TESTDSPGETDAINAME, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
