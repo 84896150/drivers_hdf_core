@@ -39,25 +39,25 @@ void AudioDaiBaseTest::TearDown()
 {
 }
 
-HWTEST_F(AudioDaiBaseTest, DataFromCard_001, TestSize.Level1)
+HWTEST_F(AudioDaiBaseTest, AudioDaiBaseTest_DataFromCard, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TESTDAIDATAFROMCARD, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
 
-HWTEST_F(AudioDaiBaseTest, GetConfigInfo_001, TestSize.Level1)
+HWTEST_F(AudioDaiBaseTest, AudioDaiBaseTest_GetConfigInfo, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TESTDAIGETCONFIGINFO, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
 
-HWTEST_F(AudioDaiBaseTest, CheckSampleRate_001, TestSize.Level1)
+HWTEST_F(AudioDaiBaseTest, AudioDaiBaseTest_CheckSampleRate, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TESTDAICHECKSAMPLERATE, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
 }
 
-HWTEST_F(AudioDaiBaseTest, SetConfigInfo_001, TestSize.Level1)
+HWTEST_F(AudioDaiBaseTest, AudioDaiBaseTest_SetConfigInfo, TestSize.Level1)
 {
     struct HdfTestMsg msg = {g_testAudioType, TESTDAISETCONFIGINFO, -1};
     EXPECT_EQ(0, HdfTestSendMsgToService(&msg));
