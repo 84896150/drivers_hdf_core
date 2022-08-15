@@ -17,7 +17,6 @@
  */
 #include <linux/kernel.h>
 #include <linux/module.h>
-
 #include <devmgr_service.h>
 #include <hdf_base.h>
 #include <hdf_device_desc.h>
