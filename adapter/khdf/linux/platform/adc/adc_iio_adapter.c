@@ -25,14 +25,18 @@
 #include "adc_core.h"
 
 #define ADC_STRING_VALUE_LEN 15
-#define ADC_DRIVER_PATHNAME_LEN 128
+#define ADC_MAX_DEVICE_NUM 12
+#define ADC_MAX_CHANNEL_NUM 128
+#define ADC_CHANNEL_NAME_LEN 128
 #define INT_MAX_VALUE 2147483647
 #define FILE_MODE 0600
 #define DECIMAL_SHIFT_LEFT 10
 
-static char g_driverPathname[ADC_DRIVER_PATHNAME_LEN] = {0};
+static const char* g_driverPathname[ADC_MAX_DEVICE_NUM][ADC_MAX_CHANNEL_NUM] = {0};
+static struct file* g_fp[ADC_MAX_CHANNEL_NUM] = {0};
 struct AdcIioDevice {
     struct AdcDevice device;
+    uint32_t channelNum;
     volatile unsigned char *regBase;
     volatile unsigned char *pinCtrlBase;
     uint32_t regBasePhy;
@@ -51,10 +55,9 @@ static int32_t AdcIioRead(struct AdcDevice *device, uint32_t channel, uint32_t *
 {
     int ret;
     loff_t pos = 0;
-    struct file *fp = NULL;
     unsigned char strValue[ADC_STRING_VALUE_LEN] = {0};
 
-    if (device == NULL || device->priv == NULL) {
+    if (device == NULL) {
         HDF_LOGE("%s: Illegal object", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -62,52 +65,61 @@ static int32_t AdcIioRead(struct AdcDevice *device, uint32_t channel, uint32_t *
         HDF_LOGE("%s: Illegal parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-
-    fp = (struct file *)device->priv;
-    ret = kernel_read(fp, strValue, ADC_STRING_VALUE_LEN, &pos);
+    struct AdcIioDevice *adcDevice = (struct AdcIioDevice *)device;
+    if (channel > adcDevice->channelNum || g_fp[channel] == NULL) {
+        HDF_LOGE("%s: invalid channel:%u", __func__, channel);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ret = kernel_read(g_fp[channel], strValue, ADC_STRING_VALUE_LEN, &pos);
     if (ret < 0) {
         HDF_LOGE("%s: kernel_read fail %d", __func__, ret);
         return HDF_PLT_ERR_OS_API;
     }
     *val = simple_strtoul(strValue, NULL, 0);
-
     return HDF_SUCCESS;
 }
 
 static int32_t AdcIioStop(struct AdcDevice *device)
 {
     int ret;
-    struct file *fp = NULL;
+    uint32_t i;
 
-    ret = HDF_FAILURE;
-    if (device == NULL || device->priv == NULL) {
+    if (device == NULL) {
         HDF_LOGE("%s: Illegal object", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-
-    fp = (struct file *)device->priv;
-    if (!IS_ERR(fp)) {
-        ret = filp_close(fp, NULL);
+    i = 0;
+    ret = HDF_FAILURE;
+    while (g_fp[i] != NULL) {
+        if (!IS_ERR(g_fp[i])) {
+            ret = filp_close(g_fp[i], NULL);
+            if (ret != 0) {
+                HDF_LOGE("%s: filp_close fail", __func__);
+                break;
+            }
+        }
+        g_fp[i] = NULL;
+        i++;
     }
-
     return ret;
 }
 
 static int32_t AdcIioStart(struct AdcDevice *device)
 {
-    struct file *fp = NULL;
-
+    uint32_t i;
+    struct AdcIioDevice *adcDevice;
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-
-    fp = filp_open(g_driverPathname, O_RDWR | O_NOCTTY | O_NDELAY, FILE_MODE);
-    if (IS_ERR(fp)) {
-        HDF_LOGE("filp open fail");
-        return HDF_PLT_ERR_OS_API;
+    adcDevice = (struct AdcIioDevice *)device;
+    for (i = 0; i < adcDevice->channelNum; i++) {
+        g_fp[i] = filp_open(g_driverPathname[adcDevice->deviceNum][i], O_RDWR | O_NOCTTY | O_NDELAY, FILE_MODE);
+        if (IS_ERR(g_fp[i])) {
+            HDF_LOGE("filp open fail");
+            return HDF_PLT_ERR_OS_API;
+        }       
     }
-    device->priv = fp;
 
     return HDF_SUCCESS;
 }
@@ -121,35 +133,37 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
 {
     int32_t ret;
     const char *drName = NULL;
+    char channelName[ADC_CHANNEL_NAME_LEN] = {0};
     int32_t drNameLen;
     struct DeviceResourceIface *drsOps = NULL;
+    int32_t i;
 
     drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (drsOps == NULL || drsOps->GetUint32 == NULL || drsOps->GetString == NULL) {
         HDF_LOGE("%s: invalid drs ops", __func__);
         return HDF_ERR_NOT_SUPPORT;
     }
-
-    ret = drsOps->GetString(node, "driver_name", &drName, "/sys/bus/iio/devices/iio:device0/in_voltage0-voltage0_raw");
-    if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: read driver_name failed", __func__);
-        return ret;
-    }
-    drNameLen = strlen(drName);
-    if (drNameLen > (ADC_DRIVER_PATHNAME_LEN - 1)) {
-        HDF_LOGE("%s: Illegal length of drName", __func__);
-        return HDF_FAILURE;
-    }
-    ret = memcpy_s(g_driverPathname, ADC_DRIVER_PATHNAME_LEN, drName, drNameLen);
-    if (ret != 0) {
-        HDF_LOGE("%s: memcpy drName fail", __func__);
-        return HDF_FAILURE;
-    }
-
     ret = drsOps->GetUint32(node, "deviceNum", &adcDevice->deviceNum, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read deviceNum failed", __func__);
         return ret;
+    }
+    ret = drsOps->GetUint32(node, "channelNum", &adcDevice->channelNum, 1);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: read channelNum failed", __func__);
+        return ret;
+    }
+    for (i = 0; i < adcDevice->channelNum; i++) {
+        if (sprintf_s(channelName, ADC_CHANNEL_NAME_LEN - 1, "driver_channel%d_name", i) < 0) {
+            return HDF_FAILURE;
+        }
+        ret = drsOps->GetString(node, channelName, &drName, "/sys/bus/iio/devices/iio:device0/in_voltage0-voltage0_raw");
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: read driver_name failed", __func__);
+            return ret;
+        }
+        g_driverPathname[adcDevice->deviceNum][i] = drName;
+        drName = NULL;
     }
 
     ret = drsOps->GetUint32(node, "scanMode", &adcDevice->scanMode, 0);
@@ -166,54 +180,102 @@ static int32_t AdcIioReadDrs(struct AdcIioDevice *adcDevice, const struct Device
     
     return HDF_SUCCESS;
 }
-
-static int32_t LinuxAdcInit(struct HdfDeviceObject *device)
+static int32_t AdcIioParseInit(struct HdfDeviceObject *device, struct DeviceResourceNode *node)
 {
     int32_t ret;
     struct AdcIioDevice *adcDevice = NULL;
 
-    if (device == NULL) {
-        HDF_LOGE("%s: device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    if (device->property == NULL) {
-        HDF_LOGE("%s: property of device is NULL", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
 
+    (void)device;
     adcDevice = (struct AdcIioDevice *)OsalMemCalloc(sizeof(*adcDevice));
     if (adcDevice == NULL) {
         HDF_LOGE("%s: alloc adcDevice failed", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
-    device->priv = adcDevice;
-    ret = AdcIioReadDrs(adcDevice, device->property);
+    ret = AdcIioReadDrs(adcDevice, node);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: read drs failed:%d", __func__, ret);
         OsalMemFree(adcDevice);
         return ret;
     }
-
+    adcDevice->device.priv = (void *)node;
     adcDevice->device.devNum = adcDevice->deviceNum;
     adcDevice->device.ops = &g_method;
+
     ret = AdcDeviceAdd(&adcDevice->device);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: add adc device:%u failed", __func__, adcDevice->deviceNum);
         OsalMemFree(adcDevice);
         return ret;
     }
-
     return HDF_SUCCESS;
+}
+
+static int32_t LinuxAdcInit(struct HdfDeviceObject *device)
+{
+    int32_t ret;
+    struct DeviceResourceNode *childNode = NULL;
+    if (device == NULL || device->property == NULL) {
+        HDF_LOGE("%s: device or property is null", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    ret = HDF_SUCCESS;
+    DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {
+        ret = AdcIioParseInit(device, childNode);
+        if (ret != HDF_SUCCESS) {
+            break;
+        }
+    }
+    if (ret == HDF_SUCCESS) {
+        HDF_LOGI("%s: adc init success.", __func__);    
+    } else {
+        HDF_LOGE("%s: adc init fail.", __func__);       
+    }
+
+    return ret;
+}
+
+static void AdcIioRemoveByNode(const struct DeviceResourceNode *node)
+{
+    int32_t ret;
+    int32_t deviceNum;
+    struct AdcDevice *device = NULL; 
+    struct AdcIioDevice *adcDevice = NULL;
+    struct DeviceResourceIface *drsOps = NULL;
+
+    drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    if (drsOps == NULL || drsOps->GetUint32 == NULL) {
+        HDF_LOGE("%s: invalid drs ops", __func__);
+        return;
+    }
+
+    ret = drsOps->GetUint32(node, "deviceNum", (uint32_t *)&deviceNum, 0);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: read deviceNum failed", __func__);
+        return;
+    }
+
+    device = AdcDeviceGet(deviceNum);
+    if (device != NULL && device->priv == node) {
+        AdcDevicePut(device);
+        AdcDeviceRemove(device);
+        adcDevice = (struct AdcIioDevice *)device;
+        OsalMemFree(adcDevice);
+    }
+    return;
 }
 
 static void LinuxAdcRelease(struct HdfDeviceObject *device)
 {
-    if (device == NULL || device->priv == NULL) {
-        HDF_LOGE("%s: Illegal parameter", __func__);
+    const struct DeviceResourceNode *childNode = NULL;
+    if (device == NULL || device->property == NULL) {
+        HDF_LOGE("%s: device or property is null", __func__);
         return;
     }
-    AdcDeviceRemove(device->priv);
-    OsalMemFree(device->priv);
+    DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {
+        AdcIioRemoveByNode(childNode);
+    }
 }
 
 struct HdfDriverEntry g_adcLinuxDriverEntry = {
