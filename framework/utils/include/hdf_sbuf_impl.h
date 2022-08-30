@@ -66,6 +66,9 @@ struct HdfSBufImpl {
     void (*transDataOwnership)(struct HdfSBufImpl *sbuf);
 };
 
+struct HdfSBufImpl *SbufObtainRaw(size_t capacity);
+struct HdfSBufImpl *SbufBindRaw(uintptr_t base, size_t size);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

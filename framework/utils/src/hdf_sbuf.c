@@ -41,8 +41,6 @@ struct HdfSBuf {
     uint32_t type;
 };
 
-struct HdfSBufImpl *SbufObtainRaw(size_t capacity);
-struct HdfSBufImpl *SbufBindRaw(uintptr_t base, size_t size);
 struct HdfSBufImpl *SbufObtainIpc(size_t capacity) __attribute__((weak));
 struct HdfSBufImpl *SbufBindIpc(uintptr_t base, size_t size) __attribute__((weak));
 struct HdfSBufImpl *SbufObtainIpcHw(size_t capacity) __attribute__((weak));
