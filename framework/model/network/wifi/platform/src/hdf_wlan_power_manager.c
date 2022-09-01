@@ -103,6 +103,7 @@ static int32_t HdfWlanChipPowerOn(struct PowerManager* powerMgr)
     ret = HdfWlanSinglePowerActive(&powerMgrimpl->powerDatas.power1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: HdfWlanPowerActive fail! ret:%d\n", __func__, ret);
+        (void)HdfWlanSingleDeActive(&powerMgrimpl->powerDatas.power0);
         return HDF_FAILURE;
     }
     HDF_LOGI("%s: HdfWlanChipPowerOn successful!", __func__);
