@@ -55,3 +55,6 @@ obj-$(CONFIG_DRIVERS_HDF_VIBRATOR) += model/misc/vibrator/
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += model/audio/
 obj-$(CONFIG_DRIVERS_HDF_DSOFTBUS) += model/misc/dsoftbus/
 obj-$(CONFIG_DRIVERS_HDF_NETWORK) += network/
+ifeq ($(CONFIG_DRIVERS_HDF_CAMERA), y)
+obj-$(CONFIG_DRIVERS_HDF_CAMERA) += model/camera/
+endif
