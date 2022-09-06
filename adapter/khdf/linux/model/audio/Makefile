@@ -21,9 +21,6 @@ KHDF_AUDIO_IMX8MM_INC_DIR = drivers/hdf/framework/../../../device/board/osware/$
 KHDF_AUDIO_A311D_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 KHDF_AUDIO_A311D_INC_DIR = drivers/hdf/framework/../../../device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 
-obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
-          $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
-
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_core.o \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_host.o \
@@ -42,6 +39,9 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC) += \
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/rk3568/audio_drivers/
+
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
+          $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_A311D) += \
           $(KHDF_AUDIO_A311D_DIR)/codec/soc_codec/a311d_codec_adapter.o \
