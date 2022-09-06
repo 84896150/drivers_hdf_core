@@ -91,8 +91,7 @@ if (defined(ohos_lite)) {
       ]
     }
 
-    install_images = [ system_base_dir ]
-    relative_install_dir = "chipset-pub-sdk"
+    install_images = [ chipset_base_dir ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
   }
