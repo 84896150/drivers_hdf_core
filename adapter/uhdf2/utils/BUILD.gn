@@ -155,6 +155,5 @@ if (defined(ohos_lite)) {
       chipset_base_dir,
       "updater",
     ]
-    relative_install_dir = "chipset-pub-sdk"
   }
 }
