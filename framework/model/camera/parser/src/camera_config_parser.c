@@ -390,7 +390,7 @@ static int32_t ParseCameraConfig(const struct DeviceResourceNode *node,
     return HDF_SUCCESS;
 }
 
-static int32_t HdfParseCameraConfig(const struct DeviceResourceNode *node)
+int32_t HdfParseCameraConfig(const struct DeviceResourceNode *node)
 {
     int32_t ret;
     struct DeviceResourceIface *drsOps = NULL;
