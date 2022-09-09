@@ -8,6 +8,7 @@
 
 #ifndef CAMERA_PRODUCT_H
 #define CAMERA_PRODUCT_H
+
 #define CAMERA_MAX_CMD_ID    6
 
 enum CameraDeviceType {
