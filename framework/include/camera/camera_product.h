@@ -8,12 +8,6 @@
 
 #ifndef CAMERA_PRODUCT_H
 #define CAMERA_PRODUCT_H
-
-#include "hdf_base.h"
-#include "hdf_types.h"
-#include "hdf_sbuf.h"
-#include "hdf_device_desc.h"
-
 #define CAMERA_MAX_CMD_ID    6
 
 enum CameraDeviceType {
