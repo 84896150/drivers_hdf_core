@@ -10,8 +10,6 @@
 
 namespace OHOS {
 namespace HDI {
-const char *TAB = TAB;
-
 void ASTType::SetName(const std::string &name)
 {
     name_ = name;
@@ -148,6 +146,11 @@ bool ASTType::IsSmqType()
 }
 
 bool ASTType::IsAshmemType()
+{
+    return false;
+}
+
+bool ASTType::IsBufferHandleType()
 {
     return false;
 }
