@@ -1,0 +1,22 @@
+/*
+ * Copyright (c) 2022 Huawei Device Co., Ltd.
+ *
+ * HDF is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
+ */
+
+#ifndef CAMERA_SENSOR_H
+#define CAMERA_SENSOR_H
+
+#include <core/hdf_device_desc.h>
+#include <utils/hdf_base.h>
+#include <utils/hdf_sbuf.h>
+#include "hdf_types.h"
+
+int32_t CameraCmdSensorPowerUp(int type, struct HdfSBuf *reqData, struct HdfSBuf *rspData);
+int32_t CameraCmdSensorPowerDown(int type, struct HdfSBuf *reqData, struct HdfSBuf *rspData);
+int32_t CameraCmdSensorGetConfig(int type, struct HdfSBuf *reqData, struct HdfSBuf *rspData);
+int32_t CameraCmdSensorSetConfig(int type, struct HdfSBuf *reqData, struct HdfSBuf *rspData);
+
+#endif  // CAMERA_SENSOR_H
