@@ -84,7 +84,7 @@ int32_t CameraDeviceDeInit(struct CameraDevice *camDev)
     return HDF_SUCCESS;
 }
 
-struct CameraDevice *CameraDeviceInit(const char *ifName, uint32_t len)
+struct CameraDevice *CameraDeviceInit(char *ifName, uint32_t len)
 {
     struct CameraDevice *camDevice = NULL;
     int32_t index = 0;
@@ -98,7 +98,7 @@ struct CameraDevice *CameraDeviceInit(const char *ifName, uint32_t len)
         HDF_LOGE("%s: fail: OsalMemCalloc fail!", __func__);
         return NULL;
     }
-    if (strcpy_s(camDevice->name, DEVICE_NAME_SIZE, (char*)ifName) != EOK) {
+    if (strcpy_s(camDevice->name, DEVICE_NAME_SIZE, ifName) != EOK) {
         HDF_LOGE("%s: fail: strcpy_s fail!", __func__);
         OsalMemFree(camDevice);
         return NULL;
