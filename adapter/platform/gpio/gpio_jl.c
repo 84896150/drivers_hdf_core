@@ -38,20 +38,6 @@ struct GpioDevice {
 
 static struct GpioCntlr g_gpioCntlr;
 
-static inline uint32_t jlToGroupNum(uint16_t gpio)
-{
-    return (uint32_t)(gpio / JL_BIT_MAX);
-}
-
-static inline uint32_t jlToBitNum(uint16_t gpio)
-{
-    return (uint32_t)(gpio % JL_BIT_MAX);
-}
-
-static inline uint32_t jlToGpioNum(uint32_t group, uint32_t bit)
-{
-    return (uint32_t)(group * JL_BIT_MAX + bit - 1);
-}
 ___interrupt
 GpioIrqFunc GpioIrqHdl()
 {
@@ -70,6 +56,7 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
 static int32_t GpioDevUnSetIrq(struct GpioCntlr *cntlr, uint16_t gpio);
 static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio);
 static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio);
+
 /* GpioMethod definitions */
 struct GpioMethod g_GpioCntlrMethod = {
     .request = NULL,
@@ -100,24 +87,27 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
 static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
     (void)cntlr;
-    uint16_t value;
-    value = gpio_read(gpio);
+    uint16_t value = gpio_read(gpio);
     *val = value;
     return HDF_SUCCESS;
 }
 
 static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t dir)
 {
+    int ret;
     int32_t direction;
     switch (dir) {
-    	case GPIO_DIR_OUT:
-        	direction = false;
-        	break;
-    	case GPIO_DIR_IN:
-        	direction = true;
-        	break;
+        case GPIO_DIR_OUT:
+            direction = false;
+            break;
+        case GPIO_DIR_IN:
+            direction = true;
+            break;
+        default:
+            direction = -1;
+            break;
     }
-    int ret = gpio_set_direction(gpio, direction);
+    ret = gpio_set_direction(gpio, direction);
     if (ret != 0) {
         HDF_LOGE("%s gpio_set_direction failed", __func__);
         return HDF_ERR_NOT_SUPPORT;
@@ -132,14 +122,15 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
     uint8_t trigger_edge;
 
     switch (mode) {
-    	case OSAL_IRQF_TRIGGER_RISING:
-        	trigger_edge = false;
-        	break;
-    	case OSAL_IRQF_TRIGGER_FALLING:
-        	trigger_edge = true;
-        	break;
-    	default:
-        	break;
+        case OSAL_IRQF_TRIGGER_RISING:
+            trigger_edge = false;
+            break;
+        case OSAL_IRQF_TRIGGER_FALLING:
+            trigger_edge = true;
+            break;
+        default:
+            trigger_edge = -1;
+            break;
     }
 
     JL_WAKEUP->CON0 &= ~BIT(0);
@@ -167,7 +158,6 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
 static int32_t GpioDevUnSetIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
     (void)cntlr;
-    uint32_t gnum, bnum, realpin;
 
     JL_WAKEUP->CON0 &= ~BIT(0);
     gpio_set_die(gpio, 0);
@@ -190,6 +180,7 @@ static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
     irq_disable(IRQ_PORT_IDX);
     return HDF_SUCCESS;
 }
+
 #define root_device_info_match_attr "hdf_manager"
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #define PLATFORM_GPIO_CONFIG HCS_NODE(HCS_NODE(HCS_ROOT, platform), gpio_config)
@@ -207,16 +198,13 @@ static uint32_t GetGpioDeviceResource(struct GpioDevice *device)
         HDF_LOGE("%s: resource is NULL", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-    printf("%s", HCS_PROP(HCS_NODE(HCS_ROOT, device_info), match_attr));
+    HDF_LOGD("%s", HCS_PROP(HCS_NODE(HCS_ROOT, device_info), match_attr));
     return HDF_SUCCESS;
 }
 #else
 static uint32_t GetGpioDeviceResource(struct GpioDevice *device,
                                       const struct DeviceResourceNode *resourceNode)
 {
-    printf("%s: entry!\n", __func__);
-    uint32_t relPin;
-    int32_t ret;
     struct GpioResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
     if (device == NULL || resourceNode == NULL) {
@@ -230,27 +218,27 @@ static uint32_t GetGpioDeviceResource(struct GpioDevice *device,
     }
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (dri == NULL || dri->GetUint32 == NULL) {
-        HDF_LOGE("DeviceResourceIface is invalid");
+        HDF_LOGE("%s: DeviceResourceIface is invalid", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     if (dri->GetUint32(resourceNode, "groupNum", &resource->groupNum, 0) != HDF_SUCCESS) {
-        HDF_LOGE("gpio config read groupNum fail");
+        HDF_LOGE("%s: gpio config read groupNum fail", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: resource->groupNum %d\n", __func__, resource->groupNum);
+    HDF_LOGD("%s: resource->groupNum %u\n", __func__, resource->groupNum);
 
     if (dri->GetUint32(resourceNode, "iogroupNum", &resource->iogroupNum, 0) != HDF_SUCCESS) {
-        HDF_LOGE("gpio config read iogroupNum fail");
+        HDF_LOGE("%s: gpio config read iogroupNum fail", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: resource->iogroupNum %d\n", __func__, resource->iogroupNum);
+    HDF_LOGD("%s: resource->iogroupNum %u\n", __func__, resource->iogroupNum);
 
     if (dri->GetUint32(resourceNode, "pinNum", &resource->pinNum, 0) != HDF_SUCCESS) {
-        HDF_LOGE("gpio config read pinNum fail");
+        HDF_LOGE("%s: gpio config read pinNum fail", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: resource->pinNum %d\n", __func__, resource->pinNum);
+    HDF_LOGD("%s: resource->pinNum %u\n", __func__, resource->pinNum);
 
     return HDF_SUCCESS;
 }
@@ -258,7 +246,7 @@ static uint32_t GetGpioDeviceResource(struct GpioDevice *device,
 
 static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, struct HdfDeviceObject *device)
 {
-    printf("%s: entry!\n", __func__);
+    HDF_LOGD("%s: entry!\n", __func__);
     int32_t ret;
 
     struct GpioDevice *gpioDevice = NULL;
@@ -294,7 +282,7 @@ static int32_t AttachGpioDevice(struct GpioCntlr *gpioCntlr, struct HdfDeviceObj
 
 static int32_t GpioDriverInit(struct HdfDeviceObject *device)
 {
-    printf("%s: entry, %p!\n", __func__, device);
+    HDF_LOGD("%s: entry!\n", __func__);
 
     int32_t ret;
     struct GpioCntlr *gpioCntlr = NULL;
@@ -312,20 +300,20 @@ static int32_t GpioDriverInit(struct HdfDeviceObject *device)
 
     gpioCntlr = GpioCntlrFromHdfDev(device);
     if (gpioCntlr == NULL) {
-        HDF_LOGE("GpioCntlrFromHdfDev fail\r\n");
+        HDF_LOGE("%s: GpioCntlrFromHdfDev fail\r\n", __func__);
         return HDF_DEV_ERR_NO_DEVICE_SERVICE;
     }
 
     ret = AttachGpioDevice(gpioCntlr, device); // GpioCntlr add GpioDevice to priv
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("AttachGpioDevice fail\r\n");
+        HDF_LOGE("%s: AttachGpioDevice fail\r\n", __func__);
         return HDF_DEV_ERR_ATTACHDEV_FAIL;
     }
 
     gpioCntlr->ops = &g_GpioCntlrMethod; // register callback
     ret = GpioCntlrAdd(gpioCntlr);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("GpioCntlrAdd fail %d\r\n", gpioCntlr->start);
+        HDF_LOGE("%s: GpioCntlrAdd fail %hu\r\n", __func__, gpioCntlr->start);
         return HDF_FAILURE;
     }
 
@@ -340,7 +328,7 @@ static int32_t GpioDriverBind(struct HdfDeviceObject *device)
 
 static void GpioDriverRelease(struct HdfDeviceObject *device)
 {
-    printf("%s: entry!\n", __func__);
+    HDF_LOGD("%s: entry!\n", __func__);
     struct GpioCntlr *gpioCntlr = NULL;
 
     if (device == NULL) {
@@ -350,7 +338,7 @@ static void GpioDriverRelease(struct HdfDeviceObject *device)
 
     gpioCntlr = GpioCntlrFromHdfDev(device);
     if (gpioCntlr == NULL) {
-        HDF_LOGE("%s: host is NULL", __func__);
+        HDF_LOGE("%s: gpioCntlr is NULL", __func__);
         return;
     }
 

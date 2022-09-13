@@ -33,7 +33,7 @@ struct SpiResource {
     uint32_t spiMosiPin;
     uint32_t spiMisoPin;
     uint32_t spiCsPin;
-    uint8_t    port;
+    uint8_t port;
 };
 
 struct SpiDevice {
@@ -49,47 +49,24 @@ struct spi_platform_data spi1_p_data = {
     .role = SPI_ROLE_MASTER,
 };
 
-static void SpiIomuxInit(struct SpiDevice *spiDevice)
-{
-    struct SpiResource *resource = NULL;
-    uint32_t spiPort;
-    HDF_LOGI("%s: Enter\r\n", __func__);
-
-    if (spiDevice == NULL) {
-        HDF_LOGE("%s: invalid parameter\r\n", __func__);
-        return;
-    }
-
-    resource = &spiDevice->resource;
-    if (resource == NULL) {
-        HDF_LOGE("resource is null\r\n");
-    }
-}
-
 int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret = 0;
     uint32_t spiId;
-    uint32_t len = size;
-    struct SpiResource *resource = NULL;
-    int32_t status = HDF_FAILURE;
+    uint32_t len;
+    int32_t status;
     if (spiDevice == NULL || data == NULL || size == 0) {
-        HDF_LOGE("spi input para err\r\n");
+        HDF_LOGE("%s: spi input para err\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     spiId = spiDevice->spiId;
-    resource = &spiDevice->resource;
-    if (resource == NULL) {
-        HDF_LOGE("resource is null\r\n");
-        return HDF_ERR_INVALID_OBJECT;
-    }
     status = OsalMutexLock(&spiDevice->mutex);
-    if (HDF_SUCCESS != status) {
+    if (status != HDF_SUCCESS) {
         HDF_LOGE("%s spi_mutex wait error = 0x%X!\r\n", __func__, status);
         return HDF_ERR_TIMEOUT;
     }
-    ret = spi_dma_send(spiDevice->spiId, data, size);
+    ret = spi_dma_send(spiId, data, size);
     if (ret == size) {
         ret = 0;
     } else {
@@ -103,84 +80,69 @@ int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t si
 int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t size, uint32_t timeOut)
 {
     int32_t ret = 0;
-    uint32_t len = size;
     uint32_t remainder = 0;
-    int32_t status = HDF_FAILURE;
+    int32_t status;
     uint8_t *cmd = NULL;
     uint32_t spiId;
-    struct SpiResource *resource = NULL;
     if (spiDevice == NULL || data == NULL || size == 0) {
-        HDF_LOGE("spi input para err\r\n");
+        HDF_LOGE("%s: spi input para err\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     spiId = spiDevice->spiId;
-    resource = &spiDevice->resource;
-    if (resource == NULL) {
-        HDF_LOGE("resource is null\r\n");
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    cmd = (uint8_t *)OsalMemAlloc(len);
+
+    cmd = (uint8_t *)OsalMemCalloc(size);
     if (cmd == NULL) {
-        HDF_LOGE("%s OsalMemAlloc size %ld error\r\n", __FUNCTION__, len);
+        HDF_LOGE("%s OsalMemAlloc size %u error\r\n", __func__, size);
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    memset_s(cmd, len, 0, len);
-
     status = OsalMutexLock(&spiDevice->mutex);
-    if (HDF_SUCCESS != status) {
+    if (status != HDF_SUCCESS) {
         HDF_LOGE("%s spi_mutex wait error = 0x%X!\r\n", __func__, status);
         OsalMemFree(cmd);
         return HDF_ERR_TIMEOUT;
     }
-    remainder = len <= SPI_DMA_MAX ? len : SPI_DMA_MAX;
+    remainder = size <= SPI_DMA_MAX ? size : SPI_DMA_MAX;
 
-    ret = spi_dma_recv(spiDevice->spiId, data, remainder);
+    ret = spi_dma_recv(spiId, data, remainder);
     if (ret == remainder) {
-        ret = 0;
+        ret = HDF_SUCCESS;
     } else {
         HDF_LOGE("%s spi dma recv error = 0x%X!\r\n", __func__, ret);
-        ret = -1;
+        ret = HDF_FAILURE;
     }
 
-    len -= remainder;
+    size -= remainder;
     data += remainder;
 
-    if (ret) {
-        HDF_LOGE("spi tail fail %ld, size %ld\r\n", ret, len);
-    }
     OsalMutexUnlock(&spiDevice->mutex);
     OsalMemFree(cmd);
     return ret;
 }
 
-int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData,
-                       uint16_t rxSize)
+int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData, uint16_t rxSize)
 {
     int32_t ret;
     int32_t status;
-    uint32_t spiId;
-    struct SpiResource *resource = NULL;
     if (spiDevice == NULL || txData == NULL || txSize == 0 || rxData == NULL || rxSize == 0) {
-        HDF_LOGE("spi input para err\r\n");
+        HDF_LOGE("%s: spi input para err\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    spiId = spiDevice->spiId;
-    resource = &spiDevice->resource;
+
     status = OsalMutexLock(&spiDevice->mutex);
-    if (HDF_SUCCESS != status) {
+    if (status != HDF_SUCCESS) {
         HDF_LOGE("%s spi_mutex wait error = 0x%X!\r\n", __func__, status);
         return HDF_ERR_TIMEOUT;
     }
     ret = HalSpiSend(spiDevice, txData, txSize, TIMEOUT);
     if (ret != 0) {
-        HDF_LOGE("spi dma tail fail %d\r\n", ret);
+        HDF_LOGE("%s: spi dma tail fail %d\r\n", __func__, ret);
     }
 
     ret = HalSpiRecv(spiDevice, rxData, rxSize, TIMEOUT);
     if (ret != 0) {
-        HDF_LOGE("spi dma tail fail %d\r\n", ret);
+        HDF_LOGE("%s: spi dma tail fail %d\r\n", __func__, ret);
     }
 
     OsalMutexUnlock(&spiDevice->mutex);
@@ -190,20 +152,16 @@ int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t tx
 static int32_t InitSpiDevice(struct SpiDevice *spiDevice)
 {
     uint32_t spiPort;
-    struct SpiResource *resource = NULL;
     if (spiDevice == NULL) {
         HDF_LOGE("%s: invalid parameter\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
-    resource = &spiDevice->resource;
     spiPort = spiDevice->spiId;
-
-    SpiIomuxInit(spiDevice);
 
     if (spiDevice->mutex.realMutex == NULL) {
         if (OsalMutexInit(&spiDevice->mutex) != HDF_SUCCESS) {
-            HDF_LOGE("spi Mutex create failed!\r\n");
+            HDF_LOGE("%s: spi Mutex create failed!\r\n", __func__);
             return HDF_FAILURE;
         }
     }
@@ -226,28 +184,28 @@ static int32_t GetSpiDeviceResource(struct SpiDevice *spiDevice, const struct De
     }
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);   // open HDF
     if (dri == NULL || dri->GetUint32 == NULL) {
-        HDF_LOGE("DeviceResourceIface is invalid\r\n");
+        HDF_LOGE("%s: DeviceResourceIface is invalid\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (dri->GetUint32(resourceNode, "num", &resource->num, 0) != HDF_SUCCESS) {
-        HDF_LOGE("spi config read num fail\r\n");
+        HDF_LOGE("%s: spi config read num fail\r\n", __func__);
         return HDF_FAILURE;
     }
     spiDevice->spiId = resource->num;
 
     if (dri->GetUint32(resourceNode, "speed", &resource->speed, 0) != HDF_SUCCESS) {
-        HDF_LOGE("spi config read base fail\r\n");
+        HDF_LOGE("%s: spi config read base fail\r\n", __func__);
         return HDF_FAILURE;
     }
 
     if (dri->GetUint32(resourceNode, "transmode", &resource->transmode, 0) != HDF_SUCCESS) {
-        HDF_LOGE("spi config read transmode fail\r\n");
+        HDF_LOGE("%s: spi config read transmode fail\r\n", __func__);
         return HDF_FAILURE;
     }
     char *port = NULL;
     if (dri->GetString(resourceNode, "port", &port, NULL) != HDF_SUCCESS) {
-        HDF_LOGE("spi config read port fail\r\n");
+        HDF_LOGE("%s: spi config read port fail\r\n", __func__);
         return HDF_FAILURE;
     }
 
@@ -315,10 +273,10 @@ static int32_t SpiDriverBind(struct HdfDeviceObject *device)
 {
     struct SpiCntlr *spiCntlr = NULL;
     if (device == NULL) {
-        HDF_LOGE("Sample device object is null!\r\n");
+        HDF_LOGE("%s: Sample device object is null!\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    HDF_LOGI("Enter %s:\r\n", __func__);
+
     spiCntlr = (struct SpiCntlr *)OsalMemAlloc(sizeof(struct SpiCntlr));
     if (spiCntlr == NULL) {
         HDF_LOGE("%s: host is NULL\r\n", __func__);
@@ -340,7 +298,6 @@ static int32_t SpiDriverInit(struct HdfDeviceObject *device)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    HDF_LOGI("Enter %s:", __func__);
     spiCntlr = SpiCntlrFromDevice(device);
     if (spiCntlr == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL", __func__);
@@ -368,8 +325,6 @@ static void SpiDriverRelease(struct HdfDeviceObject *device)
     struct SpiCntlr *spiCntlr = NULL;
     struct SpiDevice *spiDevice = NULL;
 
-    HDF_LOGI("Enter %s\r\n", __func__);
-
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL\r\n", __func__);
         return;
@@ -390,7 +345,6 @@ static void SpiDriverRelease(struct HdfDeviceObject *device)
 
 static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
 {
-    HDF_LOGI("Enter %s\r\n", __func__);
     int ret;
     struct SpiDevice *spiDevice = NULL;
     struct SpiResource *resource = NULL;
@@ -400,10 +354,13 @@ static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
     if (spiDevice == NULL) {
-        HDF_LOGE("spi device is NULL\r\n");
+        HDF_LOGE("%s: spi device is NULL\r\n", __func__);
         return HDF_DEV_ERR_NO_DEVICE;
     }
     resource = &spiDevice->resource;
+    if (resource == NULL) {
+        HDF_LOGE("%s: resource is null\r\n", __func__);
+    }
     spi1_p_data.port  = resource->port;
     spi1_p_data.clk   = resource->speed;
     spi1_p_data.role  = SPI_ROLE_MASTER;
@@ -424,7 +381,7 @@ static int32_t SpiDevClose(struct SpiCntlr *spiCntlr)
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
     if (spiDevice == NULL) {
-        HDF_LOGE("spi device is NULL\r\n");
+        HDF_LOGE("%s: spi device is NULL\r\n", __func__);
         return HDF_DEV_ERR_NO_DEVICE;
     }
     return HDF_SUCCESS;
@@ -448,6 +405,7 @@ static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 
     return HDF_SUCCESS;
 }
+
 static int32_t SpiDevSetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 {
     struct SpiDevice *spiDevice = NULL;
@@ -468,7 +426,6 @@ static int32_t SpiDevSetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 
 static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, uint32_t count)
 {
-    uint32_t spiId;
     struct SpiDevice *spiDevice = NULL;
     struct SpiMsg *msg = NULL;
     if (spiCntlr == NULL || spiCntlr->priv == NULL) {
@@ -476,14 +433,15 @@ static int32_t SpiDevTransfer(struct SpiCntlr *spiCntlr, struct SpiMsg *spiMsg, 
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    spiId = spiDevice->spiId;
-    HDF_LOGI("%s: %u Enter\r\n", __func__, spiId);
+    if (spiDevice != NULL) {
+        OsalMemFree(spiDevice);
+    }
+
     for (size_t i = 0; i < count; i++) {
         msg = &spiMsg[i];
         /* pull down cs at first */
         if (spiDevice->resource.spiCsSoft) {
         }
-
         if ((msg->wbuf != NULL) && (msg->rbuf == NULL)) {
             HalSpiSend(spiDevice, msg->wbuf, msg->len, TIMEOUT);
         }

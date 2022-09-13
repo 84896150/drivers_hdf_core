@@ -25,7 +25,7 @@
 
 struct PwmResource {
     uint32_t channel;
-    uint32_t aligned_mode;
+    uint32_t alignedMode;
     uint32_t freq;
 };
 
@@ -45,12 +45,12 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 {
     struct PwmDevice *prvPwm = NULL;
     struct pwm_platform_data pwmCfg;
-    uint32_t aligned_mode;
+    uint32_t alignedMode;
     uint32_t channel;
 
     if (pwm == NULL || config == NULL) {
-        HDF_LOGE("%s\r\n", __FUNCTION__);
-        return HDF_FAILURE;
+        HDF_LOGE("%s\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
     }
 
     prvPwm = (struct PwmDevice *)PwmGetPriv(pwm);
@@ -61,8 +61,8 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     pwmCfg.duty = config->duty * PERCENT;
     pwmCfg.frequency = prvPwm->resource.freq;
     channel = prvPwm->resource.channel;
-    aligned_mode = prvPwm->resource.aligned_mode;
-    pwmCfg.complementary_en = 1;                  
+    alignedMode = prvPwm->resource.alignedMode;
+    pwmCfg.complementary_en = 1;
 
     switch (channel) {
         case PWM_CH0:
@@ -105,10 +105,10 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
             break;
     }
 
-    if (aligned_mode == 0) {
-        pwmCfg.pwm_aligned_mode = pwm_edge_aligned;       // 边沿对齐模式
+    if (alignedMode == 0) {
+        pwmCfg.pwm_aligned_mode = pwm_edge_aligned;       // edge alignment mode
     } else {
-        pwmCfg.pwm_aligned_mode = pwm_center_aligned;     // 中心对齐模式
+        pwmCfg.pwm_aligned_mode = pwm_center_aligned;     // center alignment mode
     }
 
     if (config->status == PWM_ENABLE_STATUS) {
@@ -118,46 +118,45 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     return HDF_SUCCESS;
 }
 
-static uint32_t GetPwmDeviceResource(
-    struct PwmDevice *device, const struct DeviceResourceNode *resourceNode)
+static uint32_t GetPwmDeviceResource(struct PwmDevice *device, const struct DeviceResourceNode *resourceNode)
 {
     uint32_t tempPin = 0;
     struct DeviceResourceIface *dri = NULL;
     struct PwmResource *resource = NULL;
     if (device == NULL || resourceNode == NULL) {
-        HDF_LOGE("resource or device is NULL\r\n");
+        HDF_LOGE("%s: resource or device is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     resource = &device->resource;
     if (resource == NULL) {
-        HDF_LOGE("resource is NULL\r\n");
+        HDF_LOGE("%s: resource is NULL\r\n", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
 
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (dri == NULL || dri->GetUint32 == NULL) {
-        HDF_LOGE("DeviceResourceIface is invalid\r\n");
+        HDF_LOGE("%s: DeviceResourceIface is invalid\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (dri->GetUint32(resourceNode, "channel", &resource->channel, 0) != HDF_SUCCESS) {
-        HDF_LOGE("read channel fail\r\n");
+        HDF_LOGE("%s: read channel fail\r\n", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: resource->channel %u\r\n", __func__, resource->channel);
+    HDF_LOGD("%s: resource->channel %u\r\n", __func__, resource->channel);
 
     if (dri->GetUint32(resourceNode, "freq", &resource->freq, 0) != HDF_SUCCESS) {
-        HDF_LOGE("read freq fail\r\n");
+        HDF_LOGE("%s: read freq fail\r\n", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: resource->freq %u\r\n", __func__, resource->freq);
+    HDF_LOGD("%s: resource->freq %u\r\n", __func__, resource->freq);
 
-    if (dri->GetUint32(resourceNode, "aligned_mode", &resource->aligned_mode, 0) != HDF_SUCCESS) {
-        HDF_LOGE("read aligned_mode fail\r\n");
+    if (dri->GetUint32(resourceNode, "aligned_mode", &resource->alignedMode, 0) != HDF_SUCCESS) {
+        HDF_LOGE("%s: read aligned_mode fail\r\n", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGE("%s: resource->aligned_mode %u\r\n", __func__, resource->aligned_mode);
+    HDF_LOGD("%s: resource->alignedMode %u\r\n", __func__, resource->alignedMode);
 
     return HDF_SUCCESS;
 }
@@ -180,7 +179,7 @@ static int32_t AttachPwmDevice(struct PwmDev *host, struct HdfDeviceObject *devi
     ret = GetPwmDeviceResource(pwmDevice, device->property);
     if (ret != HDF_SUCCESS) {
         (void)OsalMemFree(pwmDevice);
-        return HDF_FAILURE;
+        return ret;
     }
 
     host->priv = pwmDevice;
@@ -193,13 +192,12 @@ static int32_t PwmDriverBind(struct HdfDeviceObject *device)
     static struct PwmDev devService;
 
     if (device == NULL) {
-        HDF_LOGE("hdfDevice object is null!\r\n");
+        HDF_LOGE("%s: hdfDevice object is null!\r\n", __func__);
         return HDF_FAILURE;
     }
 
     device->service = &devService.service;
     devService.device = device;
-    HDF_LOGI("Enter %s\r\n", __func__);
 
     return HDF_SUCCESS;
 }
@@ -213,8 +211,6 @@ static int32_t PwmDriverInit(struct HdfDeviceObject *device)
         HDF_LOGE("%s: device is NULL\r\n", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
-
-    HDF_LOGI("Enter %s:\r\n", __func__);
 
     host = (struct PwmDev *)OsalMemCalloc(sizeof(struct PwmDev));
     if (host == NULL) {
@@ -238,7 +234,7 @@ static int32_t PwmDriverInit(struct HdfDeviceObject *device)
         return HDF_DEV_ERR_NO_DEVICE;
     }
 
-    HDF_LOGI("PwmDriverInit success!\r\n");
+    HDF_LOGD("PwmDriverInit success!\r\n");
     return HDF_SUCCESS;
 }
 
@@ -247,7 +243,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
     struct PwmDev *host = NULL;
 
     if (device == NULL || device->service == NULL) {
-        HDF_LOGE("device is null\r\n");
+        HDF_LOGE("%s: device is null\r\n", __func__);
         return;
     }
 
@@ -261,7 +257,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
     }
 
     device->service = NULL;
-    HDF_LOGI("PwmDriverRelease finish!!\r\n");
+    HDF_LOGD("PwmDriverRelease finish!!\r\n");
     return;
 }
 
