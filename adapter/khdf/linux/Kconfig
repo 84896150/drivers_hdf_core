@@ -29,5 +29,6 @@ source "drivers/hdf/khdf/model/misc/vibrator/Kconfig"
 source "drivers/hdf/khdf/model/misc/dsoftbus/Kconfig"
 source "drivers/hdf/khdf/model/misc/light/Kconfig"
 source "drivers/hdf/khdf/network/Kconfig"
+source "drivers/hdf/khdf/model/camera/Kconfig"
 
 endif
