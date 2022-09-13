@@ -84,7 +84,7 @@ int32_t CameraDeviceDeInit(struct CameraDevice *camDev)
     return HDF_SUCCESS;
 }
 
-struct CameraDevice *CameraDeviceInit(char *ifName, uint32_t len)
+struct CameraDevice *CameraDeviceInit(const char *ifName, uint32_t len)
 {
     struct CameraDevice *camDevice = NULL;
     int32_t index = 0;

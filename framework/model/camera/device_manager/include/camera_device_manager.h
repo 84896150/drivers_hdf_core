@@ -101,7 +101,7 @@ struct CameraDeviceDriverFactory {
 };
 
 struct CameraDevice {
-    const char name[DEVICE_NAME_SIZE];
+    char name[DEVICE_NAME_SIZE];
     char driverName[DRIVER_NAME_SIZE];
     const char* classDriverName;
     struct CameraDeviceDriver *deviceDriver;
@@ -137,7 +137,7 @@ struct CameraDeviceDriver {
     int32_t (*deinit)(struct CameraDeviceDriver *deviceDriver, struct CameraDevice *camDev);
 };
 
-struct CameraDevice *CameraDeviceInit(char *ifName, uint32_t len);
+struct CameraDevice *CameraDeviceInit(const char *ifName, uint32_t len);
 int32_t CameraDeviceDeInit(struct CameraDevice *camDev);
 struct CameraDeviceDriverFactory *CameraGetDeviceDriverFactoryByName(const char *deviceName);
 int32_t CameraRegDeviceDriverFactory(struct CameraDeviceDriverFactory *obj);
