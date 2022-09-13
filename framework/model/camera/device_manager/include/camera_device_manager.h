@@ -20,7 +20,7 @@
 
 #define CHECK_RETURN_RET(ret) do { \
     if ((ret) != 0) { \
-        HDF_LOGE("%s: failed, ret = %d, line: %d", __func__, ret, __LINE__); \
+        HDF_LOGE("%s: failed, ret = %{public}d, line: %{public}d", __func__, ret, __LINE__); \
         return HDF_FAILURE; \
     } \
 } while (0)

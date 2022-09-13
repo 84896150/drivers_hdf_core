@@ -18,7 +18,7 @@
 
 #define CHECK_PARSER_CONFIG_RET(ret,  str) do { \
     if ((ret) != HDF_SUCCESS) { \
-        HDF_LOGE("%s: get %s failed, ret = %d, line : %d", __func__, str, ret, __LINE__); \
+        HDF_LOGE("%s: get %s failed, ret = %{public}d, line : %{public}d", __func__, str, ret, __LINE__); \
         return HDF_FAILURE; \
     } \
 } while (0)
