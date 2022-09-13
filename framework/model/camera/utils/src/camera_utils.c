@@ -92,7 +92,7 @@ struct CameraDeviceDriver *GetDeviceDriver(const struct CameraDevice *cameraDev)
     }
 
     if (strcmp(cameraDev->classDriverName, HDF_CAMERA_PLATFORM_DRIVER_NAME) != HDF_SUCCESS) {
-        HDF_LOGE("%s: unkown driver name: %{public}s!", func, camDev->classDriverName)
+        HDF_LOGE("%s: unkown driver name: %{public}s!", __func__, cameraDev->classDriverName);
         return NULL;
     }
 
@@ -108,7 +108,7 @@ int32_t ReleasePlatformCameraDevice(struct CameraDevice *cameraDev)
         return HDF_ERR_INVALID_PARAM;
     }
     if (strcmp(cameraDev->classDriverName, HDF_CAMERA_PLATFORM_DRIVER_NAME) != HDF_SUCCESS) {
-        HDF_LOGE("%s: unkown driver name: %{public}s!", func, camDev->classDriverName)
+        HDF_LOGE("%s: unkown driver name: %{public}s!", __func__, cameraDev->classDriverName);
         return HDF_FAILURE;
     }
     ret = CameraDeviceDeInit(cameraDev);
