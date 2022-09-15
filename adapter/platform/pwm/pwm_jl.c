@@ -41,6 +41,55 @@ struct PwmMethod g_pwmmethod = {
     .setConfig = PwmDevSetConfig,
 };
 
+static int32_t PwmDevConfigInit(uint32_t channel, struct pwm_platform_data *pwmCfg)
+{
+    if (pwmCfg == NULL) {
+        HDF_LOGE("%s pwmcfg is null\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    switch (channel) {
+        case PWM_CH0:
+            pwmCfg->pwm_ch_num = pwm_ch0;
+            pwmCfg->pwm_timer_num = pwm_timer0;
+            pwmCfg->h_pin = IO_PORTA_00;
+            pwmCfg->l_pin = IO_PORTA_01;
+            break;
+        case PWM_CH1:
+            pwmCfg->pwm_ch_num = pwm_ch1;
+            pwmCfg->pwm_timer_num = pwm_timer1;
+            pwmCfg->h_pin = -1;
+            pwmCfg->l_pin = IO_PORTB_02;
+            break;
+        case PWM_CH2:
+            pwmCfg->pwm_ch_num = pwm_ch2;
+            pwmCfg->pwm_timer_num = pwm_timer2;
+            pwmCfg->h_pin = -1;
+            pwmCfg->l_pin = -1;
+            break;
+        case PWM_CH3:
+            pwmCfg->pwm_ch_num = pwm_ch3;
+            pwmCfg->pwm_timer_num = pwm_timer3;
+            pwmCfg->h_pin = -1;
+            pwmCfg->l_pin = IO_PORTB_10;
+            break;
+        case PWM_CH4:
+            pwmCfg->pwm_ch_num = pwm_ch4;
+            pwmCfg->pwm_timer_num = pwm_timer4;
+            pwmCfg->h_pin = -1;
+            pwmCfg->l_pin = IO_PORTA_10;
+            break;
+        case PWM_CH5:
+            pwmCfg->pwm_ch_num = pwm_ch5;
+            pwmCfg->pwm_timer_num = pwm_timer5;
+            pwmCfg->h_pin = IO_PORTC_04;
+            pwmCfg->l_pin = IO_PORTC_05;
+            break;
+        default:
+            break;
+    }
+}
+
 static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 {
     struct PwmDevice *prvPwm = NULL;
@@ -64,46 +113,7 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     alignedMode = prvPwm->resource.alignedMode;
     pwmCfg.complementary_en = 1;
 
-    switch (channel) {
-        case PWM_CH0:
-            pwmCfg.pwm_ch_num = pwm_ch0;
-            pwmCfg.pwm_timer_num = pwm_timer0;
-            pwmCfg.h_pin = IO_PORTA_00;
-            pwmCfg.l_pin = IO_PORTA_01;
-            break;
-        case PWM_CH1:
-            pwmCfg.pwm_ch_num = pwm_ch1;
-            pwmCfg.pwm_timer_num = pwm_timer1;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = IO_PORTB_02;
-            break;
-        case PWM_CH2:
-            pwmCfg.pwm_ch_num = pwm_ch2;
-            pwmCfg.pwm_timer_num = pwm_timer2;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = -1;
-            break;
-        case PWM_CH3:
-            pwmCfg.pwm_ch_num = pwm_ch3;
-            pwmCfg.pwm_timer_num = pwm_timer3;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = IO_PORTB_10;
-            break;
-        case PWM_CH4:
-            pwmCfg.pwm_ch_num = pwm_ch4;
-            pwmCfg.pwm_timer_num = pwm_timer4;
-            pwmCfg.h_pin = -1;
-            pwmCfg.l_pin = IO_PORTA_10;
-            break;
-        case PWM_CH5:
-            pwmCfg.pwm_ch_num = pwm_ch5;
-            pwmCfg.pwm_timer_num = pwm_timer5;
-            pwmCfg.h_pin = IO_PORTC_04;
-            pwmCfg.l_pin = IO_PORTC_05;
-            break;
-        default:
-            break;
-    }
+    PwmDevConfigInit(channel, &pwmCfg);
 
     if (alignedMode == 0) {
         pwmCfg.pwm_aligned_mode = pwm_edge_aligned;       // edge alignment mode
