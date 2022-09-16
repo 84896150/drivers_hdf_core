@@ -20,8 +20,9 @@ KHDF_AUDIO_IMX8MM_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/osware/$(DEVICE
 KHDF_AUDIO_IMX8MM_INC_DIR = drivers/hdf/framework/../../../device/board/osware/$(DEVICE_NAME)/drivers/audio
 KHDF_AUDIO_A311D_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
 KHDF_AUDIO_A311D_INC_DIR = drivers/hdf/framework/../../../device/board/unionman/$(DEVICE_NAME)/kernel/hdf/audio
-KHDF_AUDIO_RK3588_DIR = $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/$(DEVICE_NAME)/audio_drivers
-KHDF_AUDIO_RK3588_INC_DIR = drivers/hdf/framework/../../../device/board/hihope/$(DEVICE_NAME)/audio_drivers
+
+obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
+          $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/dayu210/audio_drivers/
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
           $(KHDF_AUDIO_ROOT_DIR)/core/src/audio_core.o \
@@ -38,16 +39,6 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO) += \
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_HI3516CODEC) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hisilicon/hispark_taurus/audio_drivers/
-
-obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
-          $(KHDF_AUDIO_RK3588_DIR)/accessory/es8323/src/es8323_adapter.o \
-          $(KHDF_AUDIO_RK3588_DIR)/accessory/es8323/src/es8323_impl.o \
-          $(KHDF_AUDIO_RK3588_DIR)/accessory/es8323/src/es8323_linux_driver.o \
-          $(KHDF_AUDIO_RK3588_DIR)/dai/src/rk3588_dai_linux_driver.o \
-          $(KHDF_AUDIO_RK3588_DIR)/dai/src/rk3588_dai_adapter.o \
-          $(KHDF_AUDIO_RK3588_DIR)/dai/src/rk3588_dai_ops.o \
-          $(KHDF_AUDIO_RK3588_DIR)/soc/src/rk3588_dma_adapter.o \
-          $(KHDF_AUDIO_RK3588_DIR)/soc/src/rk3588_dma_ops.o
 
 obj-$(CONFIG_DRIVERS_HDF_AUDIO_RK3568) += \
           $(KHDF_AUDIO_BASE_ROOT_DIR)/device/board/hihope/rk3568/audio_drivers/
@@ -83,14 +74,6 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_IMX8MM) += \
           $(KHDF_AUDIO_IMX8MM_DIR)/dsp/src/dsp_ops.o \
           $(KHDF_AUDIO_IMX8MM_DIR)/codec/src/wm8904.o \
           $(KHDF_AUDIO_IMX8MM_DIR)/codec/src/wm8904_impl.o
-
-ccflags-$(CONFIG_DRIVERS_HDF_AUDIO_RK3588) += \
-             -I$(srctree)/$(KHDF_AUDIO_RK3588_INC_DIR)/soc/include \
-             -I$(srctree)/$(KHDF_AUDIO_RK3588_INC_DIR)/dai/include \
-             -I$(srctree)/$(KHDF_AUDIO_RK3588_INC_DIR)/dsp/include \
-             -I$(srctree)/$(KHDF_AUDIO_RK3588_INC_DIR)/accessory/es8323/include \
-             -I$(srctree)/$(KHDF_AUDIO_RK3588_INC_DIR)/include \
-             -I$(srctree)/sound/soc/rockchip
 
 ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -lm -lc -lgcc -std=gnu99 -Werror\
              -I$(srctree)/$(KHDF_AUDIO_KHDF_ROOT_DIR)/osal/include \
