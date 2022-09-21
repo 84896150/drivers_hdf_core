@@ -609,7 +609,6 @@ static int32_t GadgetPnpNotifyReportThread(void *arg)
 static int32_t UsbPnpNotifyCallback(struct notifier_block *self, unsigned long action, void *dev)
 {
     (void)self;
-    int32_t ret;
     struct UsbInfoQueryPara infoQueryPara;
     struct UsbPnpDeviceInfo *deviceInfo = NULL;
     union UsbPnpDeviceInfoData pnpInfoData;
@@ -622,7 +621,7 @@ static int32_t UsbPnpNotifyCallback(struct notifier_block *self, unsigned long a
             if (deviceInfo == NULL) {
                 HDF_LOGE("%s:%d USB_DEVICE_ADD create info failed", __func__, __LINE__);
             } else {
-                ret = UsbPnpNotifyAddInitInfo(deviceInfo, pnpInfoData);
+                int32_t ret = UsbPnpNotifyAddInitInfo(deviceInfo, pnpInfoData);
                 if (ret != HDF_SUCCESS) {
                     HDF_LOGE("%s:%d USB_DEVICE_ADD UsbPnpNotifyAddInitInfo error", __func__, __LINE__);
                 } else {
