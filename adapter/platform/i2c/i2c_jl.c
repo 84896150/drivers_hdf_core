@@ -90,13 +90,13 @@ int32_t InitI2cDevice(struct I2cDevice *device)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    resource = &device->resource;
-    device->port = resource->port;
-    i2cPort = device->port;
-    if (i2cPort >= HAL_I2C_ID_NUM) {
+    if (device->port >= HAL_I2C_ID_NUM) {
         HDF_LOGE("%s: i2c port %u not support\r\n", __func__, i2cPort);
         return HDF_ERR_NOT_SUPPORT;
     }
+    resource = &device->resource;
+    device->port = resource->port;
+    i2cPort = device->port;
 
     if (OsalMutexInit(&device->mutex) != HDF_SUCCESS) {
         HDF_LOGE("%s %d OsalMutexInit fail\r\n", __func__, __LINE__);

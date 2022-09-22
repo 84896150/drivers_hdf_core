@@ -94,7 +94,6 @@ static int32_t HalUartRecv(struct UartDevice *device, uint8_t *data, uint32_t ex
 
 static void UartStart(struct UartDevice *device)
 {
-    uint32_t uartId;
     struct UartResource *resource = NULL;
     struct uart_platform_data_t u_arg = {0};
 
@@ -103,7 +102,6 @@ static void UartStart(struct UartDevice *device)
         return;
     }
     resource = &device->resource;
-    uartId = device->uartId;
     u_arg.tx_pin = resource->txPin;
     u_arg.rx_pin = resource->rxPin;
 
@@ -121,7 +119,6 @@ static void UartStart(struct UartDevice *device)
     u_arg.is_9bit = 0;
 
     device->uartBus = uart_dev_open(&u_arg);
-    HDF_LOGI("%s %ld\r\n", __func__, uartId);
 }
 
 /* HdfDriverEntry method definitions */
@@ -195,10 +192,6 @@ static uint32_t GetUartDeviceResource(struct UartDevice *device, const struct De
         return HDF_ERR_INVALID_PARAM;
     }
     resource = &device->resource;
-    if (resource == NULL) {
-        HDF_LOGE("%s: INVALID OBJECT", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (dri == NULL || dri->GetUint32 == NULL) {
         HDF_LOGE("%s: DeviceResourceIface is invalid", __func__);

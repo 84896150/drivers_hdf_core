@@ -21,6 +21,7 @@
 #define MAX_SPI_NUMBER 1
 #define TIMEOUT 1000
 #define PORT_STRING_OFFSET  0x5
+#define ONE_MILLION 1000000
 
 struct SpiResource {
     uint32_t num;
@@ -45,13 +46,13 @@ struct SpiDevice {
 struct spi_platform_data spi1_p_data = {
     .port = 'A',
     .mode = SPI_MODE_BIDIR_1BIT,
-    .clk = 1000000,
+    .clk = ONE_MILLION,
     .role = SPI_ROLE_MASTER,
 };
 
 int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t size, uint32_t timeOut)
 {
-    int32_t ret = 0;
+    int32_t ret;
     uint32_t spiId;
     uint32_t len;
     int32_t status;
@@ -68,10 +69,10 @@ int32_t HalSpiSend(struct SpiDevice *spiDevice, const uint8_t *data, uint16_t si
     }
     ret = spi_dma_send(spiId, data, size);
     if (ret == size) {
-        ret = 0;
+        ret = HDF_SUCCESS;
     } else {
         HDF_LOGE("%s spi dma send error = 0x%X!\r\n", __func__, ret);
-        ret = -1;
+        ret = HDF_FAILURE;
     }
     OsalMutexUnlock(&spiDevice->mutex);
     return ret;

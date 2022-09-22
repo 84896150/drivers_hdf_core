@@ -22,7 +22,8 @@
 #define JL_BIT_MAX   16
 #define JL_IO_MAX_GPIO_PIN_NUM 48
 #define JL_GPIO_PRI  3
-static uint32_t user_realpin = -1;
+
+static uint32_t g_user_realpin = -1;
 
 struct GpioResource {
     uint32_t groupNum;
@@ -39,12 +40,13 @@ struct GpioDevice {
 static struct GpioCntlr g_gpioCntlr;
 
 ___interrupt
+
 GpioIrqFunc GpioIrqHdl()
 {
     uint16_t ret;
     if (JL_WAKEUP->CON3 & BIT(0)) {
         JL_WAKEUP->CON2 |= BIT(0) ;
-        GpioCntlrIrqCallback(&g_gpioCntlr, user_realpin);
+        GpioCntlrIrqCallback(&g_gpioCntlr, g_user_realpin);
     }
 }
 
@@ -87,6 +89,9 @@ static int32_t GpioDevWrite(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t val
 static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val)
 {
     (void)cntlr;
+    if (val == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     uint16_t value = gpio_read(gpio);
     *val = value;
     return HDF_SUCCESS;
@@ -146,7 +151,7 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
         gpio_set_pull_down(gpio, 0);
     }
 
-    user_realpin = gpio;
+    g_user_realpin = gpio;
     request_irq(IRQ_PORT_IDX, JL_GPIO_PRI, (void *)GpioIrqHdl, 0);
     JL_IOMAP->CON2 &= ~(0b111111 << 0);
     JL_IOMAP->CON2 |= (gpio << 0);
@@ -182,12 +187,12 @@ static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 }
 
 #define root_device_info_match_attr "hdf_manager"
+
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
 #define PLATFORM_GPIO_CONFIG HCS_NODE(HCS_NODE(HCS_ROOT, platform), gpio_config)
 static uint32_t GetGpioDeviceResource(struct GpioDevice *device)
 {
     uint32_t relPin;
-    int32_t ret;
     struct GpioResource *resource = NULL;
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
@@ -314,7 +319,7 @@ static int32_t GpioDriverInit(struct HdfDeviceObject *device)
     ret = GpioCntlrAdd(gpioCntlr);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: GpioCntlrAdd fail %hu\r\n", __func__, gpioCntlr->start);
-        return HDF_FAILURE;
+        return ret;
     }
 
     return HDF_SUCCESS;
