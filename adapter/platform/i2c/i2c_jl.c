@@ -140,7 +140,7 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
         return HDF_ERR_INVALID_OBJECT;
     }
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
-    if (dri == NULL || dri->GetUint32 == NULL) {
+    if (dri == NULL || dri->GetUint32 == NULL || dri->GetString == NULL) {
         HDF_LOGE("%s: DeviceResourceIface is invalid\r\n", __func__);
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -283,7 +283,7 @@ static void I2cWriteByte(uint8_t data, uint8_t ifStart)
     hw_iic_stop(0);
 }
 
-static int32_t I2cSend(struct I2cMsg *msg)
+static void I2cSend(struct I2cMsg *msg)
 {
     uint16_t len;
     uint8_t ifack, ifstop, ifstart;
@@ -291,7 +291,7 @@ static int32_t I2cSend(struct I2cMsg *msg)
     len = msg->len;
     ifstop = 0;
     if (msg->flags & I2C_FLAG_READ) {
-        ifack = msg->flags & I2C_FLAG_READ_NO_ACK ? 0 : 1;
+        ifack = (msg->flags & I2C_FLAG_READ_NO_ACK) ? 0 : 1;
         for (int32_t j = 0; j < len; j++) {
             if (((msg->flags & I2C_FLAG_STOP) && j) == (len - 1)) {
                 ifstop = 1;
@@ -299,7 +299,7 @@ static int32_t I2cSend(struct I2cMsg *msg)
             msg->buf[j] = I2cReadByte(ifack, ifstop);
         }
     } else {
-        ifack = msg->flags & I2C_FLAG_IGNORE_NO_ACK ? 0 : 1;
+        ifack = (msg->flags & I2C_FLAG_IGNORE_NO_ACK) ? 0 : 1;
         for (int32_t j = 0; j < len; j++) {
             if (((msg->flags & I2C_FLAG_NO_START) == 0) && (j == 0)) {
                 ifstart = 1;
@@ -312,13 +312,14 @@ static int32_t I2cSend(struct I2cMsg *msg)
 static int32_t I2c_Transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16_t count)
 {
     int ret;
+    uint32_t i2cPort;
     struct I2cMsg *msg = NULL;
 
-    uint32_t i2cPort;
     if (device == NULL || msgs == NULL) {
         HDF_LOGE("%s: device or  msgs is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
+
     i2cPort = (uint32_t)device->port;
     if (i2cPort > HAL_I2C_ID_NUM) {
         HDF_LOGE("%s: i2c port %u not support\r\n", __func__, i2cPort);
@@ -346,10 +347,6 @@ static int32_t I2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int1
     }
 
     device = (struct I2cDevice *)cntlr->priv;
-    if (device == NULL) {
-        HDF_LOGE("%s: I2cDevice is NULL\r\n", __func__);
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
 
     return I2c_Transfer(device, msgs, count);
 }
