@@ -37,7 +37,7 @@ struct PwmDevice {
 
 static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config);
 
-struct PwmMethod g_pwmmethod = {
+static struct PwmMethod g_pwmmethod = {
     .setConfig = PwmDevSetConfig,
 };
 
@@ -130,7 +130,6 @@ static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 
 static uint32_t GetPwmDeviceResource(struct PwmDevice *device, const struct DeviceResourceNode *resourceNode)
 {
-    uint32_t tempPin = 0;
     struct DeviceResourceIface *dri = NULL;
     struct PwmResource *resource = NULL;
     if (device == NULL || resourceNode == NULL) {
@@ -258,7 +257,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
     }
 
     host = (struct PwmDev *)device->service;
-    if (host != NULL && host->device != NULL) {
+    if (host->device != NULL) {
         host->method = NULL;
         OsalMemFree(host->device);
         OsalMemFree(host);
@@ -272,7 +271,7 @@ static void PwmDriverRelease(struct HdfDeviceObject *device)
 }
 
 /* HdfDriverEntry definitions */
-struct HdfDriverEntry g_pwmDriverEntry = {
+static struct HdfDriverEntry g_pwmDriverEntry = {
     .moduleVersion = 1,
     .moduleName = "HDF_PLATFORM_PWM",
     .Bind = PwmDriverBind,

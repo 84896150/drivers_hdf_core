@@ -41,7 +41,7 @@ static int32_t I2cDriverBind(struct HdfDeviceObject *device);
 static int32_t I2cDriverInit(struct HdfDeviceObject *device);
 static void I2cDriverRelease(struct HdfDeviceObject *device);
 
-struct HdfDriverEntry g_i2cDriverEntry = {
+static struct HdfDriverEntry g_i2cDriverEntry = {
     .moduleVersion = 1,
     .moduleName = "HDF_PLATFORM_I2C",
     .Bind = I2cDriverBind,
@@ -60,12 +60,14 @@ struct hw_iic_config hw_iic_cfg[] = {
         .io_pu      = 1,
     },
 };
-struct iic_iomapping {
+
+struct g_i2cIomapping {
     uint8_t scl;
     uint8_t sda;
     char group;
 };
-static const struct iic_iomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
+
+static const struct g_i2cIomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
     {
         {IO_PORT_DP, IO_PORT_DM},
         {IO_PORTC_04, IO_PORTC_05},
@@ -76,11 +78,11 @@ static const struct iic_iomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
 
 static int32_t I2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t count);
 
-struct I2cMethod g_i2cHostMethod = {
+static struct I2cMethod g_i2cHostMethod = {
     .transfer = I2cHostTransfer,
 };
 
-int32_t InitI2cDevice(struct I2cDevice *device)
+static int32_t InitI2cDevice(struct I2cDevice *device)
 {
     uint32_t i2cPort;
     struct I2cResource *resource = NULL;
@@ -116,15 +118,14 @@ int32_t InitI2cDevice(struct I2cDevice *device)
         }
     }
 
-    HDF_LOGI("hw iic port%d  group%c\n", device->port, hw_iic_cfg[device->port].port);
+    HDF_LOGI("hw iic port%u  group%c\n", device->port, hw_iic_cfg[device->port].port);
 
     hw_iic_init(device->port);
     OsalMutexUnlock(&device->mutex);
     return HDF_SUCCESS;
 }
 
-static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
-                                     const struct DeviceResourceNode *resourceNode)
+static uint32_t GetI2cDeviceResource(struct I2cDevice *device, const struct DeviceResourceNode *resourceNode)
 {
     char *tempString = NULL;
     struct I2cResource *resource = NULL;
@@ -167,7 +168,7 @@ static uint32_t GetI2cDeviceResource(struct I2cDevice *device,
         HDF_LOGE("%s: i2c config speed fail\r\n", __func__);
         return HDF_FAILURE;
     }
-    HDF_LOGD("i2c%d speed:%d\n", resource->port, resource->speed);
+    HDF_LOGD("i2c%u speed:%u\n", resource->port, resource->speed);
     return HDF_SUCCESS;
 }
 
@@ -208,12 +209,12 @@ static int32_t I2cDriverInit(struct HdfDeviceObject *device)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    host = (struct I2cCntlr *)OsalMemAlloc(sizeof(struct I2cCntlr));
+    host = (struct I2cCntlr *)OsalMemCalloc(sizeof(struct I2cCntlr));
     if (host == NULL) {
         HDF_LOGE("%s: host is NULL\r\n", __func__);
         return HDF_ERR_MALLOC_FAIL;
     }
-    (void)memset_s(host, sizeof(struct I2cCntlr), 0, sizeof(struct I2cCntlr));
+
     host->ops = &g_i2cHostMethod;
     device->priv = (void *)host;
     ret = AttachI2cDevice(host, device);
@@ -232,10 +233,7 @@ static int32_t I2cDriverInit(struct HdfDeviceObject *device)
 
 static int32_t I2cDriverBind(struct HdfDeviceObject *device)
 {
-    if (device == NULL) {
-        HDF_LOGE("%s: I2c device object is NULL\r\n", __func__);
-        return HDF_FAILURE;
-    }
+    (void)device;
     return HDF_SUCCESS;
 }
 
@@ -268,7 +266,7 @@ static char I2cReadByte(uint8_t ifack, uint8_t ifStop)
     uint8_t data;
     hw_iic_start(0);
     data = hw_iic_rx_byte(0, ifack);
-    if (ifStop) {
+    if (ifStop != 0) {
         hw_iic_stop(0);
     }
     return data;
@@ -276,7 +274,7 @@ static char I2cReadByte(uint8_t ifack, uint8_t ifStop)
 
 static void I2cWriteByte(uint8_t data, uint8_t ifStart)
 {
-    if (ifStart) {
+    if (ifStart != 0) {
         hw_iic_start(0);
     }
     hw_iic_tx_byte(0, data);
@@ -290,7 +288,7 @@ static void I2cSend(struct I2cMsg *msg)
 
     len = msg->len;
     ifstop = 0;
-    if (msg->flags & I2C_FLAG_READ) {
+    if ((msg->flags & I2C_FLAG_READ) != 0) {
         ifack = (msg->flags & I2C_FLAG_READ_NO_ACK) ? 0 : 1;
         for (int32_t j = 0; j < len; j++) {
             if (((msg->flags & I2C_FLAG_STOP) && j) == (len - 1)) {
@@ -309,9 +307,8 @@ static void I2cSend(struct I2cMsg *msg)
     }
 }
 
-static int32_t I2c_Transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16_t count)
+static int32_t I2cDataTransfer(struct I2cDevice *device, struct I2cMsg *msgs, int16_t count)
 {
-    int ret;
     uint32_t i2cPort;
     struct I2cMsg *msg = NULL;
 
@@ -348,5 +345,5 @@ static int32_t I2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int1
 
     device = (struct I2cDevice *)cntlr->priv;
 
-    return I2c_Transfer(device, msgs, count);
+    return I2cDataTransfer(device, msgs, count);
 }

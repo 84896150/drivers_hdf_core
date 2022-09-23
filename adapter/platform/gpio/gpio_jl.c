@@ -23,7 +23,7 @@
 #define JL_IO_MAX_GPIO_PIN_NUM 48
 #define JL_GPIO_PRI  3
 
-static uint32_t g_user_realpin = -1;
+static uint32_t g_userRealPin = -1;
 
 struct GpioResource {
     uint32_t groupNum;
@@ -43,10 +43,9 @@ ___interrupt
 
 GpioIrqFunc GpioIrqHdl()
 {
-    uint16_t ret;
     if (JL_WAKEUP->CON3 & BIT(0)) {
         JL_WAKEUP->CON2 |= BIT(0) ;
-        GpioCntlrIrqCallback(&g_gpioCntlr, g_user_realpin);
+        GpioCntlrIrqCallback(&g_gpioCntlr, g_userRealPin);
     }
 }
 
@@ -60,7 +59,7 @@ static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio);
 static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio);
 
 /* GpioMethod definitions */
-struct GpioMethod g_GpioCntlrMethod = {
+static struct GpioMethod g_GpioCntlrMethod = {
     .request = NULL,
     .release = NULL,
     .write = GpioDevWrite,
@@ -99,14 +98,15 @@ static int32_t GpioDevRead(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *val
 
 static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t dir)
 {
+    (void)cntlr;
     int ret;
     int32_t direction;
     switch (dir) {
         case GPIO_DIR_OUT:
-            direction = false;
+            direction = 0;
             break;
         case GPIO_DIR_IN:
-            direction = true;
+            direction = 1;
             break;
         default:
             direction = -1;
@@ -128,10 +128,10 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
 
     switch (mode) {
         case OSAL_IRQF_TRIGGER_RISING:
-            trigger_edge = false;
+            trigger_edge = 0;
             break;
         case OSAL_IRQF_TRIGGER_FALLING:
-            trigger_edge = true;
+            trigger_edge = 1;
             break;
         default:
             trigger_edge = -1;
@@ -151,7 +151,7 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
         gpio_set_pull_down(gpio, 0);
     }
 
-    g_user_realpin = gpio;
+    g_userRealPin = gpio;
     request_irq(IRQ_PORT_IDX, JL_GPIO_PRI, (void *)GpioIrqHdl, 0);
     JL_IOMAP->CON2 &= ~(0b111111 << 0);
     JL_IOMAP->CON2 |= (gpio << 0);
@@ -175,6 +175,7 @@ static int32_t GpioDevUnSetIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
     (void)cntlr;
+    (void)gpio;
     irq_enable(IRQ_PORT_IDX);
     return HDF_SUCCESS;
 }
@@ -182,6 +183,7 @@ static int32_t GpioDevEnableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 {
     (void)cntlr;
+    (void)gpio;
     irq_disable(IRQ_PORT_IDX);
     return HDF_SUCCESS;
 }
@@ -192,7 +194,6 @@ static int32_t GpioDevDisableIrq(struct GpioCntlr *cntlr, uint16_t gpio)
 #define PLATFORM_GPIO_CONFIG HCS_NODE(HCS_NODE(HCS_ROOT, platform), gpio_config)
 static uint32_t GetGpioDeviceResource(struct GpioDevice *device)
 {
-    uint32_t relPin;
     struct GpioResource *resource = NULL;
     if (device == NULL) {
         HDF_LOGE("%s: device is NULL", __func__);
@@ -352,7 +353,7 @@ static void GpioDriverRelease(struct HdfDeviceObject *device)
 }
 
 /* HdfDriverEntry definitions */
-struct HdfDriverEntry g_GpioDriverEntry = {
+static struct HdfDriverEntry g_GpioDriverEntry = {
     .moduleVersion = 1,
     .moduleName = "JL_HDF_PLATFORM_GPIO",
     .Init = GpioDriverInit,

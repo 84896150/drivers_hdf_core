@@ -56,7 +56,7 @@ static int32_t WatchdogDevGetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32
 static int32_t WatchdogDevGetStatus(struct WatchdogCntlr *watchdogCntlr, uint32_t *status);
 static int32_t WatchdogDevFeed(struct WatchdogCntlr *watchdogCntlr);
 
-struct WatchdogMethod g_WatchdogCntlrMethod = {
+static struct WatchdogMethod g_WatchdogCntlrMethod = {
     .getStatus = WatchdogDevGetStatus,
     .setTimeout = WatchdogDevSetTimeout,
     .getTimeout = WatchdogDevGetTimeout,
@@ -209,16 +209,28 @@ static int32_t WatchdogDevFeed(struct WatchdogCntlr *watchdogCntlr)
 
 static uint32_t GetWatchdogDeviceResource(struct WatchdogDevice *device, const struct DeviceResourceNode *resourceNode)
 {
+    struct WatchdogResource *resource = NULL;
     struct DeviceResourceIface *dri = NULL;
     if (device == NULL || resourceNode == NULL) {
         HDF_LOGE("%s: resource or device is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
+    resource = &device->resource;
+    if (resource == NULL) {
+        HDF_LOGE("resource is NULL\r\n");
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
     dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (dri == NULL || dri->GetUint32 == NULL) {
         HDF_LOGE("%s: DeviceResourceIface is invalid\r\n", __func__);
         return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (dri->GetUint32(resourceNode, "watchdogId", &resource->watchdogId, 0) != HDF_SUCCESS) {
+        HDF_LOGE("%s: watchdog config read watchdogId fail", __func__);
+        return HDF_FAILURE;
     }
 
     return HDF_SUCCESS;
@@ -324,14 +336,12 @@ static void WatchdogDriverRelease(struct HdfDeviceObject *device)
     }
 
     watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    if (watchdogDevice != NULL) {
-        OsalMemFree(watchdogDevice);
-    }
+    OsalMemFree(watchdogDevice);
     return;
 }
 
 /* HdfDriverEntry definitions */
-struct HdfDriverEntry g_watchdogDriverEntry = {
+static struct HdfDriverEntry g_watchdogDriverEntry = {
     .moduleVersion = 1,
     .moduleName = "JL_HDF_PLATFORM_WATCHDOG",
     .Bind = WatchdogDriverBind,
