@@ -61,6 +61,7 @@ Note:If the text contains special characters, please escape them according to th
                 <policyitem type="copyright" name="GOODIX." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed by Goodix"/>
                 <policyitem type="copyright" name="ASR Microelectronics (Shanghai) Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed by asr"/>
                 <policyitem type="copyright" name="Talkweb Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed by Talkweb"/>
+                <policyitem type="copyright" name="Hunan OpenValley Digital Industry Development Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed by Openvalley"/>
                 <policyitem type="copyright" name="Jiangsu Hoperun Software Co., Ltd." path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="Developed By Hoperun"/>
                 <policyitem type="copyright" name="Samsung Electronics Co.," path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kernel codes"/>
                 <policyitem type="copyright" name="Samsung Electronics" path=".*" rule="may" group="defaultGroup" filefilter="copyrightPolicyFilter" desc="kernel codes"/>
