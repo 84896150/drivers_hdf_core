@@ -123,7 +123,8 @@ static int32_t HalSpiRecv(struct SpiDevice *spiDevice, uint8_t *data, uint16_t s
     return ret;
 }
 
-static int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize, uint8_t *rxData, uint16_t rxSize)
+static int32_t HalSpiSendRecv(struct SpiDevice *spiDevice, uint8_t *txData, uint16_t txSize,
+    uint8_t *rxData, uint16_t rxSize)
 {
     int32_t ret;
     int32_t status;

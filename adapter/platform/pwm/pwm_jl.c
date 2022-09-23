@@ -88,6 +88,8 @@ static int32_t PwmDevConfigInit(uint32_t channel, struct pwm_platform_data *pwmC
         default:
             break;
     }
+
+    return HDF_SUCCESS;
 }
 
 static int32_t PwmDevSetConfig(struct PwmDev *pwm, struct PwmConfig *config)

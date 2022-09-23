@@ -156,7 +156,7 @@ static int32_t WatchdogDevGetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32
         case OHOS_WDT_32MS:
         case OHOS_WDT_64MS:
         case OHOS_WDT_128MS:
-        case OHOS_WDT_256MS :
+        case OHOS_WDT_256MS : /*OHOS_WDT_1MS ~ OHOS_WDT_256MS same as OHOS_WDT_512MS*/
         case OHOS_WDT_512MS :
             *seconds = g_watchdogTimeout;
             break;

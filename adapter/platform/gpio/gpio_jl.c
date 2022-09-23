@@ -22,6 +22,7 @@
 #define JL_BIT_MAX   16
 #define JL_IO_MAX_GPIO_PIN_NUM 48
 #define JL_GPIO_PRI  3
+#define JL_IOMAP_CON2  0b111111
 
 static uint32_t g_userRealPin = -1;
 
@@ -153,7 +154,7 @@ static int32_t GpioDevSetIrq(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t mo
 
     g_userRealPin = gpio;
     request_irq(IRQ_PORT_IDX, JL_GPIO_PRI, (void *)GpioIrqHdl, 0);
-    JL_IOMAP->CON2 &= ~(0b111111 << 0);
+    JL_IOMAP->CON2 &= ~(JL_IOMAP_CON2 << 0);
     JL_IOMAP->CON2 |= (gpio << 0);
     JL_WAKEUP->CON2 |= BIT(0);
     JL_WAKEUP->CON0 |= BIT(0);

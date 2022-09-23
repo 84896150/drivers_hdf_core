@@ -253,21 +253,11 @@ static int32_t AttachUartDevice(struct UartHost *uartHost, struct HdfDeviceObjec
 
 static int32_t UartDriverBind(struct HdfDeviceObject *device)
 {
-    struct UartHost *devService = NULL;
     if (device == NULL) {
         HDF_LOGE("%s: invalid parameter", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    devService = (struct UartHost *)OsalMemAlloc(sizeof(*devService));
-    if (devService == NULL) {
-        HDF_LOGE("%s: OsalMemCalloc error", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
-    devService->device = device;
-    device->service = &(devService->service);
-    devService->priv = NULL;
-    devService->method = NULL;
-    return HDF_SUCCESS;
+    return (UartHostCreate(device) == NULL) ? HDF_FAILURE : HDF_SUCCESS;
 }
 
 static void UartDriverRelease(struct HdfDeviceObject *device)
@@ -283,11 +273,8 @@ static void UartDriverRelease(struct HdfDeviceObject *device)
         HDF_LOGE("%s: host is NULL", __func__);
         return;
     }
-    uartDevice = (struct UartDevice *)host->priv;
-    host->method = NULL;
 
-    OsalMemFree(host);
-    OsalMemFree(uartDevice);
+    UartHostDestroy(host);
 }
 
 static int32_t UartDriverInit(struct HdfDeviceObject *device)
