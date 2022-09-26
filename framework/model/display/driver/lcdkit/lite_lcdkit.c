@@ -86,8 +86,7 @@ static int32_t MipiDsiOn(void)
     /* send mipi init code */
     int32_t count = panelCfg->onCmd.count;
     for (i = 0; i < count; i++) {
-        int32_t ret;
-        ret = MipiDsiTx(panelCfg->dsiHandle, &(panelCfg->onCmd.dsiCmd[i]));
+        int32_t ret = MipiDsiTx(panelCfg->dsiHandle, &(panelCfg->onCmd.dsiCmd[i]));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:MipiDsiTx failed", __func__);
             return ret;
@@ -110,8 +109,7 @@ static int32_t MipiDsiOff(void)
     /* send mipi panel off code */
     int32_t count = panelCfg->offCmd.count;
     for (i = 0; i < count; i++) {
-        int32_t ret;
-        ret = MipiDsiTx(panelCfg->dsiHandle, &(panelCfg->offCmd.dsiCmd[i]));
+        int32_t ret = MipiDsiTx(panelCfg->dsiHandle, &(panelCfg->offCmd.dsiCmd[i]));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:MipiDsiTx failed", __func__);
             return ret;

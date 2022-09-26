@@ -270,8 +270,7 @@ static int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         hdfDrmPanel->panel.dev = &dsiDev->dev;
         drm_panel_init(&hdfDrmPanel->panel, &dsiDev->dev, &g_hdfDrmPanelFuncs, panelInfo->connectorType);
         drm_panel_add(&hdfDrmPanel->panel);
-        uint32_t ret;
-        ret = mipi_dsi_attach(dsiDev);
+        uint32_t ret = mipi_dsi_attach(dsiDev);
         if (ret) {
             HDF_LOGE("%s mipi_dsi_attach failed", __func__);
             drm_panel_remove(&hdfDrmPanel->panel);
