@@ -525,7 +525,8 @@ void CClientProxyCodeEmitter::EmitKernelProxyGetMethodImpl(StringBuilder &sb)
 {
     sb.AppendFormat("struct %s *%sGet()\n", interfaceName_.c_str(), interfaceName_.c_str());
     sb.Append("{\n");
-    sb.Append(TAB).AppendFormat("return %sGetInstance(\"%s\");\n", interfaceName_.c_str(), FileName(implName_).c_str());
+    sb.Append(TAB).AppendFormat("return %sGetInstance(\"%s\");\n", interfaceName_.c_str(),
+        FileName(implName_).c_str());
     sb.Append("}\n");
 }
 
@@ -772,8 +773,8 @@ void CClientProxyCodeEmitter::EmitProxyReleaseInstanceMethodImpl(const std::stri
     sb.Append("}\n");
 }
 
-void CClientProxyCodeEmitter::EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad, StringBuilder &sb,
-    const std::string &prefix)
+void CClientProxyCodeEmitter::EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName,
+    bool isLoad, StringBuilder &sb, const std::string &prefix)
 {
     std::string instName = "instName";
     sb.Append(prefix).Append("if (isStub) {\n");
