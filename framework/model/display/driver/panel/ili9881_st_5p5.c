@@ -429,6 +429,7 @@ static int32_t panel_simple_regulator_enable(void)
 static int32_t panel_simple_regulator_disable(void)
 {
     int32_t err;
+    (void)err;
     if (g_panel_dev == NULL) {
         return -1;
     }

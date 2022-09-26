@@ -356,7 +356,6 @@ static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
 {
     (void)device;
     (void)reqData;
-    int32_t ret;
     int32_t i;
     char *devName = NULL;
     char *tmp = NULL;
@@ -372,6 +371,7 @@ static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
             break;
         }
         // strlen("%d : \n") = 6
+        int32_t ret;
         ret = snprintf_s(tmp, MAX_DEST_STRING_LEN, strlen(devName) + 6, "%d : %s\n", i, devName);
         if (ret < 0) {
             HDF_LOGE("%s: snprintf_s fail", __func__);

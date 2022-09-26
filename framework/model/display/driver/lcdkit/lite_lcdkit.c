@@ -76,7 +76,6 @@ static int32_t LcdkitInit(void)
 
 static int32_t MipiDsiOn(void)
 {
-    int32_t ret;
     struct PanelConfig *panelCfg = GetPanelCfg();
     int32_t i;
 
@@ -87,6 +86,7 @@ static int32_t MipiDsiOn(void)
     /* send mipi init code */
     int32_t count = panelCfg->onCmd.count;
     for (i = 0; i < count; i++) {
+        int32_t ret;
         ret = MipiDsiTx(panelCfg->dsiHandle, &(panelCfg->onCmd.dsiCmd[i]));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:MipiDsiTx failed", __func__);
@@ -100,7 +100,6 @@ static int32_t MipiDsiOn(void)
 
 static int32_t MipiDsiOff(void)
 {
-    int32_t ret;
     struct PanelConfig *panelCfg = GetPanelCfg();
     int32_t i;
 
@@ -111,6 +110,7 @@ static int32_t MipiDsiOff(void)
     /* send mipi panel off code */
     int32_t count = panelCfg->offCmd.count;
     for (i = 0; i < count; i++) {
+        int32_t ret;
         ret = MipiDsiTx(panelCfg->dsiHandle, &(panelCfg->offCmd.dsiCmd[i]));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s:MipiDsiTx failed", __func__);

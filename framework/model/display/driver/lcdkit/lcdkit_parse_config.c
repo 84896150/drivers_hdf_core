@@ -20,9 +20,9 @@
 static int32_t GetDsiCmdCount(uint8_t *array, int32_t len, uint32_t *count)
 {
     int32_t cnt = 0;
-    uint8_t dlen;
 
     while (len > 0) {
+        uint8_t dlen;
         dlen = array[DATA_LEN];
         array = array + DSI_CMD_HEAD + dlen;
         len = len - (dlen + DSI_CMD_HEAD);
@@ -44,7 +44,6 @@ static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, 
         OsalMemFree(array);
         return HDF_FAILURE;
     }
-    int32_t ret;
     int32_t i;
     int32_t num = 0;
     cmd->count = count;
@@ -68,6 +67,7 @@ static int32_t ParseDsiCmd(struct PanelCmd *cmd, int32_t count, uint8_t *array, 
             return HDF_FAILURE;
         }
 
+        int32_t ret;
         ret = memcpy_s(tmpCmd->payload, tmpCmd->dataLen, &tmpArray[DSI_CMD_HEAD], DSI_CMD_HEAD);
         if (ret != EOK) {
             HDF_LOGE("%s: memcpy_s failed, ret %d", __func__, ret);

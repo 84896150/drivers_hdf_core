@@ -246,7 +246,6 @@ static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int3
 static int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
 {
     (void)object;
-    uint32_t ret;
     uint32_t i;
     uint32_t j;
     uint32_t panelNum;
@@ -271,6 +270,7 @@ static int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         hdfDrmPanel->panel.dev = &dsiDev->dev;
         drm_panel_init(&hdfDrmPanel->panel, &dsiDev->dev, &g_hdfDrmPanelFuncs, panelInfo->connectorType);
         drm_panel_add(&hdfDrmPanel->panel);
+        uint32_t ret;
         ret = mipi_dsi_attach(dsiDev);
         if (ret) {
             HDF_LOGE("%s mipi_dsi_attach failed", __func__);
