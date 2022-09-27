@@ -116,8 +116,7 @@ static int32_t HalUartSend(uint32_t uartId, const uint8_t *data, uint32_t size, 
 static int32_t HalUartRecv(uint8_t uartId, uint8_t *data, uint32_t expectSize,
     uint32_t *recvSize, uint32_t timeOut)
 {
-    int32_t ret = HDF_FAILURE;
-    uint32_t fifoPopLen = 0;
+    uint32_t fifoPopLen;
     uint32_t recvedLen = 0;
     uint32_t expectLen = expectSize;
     OsalTimespec hdfTs1 = { 0, 0 };
@@ -150,9 +149,7 @@ static int32_t HalUartRecv(uint8_t uartId, uint8_t *data, uint32_t expectSize,
         }
     } while (true);
 
-    if (recvSize != NULL) {
-        *recvSize = recvedLen;
-    }
+    *recvSize = recvedLen;
     return HDF_SUCCESS;
 }
 
@@ -294,7 +291,7 @@ static uint32_t GetUartDeviceResource(struct UartDevice *device, const struct De
         return HDF_FAILURE;
     }
 
-    HDF_LOGI("%d, %d, %d, %d", resource->num, resource->baudRate, resource->parity);
+    HDF_LOGI("%d, %d, %d", resource->num, resource->baudRate, resource->parity);
 
     // copy config
     device->uartId = resource->num;
@@ -498,7 +495,7 @@ static int32_t UartHostDevRead(struct UartHost *host, uint8_t *data, uint32_t si
         ret = recvSize;
     } else {
         if (g_uartCtx[uartId].isBlock) {
-            while (tls_uart_try_read(uartId, 1) == 0);
+            while (tls_uart_try_read(uartId, 1) == 0) { }
             ret = tls_uart_read(uartId, data, 1);
         } else {
             ret = tls_uart_read(uartId, data, 1);

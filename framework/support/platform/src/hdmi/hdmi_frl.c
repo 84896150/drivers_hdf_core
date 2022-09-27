@@ -680,7 +680,7 @@ static void HdmiFrlTrainingResultCheckTimeout(struct HdmiFrl *frl)
 static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
 {
     uint64_t curTime;
-    bool frlStart = false;
+    bool frlStart;
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
 
     if (cntlr == NULL || cntlr->ops == NULL) {
@@ -806,11 +806,10 @@ int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
     }
 
     ret = HdmiFrlCheckFrlCapability(frl);
-    if (ret == HDF_FAILURE) {
-        return ret;
-    } else if (ret != HDF_SUCCESS) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGD("frl check capability fail, change to TMDS.");
         frl->info.mode = HDMI_FRL_MODE_TMDS;
+        return ret;
     } else {
         if (HdnmiFrlCheckFrlMode(frl) == true) {
             HDF_LOGD("frl check frl mode succ.");

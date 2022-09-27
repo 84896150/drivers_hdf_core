@@ -116,16 +116,28 @@ static struct MapNode *MapCreateNode(const char *key, uint32_t hash,
     return node;
 }
 
+static int32_t MapSetCheckPara(const Map *map, const char *key, const void *value, uint32_t valueSize)
+{
+    if (map == NULL || key == NULL || value == NULL || valueSize == 0) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (valueSize > HDF_MAP_KEY_MAX_SIZE || strlen(key) > HDF_MAP_VALUE_MAX_SIZE) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    return HDF_SUCCESS;
+}
+
 int32_t MapSet(Map *map, const char *key, const void *value, uint32_t valueSize)
 {
     struct MapNode *node = NULL;
     uint32_t hash;
-    if (map == NULL || key == NULL || value == NULL || valueSize == 0) {
+
+    if (MapSetCheckPara(map, key, value, valueSize) != HDF_SUCCESS) {
         return HDF_ERR_INVALID_PARAM;
     }
-    if (valueSize > HDF_MAP_KEY_MAX_SIZE || strlen(key) > HDF_MAP_VALUE_MAX_SIZE) {
-        return HDF_ERR_INVALID_PARAM;
-    }
+
     hash = MapHash(key);
     if (map->nodeSize > 0 && map->nodes != NULL) {
         uint32_t idx = MapHashIdx(map, hash);
@@ -151,13 +163,17 @@ int32_t MapSet(Map *map, const char *key, const void *value, uint32_t valueSize)
     // Increase the bucket size when nodes is nullptr
     if (map->nodes == NULL) {
         MapInit(map);
-        MapResize(map, HDF_MIN_MAP_SIZE);
+        if (MapResize(map, HDF_MIN_MAP_SIZE) != HDF_SUCCESS) {
+            return HDF_FAILURE;
+        }
     }
     // Increase the bucket size to decrease the possibility of map search conflict.
     if (map->nodeSize >= map->bucketSize) {
         uint32_t size = (map->bucketSize < HDF_MIN_MAP_SIZE) ? HDF_MIN_MAP_SIZE : \
             (map->bucketSize << HDF_ENLARGE_FACTOR);
-        MapResize(map, size);
+        if (MapResize(map, size) != HDF_SUCCESS) {
+            return HDF_FAILURE;
+        }
     }
     node = MapCreateNode(key, hash, value, valueSize);
     if (node == NULL) {

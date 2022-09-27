@@ -26,6 +26,10 @@ private:
 
     void EmitCode() override;
 
+    void EmitPassthroughCustomTypesHeaderFile();
+
+    void EmitPassthroughHeaderInclusions(StringBuilder &sb);
+
     void EmitCustomTypesHeaderFile();
 
     void EmitHeaderInclusions(StringBuilder &sb);
@@ -62,9 +66,7 @@ private:
     void EmitUnmarshallingVarDecl(
         const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);
 
-    void EmitMarshallingParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
-
-    void EmitUnmarshallingParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
+    void EmitParamCheck(const std::string &name, StringBuilder &sb, const std::string &prefix);
 
     void EmitPodTypeUnmarshalling(
         const AutoPtr<ASTStructType> &type, const std::string &name, StringBuilder &sb, const std::string &prefix);

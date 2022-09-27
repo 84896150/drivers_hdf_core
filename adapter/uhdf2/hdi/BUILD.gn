@@ -32,6 +32,7 @@ config("libhdi_pub_config") {
     "$hdf_uhdf_path/include/hdi/base",
     "$hdf_uhdf_path/shared/include",
     "$hdf_uhdf_path/osal/include",
+    "//drivers/peripheral/base",
   ]
 }
 if (defined(ohos_lite)) {
@@ -56,10 +57,12 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/manager/include",
       "$hdf_uhdf_path/include/host",
     ]
-    public_configs = [ ":libhdi_pub_config" ]
+    all_dependent_configs = [ ":libhdi_pub_config" ]
     sources = [
       "$hdf_framework_path/core/shared/src/service_status.c",
       "src/devmgr_client.c",
+      "src/hdi_buffer_handle.cpp",
+      "src/hdi_buffer_handle_util.c",
       "src/hdi_smq_syncer.cpp",
       "src/hdi_support.cpp",
       "src/idevmgr_client.cpp",

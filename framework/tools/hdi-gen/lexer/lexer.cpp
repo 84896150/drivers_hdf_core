@@ -14,34 +14,36 @@
 namespace OHOS {
 namespace HDI {
 Lexer::StrTokenTypeMap Lexer::keyWords_ = {
-    {"boolean",        TokenType::BOOLEAN  },
-    {"byte",           TokenType::BYTE     },
-    {"short",          TokenType::SHORT    },
-    {"int",            TokenType::INT      },
-    {"long",           TokenType::LONG     },
-    {"String",         TokenType::STRING   },
-    {"float",          TokenType::FLOAT    },
-    {"double",         TokenType::DOUBLE   },
-    {"FileDescriptor", TokenType::FD       },
-    {"List",           TokenType::LIST     },
-    {"Map",            TokenType::MAP      },
-    {"SharedMemQueue", TokenType::SMQ      },
-    {"char",           TokenType::CHAR     },
-    {"unsigned",       TokenType::UNSIGNED },
-    {"enum",           TokenType::ENUM     },
-    {"struct",         TokenType::STRUCT   },
-    {"union",          TokenType::UNION    },
-    {"package",        TokenType::PACKAGE  },
-    {"sequenceable",   TokenType::SEQ      },
-    {"import",         TokenType::IMPORT   },
-    {"interface",      TokenType::INTERFACE},
-    {"extends",        TokenType::EXTENDS  },
-    {"oneway",         TokenType::ONEWAY   },
-    {"callback",       TokenType::CALLBACK },
-    {"full",           TokenType::FULL     },
-    {"lite",           TokenType::LITE     },
-    {"in",             TokenType::IN       },
-    {"out",            TokenType::OUT      },
+    {"boolean",        TokenType::BOOLEAN      },
+    {"byte",           TokenType::BYTE         },
+    {"short",          TokenType::SHORT        },
+    {"int",            TokenType::INT          },
+    {"long",           TokenType::LONG         },
+    {"String",         TokenType::STRING       },
+    {"float",          TokenType::FLOAT        },
+    {"double",         TokenType::DOUBLE       },
+    {"FileDescriptor", TokenType::FD           },
+    {"Ashmem",         TokenType::ASHMEM       },
+    {"BufferHandle",   TokenType::BUFFER_HANDLE},
+    {"List",           TokenType::LIST         },
+    {"Map",            TokenType::MAP          },
+    {"SharedMemQueue", TokenType::SMQ          },
+    {"char",           TokenType::CHAR         },
+    {"unsigned",       TokenType::UNSIGNED     },
+    {"enum",           TokenType::ENUM         },
+    {"struct",         TokenType::STRUCT       },
+    {"union",          TokenType::UNION        },
+    {"package",        TokenType::PACKAGE      },
+    {"sequenceable",   TokenType::SEQ          },
+    {"import",         TokenType::IMPORT       },
+    {"interface",      TokenType::INTERFACE    },
+    {"extends",        TokenType::EXTENDS      },
+    {"oneway",         TokenType::ONEWAY       },
+    {"callback",       TokenType::CALLBACK     },
+    {"full",           TokenType::FULL         },
+    {"lite",           TokenType::LITE         },
+    {"in",             TokenType::IN           },
+    {"out",            TokenType::OUT          },
 };
 
 Lexer::StrTokenTypeMap Lexer::symbols_ = {
@@ -170,12 +172,11 @@ void Lexer::SkipEof()
 
 void Lexer::ReadToken(Token &token, bool skipComment)
 {
-    char c = 0;
     if (!file_->IsEof()) {
         InitCurToken(token);
     }
     while (!file_->IsEof()) {
-        c = file_->PeekChar();
+        char c = file_->PeekChar();
         if (isspace(c)) {
             file_->GetChar();
             continue;
@@ -285,7 +286,7 @@ void Lexer::ReadBinaryNum(Token &token)
     bool err = true;
 
     while (!file_->IsEof()) {
-        char c = file_->PeekChar();
+        c = file_->PeekChar();
         if (c == '0' || c == '1') {
             sb.Append(c);
             file_->GetChar();

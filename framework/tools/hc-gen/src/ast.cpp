@@ -16,53 +16,59 @@
 
 using namespace OHOS::Hardware;
 
-AstObject::AstObject(const AstObject &obj) : AstObject(obj.name_, obj.type_, obj.stringValue_)
-{
-    integerValue_ = obj.integerValue_;
-    src_ = obj.src_;
-}
+static constexpr int FOUR_MULTIPLE = 4;
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t value)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t integerValue, std::string strValue, uint32_t lineno,
+    const std::shared_ptr<std::string> &src)
     : type_(type),
       name_(std::move(name)),
       parent_(nullptr),
-      lineno_(0),
+      next_(nullptr),
+      child_(nullptr),
+      lineno_(lineno),
+      src_(src),
       opCode_(0),
       size_(0),
       subSize_(0),
       hash_(0),
-      integerValue_(value)
+      integerValue_(integerValue),
+      stringValue_(strValue)
 {
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string value)
-    : AstObject(std::move(name), type, 0)
+AstObject::AstObject(std::string name, uint32_t type, uint64_t intValue)
+    : AstObject(std::move(name), type, intValue, "", 0, nullptr)
 {
-    stringValue_ = std::move(value);
 }
 
-AstObject::AstObject(std::string name, uint32_t type, uint64_t value, const Token &bindToken)
-    : AstObject(std::move(name), type, value)
+AstObject::AstObject(std::string name, uint32_t type, std::string strValue)
+    : AstObject(std::move(name), type, 0, strValue, 0, nullptr)
 {
-    lineno_ = bindToken.lineNo;
-    src_ = bindToken.src;
+}
 
+AstObject::AstObject(std::string name, uint32_t type, uint64_t intValue, const Token &bindToken)
+    : AstObject(std::move(name), type, intValue, "", bindToken.lineNo, bindToken.src)
+{
     switch (type) {
         case PARSEROP_UINT8:  /* fall-through */
         case PARSEROP_UINT16: /* fall-through */
         case PARSEROP_UINT32: /* fall-through */
         case PARSEROP_UINT64:
-            this->type_ = FitIntegerValueType(value);
+            this->type_ = FitIntegerValueType(intValue);
             break;
         default:
             break;
     }
 }
 
-AstObject::AstObject(std::string name, uint32_t type, std::string value, const Token &bindToken)
-    : AstObject(std::move(name), type, 0, bindToken)
+AstObject::AstObject(std::string name, uint32_t type, std::string strValue, const Token &bindToken)
+    : AstObject(std::move(name), type, 0, strValue, bindToken.lineNo, bindToken.src)
 {
-    stringValue_ = std::move(value);
+}
+
+AstObject::AstObject(const AstObject &obj)
+    : AstObject(obj.name_, obj.type_, obj.integerValue_, obj.stringValue_, 0, obj.src_)
+{
 }
 
 AstObject::~AstObject()
@@ -372,7 +378,7 @@ const std::string &AstObject::Name()
     return name_;
 }
 
-const std::string &AstObject::StringValue()
+const std::string &AstObject::StringValue() const
 {
     return stringValue_;
 }
@@ -492,7 +498,7 @@ uint32_t ConfigNode::GetNodeType() const
     return nodeType_;
 }
 
-const std::string &ConfigNode::GetRefPath()
+const std::string &ConfigNode::GetRefPath() const
 {
     return refNodePath_;
 }
@@ -650,7 +656,7 @@ bool ConfigNode::NodeCopyExpand(const std::shared_ptr<AstObject> &ref)
     return Copy(ref, false);
 }
 
-bool ConfigNode::Compare(ConfigNode &other)
+bool ConfigNode::Compare(ConfigNode &other) const
 {
     auto objChild = child_;
     while (objChild != nullptr) {
@@ -688,7 +694,7 @@ void ConfigNode::SetTemplateSignNum(uint32_t sigNum)
     templateSignNum_ = sigNum;
 }
 
-const std::list<AstObject *> &ConfigNode::SubClasses()
+const std::list<AstObject *> &ConfigNode::SubClasses() const
 {
     return subClasses_;
 }
@@ -923,7 +929,7 @@ void Ast::Dump(const std::string &prefix)
 {
     Logger().Debug() << "Dump " << prefix << " AST:";
     WalkForward([](const std::shared_ptr<AstObject> &current, int32_t walkDepth) -> int32_t {
-        Logger().Debug() << ::std::setw(walkDepth * 4) << " " << *current;
+        Logger().Debug() << ::std::setw(walkDepth * FOUR_MULTIPLE) << " " << *current;
         return NOERR;
     });
 }
@@ -1119,7 +1125,6 @@ std::shared_ptr<AstObject> Ast::Lookup(const std::shared_ptr<AstObject> &startOb
     splitPath.erase(splitPath.begin());
 
     std::shared_ptr<AstObject> target = astRoot_;
-    std::shared_ptr<AstObject> child = astRoot_->Child();
     for (auto &it : splitPath) {
         // look up children
         target = target->Lookup(it);
@@ -1131,7 +1136,7 @@ std::shared_ptr<AstObject> Ast::Lookup(const std::shared_ptr<AstObject> &startOb
     return target;
 }
 
-std::list<std::string> Ast::SplitNodePath(const std::string &path, char separator) const
+std::list<std::string> Ast::SplitNodePath(const std::string &path, char separator)
 {
     std::list<std::string> splitList;
     std::string temp;

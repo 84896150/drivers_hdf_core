@@ -1,17 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Shenzhen Kaihong Digital Industry Development Co., Ltd.
+# Copyright (c) 2022 Shenzhen Kaihong Digital Industry Development Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
 # See the LICENSE file in the root of this repository for complete details.
 
 from re import finditer
+import os
 import time
 
 import easyocr
-import os
+
 from PIL import Image
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -35,11 +36,12 @@ class Base:
             return ele
 
     # Get URL address
-    def getfiledir(self):
+    @staticmethod
+    def getfiledir():
         os.chdir('../../')
         cur_file = os.getcwd()
         path = cur_file.replace('\\', '/')
-        url = 'file:///' + path + '/index.html'
+        url = "file:///{}/index.html".format(path)
         os.chdir('test/testsuits')
         return url
 
@@ -60,7 +62,7 @@ class Base:
         except BaseException:
             return ""
         finally:
-            return ""
+            pass
 
     def click_canvas_point(self, el, x, y):
         actions = ActionChains(self.driver)

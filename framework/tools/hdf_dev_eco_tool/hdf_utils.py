@@ -355,13 +355,24 @@ def template_filename_filtrate(dir_path, kernal):
     return filename_list
 
 
-def model_info(path_dict, root, model_file_path, key):
-    if isinstance(path_dict, dict):
-        for k_filename, file_path in path_dict.items():
-            if not os.path.exists(os.path.join(root, file_path)):
+def type_judge(file_path, root, model_file_path, k_filename, path_dict):
+    if isinstance(file_path, list):
+        for file_name in file_path:
+            if not os.path.exists(os.path.join(root, file_name)):
                 model_file_path[k_filename] = " "
             else:
                 model_file_path[k_filename] = path_dict[k_filename]
+    else:
+        if not os.path.exists(os.path.join(root, file_path)):
+            model_file_path[k_filename] = " "
+        else:
+            model_file_path[k_filename] = path_dict[k_filename]
+
+
+def model_info(path_dict, root, model_file_path, key):
+    if isinstance(path_dict, dict):
+        for k_filename, file_path in path_dict.items():
+            type_judge(file_path, root, model_file_path, k_filename, path_dict)
     else:
         hcs_file_path = os.path.join(root, path_dict)
         if not os.path.exists(hcs_file_path):
@@ -402,7 +413,7 @@ def judge_file_path_exists(temp_path):
 def write_config(root_path, config_file_json, config_name):
     if platform.system() == "Windows":
         config_file_replace = json.dumps(config_file_json, indent=4). \
-            replace(root_path.replace('\\', '\\\\') + '\\\\', "")
+            replace("{}\\\\".format(root_path.replace('\\', '\\\\')), "")
         write_file(os.path.join('resources', config_name),
                    config_file_replace.replace('\\\\', '/'))
     if platform.system() == "Linux":
@@ -433,11 +444,11 @@ def ini_file_write_operation(model, operation_object, model_child_dir_list):
 def judge_enable_line(enable_line, device_base):
     if isinstance(enable_line, bytes):
         if enable_line.find((device_base + " ").encode("utf-8")) == -1 and \
-                enable_line.find((device_base+"=").encode("utf-8")) == -1:
+                enable_line.find((device_base + "=").encode("utf-8")) == -1:
             return enable_line
     else:
         if enable_line.find(device_base + " ") == -1 and \
-                enable_line.find(device_base+"=") == -1:
+                enable_line.find(device_base + "=") == -1:
             return enable_line
 
 

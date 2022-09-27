@@ -31,9 +31,9 @@
 
 namespace OHOS {
 namespace HDI {
-static const std::regex rePackage(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]"
+static const std::regex RE_PACKAGE(RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]"
                                                 "(" RE_DIGIT ")_(" RE_DIGIT ")");
-static const std::regex reImport(
+static const std::regex RE_IMPORT(
     RE_IDENTIFIER "(?:\\." RE_IDENTIFIER ")*\\.[V|v]" RE_DIGIT "_" RE_DIGIT "." RE_IDENTIFIER);
 
 bool Parser::Parse(const std::vector<std::string> &sourceFiles)
@@ -155,7 +155,7 @@ bool Parser::ParsePackage()
 bool Parser::ParserPackageInfo(const std::string &packageName)
 {
     std::cmatch result;
-    if (!std::regex_match(packageName.c_str(), result, rePackage)) {
+    if (!std::regex_match(packageName.c_str(), result, RE_PACKAGE)) {
         return false;
     }
 
@@ -599,6 +599,17 @@ AutoPtr<ASTParameter> Parser::ParseParam()
         lexer_.GetToken();
     }
 
+    if (paramType != nullptr && paramType->IsInterfaceType()) {
+        AutoPtr<ASTInterfaceType> ifaceType = dynamic_cast<ASTInterfaceType *>(paramType.Get());
+        if (ifaceType->IsCallback() && paramAttr->value_ != ParamAttr::PARAM_IN) {
+            LogError(token, StringHelper::Format("'%s' parameter of callback interface type must be 'in' attribute",
+                paramName.c_str()));
+        } else if (!ifaceType->IsCallback() && paramAttr->value_ != ParamAttr::PARAM_OUT) {
+            LogError(token, StringHelper::Format("'%s' parameter of interface type must be 'out' attribute",
+                paramName.c_str()));
+        }
+    }
+
     return new ASTParameter(paramName, paramAttr, paramType);
 }
 
@@ -649,6 +660,7 @@ AutoPtr<ASTType> Parser::ParseType()
         case TokenType::DOUBLE:
         case TokenType::FD:
         case TokenType::ASHMEM:
+        case TokenType::BUFFER_HANDLE:
         case TokenType::UNSIGNED:
             type = ParseBasicType();
             break;
@@ -967,7 +979,7 @@ AutoPtr<ASTType> Parser::ParseEnumBaseType()
         lexer_.GetToken();
     } else {
         lexer_.GetToken();
-        AutoPtr<ASTType> baseType = ast_->FindType("int");
+        baseType = ast_->FindType("int");
     }
     return baseType;
 }
@@ -1380,13 +1392,9 @@ bool Parser::CheckType(const Token &token, const AutoPtr<ASTType> &type)
     }
 
     if (Options::GetInstance().GetTargetLanguage() == Options::Language::C) {
-        if (type->IsSequenceableType()) {
-            LogError(token, StringHelper::Format("The sequenceable type is not supported by c language."));
-            return false;
-        }
-
-        if (type->IsSmqType()) {
-            LogError(token, StringHelper::Format("The smq type is not supported by c language."));
+        if (type->IsSequenceableType() || type->IsSmqType() || type->IsAshmemType()) {
+            LogError(token, StringHelper::Format("The %s type is not supported by c language.",
+                type->ToString().c_str()));
             return false;
         }
 
@@ -1524,7 +1532,7 @@ bool Parser::CheckPackageName(const std::string &filePath, const std::string &pa
 {
     std::string pkgToPath = Options::GetInstance().GetPackagePath(packageName);
 
-    size_t index = filePath.rfind(File::separator);
+    size_t index = filePath.rfind(SEPARATOR);
     if (index == std::string::npos) {
         return false;
     }
@@ -1535,7 +1543,7 @@ bool Parser::CheckPackageName(const std::string &filePath, const std::string &pa
 
 bool Parser::CheckImport(const std::string &importName)
 {
-    if (!std::regex_match(importName.c_str(), reImport)) {
+    if (!std::regex_match(importName.c_str(), RE_IMPORT)) {
         LogError(StringHelper::Format("invalid impirt name '%s'", importName.c_str()));
         return false;
     }

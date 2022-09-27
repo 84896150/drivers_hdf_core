@@ -23,7 +23,6 @@ void CCodeEmitter::GetImportInclusions(HeaderFile::HeaderFileSet &headerFiles)
 void CCodeEmitter::EmitInterfaceMethodParameter(
     const AutoPtr<ASTParameter> &parameter, StringBuilder &sb, const std::string &prefix)
 {
-    AutoPtr<ASTType> type = parameter->GetType();
     sb.Append(prefix).Append(parameter->EmitCParameter());
 }
 
@@ -130,11 +129,6 @@ void CCodeEmitter::EmitTailExternC(StringBuilder &sb)
     sb.Append("#ifdef __cplusplus\n");
     sb.Append("}\n");
     sb.Append("#endif /* __cplusplus */\n");
-}
-
-std::string CCodeEmitter::EmitDescMacroName()
-{
-    return StringHelper::Format("%s_INTERFACE_DESC", StringHelper::StrToUpper(interfaceName_).c_str());
 }
 
 std::string CCodeEmitter::MacroName(const std::string &name)

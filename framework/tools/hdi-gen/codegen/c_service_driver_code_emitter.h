@@ -15,7 +15,7 @@ namespace OHOS {
 namespace HDI {
 class CServiceDriverCodeEmitter : public CCodeEmitter {
 public:
-    CServiceDriverCodeEmitter() : CCodeEmitter() {}
+    CServiceDriverCodeEmitter();
 
     virtual ~CServiceDriverCodeEmitter() = default;
 
@@ -32,15 +32,23 @@ private:
 
     void EmitDriverServiceDecl(StringBuilder &sb);
 
+    void EmitKernelDriverDispatch(StringBuilder &sb);
+
     void EmitDriverDispatch(StringBuilder &sb);
 
     void EmitDriverInit(StringBuilder &sb);
 
+    void EmitKernelDriverBind(StringBuilder &sb);
+
     void EmitDriverBind(StringBuilder &sb);
+
+    void EmitKernelDriverRelease(StringBuilder &sb);
 
     void EmitDriverRelease(StringBuilder &sb);
 
     void EmitDriverEntryDefinition(StringBuilder &sb);
+private:
+    std::string hostName_;
 };
 } // namespace HDI
 } // namespace OHOS

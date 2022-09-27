@@ -81,17 +81,15 @@ static int32_t VirtualReadConfigFromHcs(struct VirtualCanCntlr *virtualCan)
 
 static int32_t VirtualCanMsgLoopBack(struct VirtualCanCntlr *virtualCan, const struct CanMsg *msg)
 {
-    struct CanMsg *new = NULL;
+    struct CanMsg new;
 
-    new = CanMsgObtain();
-    if (new == NULL) {
-        return HDF_ERR_MALLOC_FAIL;
-    }
+    HDF_LOGI("VirtualCanMsgLoopBack: begin");
 
-    *new = *msg; // Yeah! this is loop back ...
+    new = *msg; // Yeah! this is loop back ...
 
     virtualCan->busState = CAN_BUS_READY;
-    return CanCntlrOnNewMsg(&virtualCan->cntlr, new);
+    HDF_LOGI("VirtualCanMsgLoopBack: end");
+    return CanCntlrOnNewMsg(&virtualCan->cntlr, &new);
 }
 
 static int32_t VirtualCanSendMsg(struct CanCntlr *cntlr, const struct CanMsg *msg)
@@ -201,12 +199,14 @@ static int32_t VirtualCanSetCfg(struct CanCntlr *cntlr, const struct CanConfig *
     }
 
     virtualCan->busState = CAN_BUS_RESET;
-    if ((ret = VirtualCanSetBitRate(virtualCan, cfg->speed) != HDF_SUCCESS)) {
+    ret = VirtualCanSetBitRate(virtualCan, cfg->speed);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set speed failed", __func__);
         return ret;
     }
 
-    if ((ret = VirtualCanSetMode(virtualCan, cfg->mode) != HDF_SUCCESS)) {
+    ret = VirtualCanSetMode(virtualCan, cfg->mode);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set mode failed", __func__);
         return ret;
     }
@@ -268,12 +268,14 @@ static int32_t VirtualCanInit(struct VirtualCanCntlr *virtualCan)
         HDF_LOGW("VirtualUartInit: read hcs config failed");
     }
 
-    if ((ret = VirtualCanSetBitRate(virtualCan, virtualCan->bitRate) != HDF_SUCCESS)) {
+    ret = VirtualCanSetBitRate(virtualCan, virtualCan->bitRate);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set bit rate failed", __func__);
         return ret;
     }
 
-    if ((ret = VirtualCanSetMode(virtualCan, virtualCan->workMode) != HDF_SUCCESS)) {
+    ret = VirtualCanSetMode(virtualCan, virtualCan->workMode);
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: set mode failed", __func__);
         return ret;
     }

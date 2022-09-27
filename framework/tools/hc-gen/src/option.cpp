@@ -18,8 +18,8 @@
 using namespace OHOS::Hardware;
 static constexpr int HCS_COMPILER_VERSION_MAJOR = 00;
 static constexpr int HCS_COMPILER_VERSION_MINOR = 7;
-
 static constexpr int ARG_COUNT_MIN = 2;
+static constexpr int SPACE_WIDTH = 12;
 
 Option &Option::Instance()
 {
@@ -140,7 +140,7 @@ void Option::ShowUsage() const
 
 void Option::ShowOption(const ::std::string &option, const ::std::string &helpInfo)
 {
-    Logger() << "  " << ::std::setw(12) << ::std::left << option << "  " << helpInfo;
+    Logger() << "  " << ::std::setw(SPACE_WIDTH) << ::std::left << option << "  " << helpInfo;
 }
 
 bool Option::ShouldShowUsage() const
@@ -199,7 +199,7 @@ bool Option::ShouldGenStartConfig() const
     return genStartCfg_;
 }
 
-std::string Option::GetSymbolPrefix()
+std::string Option::GetSymbolPrefix() const
 {
     return symbolNamePrefix_;
 }
@@ -215,22 +215,22 @@ void Option::SetOptionError(bool shouldShowUsage)
     optionError_ = true;
 }
 
-std::string Option::GetSourceName()
+std::string Option::GetSourceName() const
 {
     return sourceName_;
 }
 
-std::string Option::GetSourceNameBase()
+std::string Option::GetSourceNameBase() const
 {
     return sourceNameBase_;
 }
 
-std::string Option::GetOutputName()
+std::string Option::GetOutputName() const
 {
     return outputName_;
 }
 
-std::string Option::GetSourceDir()
+std::string Option::GetSourceDir() const
 {
     return sourceDir_;
 }

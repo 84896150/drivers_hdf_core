@@ -159,7 +159,6 @@ static int32_t GpioDevSetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t di
 static int32_t GpioDevGetDir(struct GpioCntlr *cntlr, uint16_t gpio, uint16_t *dir)
 {
     (void)cntlr;
-    uint32_t ret = 0;
     asr_gpio_dev_t *dev = &g_gpioPinMap[gpio];
 
     if ((cntlr == NULL) || (dir == NULL)) {
@@ -461,7 +460,7 @@ static void GpioDriverRelease(struct HdfDeviceObject *device)
     gpioCntlr = GpioCntlrFromHdfDev(device);
     if (gpioCntlr == NULL) {
         HDF_LOGE("GpioCntlrFromHdfDev fail\r\n");
-        return HDF_DEV_ERR_NO_DEVICE_SERVICE;
+        return;
     }
 
     (void)OsalMemFree(gpioCntlr->priv);
