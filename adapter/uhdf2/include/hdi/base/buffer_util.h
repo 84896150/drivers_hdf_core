@@ -23,9 +23,12 @@
 extern "C" {
 #endif /* __cplusplus */
 
-BufferHandle *AllocateBufferHandle(uint32_t reserveFds, uint32_t reserveInts);
-BufferHandle *CloneBufferHandle(const BufferHandle *handle);
-void FreeBufferHandle(BufferHandle *handle);
+BufferHandle *AllocateNativeBufferHandle(uint32_t reserveFds, uint32_t reserveInts);
+BufferHandle *CloneNativeBufferHandle(const BufferHandle *handle);
+void FreeNativeBufferHandle(BufferHandle *handle);
+
+bool HdfSbufWriteNativeBufferHandle(struct HdfSBuf *data, const BufferHandle *handle);
+BufferHandle *HdfSbufReadNativeBufferHandle(struct HdfSBuf *data);
 
 #ifdef __cplusplus
 }
