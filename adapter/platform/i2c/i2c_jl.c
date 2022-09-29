@@ -51,7 +51,7 @@ static struct HdfDriverEntry g_i2cDriverEntry = {
 
 HDF_INIT(g_i2cDriverEntry);
 
-struct hw_iic_config hw_iic_cfg[] = {
+struct hw_iic_config g_hwIicCfg[] = {
     {
         .port = 'A',
         .baudrate = ONE_HUNDRED_THOUSAND,
@@ -113,12 +113,12 @@ static int32_t InitI2cDevice(struct I2cDevice *device)
     for (int i = 0; i < GROUP_PIN_NUM ; i++) {
         if (resource->sclPin == hwiic_iomap[device->port][i].scl &&
             resource->sdaPin == hwiic_iomap[device->port][i].sda) {
-            hw_iic_cfg[device->port].port = 'A' + i;
+            g_hwIicCfg[device->port].port = 'A' + i;
             break;
         }
     }
 
-    HDF_LOGI("hw iic port%u  group%c\n", device->port, hw_iic_cfg[device->port].port);
+    HDF_LOGI("hw iic port%u  group%c\n", device->port, g_hwIicCfg[device->port].port);
 
     hw_iic_init(device->port);
     OsalMutexUnlock(&device->mutex);

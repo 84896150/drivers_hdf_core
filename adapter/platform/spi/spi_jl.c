@@ -43,7 +43,7 @@ struct SpiDevice {
     struct OsalMutex mutex;
 };
 
-struct spi_platform_data spi1_p_data = {
+struct spi_platform_data g_spi1Data = {
     .port = 'A',
     .mode = SPI_MODE_BIDIR_1BIT,
     .clk = ONE_MILLION,
@@ -358,10 +358,10 @@ static int32_t SpiDevOpen(struct SpiCntlr *spiCntlr)
     if (resource == NULL) {
         HDF_LOGE("%s: resource is null\r\n", __func__);
     }
-    spi1_p_data.port = resource->port;
-    spi1_p_data.clk = resource->speed;
-    spi1_p_data.role = SPI_ROLE_MASTER;
-    spi1_p_data.mode = SPI_MODE_BIDIR_1BIT;
+    g_spi1Data.port = resource->port;
+    g_spi1Data.clk = resource->speed;
+    g_spi1Data.role = SPI_ROLE_MASTER;
+    g_spi1Data.mode = SPI_MODE_BIDIR_1BIT;
 
     spi_open(spiDevice->spiId);
 
