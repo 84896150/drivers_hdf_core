@@ -439,8 +439,7 @@ static int32_t ParseLightInfo(const struct DeviceResourceNode *node, const struc
         return HDF_FAILURE;
     }
 
-    ret = memset_s(drvData->info, sizeof(drvData->info[LIGHT_ID_NONE]) * LIGHT_ID_BUTT, 0,
-        sizeof(drvData->info[LIGHT_ID_NONE]) * LIGHT_ID_BUTT);
+    ret = memset_s(drvData->info, sizeof(drvData->info), 0, sizeof(drvData->info));
     CHECK_LIGHT_PARSER_RESULT_RETURN_VALUE(ret, "memset_s");
 
     for (i = 0; i < drvData->lightNum; ++i) {
