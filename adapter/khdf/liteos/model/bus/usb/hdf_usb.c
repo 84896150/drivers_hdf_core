@@ -108,10 +108,6 @@ static int ProcControllorParam(const struct DeviceResourceIface *instance, const
     }
 
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(node, subNode) {
-        if (index >= info->len) {
-            break;
-        }
-
         struct UsbConfig *cfg = &(info->cfg[index]);
         int32_t ret = instance->GetString(subNode, "controller", &ctrlName, NULL);
         if (ret != HDF_SUCCESS) {

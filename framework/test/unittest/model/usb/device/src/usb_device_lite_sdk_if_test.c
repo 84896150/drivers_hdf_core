@@ -116,7 +116,7 @@ int32_t UsbFnDviceTestStatus(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetDeviceState(g_acmDevice->fnDev, &devState);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
         return HDF_FAILURE;
     }
@@ -141,16 +141,14 @@ int32_t UsbFnDviceTestStatus002(void)
 
 int32_t UsbFnDviceTestStatus003(void)
 {
-    int32_t ret;
-    int32_t count;
     UsbFnDeviceState devState;
     if (g_acmDevice == NULL || g_acmDevice->fnDev == NULL) {
         HDF_LOGE("%s: fnDev is invail", __func__);
         return HDF_FAILURE;
     }
-    for (count = 0; count < TEST_TIMES; count++) {
-        ret = UsbFnGetDeviceState(g_acmDevice->fnDev, &devState);
-        if (HDF_SUCCESS != ret) {
+    for (int32_t i = 0; i < TEST_TIMES; i++) {
+        int32_t ret = UsbFnGetDeviceState(g_acmDevice->fnDev, &devState);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: get status error", __func__);
             return HDF_FAILURE;
         }
@@ -362,7 +360,7 @@ int32_t UsbFnDviceTestGetPipeInfo(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfacePipeInfo(g_acmDevice->dataIface.fn, 0, &info);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get pipe info error", __func__);
         return HDF_FAILURE;
     }
@@ -383,7 +381,7 @@ int32_t UsbFnDviceTestGetPipeInfo002(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfacePipeInfo(g_acmDevice->dataIface.fn, 1, &info);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get pipe info error", __func__);
         return HDF_FAILURE;
     }
@@ -452,7 +450,7 @@ int32_t UsbFnDviceTestGetPipeInfo006(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfacePipeInfo(g_acmDevice->ctrlIface.fn, 0, &info);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get pipe info error", __func__);
         return HDF_FAILURE;
     }
@@ -485,7 +483,7 @@ int32_t UsbFnDviceTestRegistProp(void)
     info.getProp  = PropCallBack;
     info.setProp  = PropCallBack;
     ret = UsbFnRegistInterfaceProp(g_acmDevice->ctrlIface.fn, &info);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Regist Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -545,7 +543,7 @@ int32_t UsbFnDviceTestRegistProp004(void)
     info.getProp  = NULL;
     info.setProp  = PropCallBack;
     ret = UsbFnRegistInterfaceProp(g_acmDevice->ctrlIface.fn, &info);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Regist Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -599,7 +597,7 @@ int32_t UsbFnDviceTestRegistProp007(void)
     info.getProp  = PropCallBack;
     info.setProp  = PropCallBack;
     ret = UsbFnRegistInterfaceProp(g_acmDevice->dataIface.fn, &info);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Regist Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -616,7 +614,7 @@ int32_t UsbFnDviceTestGetProp(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "name_test", buff);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -654,7 +652,7 @@ int32_t UsbFnDviceTestGetProp003(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "idProduct", buff);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -686,7 +684,7 @@ int32_t UsbFnDviceTestGetProp005(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfaceProp(g_acmDevice->ctrlIface.fn, "idVendor", buff);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -718,7 +716,7 @@ int32_t UsbFnDviceTestGetProp007(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "name_test", buff);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -739,7 +737,7 @@ int32_t UsbFnDviceTestGetProp008(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetInterfaceProp(g_acmDevice->dataIface.fn, "idVendor", buff);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Get Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -754,7 +752,7 @@ int32_t UsbFnDviceTestSetProp(void)
         return HDF_FAILURE;
     }
     ret = UsbFnSetInterfaceProp(g_acmDevice->ctrlIface.fn, "name_test", "hello");
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Set Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -813,7 +811,7 @@ int32_t UsbFnDviceTestSetProp005(void)
         return HDF_FAILURE;
     }
     ret = UsbFnSetInterfaceProp(g_acmDevice->ctrlIface.fn, "idVendor", "0x625");
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Set Prop error!!", __func__);
         return HDF_FAILURE;
     }
@@ -843,7 +841,7 @@ int32_t UsbFnDviceTestSetProp007(void)
         return HDF_FAILURE;
     }
     ret = UsbFnSetInterfaceProp(g_acmDevice->dataIface.fn, "name_test", "hello");
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: Set Prop error", __func__);
         return HDF_FAILURE;
     }
@@ -865,7 +863,7 @@ int32_t UsbFnDviceTestAllocCtrlRequest(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -887,7 +885,7 @@ int32_t UsbFnDviceTestAllocCtrlRequest002(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -896,17 +894,15 @@ int32_t UsbFnDviceTestAllocCtrlRequest002(void)
 
 int32_t UsbFnDviceTestAllocCtrlRequest003(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.handle == NULL) {
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle, 0);
+    struct UsbFnRequest *req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle, 0);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -917,17 +913,15 @@ int32_t UsbFnDviceTestAllocCtrlRequest003(void)
 
 int32_t UsbFnDviceTestAllocCtrlRequest004(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.handle == NULL) {
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle, 0x801);
+    struct UsbFnRequest *req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle, 0x801);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -938,20 +932,17 @@ int32_t UsbFnDviceTestAllocCtrlRequest004(void)
 
 int32_t UsbFnDviceTestAllocCtrlRequest005(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     UsbFnInterfaceHandle handle = NULL;
 
     if (g_acmDevice == NULL) {
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocCtrlRequest(handle,
-        g_acmDevice->notifyPipe.maxPacketSize);
+    struct UsbFnRequest *req = UsbFnAllocCtrlRequest(handle, g_acmDevice->notifyPipe.maxPacketSize);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -974,7 +965,7 @@ int32_t UsbFnDviceTestAllocCtrlRequest006(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -983,17 +974,15 @@ int32_t UsbFnDviceTestAllocCtrlRequest006(void)
 
 int32_t UsbFnDviceTestAllocCtrlRequest007(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->dataIface.handle == NULL) {
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocCtrlRequest(g_acmDevice->dataIface.handle, 0);
+    struct UsbFnRequest *req = UsbFnAllocCtrlRequest(g_acmDevice->dataIface.handle, 0);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1004,15 +993,13 @@ int32_t UsbFnDviceTestAllocCtrlRequest007(void)
 
 int32_t UsbFnDviceTestAllocCtrlRequest008(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     UsbFnInterfaceHandle handle = NULL;
 
-    req = UsbFnAllocCtrlRequest(handle, 0);
+    struct UsbFnRequest *req = UsbFnAllocCtrlRequest(handle, 0);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1036,7 +1023,7 @@ int32_t UsbFnDviceTestAllocRequest(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1045,18 +1032,15 @@ int32_t UsbFnDviceTestAllocRequest(void)
 
 int32_t UsbFnDviceTestAllocRequest002(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.handle == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(g_acmDevice->ctrlIface.handle,
-        g_acmDevice->notifyPipe.id, 0);
+    struct UsbFnRequest *req = UsbFnAllocRequest(g_acmDevice->ctrlIface.handle, g_acmDevice->notifyPipe.id, 0);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1080,7 +1064,7 @@ int32_t UsbFnDviceTestAllocRequest003(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1089,19 +1073,17 @@ int32_t UsbFnDviceTestAllocRequest003(void)
 
 int32_t UsbFnDviceTestAllocRequest004(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     UsbFnInterfaceHandle handle = NULL;
 
     if (g_acmDevice == NULL) {
         HDF_LOGE("%s: dataIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(handle, g_acmDevice->notifyPipe.id, 0x800);
+    struct UsbFnRequest *req = UsbFnAllocRequest(handle, g_acmDevice->notifyPipe.id, 0x800);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1112,17 +1094,16 @@ int32_t UsbFnDviceTestAllocRequest004(void)
 
 int32_t UsbFnDviceTestAllocRequest005(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.handle == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(g_acmDevice->ctrlIface.handle, REQUEST_ALLOC_PIPE, REQUEST_ALLOC_LENGTH);
+    struct UsbFnRequest *req = UsbFnAllocRequest(
+        g_acmDevice->ctrlIface.handle, REQUEST_ALLOC_PIPE, REQUEST_ALLOC_LENGTH);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1133,18 +1114,15 @@ int32_t UsbFnDviceTestAllocRequest005(void)
 
 int32_t UsbFnDviceTestAllocRequest006(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.handle == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(g_acmDevice->ctrlIface.handle,
-        g_acmDevice->notifyPipe.id, 0x801);
+    struct UsbFnRequest *req = UsbFnAllocRequest(g_acmDevice->ctrlIface.handle, g_acmDevice->notifyPipe.id, 0x801);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1155,18 +1133,15 @@ int32_t UsbFnDviceTestAllocRequest006(void)
 
 int32_t UsbFnDviceTestAllocRequest007(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->dataIface.handle == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    req = UsbFnAllocRequest(g_acmDevice->dataIface.handle,
-        g_acmDevice->dataOutPipe.id, 0);
+    struct UsbFnRequest *req = UsbFnAllocRequest(g_acmDevice->dataIface.handle, g_acmDevice->dataOutPipe.id, 0);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1177,19 +1152,17 @@ int32_t UsbFnDviceTestAllocRequest007(void)
 
 int32_t UsbFnDviceTestAllocRequest008(void)
 {
-    int32_t ret;
-    struct UsbFnRequest *req = NULL;
-    uint32_t length;
     if (g_acmDevice == NULL || g_acmDevice->dataIface.handle == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    length = g_acmDevice->dataOutPipe.maxPacketSize;
-    req = UsbFnAllocRequest(g_acmDevice->dataIface.handle, REQUEST_ALLOC_PIPE, length);
+
+    uint32_t length = g_acmDevice->dataOutPipe.maxPacketSize;
+    struct UsbFnRequest *req = UsbFnAllocRequest(g_acmDevice->dataIface.handle, REQUEST_ALLOC_PIPE, length);
     if (req != NULL) {
         HDF_LOGE("%s: alloc req success!!", __func__);
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1213,7 +1186,7 @@ int32_t UsbFnDviceTestAllocRequest009(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1235,7 +1208,7 @@ int32_t UsbFnDviceTestFreeRequest(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1257,7 +1230,7 @@ int32_t UsbFnDviceTestFreeRequest002(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1279,7 +1252,7 @@ int32_t UsbFnDviceTestFreeRequest003(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1301,7 +1274,7 @@ int32_t UsbFnDviceTestFreeRequest004(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(req);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1310,22 +1283,20 @@ int32_t UsbFnDviceTestFreeRequest004(void)
 
 int32_t UsbFnDviceTestFreeRequest005(void)
 {
-    int32_t ret;
-    int32_t count;
     struct UsbFnRequest *req = NULL;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.handle == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    for (count = 0; count < TEST_TIMES; count++) {
+    for (int32_t i = 0; i < TEST_TIMES; i++) {
         req = UsbFnAllocCtrlRequest(g_acmDevice->ctrlIface.handle,
             g_acmDevice->notifyPipe.maxPacketSize);
         if (req == NULL) {
             HDF_LOGE("%s: alloc req fail", __func__);
             return HDF_FAILURE;
         }
-        ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        int32_t ret = UsbFnFreeRequest(req);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1361,7 +1332,7 @@ int32_t UsbFnDviceTestGetRequestStatus(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetRequestStatus(notifyReq, &status);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
         return HDF_FAILURE;
     }
@@ -1370,7 +1341,7 @@ int32_t UsbFnDviceTestGetRequestStatus(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(notifyReq);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1393,7 +1364,7 @@ int32_t UsbFnDviceTestGetRequestStatus002(void)
         return HDF_FAILURE;
     }
     ret = UsbFnGetRequestStatus(notifyReq, &status);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
         dprintf("%s: get status error", __func__);
         return HDF_FAILURE;
@@ -1403,7 +1374,7 @@ int32_t UsbFnDviceTestGetRequestStatus002(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(notifyReq);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1428,7 +1399,7 @@ int32_t UsbFnDviceTestGetRequestStatus003(void)
     if (HDF_SUCCESS == ret) {
         HDF_LOGE("%s: get status success!!", __func__);
         ret = UsbFnFreeRequest(req);
-        if (HDF_SUCCESS != ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: free Request error", __func__);
             return HDF_FAILURE;
         }
@@ -1454,12 +1425,12 @@ int32_t UsbFnDviceTestGetRequestStatus004(void)
         return HDF_FAILURE;
     }
     ret = UsbFnSubmitRequestAsync(notifyReq);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
         return HDF_FAILURE;
     }
     ret = UsbFnGetRequestStatus(notifyReq, &status);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: get status error", __func__);
         return HDF_FAILURE;
     }
@@ -1468,7 +1439,7 @@ int32_t UsbFnDviceTestGetRequestStatus004(void)
         return HDF_FAILURE;
     }
     ret = UsbFnFreeRequest(notifyReq);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: free Request error", __func__);
         return HDF_FAILURE;
     }
@@ -1509,7 +1480,7 @@ int32_t UsbFnDviceTestStopReceEvent(void)
         return HDF_FAILURE;
     }
     ret = UsbFnStopRecvInterfaceEvent(g_acmDevice->ctrlIface.fn);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: stop receive event error", __func__);
         return HDF_FAILURE;
     }
@@ -1622,7 +1593,7 @@ int32_t UsbFnDviceTestStartReceEvent004(void)
     }
     ret = UsbFnStartRecvInterfaceEvent(g_acmDevice->ctrlIface.fn, 0xff,
         EventCallBack, g_acmDevice);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: start receive event error", __func__);
         return HDF_FAILURE;
     }
@@ -1631,21 +1602,18 @@ int32_t UsbFnDviceTestStartReceEvent004(void)
 
 int32_t UsbFnDviceTestStartReceEvent005(void)
 {
-    int32_t ret;
-    int32_t count;
     if (g_acmDevice == NULL || g_acmDevice->ctrlIface.fn == NULL) {
         HDF_LOGE("%s: ctrlIface.handle is invail", __func__);
         return HDF_FAILURE;
     }
-    for (count = 0; count < TEST_TIMES; count++) {
-        ret = UsbFnStopRecvInterfaceEvent(g_acmDevice->ctrlIface.fn);
-        if (HDF_SUCCESS != ret) {
+    for (int32_t i = 0; i < TEST_TIMES; i++) {
+        int32_t ret = UsbFnStopRecvInterfaceEvent(g_acmDevice->ctrlIface.fn);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: stop receive event error", __func__);
             return HDF_FAILURE;
         }
-        ret = UsbFnStartRecvInterfaceEvent(g_acmDevice->ctrlIface.fn, 0xff,
-            EventCallBack, g_acmDevice);
-        if (HDF_SUCCESS != ret) {
+        ret = UsbFnStartRecvInterfaceEvent(g_acmDevice->ctrlIface.fn, 0xff, EventCallBack, g_acmDevice);
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: stop receive event error", __func__);
             return HDF_FAILURE;
         }
@@ -1736,7 +1704,7 @@ int32_t UsbFnDviceTestOpenInterface003(void)
         return HDF_FAILURE;
     }
     ret = UsbFnCloseInterface(g_acmDevice->ctrlIface.handle);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: close interface failed", __func__);
         return HDF_FAILURE;
     }
@@ -1763,7 +1731,7 @@ int32_t UsbFnDviceTestOpenInterface004(void)
         return HDF_FAILURE;
     }
     ret = UsbFnCloseInterface(g_acmDevice->dataIface.handle);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: close interface failed", __func__);
         return HDF_FAILURE;
     }
@@ -1798,7 +1766,7 @@ int32_t UsbFnDviceTestCloseInterface(void)
         return HDF_FAILURE;
     }
     ret = UsbFnCloseInterface(g_acmDevice->ctrlIface.handle);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: close interface error", __func__);
         return HDF_FAILURE;
     }
@@ -1815,7 +1783,7 @@ int32_t UsbFnDviceTestCloseInterface002(void)
         return HDF_FAILURE;
     }
     ret = UsbFnCloseInterface(g_acmDevice->dataIface.handle);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: close interface error", __func__);
         return HDF_FAILURE;
     }
@@ -1881,7 +1849,7 @@ int32_t UsbFnDviceTestRemove002(void)
 
     ReleaseAcmDevice(g_acmDevice);
     ret = UsbFnRemoveDevice(g_acmDevice->fnDev);
-    if (HDF_SUCCESS != ret) {
+    if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: UsbFnRemoveDevice fail, ret = %d", __func__, ret);
         return HDF_FAILURE;
     }

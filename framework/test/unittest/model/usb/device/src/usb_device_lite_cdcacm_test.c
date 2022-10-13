@@ -327,11 +327,9 @@ static struct Serial *SerialAlloc(void)
 
 static void ParsePipes(struct AcmDevice *acmDevice, const struct UsbFnInterface *fnIface, UsbFnInterfaceHandle handle)
 {
-    uint32_t j;
-    int32_t ret;
     struct UsbFnPipeInfo pipeInfo = {0};
-    for (j = 0; j < fnIface->info.numPipes; j++) {
-        ret = UsbFnGetInterfacePipeInfo((struct UsbFnInterface *)fnIface, j, &pipeInfo);
+    for (uint32_t j = 0; j < fnIface->info.numPipes; j++) {
+        int32_t ret = UsbFnGetInterfacePipeInfo((struct UsbFnInterface *)fnIface, j, &pipeInfo);
         if (ret != HDF_SUCCESS) {
             return;
         }

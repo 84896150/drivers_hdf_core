@@ -307,23 +307,21 @@ int32_t CheckRawSdkIfFreeRequest006(void)
 int32_t CheckRawSdkIfFillIsoRequest001(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
+    for (int32_t i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
         reqData.callback      = AcmWriteIsoCallback;
         reqData.timeout       = USB_CTRL_SET_TIMEOUT;
         reqData.buffer        = (unsigned char*)sendData;
         reqData.length        = size;
-        ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, &reqData);
-        if (ret) {
+        int32_t ret = UsbRawFillIsoRequest(rawAcm->isoReq, rawAcm->devHandle, &reqData);
+        if (ret != HDF_SUCCESS) {
             printf("%s: error++ret=%d\n", __func__, ret);
             return HDF_FAILURE;
         }
@@ -335,23 +333,21 @@ int32_t CheckRawSdkIfFillIsoRequest001(void)
 int32_t CheckRawSdkIfFillIsoRequest002(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
-    int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     size = strlen(sendData) + 1;
     printf("---size:%u\n", size);
     size = (size > rawAcm->isoEp.maxPacketSize) ? rawAcm->isoEp.maxPacketSize : size;
-    for (i = 0; i < 1; i++) {
+    for (int32_t i = 0; i < 1; i++) {
         reqData.endPoint      = rawAcm->isoEp.addr;
         reqData.numIsoPackets = USB_ISO_PACKAT_CNT;
         reqData.callback      = AcmWriteIsoCallback;
         reqData.timeout       = USB_CTRL_SET_TIMEOUT;
         reqData.buffer        = (unsigned char*)sendData;
         reqData.length        = size;
-        ret = UsbRawFillIsoRequest(NULL, rawAcm->devHandle, &reqData);
-        if (ret) {
+        int32_t ret = UsbRawFillIsoRequest(NULL, rawAcm->devHandle, &reqData);
+        if (ret != HDF_SUCCESS) {
             printf("%s: error++ret=%d\n", __func__, ret);
             return HDF_FAILURE;
         }
@@ -363,7 +359,7 @@ int32_t CheckRawSdkIfFillIsoRequest002(void)
 int32_t CheckRawSdkIfFillIsoRequest003(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
@@ -391,7 +387,7 @@ int32_t CheckRawSdkIfFillIsoRequest003(void)
 int32_t CheckRawSdkIfFillIsoRequest004(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
@@ -419,7 +415,7 @@ int32_t CheckRawSdkIfFillIsoRequest004(void)
 int32_t CheckRawSdkIfFillIsoRequest005(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
@@ -447,7 +443,7 @@ int32_t CheckRawSdkIfFillIsoRequest005(void)
 int32_t CheckRawSdkIfFillIsoRequest006(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
@@ -473,7 +469,7 @@ int32_t CheckRawSdkIfFillIsoRequest006(void)
 }
 int32_t CheckRawSdkIfFreeRequest001(void)
 {
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -492,7 +488,7 @@ int32_t CheckRawSdkIfFreeRequest001(void)
 
 int32_t CheckRawSdkIfFreeRequest002(void)
 {
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -949,7 +945,7 @@ int32_t CheckRawSdkIfGetDescriptor016(void)
 int32_t CheckRawSdkIfFillBulkRequest001(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
@@ -990,7 +986,7 @@ int32_t CheckRawSdkIfFillBulkRequest001(void)
 int32_t CheckRawSdkIfFillBulkRequest002(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
@@ -1565,7 +1561,7 @@ int32_t CheckRawSdkIfSendBulkRequest001(void)
 int32_t CheckRawSdkIfSendBulkRequest002(void)
 {
     struct UsbRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
@@ -1593,7 +1589,7 @@ int32_t CheckRawSdkIfSendBulkRequest002(void)
 int32_t CheckRawSdkIfSendBulkRequest003(void)
 {
     struct UsbRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
@@ -1621,7 +1617,7 @@ int32_t CheckRawSdkIfSendBulkRequest003(void)
 int32_t CheckRawSdkIfSendBulkRequest004(void)
 {
     struct UsbRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
@@ -1647,7 +1643,7 @@ int32_t CheckRawSdkIfSendBulkRequest004(void)
 
 int32_t CheckRawSdkIfSendBulkRequest005(void)
 {
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -1745,7 +1741,7 @@ int32_t CheckRawSdkIfSendInterruptRequest004(void)
 int32_t CheckRawSdkIfFillBulkRequest003(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     uint32_t size;
     char sendData[] = {"abcde\0"};
@@ -1784,7 +1780,7 @@ int32_t CheckRawSdkIfFillBulkRequest003(void)
 int32_t CheckRawSdkIfFillBulkRequest004(void)
 {
     struct UsbRawFillRequestData reqData;
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
     uint32_t size = rawAcm->dataInEp.maxPacketSize;
@@ -1829,7 +1825,7 @@ int32_t CheckRawSdkIfFillInterruptRequest005(void)
 
 int32_t CheckRawSdkIfSubmitRequest001(void)
 {
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -1848,7 +1844,7 @@ int32_t CheckRawSdkIfSubmitRequest001(void)
 
 int32_t CheckRawSdkIfSubmitRequest002(void)
 {
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -1893,7 +1889,7 @@ int32_t CheckRawSdkIfSubmitRequest004(void)
 
 int32_t CheckRawSdkIfCancelRequest001(void)
 {
-    int32_t ret;
+    //int32_t ret;
     int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
@@ -1911,14 +1907,12 @@ int32_t CheckRawSdkIfCancelRequest001(void)
 
 int32_t CheckRawSdkIfCancelRequest002(void)
 {
-    int32_t ret;
-    int32_t i;
     struct AcmRawDevice *rawAcm = UsbGetIoAcm();
 
-    for (i = 0; i < ACM_NR; i++) {
-        ret = UsbRawCancelRequest(rawAcm->readReq[i]);
+    for (int32_t i = 0; i < ACM_NR; i++) {
+        int32_t ret = UsbRawCancelRequest(rawAcm->readReq[i]);
         printf("%s+%d+ret:%d\n", __func__, __LINE__, ret);
-        if (ret) {
+        if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: error", __func__);
             return HDF_FAILURE;
         }
