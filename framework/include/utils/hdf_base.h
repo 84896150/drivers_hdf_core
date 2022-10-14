@@ -96,14 +96,14 @@ typedef enum {
 #define HDF_CONFIG_DIR "/etc"
 #else
 #ifdef __aarch64__
-#define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib64/" x ".z.so"
+#define HDF_LIBRARY_FULL_PATH(x) "/chipset/lib64/" x ".z.so"
 #else
-#define HDF_LIBRARY_FULL_PATH(x) "/vendor/lib/" x ".z.so"
+#define HDF_LIBRARY_FULL_PATH(x) "/chipset/lib/" x ".z.so"
 #endif
-#define HDF_LIBRARY_DIR "/vendor/lib"
-#define HDF_ETC_DIR "/vendor/etc"
-#define HDF_CONFIG_DIR "/vendor/etc/hdfconfig"
-#define HDF_MODULE_DIR "/vendor/modules/"
+#define HDF_LIBRARY_DIR "/chipset/lib"
+#define HDF_ETC_DIR "/chipset/etc"
+#define HDF_CONFIG_DIR "/chipset/etc/hdfconfig"
+#define HDF_MODULE_DIR "/chipset/modules/"
 #endif
 
 #ifdef __cplusplus
