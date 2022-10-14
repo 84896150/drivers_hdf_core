@@ -185,7 +185,8 @@ static int32_t TraceEventFileWrite(const char *enable)
 int32_t PlatformTraceStart(void)
 {
     if (!TraceIsOpen()) {
-        return HDF_SUCCESS;
+        HDF_LOGE("%s trace is not open", __func__);
+        return HDF_ERR_NOT_SUPPORT;
     }
     TraceEventFileWrite("1");
     return HDF_SUCCESS;
@@ -194,7 +195,8 @@ int32_t PlatformTraceStart(void)
 int32_t PlatformTraceStop(void)
 {
     if (!TraceIsOpen()) {
-        return HDF_SUCCESS;
+        HDF_LOGE("%s trace is not open", __func__);
+        return HDF_ERR_NOT_SUPPORT;
     }
     TraceEventFileWrite("0");
     return HDF_SUCCESS;
@@ -212,6 +214,7 @@ void PlatformTraceInfoDump(void)
     int32_t len = 0;
     off_t off;
     if (!TraceIsOpen()) {
+        HDF_LOGE("%s trace is not open", __func__);
         return;
     }
     ret = OsalFileOpen(&file, TRACE_EVENT_READ_PATH, OSAL_O_RDWR, OSAL_S_IREAD);

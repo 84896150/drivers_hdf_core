@@ -22,7 +22,6 @@ static int32_t UartTestGetConfig(struct UartTestConfig *config)
     int32_t ret;
     struct HdfSBuf *reply = NULL;
     struct HdfIoService *service = NULL;
-    struct UartTestConfig *cfg;
     const void *buf = NULL;
     uint32_t len;
 
@@ -46,22 +45,16 @@ static int32_t UartTestGetConfig(struct UartTestConfig *config)
             break;
         }
 
-        if (!HdfSbufReadBuffer(reply, (const void **)&cfg, &len)) {
-            HDF_LOGE("%s: Read buf failed", __func__);
+        if (!HdfSbufReadUint32(reply, &config->port)) {
+            HDF_LOGE("%s: Read port failed", __func__);
             ret = HDF_ERR_IO;
             break;
         }
-        if (len != sizeof(*cfg)) {
-            HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
+        if (!HdfSbufReadUint32(reply, &config->len)) {
+            HDF_LOGE("%s: Read len failed", __func__);
             ret = HDF_ERR_IO;
             break;
         }
-        if (memcpy_s(config, sizeof(*config), cfg, sizeof(*cfg)) != EOK) {
-            HDF_LOGE("%s: Memcpy buf failed", __func__);
-            ret = HDF_ERR_IO;
-            break;
-        }
-
         if (!HdfSbufReadBuffer(reply, (const void **)&buf, &len)) {
             HDF_LOGE("%s: Read buf failed", __func__);
             ret = HDF_ERR_IO;
@@ -69,7 +62,7 @@ static int32_t UartTestGetConfig(struct UartTestConfig *config)
         }
 
         if (len != config->len) {
-            HDF_LOGE("%s: cfg size:%zu, read size:%u", __func__, sizeof(*cfg), len);
+            HDF_LOGE("%s: config len:%u, read size:%u", __func__, config->len, len);
             ret = HDF_ERR_IO;
             break;
         }
