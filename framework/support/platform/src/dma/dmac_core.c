@@ -199,7 +199,7 @@ static int32_t DmacWaitM2mSendComplete(struct DmaCntlr *cntlr, struct DmacChanIn
     return DMAC_CHN_SUCCESS;
 }
 
-static uint16_t DmacAllocateChannel(struct DmaCntlr *cntlr)
+static int16_t DmacAllocateChannel(struct DmaCntlr *cntlr)
 {
     int i;
     uint32_t flags;

@@ -681,9 +681,7 @@ static void SpiDriverRelease(struct HdfDeviceObject *device)
     }
 
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    if (spiDevice != NULL) {
-        OsalMemFree(spiDevice);
-    }
+    OsalMemFree(spiDevice);
     return;
 }
 
@@ -746,9 +744,7 @@ static int32_t SpiDevGetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    if (spiDevice == NULL) {
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
+
     spiCfg->maxSpeedHz = spiDevice->resource.speed;
     spiCfg->mode = spiDevice->resource.mode;
     spiCfg->transferMode = spiDevice->resource.transmode;
@@ -761,14 +757,13 @@ static int32_t SpiDevSetCfg(struct SpiCntlr *spiCntlr, struct SpiCfg *spiCfg)
 {
     struct SpiDevice *spiDevice = NULL;
     struct HAL_SPI_CFG_T *spiDevCfg = NULL;
+
     if (spiCntlr == NULL || spiCfg == NULL || spiCntlr->priv == NULL) {
         HDF_LOGE("%s: spiCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     spiDevice = (struct SpiDevice *)spiCntlr->priv;
-    if (spiDevice == NULL) {
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
+
     spiDevCfg = &spiDevice->spiDevCfg;
     if (spiDevCfg == NULL) {
         return HDF_ERR_INVALID_OBJECT;

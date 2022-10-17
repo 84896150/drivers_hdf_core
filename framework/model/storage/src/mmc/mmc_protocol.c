@@ -46,7 +46,7 @@ static uint32_t MmcEndianConversion(uint32_t x)
 }
 
 /* Decoding algorithm */
-static uint32_t MmcParseBits(uint32_t *data, uint32_t bitsLen, uint32_t start, uint32_t size)
+static uint32_t MmcParseBits(const uint32_t *data, uint32_t bitsLen, uint32_t start, uint32_t size)
 {
     uint32_t index;
     uint32_t shift;
@@ -873,7 +873,7 @@ static void EmmcDecodeExtCsdCardType(struct EmmcExtCsd *extCsd)
     }
 }
 
-static void EmmcDecodeExtCsdRev13Field(struct EmmcExtCsd *extCsd, uint8_t *rawExtCsd)
+static void EmmcDecodeExtCsdRev13Field(struct EmmcExtCsd *extCsd, const uint8_t *rawExtCsd)
 {
     uint8_t shift = rawExtCsd[EMMC_EXT_CSD_S_A_TIMEOUT];
 
@@ -921,7 +921,7 @@ static void EmmcDecodeExtCsdEnhanceArea(struct EmmcDevice *emmcDev,
     extCsd->enhAreaSize <<= MMC_MAX_BLOCKSIZE_SHIFT;
 }
 
-static void EmmcDecodeExtCsdPowerClassValue(struct EmmcExtCsd *extCsd, uint8_t *rawExtCsd)
+static void EmmcDecodeExtCsdPowerClassValue(struct EmmcExtCsd *extCsd, const uint8_t *rawExtCsd)
 {
     extCsd->pwrClF52V195 = rawExtCsd[EMMC_EXT_CSD_PWR_CL_52_195];
     extCsd->pwrClF26V195 = rawExtCsd[EMMC_EXT_CSD_PWR_CL_26_195];
@@ -947,7 +947,7 @@ static void EmmcDecodeExtCsdRev14Field(struct EmmcDevice *emmcDev,
     EmmcDecodeExtCsdPowerClassValue(extCsd, rawExtCsd);
 }
 
-static void EmmcDecodeExtCsdRev15Field(struct EmmcExtCsd *extCsd, uint8_t *rawExtCsd)
+static void EmmcDecodeExtCsdRev15Field(struct EmmcExtCsd *extCsd, const uint8_t *rawExtCsd)
 {
     /* whether the eMMC card supports HPI. */
     if ((rawExtCsd[EMMC_EXT_CSD_HPI_FEATURES] & EMMC_EXT_CSD_HPI_SUPPORT) > 0) {

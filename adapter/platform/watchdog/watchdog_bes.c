@@ -204,9 +204,8 @@ static void WatchdogDriverRelease(struct HdfDeviceObject *device)
     }
 
     watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    if (watchdogDevice != NULL) {
-        OsalMemFree(watchdogDevice);
-    }
+    OsalMemFree(watchdogDevice);
+
     return;
 }
 
@@ -214,16 +213,14 @@ static int32_t WatchdogDevStart(struct WatchdogCntlr *watchdogCntlr)
 {
     struct WatchdogDevice *watchdogDevice = NULL;
     int32_t watchdogId;
+
     if (watchdogCntlr == NULL || watchdogCntlr->priv == NULL) {
         HDF_LOGE("%s: watchdogCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
 
     watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    if (watchdogDevice == NULL) {
-        HDF_LOGE("%s: OBJECT is NULL\r\n", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
+
     watchdogId = watchdogDevice->resource.watchdogId;
 
     hal_wdt_start(watchdogId);
@@ -242,10 +239,7 @@ static int32_t WatchdogDevStop(struct WatchdogCntlr *watchdogCntlr)
     }
 
     watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    if (watchdogDevice == NULL) {
-        HDF_LOGE("%s: OBJECT is NULL\r\n", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
+
     watchdogId = watchdogDevice->resource.watchdogId;
     hal_wdt_stop(watchdogId);
     g_watchdogStart = 0;
@@ -256,16 +250,14 @@ static int32_t WatchdogDevSetTimeout(struct WatchdogCntlr *watchdogCntlr, uint32
 {
     int32_t watchdogId;
     struct WatchdogDevice *watchdogDevice = NULL;
+
     if (watchdogCntlr == NULL || watchdogCntlr->priv == NULL) {
         HDF_LOGE("%s: watchdogCntlr is NULL\r\n", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
     g_watchdogTimeout = seconds;
     watchdogDevice = (struct WatchdogDevice *)watchdogCntlr->priv;
-    if (watchdogDevice == NULL) {
-        HDF_LOGE("%s: OBJECT is NULL\r\n", __func__);
-        return HDF_ERR_INVALID_OBJECT;
-    }
+
     watchdogId = watchdogDevice->resource.watchdogId;
     hal_wdt_set_timeout(watchdogId, seconds);
     return HDF_SUCCESS;

@@ -410,10 +410,6 @@ static int32_t i2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int1
     }
 
     device = (struct I2cDevice *)cntlr->priv;
-    if (device == NULL) {
-        HDF_LOGE("%s: I2cDevice is NULL\r\n", __func__);
-        return HDF_DEV_ERR_NO_DEVICE;
-    }
 
     return i2c_transfer(device, msgs, count);
 }
