@@ -5,9 +5,12 @@
  * the GPL, or the BSD license, at your option.
  * See the LICENSE file in the root of this repository for complete details.
  */
+
+#include "audio_driver_log.h"
 #include "audio_platform_if.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
+#define DMA_MAX_TRANSFER_COUNT 32
 
 int32_t AudioDmaBufAlloc(struct PlatformData *data, enum AudioStreamType streamType)
 {
@@ -87,4 +90,29 @@ int32_t AudioDmaPointer(struct PlatformData *data, enum AudioStreamType streamTy
         return data->ops->DmaPointer(data, streamType, pointer);
     }
     return HDF_FAILURE;
+}
+
+bool AudioDmaTransferStatusIsNormal(struct PlatformData *data, enum AudioStreamType streamType)
+{
+    if (data == NULL) {
+        AUDIO_DRIVER_LOG_ERR("param is null!");
+        return false;
+    }
+
+    if (streamType == AUDIO_RENDER_STREAM) {
+        if (data->renderBufInfo.rbufOffSet >= data->renderBufInfo.wbufOffSet) {
+            return false;
+        }
+        data->renderBufInfo.rbufOffSet += data->renderBufInfo.periodSize;
+    } else {
+        AUDIO_DRIVER_LOG_ERR("data->captureBufInfo.wbufOffSet====0x%x \n \
+            (data->captureBufInfo.rbufOffSet + data->captureBufInfo.periodSize * DMA_MAX_TRANSFER_COUNT)=0x%x \n", data->captureBufInfo.wbufOffSet,
+            (data->captureBufInfo.rbufOffSet + data->captureBufInfo.periodSize * DMA_MAX_TRANSFER_COUNT));
+        if (data->captureBufInfo.wbufOffSet >=
+            (data->captureBufInfo.rbufOffSet + data->captureBufInfo.periodSize * DMA_MAX_TRANSFER_COUNT)) {
+            return false;
+        }
+        data->captureBufInfo.wbufOffSet += data->captureBufInfo.periodSize;
+    }
+    return true;
 }

@@ -413,6 +413,7 @@ int32_t AudioPcmRead(const struct AudioCard *card, struct AudioRxData *rxData)
 
     // 1. Buffer state checking
     status = AudioDmaBuffStatus(card, AUDIO_CAPTURE_STREAM);
+    AUDIO_DRIVER_LOG_DEBUG("status=====%d.",status);
     if (status != ENUM_CIR_BUFF_NORMAL) {
         rxData->status = status;
         rxData->buf = (char *)(data->captureBufInfo.virtAddr) + data->captureBufInfo.rptrOffSet;
@@ -433,6 +434,7 @@ int32_t AudioPcmRead(const struct AudioCard *card, struct AudioRxData *rxData)
     if (data->captureBufInfo.rptrOffSet >= data->captureBufInfo.cirBufSize) {
         data->captureBufInfo.rptrOffSet = 0;
     }
+    data->captureBufInfo.rbufOffSet += data->captureBufInfo.curTrafSize;
     return HDF_SUCCESS;
 }
 
@@ -617,6 +619,7 @@ static int32_t MmapReadData(struct PlatformData *data, const struct AudioMmapDat
         data->captureBufInfo.rptrOffSet = 0;
     }
     data->captureBufInfo.framesPosition += data->captureBufInfo.curTrafSize / data->capturePcmInfo.frameSize;
+    data->captureBufInfo.rbufOffSet += data->captureBufInfo.curTrafSize;
 
     return HDF_SUCCESS;
 }
@@ -1063,6 +1066,7 @@ static int32_t AudioDmaConfig(struct PlatformData *data, enum AudioStreamType st
         data->renderBufInfo.framesPosition = 0;
         data->renderBufInfo.pointer = 0;
         data->renderPcmInfo.totalStreamSize = 0;
+        data->renderBufInfo.rbufOffSet = 0;
 
         ret = AudioDmaConfigChannel(data, AUDIO_RENDER_STREAM);
         if (ret) {
@@ -1082,6 +1086,7 @@ static int32_t AudioDmaConfig(struct PlatformData *data, enum AudioStreamType st
         data->captureBufInfo.framesPosition = 0;
         data->captureBufInfo.pointer = 0;
         data->capturePcmInfo.totalStreamSize = 0;
+        data->captureBufInfo.wbufOffSet = 0;
 
         ret = AudioDmaConfigChannel(data, AUDIO_CAPTURE_STREAM);
         if (ret) {
