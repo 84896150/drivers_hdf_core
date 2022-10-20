@@ -138,6 +138,11 @@ static void ParsePointData(ChipDevice *device, FrameData *frame, uint8_t *buf, u
                                   ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         }
         frame->fingers[i].valid = true;
+#if defined(CONFIG_MACH_XBURST2)
+        int32_t tmp = frame->fingers[i].x;
+        frame->fingers[i].x = frame->fingers[i].y;
+        frame->fingers[i].y = tmp;
+#endif
     }
 }
 
