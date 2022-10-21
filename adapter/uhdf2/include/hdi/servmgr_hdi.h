@@ -37,7 +37,7 @@ struct HDIServiceManager {
 
 struct HDIServiceManager *HDIServiceManagerGet(void);
 void HDIServiceManagerRelease(struct HDIServiceManager *servmgr);
-void HdiServiceSetRelease(struct HdiServiceSet *serviceSet);
+int32_t HdiServiceSetRelease(struct HdiServiceSet *serviceSet);
 
 #ifdef __cplusplus
 }

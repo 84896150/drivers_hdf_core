@@ -596,7 +596,8 @@ HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest012, TestSize.Level1)
     ASSERT_TRUE(serviceSet != nullptr);
     ASSERT_TRUE(serviceSet->count == 1);
     ASSERT_TRUE(strcmp(serviceSet->serviceNames[0], TEST_SERVICE_NAME) == 0);
-    HdiServiceSetRelease(serviceSet);
+    ret = HdiServiceSetRelease(serviceSet);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
 }
 
 HWTEST_F(HdfServiceMangerHdiCTest, ServMgrTest013, TestSize.Level1)

@@ -22,6 +22,8 @@
 #include "hdf_service_status.h"
 #include "servmgr_hdi.h"
 
+#define SERVICE_LIST_MAX 16
+
 struct HDIServiceManagerClient {
     struct HDIServiceManager iservmgr;
     struct HdfRemoteService *remote;
@@ -39,27 +41,32 @@ static int32_t ServiceManagerHdiCall(struct HDIServiceManagerClient *servMgrClie
     return servMgrClient->remote->dispatcher->Dispatch(servMgrClient->remote, id, data, reply);
 }
 
-static void HdiServiceSetGet(const uint32_t serviceNum, struct HdiServiceSet **serviceSet)
+static int32_t HdiServiceSetGet(const uint32_t serviceNum, struct HdiServiceSet **serviceSet)
 {
     *serviceSet = OsalMemAlloc(sizeof(struct HdiServiceSet));
     if (*serviceSet == NULL) {
         HDF_LOGE("%{public}s: OOM", __func__);
-        return;
+        return HDF_ERR_MALLOC_FAIL;
     }
     (*serviceSet)->serviceNames = OsalMemCalloc(sizeof(char *) * serviceNum);
     if ((*serviceSet)->serviceNames == NULL) {
         HDF_LOGE("%{public}s: OOM", __func__);
-        HdiServiceSetRelease(*serviceSet);
-        return;
+        if (HdiServiceSetRelease(*serviceSet) != HDF_SUCCESS) {
+            return HDF_FAILURE;
+        }
+        return HDF_ERR_MALLOC_FAIL;
     }
     (*serviceSet)->count = serviceNum;
+    return HDF_SUCCESS;
 }
 
 static int32_t HdiServiceSetUnMarshalling(struct HdfSBuf *buf, struct HdiServiceSet *serviceSet)
 {
     if (serviceSet == NULL || buf == NULL) {
         HDF_LOGE("%{public}s: HdiServiceSet unmarshalling failed", __func__);
-        HdiServiceSetRelease(serviceSet);
+        if (HdiServiceSetRelease(serviceSet) != HDF_SUCCESS) {
+            return HDF_FAILURE;
+        }
         return HDF_ERR_INVALID_PARAM;
     }
     for (uint32_t i = 0; i < serviceSet->count; i++) {
@@ -106,10 +113,10 @@ int32_t HDIServMgrListServiceByInterfaceDesc(
             status = HDF_FAILURE;
             break;
         }
-        if (serviceNum == 0) {
+        if (serviceNum == 0 || serviceNum > SERVICE_LIST_MAX) {
             break;
         }
-        HdiServiceSetGet(serviceNum, serviceSet);
+        status = HdiServiceSetGet(serviceNum, serviceSet);
         if (*serviceSet == NULL) {
             status = HDF_ERR_MALLOC_FAIL;
             break;
@@ -264,10 +271,14 @@ void HDIServiceManagerRelease(struct HDIServiceManager *servmgr)
     OsalMemFree(iServMgrClient);
 }
 
-void HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
+int32_t HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
 {
     if (serviceSet == NULL) {
-        return;
+        return HDF_SUCCESS;
+    }
+    if (serviceSet->count > SERVICE_LIST_MAX) {
+        HDF_LOGE("%{public}s: failed to release serviceSet, serviceSet->count is tainted", __func__);
+        return HDF_FAILURE;
     }
     for (uint32_t i = 0; i < serviceSet->count; i++) {
         if (serviceSet->serviceNames[i] != NULL) {
@@ -276,4 +287,5 @@ void HdiServiceSetRelease(struct HdiServiceSet *serviceSet)
         }
     }
     OsalMemFree(serviceSet);
+    return HDF_SUCCESS;
 }
