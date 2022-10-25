@@ -40,6 +40,7 @@ struct CtrlCapInfo {
     uint32_t min;
     uint32_t step;
     uint32_t def;
+    uint32_t test_sun;
 };
 
 struct SensorDeviceConfig {
