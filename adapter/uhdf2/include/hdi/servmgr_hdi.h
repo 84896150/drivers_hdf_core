@@ -21,15 +21,22 @@
 extern "C" {
 #endif /* __cplusplus */
 
+struct HdiServiceSet {
+    const char **serviceNames;
+    uint32_t count;
+};
+
 struct HDIServiceManager {
-    struct HdfRemoteService *(*GetService)(struct HDIServiceManager *self, const char* serviceName);
-    int32_t (*RegisterServiceStatusListener)(struct HDIServiceManager *self,
-        struct ServiceStatusListener *listener, uint16_t deviceClass);
+    struct HdfRemoteService *(*GetService)(struct HDIServiceManager *self, const char *serviceName);
+    int32_t (*RegisterServiceStatusListener)(
+        struct HDIServiceManager *self, struct ServiceStatusListener *listener, uint16_t deviceClass);
     int32_t (*UnregisterServiceStatusListener)(struct HDIServiceManager *self, struct ServiceStatusListener *listener);
+    struct HdiServiceSet *(*ListServiceByInterfaceDesc)(struct HDIServiceManager *self, const char *interfaceName);
 };
 
 struct HDIServiceManager *HDIServiceManagerGet(void);
 void HDIServiceManagerRelease(struct HDIServiceManager *servmgr);
+int32_t HdiServiceSetRelease(struct HdiServiceSet *serviceSet);
 
 #ifdef __cplusplus
 }

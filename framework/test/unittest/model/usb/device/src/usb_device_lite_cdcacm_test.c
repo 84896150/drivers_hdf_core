@@ -327,11 +327,9 @@ static struct Serial *SerialAlloc(void)
 
 static void ParsePipes(struct AcmDevice *acmDevice, const struct UsbFnInterface *fnIface, UsbFnInterfaceHandle handle)
 {
-    uint32_t j;
-    int32_t ret;
     struct UsbFnPipeInfo pipeInfo = {0};
-    for (j = 0; j < fnIface->info.numPipes; j++) {
-        ret = UsbFnGetInterfacePipeInfo((struct UsbFnInterface *)fnIface, j, &pipeInfo);
+    for (uint32_t j = 0; j < fnIface->info.numPipes; j++) {
+        int32_t ret = UsbFnGetInterfacePipeInfo((struct UsbFnInterface *)fnIface, j, &pipeInfo);
         if (ret != HDF_SUCCESS) {
             return;
         }
@@ -782,7 +780,6 @@ int32_t RemoveUsbDevice(void)
 {
     struct UsbFnDevice *device = NULL;
     struct UsbFnDeviceMgr *devMgr = NULL;
-    struct UsbFnFuncMgr *funcMgr = NULL;
     struct UsbFnInterfaceMgr *intfMgr = NULL;
     const char *udcName = "100e0000.hidwc3_0";
     uint8_t i = 0;
@@ -811,7 +808,6 @@ int32_t RemoveUsbDevice(void)
         }
     }
     for (i = 0; i < devMgr->numFunc; i++) {
-        funcMgr = devMgr->funcMgr + i;
         if (intfMgr && intfMgr->isOpen) {
             UsbFnStopRecvInterfaceEvent(&intfMgr->interface);
         }

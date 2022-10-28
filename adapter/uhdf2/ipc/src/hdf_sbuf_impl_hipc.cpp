@@ -57,7 +57,7 @@ static bool SbufMParcelImplWriteBuffer(struct HdfSBufImpl *sbuf, const uint8_t *
     if (!parcel->WriteUint32(writeSize)) {
         return false;
     }
-    return parcel->WriteUnpadBuffer((const void *)data, writeSize);
+    return parcel->WriteUnpadBuffer(static_cast<const void *>(data), writeSize);
 }
 
 static bool SbufMParcelImplWriteUnpadBuffer(struct HdfSBufImpl *sbuf, const uint8_t *data, uint32_t writeSize)
@@ -197,7 +197,7 @@ static bool SbufMParcelImplReadDouble(struct HdfSBufImpl *sbuf, double *value)
 static int SbufMParcelImplReadFileDescriptor(struct HdfSBufImpl *sbuf)
 {
     if (sbuf == nullptr) {
-        return false;
+        return -1;
     }
     return MParcelCast(sbuf)->ReadFileDescriptor();
 }
