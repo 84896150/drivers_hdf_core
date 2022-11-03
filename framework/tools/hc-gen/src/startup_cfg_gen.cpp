@@ -31,7 +31,7 @@ static constexpr const char *BOOT_CONFIG_BOTTOM =
 static constexpr const char *SERVICE_TOP =
     "        {\n"
     "            \"name\" : ";
-static constexpr const char *PATH_INFO = "            \"path\" : [\"/vendor/bin/hdf_devhost\", ";
+static constexpr const char *PATH_INFO = "            \"path\" : [\"/chipset/bin/hdf_devhost\", ";
 static constexpr const char *UID_INFO = "            \"uid\" : ";
 static constexpr const char *GID_INFO = "            \"gid\" : [";
 static constexpr const char *CAPS_INFO = "            \"caps\" : [";
