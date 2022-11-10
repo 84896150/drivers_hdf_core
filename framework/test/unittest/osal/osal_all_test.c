@@ -21,6 +21,10 @@
 #ifndef __USER__
 #include "osal_test_type.h"
 #endif
+#ifdef __USER__
+#include <sched.h>
+#include "pthread.h"
+#endif
 #include "osal_thread.h"
 #include "osal_time.h"
 #include "osal_timer.h"
@@ -39,6 +43,10 @@ static int32_t g_waitMutexTime = 3100;
 static bool g_threadTest1Flag = true;
 OSAL_DECLARE_THREAD(thread1);
 OSAL_DECLARE_THREAD(thread2);
+#ifdef __USER__
+OSAL_DECLARE_THREAD(thread3);
+OSAL_DECLARE_THREAD(thread4);
+#endif
 OSAL_DECLARE_THREAD(thread);
 struct OsalMutex g_mutexTest;
 OSAL_DECLARE_SPINLOCK(g_spinTest);
@@ -51,6 +59,10 @@ static bool g_thread1RunFlag;
 static bool g_threadMuxLockFlag;
 static int32_t g_test1Para = 120;
 static int32_t g_test2Para = 123;
+#ifdef __USER__
+static int32_t g_test3Para = 123;
+static int32_t g_test4Para = 123;
+#endif
 #define TIME_RANGE 200000
 #define NUMERATOR 15
 #define DENOMINATOR 100
@@ -174,6 +186,51 @@ static int ThreadTest2(void *arg)
     HDF_LOGE("%s thread return\n", __func__);
     return 0;
 }
+
+#ifdef __USER__
+#define SCHED_OTHER_PRIORITY 0
+#define SCHED_FIFO_PRIORITY  15
+#define CYCLE_COUNT          5000000
+static int ThreadTest3(void *arg)
+{
+    int cnt = 0;
+    int policy;
+    struct sched_param param;
+
+    HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
+    (void)arg;
+
+    OsalSleep(HDF_THREAD_TEST_SLEEP_S);
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    UT_TEST_CHECK_RET(policy != SCHED_OTHER, OSAL_TEST_OTHER);
+    UT_TEST_CHECK_RET(param.sched_priority != SCHED_OTHER_PRIORITY, OSAL_TEST_OTHER);
+    for (int i = 0; i < CYCLE_COUNT; i++) {
+        cnt++;
+    }
+    HDF_LOGE("%s thread return\n", __func__);
+    return 0;
+}
+
+static int ThreadTest4(void *arg)
+{
+    int cnt = 0;
+    int policy;
+    struct sched_param param;
+
+    HDF_LOGI("[OSAL_UT_TEST]%s test thread para end", __func__);
+    (void)arg;
+
+    OsalSleep(HDF_THREAD_TEST_SLEEP_S);
+    pthread_getschedparam(pthread_self(), &policy, &param);
+    UT_TEST_CHECK_RET(policy != SCHED_FIFO, OSAL_TEST_OTHER);
+    UT_TEST_CHECK_RET(param.sched_priority != SCHED_FIFO_PRIORITY, OSAL_TEST_OTHER);
+    for (int i = 0; i < CYCLE_COUNT; i++) {
+        cnt++;
+    }
+    HDF_LOGE("%s thread return\n", __func__);
+    return 0;
+}
+#endif
 
 #define HDF_DBG_CNT_CTRL 10
 #ifndef __USER__
@@ -598,6 +655,35 @@ static void OsaThreadTest(void)
     OsaThreadTest1();
     HDF_LOGI("[OSAL_UT_TEST]%s end", __func__);
 }
+#ifdef __USER__
+#define HDF_TEST_POLICY_STACK_SIZE 0
+static void OsaThreadSchedPolicyTest(void)
+{
+    struct OsalThreadParam threadCfg1;
+    struct OsalThreadParam threadCfg2;
+    int ret;
+    HDF_LOGI("[OSAL_UT_TEST]%s start", __func__);
+    (void)memset_s(&threadCfg1, sizeof(threadCfg1), 0, sizeof(threadCfg1));
+    threadCfg1.name = "hdf_test3";
+    threadCfg1.priority = OSAL_THREAD_PRI_HIGH;
+    threadCfg1.stackSize = HDF_TEST_POLICY_STACK_SIZE;
+    threadCfg1.policy = SCHED_OTHER;
+    ret = OsalThreadCreate(&thread3, (OsalThreadEntry)ThreadTest3, (void *)&g_test3Para);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+    ret = OsalThreadStart(&thread3, &threadCfg1);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+
+    (void)memset_s(&threadCfg2, sizeof(threadCfg2), 0, sizeof(threadCfg2));
+    threadCfg2.name = "hdf_test4";
+    threadCfg2.priority = OSAL_THREAD_PRI_HIGH;
+    threadCfg2.stackSize = HDF_TEST_POLICY_STACK_SIZE;
+    threadCfg2.policy = SCHED_FIFO;
+    ret = OsalThreadCreate(&thread4, (OsalThreadEntry)ThreadTest4, (void *)&g_test4Para);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+    ret = OsalThreadStart(&thread4, &threadCfg2);
+    UT_TEST_CHECK_RET(ret != HDF_SUCCESS, OSAL_THREAD_CREATE);
+}
+#endif
 
 #define TIME_TEST_SLEEP_S 2
 #define TIME_TEST_SLEEP_MS 200
@@ -826,6 +912,9 @@ int OsaTestBegin(void)
     OsaIrqTest();
     OsaTimerTest();
 #endif
+#ifdef __USER__
+    OsaThreadSchedPolicyTest();
+#endif
     OsaThreadTest();
     OsaMemoryTest();
     HDF_LOGD("%s ", __func__);
@@ -847,6 +936,10 @@ int OsaTestEnd(void)
     OsalTimerDelete(&g_testTimerLoop2);
     OsalTimerDelete(&g_testTimerOnce);
     OsalStopThread();
+#endif
+#ifdef __USER__
+    OsalThreadDestroy(&thread3);
+    OsalThreadDestroy(&thread4);
 #endif
     g_testEndFlag = true;
     OsalThreadDestroy(&thread1);

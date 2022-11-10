@@ -85,7 +85,6 @@ static int32_t DevmgrServiceFullHandleDeviceHostDied(struct DevHostServiceClnt *
 
 void DevmgrServiceFullOnDeviceHostDied(struct DevmgrServiceFull *inst, uint32_t hostId)
 {
-    (void)hostId;
     struct DevHostServiceClnt *hostClnt = NULL;
     struct DevHostServiceClnt *hostClntTmp = NULL;
     if (inst == NULL) {

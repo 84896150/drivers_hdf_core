@@ -63,6 +63,7 @@ struct OsalThreadParam {
     char *name; /**< Thread name */
     size_t stackSize; /**< Thread stack size, which may cause thread stack overflow if it is too small */
     OSAL_THREAD_PRIORITY priority; /**< Thread priority */
+    int policy; /**< Thread scheduling policy */
 };
 
 /**

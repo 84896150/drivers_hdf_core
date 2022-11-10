@@ -116,6 +116,24 @@ static int OsalCreatePthread(pthread_t *threadId, pthread_attr_t *attribute, str
     return HDF_SUCCESS;
 }
 
+static int32_t OsalThreadSetSchedPolicy(pthread_attr_t *attribute, const int policy)
+{
+    if (policy != 0) {
+        int resultCode = pthread_attr_setinheritsched(attribute, PTHREAD_EXPLICIT_SCHED);
+        if (resultCode < 0) {
+            HDF_LOGE("pthread_attr_setinheritsched errorno: %d", resultCode);
+            return HDF_FAILURE;
+        }
+        resultCode = pthread_attr_setschedpolicy(attribute, policy);
+
+        if (resultCode < 0) {
+            HDF_LOGE("pthread_attr_setschedpolicy errorno: %d", resultCode);
+            return HDF_FAILURE;
+        }
+    }
+    return HDF_SUCCESS;
+}
+
 int32_t OsalThreadStart(struct OsalThread *thread, const struct OsalThreadParam *param)
 {
     pthread_attr_t attribute;
@@ -157,7 +175,7 @@ int32_t OsalThreadStart(struct OsalThread *thread, const struct OsalThreadParam 
         HDF_LOGE("pthread_attr_setschedparam errorno: %d", resultCode);
         goto DEAL_FAIL;
     }
-
+    OsalThreadSetSchedPolicy(&attribute, param->policy);
     resultCode = OsalCreatePthread(&para->id, &attribute, thread->realThread, param->name);
     if (resultCode != 0) {
         HDF_LOGE("OsalCreatePthread errorno: %d", resultCode);
