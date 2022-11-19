@@ -486,14 +486,24 @@ private:
     {
         uint32_t devId = -1;
         uint32_t layerId = -1;
-        IRect rect = {0};
+        uint32_t vectSize = 0;
 
         int32_t ec = CmdUtils::SetupDeviceUnpack(unpacker, devId, layerId);
         if (ec == HDF_SUCCESS) {
-            ec = CmdUtils::RectUnpack(unpacker, rect);
+            ec = unpacker->ReadUint32(vectSize) ? HDF_SUCCESS : HDF_FAILURE;
         }
+        std::vector<IRect> rects;
+        for (int32_t i = 0; i < vectSize; i++) {
+            if (ec == HDF_FAILURE) {
+                break;
+            }
+            IRect rect;
+            ec = CmdUtils::RectUnpack(unpacker, rect);
+            rects.push_back(rect);
+        }
+
         if (ec == HDF_SUCCESS) {
-            ec = impl_->SetLayerDirtyRegion(devId, layerId, rect);
+            ec = impl_->SetLayerDirtyRegion(devId, layerId, rects);
         }
         if (ec != HDF_SUCCESS) {
             errMaps_.emplace(REQUEST_CMD_SETLAYERDIRTYREGION, ec);
