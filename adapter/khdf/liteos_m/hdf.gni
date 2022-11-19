@@ -81,7 +81,6 @@ template("hdf_driver") {
     if (module_switch && !macro_switch && defined(invoker.hcs_sources)) {
       hc_gen = ":${target_name}_hc_gen_hex"
       generated_sources = get_target_outputs(hc_gen)
-      set_sources_assignment_filter([ "*.hcb" ])
       if (defined(invoker.sources)) {
         sources += generated_sources
       } else {
