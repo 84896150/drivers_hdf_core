@@ -369,7 +369,9 @@ public:
     virtual int32_t SetLayerDirtyRegion(uint32_t devId, uint32_t layerId, const IRect &region) override
     {
         COMPOSER_CHECK_NULLPTR(req_);
-        return ToDispErrCode(req_->SetLayerDirtyRegion(devId, layerId, region));
+        std::vector<IRect> rec;
+        rec.push_back(region);
+        return ToDispErrCode(req_->SetLayerDirtyRegion(devId, layerId, rec));
     }
 
     virtual int32_t SetLayerVisibleRegion(uint32_t devId, uint32_t layerId, std::vector<IRect> &rects) override

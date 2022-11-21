@@ -310,14 +310,21 @@ public:
         return ec;
     }
 
-    int32_t SetLayerDirtyRegion(uint32_t devId, uint32_t layerId, const IRect &region)
+    int32_t SetLayerDirtyRegion(uint32_t devId, uint32_t layerId, const std::vector<IRect> &rects)
     {
         int32_t ec = CmdUtils::StartSection(REQUEST_CMD_SETLAYERDIRTYREGION, requestPacker_);
         if (ec == HDF_SUCCESS) {
             ec = CmdUtils::SetupDevice(devId, layerId, requestPacker_);
         }
+        uint32_t vSize = rects.size();
         if (ec == HDF_SUCCESS) {
-            ec = CmdUtils::RectPack(region, requestPacker_);
+            ec = requestPacker_->WriteUint32(vSize) ? HDF_SUCCESS : HDF_FAILURE;
+        }
+        for (uint32_t i = 0; i < vSize; i++) {
+            if (ec == HDF_FAILURE) {
+                break;
+            }
+            ec = CmdUtils::RectPack(rects[i], requestPacker_);
         }
         if (ec == HDF_SUCCESS) {
             ec = CmdUtils::EndSection(requestPacker_);
