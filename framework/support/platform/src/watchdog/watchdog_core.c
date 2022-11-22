@@ -9,10 +9,14 @@
 #include "watchdog_core.h"
 #include "hdf_log.h"
 #include "watchdog_if.h"
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
 #include "platform_trace.h"
+#endif
 
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
 #define WATCHDOG_TRACE_BASIC_PARAM_NUM  1
 #define WATCHDOG_TRACE_PARAM_STOP_NUM   1
+#endif
 #define HDF_LOG_TAG watchdog_core
 
 static int32_t WatchdogIoDispatch(struct HdfDeviceIoClient *client, int cmd,
@@ -127,6 +131,7 @@ int32_t WatchdogCntlrStart(struct WatchdogCntlr *cntlr)
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->start(cntlr);
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
     if (PlatformTraceStart() == HDF_SUCCESS) {
         uint infos[WATCHDOG_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->wdtId;
@@ -134,6 +139,7 @@ int32_t WatchdogCntlrStart(struct WatchdogCntlr *cntlr)
             infos, WATCHDOG_TRACE_BASIC_PARAM_NUM);
         PlatformTraceStop();
     }
+#endif
     (void)OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
     return ret;
 }
@@ -154,6 +160,7 @@ int32_t WatchdogCntlrStop(struct WatchdogCntlr *cntlr)
         return HDF_ERR_DEVICE_BUSY;
     }
     ret = cntlr->ops->stop(cntlr);
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
     if (PlatformTraceStart() == HDF_SUCCESS) {
         uint infos[WATCHDOG_TRACE_PARAM_STOP_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->wdtId;
@@ -162,6 +169,7 @@ int32_t WatchdogCntlrStop(struct WatchdogCntlr *cntlr)
         PlatformTraceStop();
         PlatformTraceInfoDump();
     }
+#endif
     (void)OsalSpinUnlockIrqRestore(&cntlr->lock, &flags);
     return ret;
 }
