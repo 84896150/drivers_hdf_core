@@ -46,6 +46,10 @@ void CppInterfaceCodeEmitter::EmitInterfaceHeaderFile()
     EmitInterfaceInclusions(sb);
     sb.Append("\n");
     EmitInterfaceVersionMacro(sb);
+    if (!Options::GetInstance().DoPassthrough()) {
+        sb.Append("\n");
+        EmitInterfaceBuffSizeMacro(sb);
+    }
     sb.Append("\n");
     EmitBeginNamespace(sb);
     EmitUsingNamespace(sb);
@@ -89,6 +93,11 @@ void CppInterfaceCodeEmitter::EmitInterfaceVersionMacro(StringBuilder &sb)
 {
     sb.AppendFormat("#define %s %u\n", majorVerName_.c_str(), ast_->GetMajorVer());
     sb.AppendFormat("#define %s %u\n", minorVerName_.c_str(), ast_->GetMinorVer());
+}
+
+void CppInterfaceCodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
+{
+    sb.AppendFormat("#define %s    (4 * 1024) // 4KB\n", bufferSizeMacroName_.c_str());
 }
 
 void CppInterfaceCodeEmitter::EmitInterfaceDefinition(StringBuilder &sb)

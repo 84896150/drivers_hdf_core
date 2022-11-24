@@ -51,6 +51,9 @@ sptr<IRemoteObject> IProxyBroker<INTERFACE>::AsObject()
 template <typename INTERFACE>
 inline sptr<INTERFACE> hdi_facecast(const sptr<IRemoteObject> &object)
 {
+    if (object == nullptr) {
+        return nullptr;
+    }
     const std::u16string descriptor = INTERFACE::GetDescriptor();
     BrokerRegistration &registration = BrokerRegistration::Get();
     sptr<IRemoteBroker> broker = registration.NewInstance(descriptor, object);
