@@ -15,15 +15,15 @@
 
 #define HDF_LOG_TAG HDF_AUDIO_KADM
 
-#define COMM_SHIFT_8BIT      (8)
-#define COMM_MASK_FF         (0xFF)
-#define COMM_WAIT_TIMES      (10) // ms
+#define COMM_SHIFT_8BIT     8
+#define COMM_MASK_FF        0xFF
+#define COMM_WAIT_TIMES     10  // ms
 
-#define I2C_REG_LEN         (1)
-#define I2C_REG_MSGLEN      (3)
-#define I2C_MSG_NUM         (2)
-#define I2C_MSG_BUF_SIZE_1_BUTE    (1)
-#define I2C_MSG_BUF_SIZE_2_BUTE    (2)
+#define I2C_REG_LEN         1
+#define I2C_REG_MSGLEN      3
+#define I2C_MSG_NUM         2
+#define I2C_MSG_BUF_SIZE_1_BUTE    1
+#define I2C_MSG_BUF_SIZE_2_BUTE    2
 
 static char *g_audioSapmCompNameList[AUDIO_SAPM_COMP_NAME_LIST_MAX] = {
     "ADCL",         "ADCR",         "DACL",         "DACR",         // [0], [1] [2], [3]
@@ -64,7 +64,7 @@ static char *g_audioSapmCfgNameList[AUDIO_SAPM_CFG_NAME_LIST_MAX] = {
     "Mixer3 Switch",                "Mixer4 Switch",                // [36], [37]
 };
 
-static const char *g_audioCodecControlsList[AUDIO_CTRL_LIST_MAX] = {
+static char *g_audioCodecControlsList[AUDIO_CTRL_LIST_MAX] = {
     "Main Playback Volume",         "Main Capture Volume",          // [0], [1]
     "Playback Mute",                "Capture Mute",                 // [2], [3]
     "Mic Left Gain",                "Mic Right Gain",               // [4], [5]
@@ -167,8 +167,8 @@ int32_t CodecGetConfigInfo(const struct HdfDeviceObject *device, struct CodecDat
     }
 
     if (codecData->regConfig != NULL) {
-        ADM_LOG_ERR("g_codecData regConfig  fail!");
-        return HDF_FAILURE;
+        ADM_LOG_INFO("g_codecData regConfig has been parsed!");
+        return HDF_SUCCESS;
     }
 
     codecData->regConfig = (struct AudioRegCfgData *)OsalMemCalloc(sizeof(*(codecData->regConfig)));
