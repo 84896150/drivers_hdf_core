@@ -146,7 +146,7 @@ uint32_t AudioUsbGetUsbIdVendor(uint32_t id)
 static int32_t ParseUacEndpointAttr(struct usb_host_interface *alts, int32_t protocol, int32_t *attributes)
 {
     struct uac_iso_endpoint_descriptor *csep = NULL;
-    struct usb_interface_descriptor *altsd = AUDIO_USB_GET_IFACE_DESC(alts);
+    struct usb_interface_descriptor *altsd = AudioUsbGetIfaceDesc(alts);
 
     csep = AudioUsbFindDesc(alts->endpoint[0].extra, alts->endpoint[0].extralen, NULL, USB_DT_CS_ENDPOINT);
     /* Creamware Noah has this descriptor after the 2nd endpoint */
@@ -328,21 +328,21 @@ static uint64_t ParseAudioFormatType(
     }
     if (format & (1 << UAC_FORMAT_TYPE_I_PCM8)) {
         if (audioUsbDriver->usb_id == AudioUsbGetUsbId(0x04fa, 0x4201)) {
-            pcmFormats |= AUDIO_USB_PCM_FMTBIT_S8;
+            pcmFormats = pcmFormats | AUDIO_USB_PCM_FMTBIT_S8;
         } else {
-            pcmFormats |= AUDIO_USB_PCM_FMTBIT_U8;
+            pcmFormats = pcmFormats | AUDIO_USB_PCM_FMTBIT_U8;
         }
     }
     if (format & (1 << UAC_FORMAT_TYPE_I_ALAW)) {
-        pcmFormats |= AUDIO_USB_PCM_FMTBIT_A_LAW;
+        pcmFormats = pcmFormats | AUDIO_USB_PCM_FMTBIT_A_LAW;
     }
 
     if (format & (1 << UAC_FORMAT_TYPE_I_IEEE_FLOAT)) {
-        pcmFormats |= AUDIO_USB_PCM_FMTBIT_FLOAT_LE;
+        pcmFormats = pcmFormats | AUDIO_USB_PCM_FMTBIT_FLOAT_LE;
     }
 
     if (format & (1 << UAC_FORMAT_TYPE_I_MULAW)) {
-        pcmFormats |= AUDIO_USB_PCM_FMTBIT_MU_LAW;
+        pcmFormats = pcmFormats | AUDIO_USB_PCM_FMTBIT_MU_LAW;
     }
     if (format & ~0x3f) {
         AUDIO_DRIVER_LOG_INFO(
@@ -547,6 +547,7 @@ static struct AudioUsbFormat *AudioUsbFormatInit(struct AudioUsbDriver *audioUsb
 {
     struct AudioUsbFormat *fp = NULL;
     struct usb_device *dev = NULL;
+    struct usb_endpoint_descriptor *epDesc;
 
     fp = OsalMemCalloc(sizeof(struct AudioUsbFormat));
     if (fp == NULL) {
@@ -559,18 +560,19 @@ static struct AudioUsbFormat *AudioUsbFormatInit(struct AudioUsbDriver *audioUsb
         AudioUsbFreeFormat(fp);
         return NULL;
     }
+    epDesc = AudioEndpointDescriptor(alts, 0);
     fp->iface = uacFmt->ifaceNo;
     fp->altsetting = uacFmt->altno;
     fp->altsetIdx = altsetIdx;
-    fp->endpoint = AUDIO_USB_GET_ENDPOINT(alts, 0)->bEndpointAddress;
-    fp->epAttr = AUDIO_USB_GET_ENDPOINT(alts, 0)->bmAttributes;
+    fp->endpoint = epDesc->bEndpointAddress;
+    fp->epAttr = epDesc->bmAttributes;
     fp->dataInterval = AudioUsbParseDataInterval(dev, alts);
     fp->protocol = uacFmt->protocol;
-    fp->maxPackSize = le16_to_cpu(AUDIO_USB_GET_ENDPOINT(alts, 0)->wMaxPacketSize);
+    fp->maxPackSize = le16_to_cpu(epDesc->wMaxPacketSize);
 
     fp->channels = uacFmt->channelsNum;
 
-    if (AUDIO_USB_GET_SPEED(dev) == USB_SPEED_HIGH) {
+    if (AudioUsbGetSpeed(dev) == USB_SPEED_HIGH) {
         fp->maxPackSize = (((fp->maxPackSize >> MOVE_11_BIT) & PACK_SIZE) + 1) * (fp->maxPackSize & 0x7ff);
     }
 
@@ -746,13 +748,17 @@ static int32_t AudioUsbV1SetSampleRate(struct AudioUsbDriver *audioUsbDriver, in
     uint32_t ep;
     uint8_t data[SAMPLE_RATE_3];
     int32_t ret, crate;
+    struct usb_interface_descriptor *inteDesc;
+    struct usb_endpoint_descriptor *epDesc;
 
     dev = interface_to_usbdev(audioUsbDriver->usbIf);
 
-    if (AUDIO_USB_GET_IFACE_DESC(alts)->bNumEndpoints < 1) {
+    inteDesc = AudioUsbGetIfaceDesc(alts);
+    if (inteDesc->bNumEndpoints < 1) {
         return HDF_ERR_INVALID_PARAM;
     }
-    ep = AUDIO_USB_GET_ENDPOINT(alts, 0)->bEndpointAddress;
+    epDesc = AudioEndpointDescriptor(alts, 0);
+    ep = epDesc->bEndpointAddress;
 
     /* if endpoint doesn't have sampling rate control, bail out */
     if ((audioUsbFormat->attributes & UAC_EP_CS_ATTR_SAMPLE_RATE) == 0) {
@@ -798,23 +804,26 @@ int32_t AudioUsbInitSampleRate(struct AudioUsbDriver *audioUsbDriver, int32_t if
 static int32_t AudioUsbGetAltsd(struct usb_host_interface **alts, struct usb_interface *iface,
     struct AudioUsbUacFormat *uacFmt, int32_t altsetIdx, bool *dataFlag)
 {
+    struct usb_endpoint_descriptor *epDesc;
+
     *alts = &iface->altsetting[altsetIdx];
     if (*alts == NULL) {
         AUDIO_DRIVER_LOG_ERR("alts is NULL.");
         return HDF_FAILURE;
     }
-    uacFmt->altsd = AUDIO_USB_GET_IFACE_DESC(*alts);
+    uacFmt->altsd = AudioUsbGetIfaceDesc(*alts);
     if (uacFmt->altsd == NULL) {
         AUDIO_DRIVER_LOG_ERR("altsd is NULL.");
         return HDF_FAILURE;
     }
     uacFmt->protocol = uacFmt->altsd->bInterfaceProtocol;
+    epDesc = AudioEndpointDescriptor(*alts, 0);
     /* skip invalid one */
     if (((uacFmt->altsd->bInterfaceClass != USB_CLASS_AUDIO ||
-             (uacFmt->altsd->bInterfaceSubClass != USB_SUBCLASS_AUDIOSTREAMING &&
-                 uacFmt->altsd->bInterfaceSubClass != USB_SUBCLASS_VENDOR_SPEC)) &&
-            uacFmt->altsd->bInterfaceClass != USB_CLASS_VENDOR_SPEC) ||
-        uacFmt->altsd->bNumEndpoints < 1 || le16_to_cpu(AUDIO_USB_GET_ENDPOINT(*alts, 0)->wMaxPacketSize) == 0) {
+        (uacFmt->altsd->bInterfaceSubClass != USB_SUBCLASS_AUDIOSTREAMING &&
+        uacFmt->altsd->bInterfaceSubClass != USB_SUBCLASS_VENDOR_SPEC)) &&
+        uacFmt->altsd->bInterfaceClass != USB_CLASS_VENDOR_SPEC) ||
+        uacFmt->altsd->bNumEndpoints < 1 || le16_to_cpu(epDesc->wMaxPacketSize) == 0) {
         *dataFlag = false; /* invalid data flag */
     }
     return HDF_SUCCESS;
@@ -836,9 +845,12 @@ static void AudioUsbInitFormatAndRate(struct AudioUsbDriver *audioUsbDriver, str
 static void AudioUsbGetFormatSub(struct AudioUsbDriver *audioUsbDriver, struct usb_host_interface *alts,
     struct AudioUsbUacFormat *uacFmt, int32_t altsetIdx, struct AudioUsbFormat **audioUsbFormat)
 {
+    struct usb_endpoint_descriptor *epDesc;
+
+    epDesc = AudioEndpointDescriptor(alts, 0);
     /* check direction */
-    uacFmt->stream = (AUDIO_USB_GET_ENDPOINT(alts, 0)->bEndpointAddress & USB_DIR_IN) ? AUDIO_USB_PCM_STREAM_CAPTURE :
-                                                                                        AUDIO_USB_PCM_STREAM_PLAYBACK;
+    uacFmt->stream =
+        (epDesc->bEndpointAddress & USB_DIR_IN) ? AUDIO_USB_PCM_STREAM_CAPTURE : AUDIO_USB_PCM_STREAM_PLAYBACK;
     uacFmt->altno = uacFmt->altsd->bAlternateSetting;
     if (AudioUsbGetUsbIdVendor(audioUsbDriver->usb_id) == 0x0582 &&
         uacFmt->altsd->bInterfaceClass == USB_CLASS_VENDOR_SPEC && uacFmt->protocol <= UAC_VERSION_3) {
@@ -855,8 +867,7 @@ static void AudioUsbGetFormatSub(struct AudioUsbDriver *audioUsbDriver, struct u
             if (uacFmt->altno == UAC_FORMAT_TYPE_II && uacFmt->num == AUDIO_USB_FORMAT_NUM_3 &&
                 *audioUsbFormat != NULL && (*audioUsbFormat)->altsetting == 1 && (*audioUsbFormat)->channels == 1 &&
                 (*audioUsbFormat)->formats == AUDIO_USB_PCM_FMTBIT_S16_LE && uacFmt->protocol == UAC_VERSION_1 &&
-                le16_to_cpu(AUDIO_USB_GET_ENDPOINT(alts, 0)->wMaxPacketSize) ==
-                    (*audioUsbFormat)->maxPackSize * FRAME_SIZE_2) {
+                le16_to_cpu(epDesc->wMaxPacketSize) == (*audioUsbFormat)->maxPackSize * FRAME_SIZE_2) {
                 uacFmt->bmQuirk = 1;
             }
             *audioUsbFormat = AudioUsbUac12GetFormat(audioUsbDriver, alts, uacFmt, altsetIdx);
@@ -875,6 +886,7 @@ static int32_t AudioUsbParseIfaceSub(
     struct usb_host_interface *alts = NULL;
     struct AudioUsbFormat *audioUsbFormat = NULL;
     struct AudioUsbUacFormat uacFmt;
+    struct usb_endpoint_descriptor *epDesc;
 
     if (audioUsbDriver == NULL || hasNonPcm == NULL) {
         AUDIO_DRIVER_LOG_ERR("audioUsbDriver is NULL.");
@@ -906,8 +918,9 @@ static int32_t AudioUsbParseIfaceSub(
             dataFlag = true;
             continue;
         }
+        epDesc = AudioEndpointDescriptor(alts, 0);
         /* must be isochronous */
-        if ((AUDIO_USB_GET_ENDPOINT(alts, 0)->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC) {
+        if ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC) {
             continue;
         }
         AudioUsbGetFormatSub(audioUsbDriver, alts, &uacFmt, altsetIdx, &audioUsbFormat);

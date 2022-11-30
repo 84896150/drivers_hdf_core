@@ -98,6 +98,10 @@ enum AudioUsbMixerType {
 #define CHANNEL_HDR_BLENGTH 7
 
 #define ZERO_BASED_INTEGER 0xff
+#define S8_MAX_VAL         0x100
+#define S16_MAX_VAL        0x10000
+#define S8_CAMPARE_VAL     0x80
+#define S16_CAMPARE_VAL    0x8000
 
 #define ARRAY_INDEX_0 0
 #define ARRAY_INDEX_1 1
@@ -344,13 +348,19 @@ static void *AudioUsbFindAudioControlUnit(struct UsbMixerBuild *state, unsigned 
 {
     /* we just parse the header */
     struct uac_feature_unit_descriptor *featureUnitDesc = NULL;
+    bool lenth, subtypeInput, subtypeRate, unitId;
 
-    while ((featureUnitDesc = AudioUsbFindDesc(state->buffer, state->bufLen, featureUnitDesc, USB_DT_CS_INTERFACE)) !=
-        NULL) {
-        if (featureUnitDesc->bLength >= HDR_BLENGTH_MAX && featureUnitDesc->bDescriptorSubtype >= UAC_INPUT_TERMINAL &&
-            featureUnitDesc->bDescriptorSubtype <= UAC3_SAMPLE_RATE_CONVERTER && featureUnitDesc->bUnitID == unit) {
+    featureUnitDesc = AudioUsbFindDesc(state->buffer, state->bufLen, featureUnitDesc, USB_DT_CS_INTERFACE);
+
+    while (featureUnitDesc != NULL) {
+        lenth = featureUnitDesc->bLength >= HDR_BLENGTH_MAX;
+        subtypeInput = featureUnitDesc->bDescriptorSubtype >= UAC_INPUT_TERMINAL;
+        subtypeRate = featureUnitDesc->bDescriptorSubtype <= UAC3_SAMPLE_RATE_CONVERTER;
+        unitId = featureUnitDesc->bUnitID == unit;
+        if (lenth && subtypeInput && subtypeRate && unitId) {
             return featureUnitDesc;
         }
+        featureUnitDesc = AudioUsbFindDesc(state->buffer, state->bufLen, featureUnitDesc, USB_DT_CS_INTERFACE);
     }
 
     return NULL;
@@ -382,21 +392,21 @@ static int32_t AudioUsbConvertSignedValue(struct UsbMixerElemInfo *mixElemInfo, 
             return temp;
         case USB_MIXER_S8:
             value &= ZERO_BASED_INTEGER;
-            if (value >= 0x80) {
-                value -= 0x100;
+            if (value >= S8_CAMPARE_VAL) {
+                value = value - S8_MAX_VAL;
             }
             break;
         case USB_MIXER_U8:
-            value &= ZERO_BASED_INTEGER;
+            value = value & ZERO_BASED_INTEGER;
             break;
         case USB_MIXER_S16:
-            value &= 0xffff;
-            if (value >= 0x8000) {
-                value -= 0x10000;
+            value = value & 0xffff;
+            if (value >= S16_CAMPARE_VAL) {
+                value = value - S16_MAX_VAL;
             }
             break;
         case USB_MIXER_U16:
-            value &= 0xffff;
+            value = value & 0xffff;
             break;
     }
     return value;
@@ -405,17 +415,23 @@ static int32_t AudioUsbConvertSignedValue(struct UsbMixerElemInfo *mixElemInfo, 
 /* convert from the zero-based int32_t to the byte/word for usb descriptor */
 static int32_t AudioUsbConvertBytesValue(struct UsbMixerElemInfo *mixElemInfo, int32_t value)
 {
+    int32_t temp;
+
     switch (mixElemInfo->valType) {
         case USB_MIXER_BOOLEAN:
-            return !!value;
+            temp = !!value;
+            return temp;
         case USB_MIXER_INV_BOOLEAN:
-            return !value;
+            temp = !value;
+            return temp;
         case USB_MIXER_S16:
         case USB_MIXER_U16:
-            return value & 0xffff;
+            temp = value & 0xffff;
+            return temp;
         case USB_MIXER_S8:
         case USB_MIXER_U8:
-            return value & ZERO_BASED_INTEGER;
+            temp = value & ZERO_BASED_INTEGER;
+            return temp;
     }
     return 0; /* not reached */
 }
@@ -468,7 +484,10 @@ static int32_t AudioUsbCtlValueSize(int32_t valType)
 /* retrieve a mixer value */
 static inline int32_t AudioUsbMixerCtrlIntf(struct UsbMixerInterface *mixer)
 {
-    return AUDIO_USB_GET_IFACE_DESC(mixer->hostIf)->bInterfaceNumber;
+    struct usb_interface_descriptor *inteDesc;
+
+    inteDesc = AudioUsbGetIfaceDesc(mixer->hostIf);
+    return inteDesc->bInterfaceNumber;
 }
 
 static int32_t AudioUsbGetCtlValueV1(
@@ -520,7 +539,7 @@ static int32_t AudioUsbGetCtlValueV2(
     /* enough space for one range */
     uint8_t buf[sizeof(uint16_t) + USB_VAL_LEN_3 * sizeof(uint32_t)];
     uint8_t *valTemp;
-    int32_t ret, valSize, size;
+    int32_t ret, valSize, size, shift;
     struct AudioUsbCtlMsgParam usbCtlMsgParam;
 
     valSize = AudioUsbCtlValueSize(mixElemInfo->valType);
@@ -535,13 +554,7 @@ static int32_t AudioUsbGetCtlValueV2(
 
     (void)memset_s(buf, sizeof(buf), 0, sizeof(buf));
 
-    ret = AudioUsbLockShutdown(audioUsbDriver) ? -EIO : 0;
-    if (ret != 0) {
-        AUDIO_DRIVER_LOG_ERR(
-            "cannot get ctl value: req = %#x, wValue = %#x, type = %d\n", request, validx, mixElemInfo->valType);
-        return ret;
-    }
-
+    AudioUsbLockShutdown(audioUsbDriver);
     usbCtlMsgParam.index = AudioUsbMixerCtrlIntf(mixElemInfo->head.mixer) | (mixElemInfo->head.id << USB_SHIFT_SIZE_8);
 
     usbCtlMsgParam.pipe = usb_rcvctrlpipe(audioUsbDriver->dev, 0);
@@ -552,8 +565,7 @@ static int32_t AudioUsbGetCtlValueV2(
     AudioUsbUnlockShutdown(audioUsbDriver);
 
     if (ret < 0) {
-        AUDIO_DRIVER_LOG_ERR("cannot get ctl value: req = %#x, wValue = %#x, wIndex = %#x, type = %d\n", request,
-            validx, usbCtlMsgParam.index, mixElemInfo->valType);
+        AUDIO_DRIVER_LOG_ERR("cannot get ctl type = %d\n", mixElemInfo->valType);
         return ret;
     }
 
@@ -562,15 +574,17 @@ static int32_t AudioUsbGetCtlValueV2(
             valTemp = buf;
             break;
         case UAC_GET_RES:
-            valTemp = buf + sizeof(uint16_t) + valSize * USB_VAL_LEN_2;
+            shift = sizeof(uint16_t) + valSize * USB_VAL_LEN_2;
+            valTemp = buf + shift;
             break;
         case UAC_GET_MIN:
-            valTemp = buf + sizeof(uint16_t);
+            shift = sizeof(uint16_t);
+            valTemp = buf + shift;
             break;
         case UAC_GET_MAX:
-            valTemp = buf + sizeof(uint16_t) + valSize;
+            shift = sizeof(uint16_t) + valSize;
+            valTemp = buf + shift;
             break;
-
         default:
             return -EINVAL;
     }
@@ -757,7 +771,7 @@ static int32_t AudioUsbGetTermName(
                 (void)strcpy_s(name, KCTL_NAME_LEN, "Mixer");
                 return strlen("Mixer");
             default:
-                return sprintf(name, "Unit %d", iterm->id);
+                return sprintf_s(name, KCTL_NAME_LEN, "Unit %d", iterm->id);
         }
     }
 
@@ -781,7 +795,11 @@ static int32_t AudioUsbGetTermName(
 
 static inline int32_t AudioUsbCtrlIntf(struct AudioUsbDriver *audioUsbDriver)
 {
-    return AUDIO_USB_GET_IFACE_DESC(audioUsbDriver->ctrlIntf)->bInterfaceNumber;
+    struct usb_interface_descriptor *inteDesc;
+
+    inteDesc = AudioUsbGetIfaceDesc(audioUsbDriver->ctrlIntf);
+
+    return inteDesc->bInterfaceNumber;
 }
 
 /* Get logical cluster information for UAC3 devices */
@@ -1021,12 +1039,20 @@ static void AudioUsbCtlGetMaxVal(struct UsbMixerElemInfo *mixElemInfo, int32_t m
     for (;;) {
         temp = saved;
         if (temp < mixElemInfo->max) {
-            temp += mixElemInfo->res;
+            temp = temp + mixElemInfo->res;
         } else {
-            temp -= mixElemInfo->res;
+            temp = temp - mixElemInfo->res;
         }
-        if (temp < mixElemInfo->min || temp > mixElemInfo->max ||
-            AudioUsbSetCurMixValue(mixElemInfo, minchn, 0, temp) || AudioUsbGetCurMixRaw(mixElemInfo, minchn, &check)) {
+
+        if (temp < mixElemInfo->min || temp > mixElemInfo->max) {
+            mixElemInfo->res = mixElemInfo->res;
+            break;
+        }
+        if (AudioUsbSetCurMixValue(mixElemInfo, minchn, 0, temp) != 0) {
+            mixElemInfo->res = mixElemInfo->res;
+            break;
+        }
+        if (AudioUsbGetCurMixRaw(mixElemInfo, minchn, &check) != 0) {
             mixElemInfo->res = mixElemInfo->res;
             break;
         }
@@ -1353,7 +1379,7 @@ static void AudioUsbSetVolumeItemName(struct UsbMixerBuild *state, struct AudioK
             len = AudioUsbGetTermName(mixer->audioUsbDriver, oterm, kcontrol->name, KCTL_NAME_LEN, 1);
         }
         if (len == 0) {
-            snprintf(kcontrol->name, KCTL_NAME_LEN, "Feature %d", featureControl->unitId);
+            (void)snprintf_s(kcontrol->name, KCTL_NAME_LEN + 1, KCTL_NAME_LEN, "Feature %d", featureControl->unitId);
         }
     }
     if (!mappedName && oterm && !(oterm->type >> USB_SHIFT_SIZE_16)) {
@@ -1642,7 +1668,7 @@ static void AudioUsbBuildMixerUnitCtl(struct UsbMixerBuild *state, struct uac_mi
         len = AudioUsbGetTermName(state->audioUsbDriver, iterm, kctl->name, KCTL_NAME_LEN, 0);
     }
     if (len == 0) {
-        (void)sprintf(kctl->name, "Mixer Source %d", mixCtlParam->itemChannels + 1);
+        (void)sprintf_s(kctl->name, KCTL_NAME_LEN, "Mixer Source %d", mixCtlParam->itemChannels + 1);
     }
 
     AudioUsbAppendCtlName(kctl, " Volume", KCTL_NAME_LEN);
@@ -1809,7 +1835,7 @@ static int32_t AudioUsbSetTermName(
             len = AudioUsbGetTermName(state->audioUsbDriver, &iterm, namelist[i], MAX_ITEM_NAME_LEN, 0);
         }
         if (!len) {
-            sprintf(namelist[i], "Input %u", i);
+            sprintf_s(namelist[i], MAX_ITEM_NAME_LEN, "Input %u", i);
         }
     }
     return 0;
@@ -2009,7 +2035,8 @@ static int32_t AudioUsbMixerControls(struct UsbMixerInterface *mixer)
 {
     struct UsbMixerBuild state;
     int32_t err;
-    void *p = NULL;
+    void *pAfter = NULL;
+    struct uac1_output_terminal_descriptor *desc;
 
     (void)memset_s(&state, sizeof(state), 0, sizeof(state));
     state.audioUsbDriver = mixer->audioUsbDriver;
@@ -2019,17 +2046,21 @@ static int32_t AudioUsbMixerControls(struct UsbMixerInterface *mixer)
 
     AUDIO_DEVICE_LOG_INFO("entry");
 
-    while ((p = AudioUsbFindCsintDesc(mixer->hostIf->extra, mixer->hostIf->extralen, p, UAC_OUTPUT_TERMINAL)) != NULL) {
-        if (!AudioUsbValidateAudioDesc(p, mixer->protocol)) {
+    while ((pAfter = AudioUsbFindCsintDesc(
+        mixer->hostIf->extra, mixer->hostIf->extralen, pAfter, UAC_OUTPUT_TERMINAL)) != NULL) {
+        if (!AudioUsbValidateAudioDesc(pAfter, mixer->protocol)) {
             continue;
         }
         if (mixer->protocol == UAC_VERSION_1) {
-            struct uac1_output_terminal_descriptor *desc = p;
+            desc = pAfter;
 
             set_bit(desc->bTerminalID, state.unitbitmap);
+            state.oterm.name = desc->iTerminal;
             state.oterm.id = desc->bTerminalID;
             state.oterm.type = le16_to_cpu(desc->wTerminalType);
-            state.oterm.name = desc->iTerminal;
+            AUDIO_DEVICE_LOG_DEBUG("name = %d id = %d type = %d  ", state.oterm.name, state.oterm.id,
+                state.oterm.type);
+
             err = AudioUsbParseUnit(&state, desc->bSourceID);
             if (err < 0 && err != -EINVAL) {
                 AUDIO_DEVICE_LOG_ERR("AudioUsbParseUnit is failed");
@@ -2044,6 +2075,7 @@ static int32_t AudioUsbMixerControls(struct UsbMixerInterface *mixer)
 int32_t AudioUsbCreateMixer(struct AudioUsbDriver *audioUsbDriver, int32_t ctrlif, int32_t ignore_error)
 {
     struct UsbMixerInterface *mixer;
+    struct usb_interface_descriptor *inteDesc;
     int32_t err = 0;
     AUDIO_DEVICE_LOG_INFO("entry");
 
@@ -2061,7 +2093,8 @@ int32_t AudioUsbCreateMixer(struct AudioUsbDriver *audioUsbDriver, int32_t ctrli
     }
 
     mixer->hostIf = &usb_ifnum_to_if(audioUsbDriver->dev, ctrlif)->altsetting[0];
-    switch (AUDIO_USB_GET_IFACE_DESC(mixer->hostIf)->bInterfaceProtocol) {
+    inteDesc = AudioUsbGetIfaceDesc(mixer->hostIf);
+    switch (inteDesc->bInterfaceProtocol) {
         case UAC_VERSION_1:
         default:
             mixer->protocol = UAC_VERSION_1;
@@ -2073,6 +2106,7 @@ int32_t AudioUsbCreateMixer(struct AudioUsbDriver *audioUsbDriver, int32_t ctrli
             mixer->protocol = UAC_VERSION_3;
             break;
     }
+    AUDIO_DEVICE_LOG_DEBUG("mixer protocol is %d", mixer->protocol);
 
     if (mixer->protocol != UAC_VERSION_3) {
         err = AudioUsbMixerControls(mixer);

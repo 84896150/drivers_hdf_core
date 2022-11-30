@@ -50,6 +50,21 @@ struct UsbDescValidator {
     size_t size;
 };
 
+struct usb_interface_descriptor *AudioUsbGetIfaceDesc(struct usb_host_interface *interface)
+{
+    return (&(interface)->desc);
+}
+
+struct usb_endpoint_descriptor *AudioEndpointDescriptor(struct usb_host_interface *alts, uint32_t epIndex)
+{
+    return (&(alts)->endpoint[epIndex].desc);
+}
+
+enum usb_device_speed AudioUsbGetSpeed(struct usb_device *dev)
+{
+    return ((dev)->speed);
+}
+
 uint32_t AudioUsbCombineWord(uint8_t *bytes)
 {
     return (*(bytes)) | ((uint32_t)(bytes)[AUDIO_USB_INDEX_1] << USB_SHIFT_SIZE_8);
@@ -176,18 +191,22 @@ int32_t AudioUsbCtlMsg(struct usb_device *dev, struct AudioUsbCtlMsgParam *usbCt
 
 uint8_t AudioUsbParseDataInterval(struct usb_device *usbDev, struct usb_host_interface *alts)
 {
+    struct usb_endpoint_descriptor *epDesc;
+    enum usb_device_speed usbSpeed;
+
     if (usbDev == NULL || alts == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
         return HDF_ERR_INVALID_PARAM;
     }
-    switch (AUDIO_USB_GET_SPEED(usbDev)) {
+    epDesc = AudioEndpointDescriptor(alts, 0);
+    usbSpeed = AudioUsbGetSpeed(usbDev);
+    switch (usbSpeed) {
         case USB_SPEED_HIGH:
         case USB_SPEED_WIRELESS:
         case USB_SPEED_SUPER:
         case USB_SPEED_SUPER_PLUS:
-            if (AUDIO_USB_GET_ENDPOINT(alts, 0)->bInterval >= AUDIO_USB_INTERVAL_LEN_1 &&
-                AUDIO_USB_GET_ENDPOINT(alts, 0)->bInterval <= AUDIO_USB_INTERVAL_LEN_4) {
-                return AUDIO_USB_GET_ENDPOINT(alts, 0)->bInterval - AUDIO_USB_INTERVAL_LEN_1;
+            if (epDesc->bInterval >= AUDIO_USB_INTERVAL_LEN_1 && epDesc->bInterval <= AUDIO_USB_INTERVAL_LEN_4) {
+                return epDesc->bInterval - AUDIO_USB_INTERVAL_LEN_1;
             }
             break;
         default:
@@ -467,27 +486,26 @@ static bool ValidateUac2FeatureUnit(const void *ptr, const struct UsbDescValidat
 }
 
 static const struct UsbDescValidator audioValidators[] = {
-    {.protocol = UAC_VERSION_1,   .type = UAC_HEADER, .func = ValidateUac1Header},
-    {.protocol = UAC_VERSION_1,   .type = UAC_INPUT_TERMINAL, .size = sizeof(struct uac_input_terminal_descriptor)},
-    {.protocol = UAC_VERSION_1,   .type = UAC_OUTPUT_TERMINAL, .size = sizeof(struct uac1_output_terminal_descriptor)},
-    {.protocol = UAC_VERSION_1,   .type = UAC_MIXER_UNIT, .func = ValidateMixerUnit},
-    {.protocol = UAC_VERSION_1,   .type = UAC_SELECTOR_UNIT, .func = ValidateSelectorUnit},
-    {.protocol = UAC_VERSION_1,   .type = UAC_FEATURE_UNIT, .func = ValidateUac1FeatureUnit},
-    {.protocol = UAC_VERSION_1,   .type = UAC1_PROCESSING_UNIT, .func = ValidateProcessingUnit},
-    {.protocol = UAC_VERSION_1,   .type = UAC1_EXTENSION_UNIT, .func = ValidateProcessingUnit},
+    {.protocol = UAC_VERSION_1, .type = UAC_HEADER,           .func = ValidateUac1Header                            },
+    {.protocol = UAC_VERSION_1, .type = UAC_INPUT_TERMINAL,   .size = sizeof(struct uac_input_terminal_descriptor)  },
+    {.protocol = UAC_VERSION_1, .type = UAC_OUTPUT_TERMINAL,  .size = sizeof(struct uac1_output_terminal_descriptor)},
+    {.protocol = UAC_VERSION_1, .type = UAC_MIXER_UNIT,       .func = ValidateMixerUnit                             },
+    {.protocol = UAC_VERSION_1, .type = UAC_SELECTOR_UNIT,    .func = ValidateSelectorUnit                          },
+    {.protocol = UAC_VERSION_1, .type = UAC_FEATURE_UNIT,     .func = ValidateUac1FeatureUnit                       },
+    {.protocol = UAC_VERSION_1, .type = UAC1_PROCESSING_UNIT, .func = ValidateProcessingUnit                        },
+    {.protocol = UAC_VERSION_1, .type = UAC1_EXTENSION_UNIT,  .func = ValidateProcessingUnit                        },
 
-    {.protocol = UAC_VERSION_2,   .type = UAC_HEADER, .size = sizeof(struct uac2_ac_header_descriptor)},
-    {.protocol = UAC_VERSION_2,   .type = UAC_INPUT_TERMINAL, .size = sizeof(struct uac2_input_terminal_descriptor)},
-    {.protocol = UAC_VERSION_2,   .type = UAC_OUTPUT_TERMINAL, .size = sizeof(struct uac2_output_terminal_descriptor)},
-    {.protocol = UAC_VERSION_2,    .type = UAC_MIXER_UNIT, .func = ValidateMixerUnit},
-    {.protocol = UAC_VERSION_2,   .type = UAC_SELECTOR_UNIT, .func = ValidateSelectorUnit},
-    {.protocol = UAC_VERSION_2,   .type = UAC_FEATURE_UNIT, .func = ValidateUac2FeatureUnit},
-    {.protocol = UAC_VERSION_2,    .type = UAC2_PROCESSING_UNIT_V2, .func = ValidateProcessingUnit},
-    {.protocol = UAC_VERSION_2,    .type = UAC2_EXTENSION_UNIT_V2, .func = ValidateProcessingUnit},
-    {.protocol = UAC_VERSION_2,   .type = UAC2_CLOCK_SOURCE, .size = sizeof(struct uac_clock_source_descriptor)},
-    {.protocol = UAC_VERSION_2,   .type = UAC2_CLOCK_SELECTOR, .func = ValidateSelectorUnit},
+    {.protocol = UAC_VERSION_2, .type = UAC_HEADER,           .size = sizeof(struct uac2_ac_header_descriptor)      },
+    {.protocol = UAC_VERSION_2, .type = UAC_INPUT_TERMINAL,   .size = sizeof(struct uac2_input_terminal_descriptor) },
+    {.protocol = UAC_VERSION_2, .type = UAC_OUTPUT_TERMINAL,  .size = sizeof(struct uac2_output_terminal_descriptor)},
+    {.protocol = UAC_VERSION_2, .type = UAC_MIXER_UNIT,       .func = ValidateMixerUnit                             },
+    {.protocol = UAC_VERSION_2, .type = UAC_SELECTOR_UNIT,    .func = ValidateSelectorUnit                          },
+    {.protocol = UAC_VERSION_2, .type = UAC_FEATURE_UNIT,     .func = ValidateUac2FeatureUnit                       },
+    {.protocol = UAC_VERSION_2, .type = UAC2_PROCESSING_UNIT_V2, .func = ValidateProcessingUnit                     },
+    {.protocol = UAC_VERSION_2, .type = UAC2_EXTENSION_UNIT_V2,  .func = ValidateProcessingUnit                     },
+    {.protocol = UAC_VERSION_2, .type = UAC2_CLOCK_SOURCE,       .size = sizeof(struct uac_clock_source_descriptor) },
+    {.protocol = UAC_VERSION_2, .type = UAC2_CLOCK_SELECTOR,     .func = ValidateSelectorUnit                       },
     {.protocol = UAC_VERSION_2, .type = UAC2_CLOCK_MULTIPLIER, .size = sizeof(struct uac_clock_multiplier_descriptor)},
-
 };
 
 bool AudioUsbValidateAudioDesc(void *ptr, int32_t protocol)

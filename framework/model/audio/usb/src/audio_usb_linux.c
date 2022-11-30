@@ -39,6 +39,8 @@
 
 #define USB_SHIFT_SIZE_16 16
 
+#define LOAD_AUDIO_USB_DRIVER_FREQUENCY 5
+
 static struct AudioUsbDriver g_hdfAudioUsbDriver;
 
 struct AudioUsbDriver *GetLinuxAudioUsb(void)
@@ -94,13 +96,14 @@ static int32_t AudioUsbDriverInit(
     struct usb_host_interface *alts;
     uint32_t i, ifnum, protocol;
     struct usb_host_interface *hostIface;
-    struct usb_interface_descriptor *altsd;
+    struct usb_interface_descriptor *altsd, *inteDesc;
     struct uac1_ac_header_descriptor *h1;
 
     alts = &usbIf->altsetting[0];
-    ifnum = AUDIO_USB_GET_IFACE_DESC(alts)->bInterfaceNumber;
+    inteDesc = AudioUsbGetIfaceDesc(alts);
+    ifnum = inteDesc->bInterfaceNumber;
     hostIface = &usb_ifnum_to_if(usbDev, ifnum)->altsetting[0];
-    altsd = AUDIO_USB_GET_IFACE_DESC(hostIface);
+    altsd = AudioUsbGetIfaceDesc(hostIface);
     protocol = altsd->bInterfaceProtocol;
 
     audioUsbDriver->pnpFlag = -1;
@@ -147,6 +150,7 @@ static int32_t AudioUsbDriverInit(
 static int32_t LinuxAudioUsbProbe(struct usb_interface *usbIf, const struct usb_device_id *usbDevId)
 {
     int32_t ret;
+    uint32_t i;
     ADM_LOG_INFO("entry");
 
     (void)memset_s(&g_hdfAudioUsbDriver, sizeof(struct AudioUsbDriver), 0, sizeof(struct AudioUsbDriver));
@@ -156,7 +160,7 @@ static int32_t LinuxAudioUsbProbe(struct usb_interface *usbIf, const struct usb_
         return HDF_FAILURE;
     }
 
-    while (g_hdfAudioUsbDriver.pnpFlag != 1) { // 1 is hdf audio usb load success
+    for (i = 0; g_hdfAudioUsbDriver.pnpFlag != 1 || i <= LOAD_AUDIO_USB_DRIVER_FREQUENCY; i++) {
         OsalMSleep(WAIT_FOR_HDF_START_MILLISECOND);
         if (AudioUsbDriverLoad(HDF_AUDIO_USB_PNP_SRV_NAME) == 0 && AudioUsbDriverLoad(HDF_AUDIO_USB_DMA_NAME) == 0 &&
             AudioUsbDriverLoad(HDF_AUDIO_USB_CODEC_NAME) == 0) {
@@ -183,24 +187,6 @@ static void LinuxAudioUsbDisconnect(struct usb_interface *usbIf)
     g_hdfAudioUsbDriver.pnpFlag = 0;
 }
 
-static int32_t LinuxAudioUsbSuspend(struct usb_interface *usbIf, pm_message_t message)
-{
-    ADM_LOG_INFO("[%s][%s]:[%d]\n", __FILE__, __func__, __LINE__);
-    return 0;
-}
-
-static int32_t LinuxAudioUsbResume(struct usb_interface *usbIf)
-{
-    ADM_LOG_INFO("[%s][%s]:[%d]\n", __FILE__, __func__, __LINE__);
-    return 0;
-}
-
-static int32_t LinuxAudioUsbResetResume(struct usb_interface *usbIf)
-{
-    ADM_LOG_INFO("[%s][%s]:[%d]\n", __FILE__, __func__, __LINE__);
-    return 0;
-}
-
 /* Element 2 to Terminating */
 static const struct usb_device_id g_linuxAudioUsbIds[2] = {
     {.bInterfaceClass = USB_CLASS_AUDIO,
@@ -213,9 +199,6 @@ static struct usb_driver g_linuxAudioUsbDriver = {
     .name = "hdf-audio-usb",
     .probe = LinuxAudioUsbProbe,
     .disconnect = LinuxAudioUsbDisconnect,
-    .suspend = LinuxAudioUsbSuspend,
-    .resume = LinuxAudioUsbResume,
-    .reset_resume = LinuxAudioUsbResetResume,
     .id_table = g_linuxAudioUsbIds,
     .supports_autosuspend = 1,
 };

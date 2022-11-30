@@ -12,20 +12,21 @@
 #include "audio_usb_codec_ops.h"
 
 #define HDF_LOG_TAG HDF_AUDIO_USB
+#define AUDIO_PORT_RENDER  1
+#define AUDIO_PORT_CAPTURE 2
 
 static struct CodecData g_usbCodecData = {
-    .drvCodecName = "usb_codec_service_0",
+    .drvCodecName = "audio_usb_service_0",
     .Init = AudioUsbCodecDeviceInit,
-    .Read = AudioUsbCodecReadReg,
-    .Write = AudioUsbCodecWriteReg,
-
 };
 static struct DaiData g_usbDaiData = {
     .drvDaiName = "usb_codec_dai",
     .DaiInit = AudioUsbCodecDaiDeviceInit,
-    .Read = AudioUsbCodecDaiReadReg,
-    .Write = AudioUsbCodecDaiWriteReg,
+};
 
+static struct AudioPortInfo g_usbPortInfo = {
+    .render.portDirection = AUDIO_PORT_RENDER,
+    .capture.portDirection = AUDIO_PORT_CAPTURE,
 };
 
 static int32_t AudioUsbCodecDriverBind(struct HdfDeviceObject *device)
@@ -62,30 +63,7 @@ static int32_t AudioUsbCodecDriverInit(struct HdfDeviceObject *device)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    if (CodecDaiGetPortConfigInfo(device, &g_usbDaiData) != HDF_SUCCESS) {
-        return HDF_FAILURE;
-    }
-
-    ret = CodecGetConfigInfo(device, &g_usbCodecData);
-    if (ret != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("get config info failed.");
-        return ret;
-    }
-
-    if (CodecSetConfigInfoOfControls(&g_usbCodecData, &g_usbDaiData) != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("set config info failed.");
-        return HDF_FAILURE;
-    }
-
-    if (CodecGetServiceName(device, &g_usbCodecData.drvCodecName) != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("get codec service name failed.");
-        return HDF_FAILURE;
-    }
-
-    if (CodecGetDaiName(device, &g_usbDaiData.drvDaiName) != HDF_SUCCESS) {
-        AUDIO_DRIVER_LOG_ERR("get codec dai service name failed.");
-        return HDF_FAILURE;
-    }
+    g_usbDaiData.portInfo = g_usbPortInfo;
 
     OsalMutexInit(&g_usbCodecData.mutex);
 

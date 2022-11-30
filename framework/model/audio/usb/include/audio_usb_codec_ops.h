@@ -13,9 +13,5 @@
 
 int32_t AudioUsbCodecDeviceInit(struct AudioCard *audioCard, const struct CodecDevice *device);
 int32_t AudioUsbCodecDaiDeviceInit(struct AudioCard *card, const struct DaiDevice *device);
-int32_t AudioUsbCodecReadReg(const struct CodecDevice *codec, uint32_t reg, uint32_t *val);
-int32_t AudioUsbCodecWriteReg(const struct CodecDevice *codec, uint32_t reg, uint32_t value);
-int32_t AudioUsbCodecDaiReadReg(const struct DaiDevice *dai, uint32_t reg, uint32_t *value);
-int32_t AudioUsbCodecDaiWriteReg(const struct DaiDevice *dai, uint32_t reg, uint32_t value);
 
 #endif

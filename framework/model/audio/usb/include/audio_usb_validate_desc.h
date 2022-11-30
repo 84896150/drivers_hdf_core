@@ -11,10 +11,6 @@
 
 #include <linux/usb.h>
 
-#define AUDIO_USB_GET_IFACE_DESC(iface) (&(iface)->desc)
-#define AUDIO_USB_GET_ENDPOINT(alt, ep) (&(alt)->endpoint[ep].desc)
-#define AUDIO_USB_GET_SPEED(dev)        ((dev)->speed)
-
 struct AudioUsbCtlMsgParam {
     uint32_t pipe;
     uint8_t request;
@@ -23,6 +19,9 @@ struct AudioUsbCtlMsgParam {
     uint16_t index;
 };
 uint32_t AudioUsbCombineTriple(uint8_t *bytes);
+struct usb_interface_descriptor *AudioUsbGetIfaceDesc(struct usb_host_interface *interface);
+struct usb_endpoint_descriptor *AudioEndpointDescriptor(struct usb_host_interface *alts, uint32_t epIndex);
+enum usb_device_speed AudioUsbGetSpeed(struct usb_device *dev);
 
 uint32_t AudioUsbCombineBytes(uint8_t *bytes, int32_t size);
 void *AudioUsbFindDesc(void *descStart, int32_t descLen, void *after, uint8_t dtype);

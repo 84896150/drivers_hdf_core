@@ -207,7 +207,7 @@ static void AudioUsbPrepareOutboundUrb(struct AudioUsbEndpoint *endpoint, struct
             break;
 
         case AUDIO_USB_ENDPOINT_TYPE_SYNC:
-            if (AUDIO_USB_GET_SPEED(endpoint->audioUsbDriver->dev) >= USB_SPEED_HIGH) {
+            if (AudioUsbGetSpeed(endpoint->audioUsbDriver->dev) >= USB_SPEED_HIGH) {
                 urb->iso_frame_desc[ARRAY_INDEX_0].length = ISO_FRAME_DESC_4;
                 urb->iso_frame_desc[ARRAY_INDEX_0].offset = 0;
                 cp[ARRAY_INDEX_0] = endpoint->freqn;
@@ -341,14 +341,14 @@ static void AudioUsbQueuePendingOutputUrbs(struct AudioUsbEndpoint *endpoint)
 
             if (!list_empty(&endpoint->readyPlaybackUrbs)) {
                 urbCtx = list_first_entry(&endpoint->readyPlaybackUrbs, struct AudioUsbUrbCtx, readyList);
-                list_del_init(&urbCtx->readyList);
             }
         }
         spin_unlock_irqrestore(&endpoint->lock, flags);
-
         if (urbCtx == NULL) {
             return;
         }
+        list_del_init(&urbCtx->readyList);
+
         AUDIO_DEVICE_LOG_DEBUG("urbCtx is not null.");
 
         for (index = 0; index < packet->packets; index++) {
@@ -525,7 +525,7 @@ static void AudioUsbCompleteUrb(struct urb *urb)
             urb->status == -ECONNRESET ||  /* unlinked */
             urb->status == -ESHUTDOWN)) {  /* device disabled */
         clear_bit(urbCtx->index, &endpoint->activeMask);
-        AUDIO_DEVICE_LOG_ERR("urb status is invalid");
+        AUDIO_DEVICE_LOG_DEBUG("urb status is invalid");
         return;
     }
     /* device disconnected */
@@ -789,7 +789,7 @@ static uint32_t AudioUsbSetCaptureEpParams(struct AudioUsbEndpoint *endpoint, ui
     uint32_t interval;
 
     urbPacks = packsPerMs;
-    if (AUDIO_USB_GET_SPEED(endpoint->audioUsbDriver->dev) == USB_SPEED_WIRELESS) {
+    if (AudioUsbGetSpeed(endpoint->audioUsbDriver->dev) == USB_SPEED_WIRELESS) {
         interval = endpoint->dataInterval;
         while (interval < DATA_INTERVAL_MAX) {
             urbPacks <<= 1;
@@ -830,7 +830,7 @@ static int32_t AudioUsbSetRenderEpParams(struct AudioUsbEndpoint *endpoint, stru
         frameBits += pcmInfo->channels << FRAME_BITS_MASK;
     }
 
-    if (AUDIO_USB_GET_SPEED(endpoint->audioUsbDriver->dev) != USB_SPEED_FULL) {
+    if (AudioUsbGetSpeed(endpoint->audioUsbDriver->dev) != USB_SPEED_FULL) {
         packsPerMs = RIGHT_SHIFT_8 >> endpoint->dataInterval;
         maxPacksPerUrb = MAX_PACKS_HS;
     } else {
@@ -911,6 +911,7 @@ static int32_t AudioUsbDataEpSetParams(struct AudioUsbEndpoint *endpoint, struct
     uint32_t urbPacks;
     uint32_t periodBytes;
     uint32_t format;
+    enum usb_device_speed usbSpeed;
 
     periodBytes = bufInfo->periodSize;
 
@@ -923,7 +924,8 @@ static int32_t AudioUsbDataEpSetParams(struct AudioUsbEndpoint *endpoint, struct
         return HDF_FAILURE;
     }
 
-    if (AUDIO_USB_GET_SPEED(endpoint->audioUsbDriver->dev) != USB_SPEED_FULL) {
+    usbSpeed = AudioUsbGetSpeed(endpoint->audioUsbDriver->dev);
+    if (usbSpeed != USB_SPEED_FULL) {
         packsPerMs = RIGHT_SHIFT_8 >> endpoint->dataInterval;
         maxPacksPerUrb = MAX_PACKS_HS;
     } else {
@@ -971,7 +973,7 @@ int32_t AudioUsbEndpointSetParams(struct AudioUsbEndpoint *endpoint, struct PcmI
     endpoint->maxPackSize = audioUsbFormat->maxPackSize;
     endpoint->fillMax = !!(audioUsbFormat->attributes & UAC_EP_CS_ATTR_FILL_MAX);
 
-    if (AUDIO_USB_GET_SPEED(dev) == USB_SPEED_FULL) {
+    if (AudioUsbGetSpeed(dev) == USB_SPEED_FULL) {
         endpoint->freqn = AudioUsbGetUsbSpeedRate(pcmInfo->rate, USB_FULL_SPEED);
         endpoint->pps = PACKETS_PER_SECOND_1000 >> endpoint->dataInterval;
     } else {

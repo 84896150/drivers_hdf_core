@@ -56,39 +56,6 @@ static int32_t PlatformDriverBind(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
-static int32_t PlatformGetServiceName(const struct HdfDeviceObject *device, struct PlatformData *platformData)
-{
-    const struct DeviceResourceNode *node = NULL;
-    struct DeviceResourceIface *drsOps = NULL;
-    int32_t ret;
-
-    if (device == NULL || platformData == NULL) {
-        AUDIO_DEVICE_LOG_ERR("para is NULL.");
-        return HDF_FAILURE;
-    }
-
-    node = device->property;
-    if (node == NULL) {
-        AUDIO_DEVICE_LOG_ERR("node is NULL.");
-        return HDF_FAILURE;
-    }
-
-    drsOps = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
-    if (drsOps == NULL || drsOps->GetString == NULL) {
-        AUDIO_DEVICE_LOG_ERR("get drsops object instance fail!");
-        return HDF_FAILURE;
-    }
-
-    ret = drsOps->GetString(node, "serviceName", &platformData->drvPlatformName, 0);
-    if (ret != HDF_SUCCESS) {
-        AUDIO_DEVICE_LOG_ERR("read serviceName fail!");
-        return ret;
-    }
-    AUDIO_DEVICE_LOG_INFO("success!");
-
-    return HDF_SUCCESS;
-}
-
 static int32_t PlatformDriverInit(struct HdfDeviceObject *device)
 {
     int32_t ret;
@@ -112,14 +79,9 @@ static int32_t PlatformDriverInit(struct HdfDeviceObject *device)
     }
     (void)memset_s(platformData, sizeof(struct PlatformData), 0, sizeof(struct PlatformData));
 
-    ret = PlatformGetServiceName(device, platformData);
-    if (ret != HDF_SUCCESS) {
-        OsalMemFree(platformHost);
-        return ret;
-    }
-
     platformData->PlatformInit = AudioUsbDmaDeviceInit;
     platformData->ops = &g_usbDmaDeviceOps;
+    platformData->drvPlatformName = "usb_dma_service_0";
 
     OsalMutexInit(&platformData->renderBufInfo.buffMutex);
     OsalMutexInit(&platformData->captureBufInfo.buffMutex);

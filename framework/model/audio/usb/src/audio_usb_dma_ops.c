@@ -230,6 +230,7 @@ static void AudioUsbEndpointInit(struct AudioUsbDriver *audioUsbDriver, struct A
     struct usb_host_interface *alts, uint32_t *epNum, int type)
 {
     struct usb_device *dev = audioUsbDriver->dev;
+    struct usb_endpoint_descriptor *epDesc;
 
     ep->audioUsbDriver = audioUsbDriver;
     spin_lock_init(&ep->lock);
@@ -241,20 +242,19 @@ static void AudioUsbEndpointInit(struct AudioUsbDriver *audioUsbDriver, struct A
     INIT_LIST_HEAD(&ep->readyPlaybackUrbs);
     *epNum &= USB_ENDPOINT_NUMBER_MASK;
 
+    epDesc = AudioEndpointDescriptor(alts, USB_ENDPOINT_INDEX_1);
     if (type == AUDIO_USB_ENDPOINT_TYPE_SYNC) {
-        if (AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE &&
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bRefresh >= SYNC_REFRESH_1 &&
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bRefresh <= SYNC_REFRESH_9) {
-            ep->syncInterval = AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bRefresh;
-        } else if (AUDIO_USB_GET_SPEED(dev) == USB_SPEED_FULL) {
+        if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bRefresh >= SYNC_REFRESH_1 &&
+            epDesc->bRefresh <= SYNC_REFRESH_9) {
+            ep->syncInterval = epDesc->bRefresh;
+        } else if (AudioUsbGetSpeed(dev) == USB_SPEED_FULL) {
             ep->syncInterval = SYNC_INTERVAL_1;
-        } else if (AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bInterval >= SYNC_INTERVAL_1 &&
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bInterval <= SYNC_INTERVAL_16) {
-            ep->syncInterval = AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bInterval - SYNC_INTERVAL_1;
+        } else if (epDesc->bInterval >= SYNC_INTERVAL_1 && epDesc->bInterval <= SYNC_INTERVAL_16) {
+            ep->syncInterval = epDesc->bInterval - SYNC_INTERVAL_1;
         } else {
             ep->syncInterval = SYNC_INTERVAL_3;
         }
-        ep->syncMaxSize = le16_to_cpu(AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->wMaxPacketSize);
+        ep->syncMaxSize = le16_to_cpu(epDesc->wMaxPacketSize);
     }
 }
 
@@ -313,33 +313,32 @@ static struct AudioUsbEndpoint *AudioUsbAddEndpoint(struct AudioUsbDriver *audio
 static int32_t AudioUsbGetEndpoint(struct AudioUsbFormat *audioUsbFormat, struct usb_host_interface *alts,
     uint32_t attr, int isRender, uint32_t *epNum)
 {
+    struct usb_endpoint_descriptor *epDesc;
+
     if ((isRender && (attr == USB_ENDPOINT_SYNC_SYNC || attr == USB_ENDPOINT_SYNC_ADAPTIVE)) ||
         (!isRender && attr != USB_ENDPOINT_SYNC_ADAPTIVE)) {
         return HDF_SUCCESS;
     }
 
-    if ((AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) !=
-            USB_ENDPOINT_XFER_ISOC ||
-        (AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE &&
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bSynchAddress != 0)) {
+    epDesc = AudioEndpointDescriptor(alts, USB_ENDPOINT_INDEX_1);
+    if ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC ||
+        (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0)) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. bmAttributes %02x, bLength %d, bSynchAddress %02x\n",
-            audioUsbFormat->iface, audioUsbFormat->altsetting,
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bmAttributes,
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bLength,
-            AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bSynchAddress);
+            audioUsbFormat->iface, audioUsbFormat->altsetting, epDesc->bmAttributes, epDesc->bLength,
+            epDesc->bSynchAddress);
         if (isRender && attr == USB_ENDPOINT_SYNC_NONE) {
             return HDF_SUCCESS;
         }
         return -EINVAL;
     }
-    *epNum = AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bEndpointAddress;
-    if (AUDIO_USB_GET_ENDPOINT(alts, 0)->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE &&
-        AUDIO_USB_GET_ENDPOINT(alts, 0)->bSynchAddress != 0 &&
-        ((isRender != 0 && *epNum != (uint32_t)(AUDIO_USB_GET_ENDPOINT(alts, 0)->bSynchAddress | USB_DIR_IN)) ||
-            (isRender != 0 && *epNum != (uint32_t)(AUDIO_USB_GET_ENDPOINT(alts, 0)->bSynchAddress & ~USB_DIR_IN)))) {
+    *epNum = epDesc->bEndpointAddress;
+
+    epDesc = AudioEndpointDescriptor(alts, 0);
+    if (epDesc->bLength >= USB_DT_ENDPOINT_AUDIO_SIZE && epDesc->bSynchAddress != 0 &&
+        ((isRender != 0 && *epNum != (uint32_t)(epDesc->bSynchAddress | USB_DIR_IN)) ||
+            (isRender != 0 && *epNum != (uint32_t)(epDesc->bSynchAddress & ~USB_DIR_IN)))) {
         AUDIO_DEVICE_LOG_ERR("%d:%d : invalid sync pipe. isRender %d, ep %02x, bSynchAddress %02x\n",
-            audioUsbFormat->iface, audioUsbFormat->altsetting, isRender, *epNum,
-            AUDIO_USB_GET_ENDPOINT(alts, 0)->bSynchAddress);
+            audioUsbFormat->iface, audioUsbFormat->altsetting, isRender, *epNum, epDesc->bSynchAddress);
         if (isRender && attr == USB_ENDPOINT_SYNC_NONE) {
             return HDF_SUCCESS;
         }
@@ -356,6 +355,7 @@ static int32_t AudioUsbSetSyncEndpoint(struct AudioUsbDriver *audioUsbDriver, st
     uint32_t epNum, attr;
     bool implicitFb;
     struct AudioUsbEndpoint *syncEndpoint = NULL;
+    struct usb_endpoint_descriptor *epDesc;
     int32_t ret;
 
     attr = audioUsbFormat->epAttr & USB_ENDPOINT_SYNCTYPE;
@@ -377,9 +377,8 @@ static int32_t AudioUsbSetSyncEndpoint(struct AudioUsbDriver *audioUsbDriver, st
     if (ret != HDF_SUCCESS) {
         return ret;
     }
-
-    implicitFb = (AUDIO_USB_GET_ENDPOINT(alts, USB_ENDPOINT_INDEX_1)->bmAttributes & USB_ENDPOINT_USAGE_MASK) ==
-        USB_ENDPOINT_USAGE_IMPLICIT_FB;
+    epDesc = AudioEndpointDescriptor(alts, USB_ENDPOINT_INDEX_1);
+    implicitFb = (epDesc->bmAttributes & USB_ENDPOINT_USAGE_MASK) == USB_ENDPOINT_USAGE_IMPLICIT_FB;
 
     syncEndpoint = AudioUsbAddEndpoint(audioUsbDriver, alts, epNum, streamType,
         implicitFb ? AUDIO_USB_ENDPOINT_TYPE_DATA : AUDIO_USB_ENDPOINT_TYPE_SYNC);
@@ -466,7 +465,7 @@ static int32_t AudioSetFormat(
         return -EINVAL;
     }
 
-    altsd = AUDIO_USB_GET_IFACE_DESC(alts);
+    altsd = AudioUsbGetIfaceDesc(alts);
     if (altsd == NULL) {
         AUDIO_DEVICE_LOG_ERR("altsd is null.");
         return HDF_FAILURE;
@@ -1024,7 +1023,7 @@ int32_t AudioUsbDmaSubmit(const struct PlatformData *data, const enum AudioStrea
 
 static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, struct urb *urb)
 {
-    uint32_t frameSize, frames, bytes, oldptr;
+    uint32_t frameSize, frames, bytes, oldptr, offset;
     uint32_t i;
     unsigned long flags;
     unsigned char *capPoint;
@@ -1032,13 +1031,15 @@ static void AudioUsbRetireCaptureUrb(struct AudioUsbDriver *audioUsbDriver, stru
     frameSize = audioUsbDriver->capturePcmInfo.frameSize;
 
     for (i = 0; i < urb->number_of_packets; i++) {
-        capPoint = (unsigned char *)urb->transfer_buffer + urb->iso_frame_desc[i].offset;
+        offset = urb->iso_frame_desc[i].offset;
+        capPoint = (unsigned char *)urb->transfer_buffer + offset;
 
         bytes = urb->iso_frame_desc[i].actual_length;
         frames = bytes / frameSize;
 
         if (bytes % audioUsbDriver->capturePcmInfo.frameSize != 0) {
             bytes = frames * frameSize;
+            AUDIO_DEVICE_LOG_DEBUG("capture bytes = %d", bytes);
         }
 
         spin_lock_irqsave(&audioUsbDriver->lock, flags);
