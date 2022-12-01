@@ -25,6 +25,10 @@ hdf_driver(module_name) {
     sources += [ "watchdog_wm.c" ]
   }
 
+  if (defined(LOSCFG_SOC_COMPANY_BOUFFALOLAB)) {
+    sources += [ "watchdog_bl.c" ]
+  }
+
   include_dirs = [ "." ]
   if (defined(LOSCFG_DRIVERS_HDF_CONFIG_MACRO)) {
     HDF_HCS_BUILD_PATH = rebase_path(
