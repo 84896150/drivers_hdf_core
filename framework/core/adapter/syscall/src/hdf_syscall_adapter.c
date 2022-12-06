@@ -18,6 +18,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#include <sched.h>
 #include "hdf_base.h"
 #include "hdf_io_service.h"
 #include "hdf_log.h"
@@ -465,6 +466,7 @@ static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
             .name = "evt_listen",
             .priority = OSAL_THREAD_PRI_DEFAULT,
             .stackSize = 0,
+            .policy = SCHED_OTHER,
         };
 
         thread->status = LISTENER_STARTED;

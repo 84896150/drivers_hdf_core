@@ -18,6 +18,7 @@ void HdfThreadStart(struct HdfThread *thread)
     struct OsalThreadParam param = {
         .priority = OSAL_THREAD_PRI_DEFAULT,
         .stackSize = 0,
+        .policy = 0,
     };
     OsalThreadStart(&thread->adapter, &param);
     thread->status = true;
