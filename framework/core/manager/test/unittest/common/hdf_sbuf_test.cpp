@@ -6,14 +6,18 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-
+#include <cmath>
+#include <cstring>
+#include <gtest/gtest.h>
+#include <hdf_sbuf.h>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <random>
-#include <cstring>
-#include <gtest/gtest.h>
-#include <hdf_sbuf.h>
+
+#ifndef __LITEOS__
+#include "hdf_remote_adapter_if.h"
+#endif
 
 namespace OHOS {
 using namespace testing::ext;
@@ -810,4 +814,92 @@ HWTEST_F(HdfSBufTest, SbufTestSbufMoveHalf019, TestSize.Level1)
     HdfSbufRecycle(sBuf);
     HdfSbufRecycle(readBuf);
 }
+
+#ifndef __LITEOS__
+HWTEST_F(HdfSBufTest, SbufTestSbufString020, TestSize.Level1)
+{
+    HdfSBuf *sBuf = nullptr;
+    const char16_t *str = u"test";
+    std::u16string strStr(str);
+    bool ret;
+    sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    ret = HdfSbufWriteString16(sBuf, str, strStr.size());
+    ASSERT_EQ(ret, true);
+    const char16_t *readStr = HdfSbufReadString16(sBuf);
+    std::u16string readStrStr(readStr);
+    ASSERT_EQ(strStr.compare(readStrStr), 0);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufDouble021, TestSize.Level1)
+{
+    const double EPS = 1e-6;
+    double data = 1;
+    bool ret;
+    double readData = 0;
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    ret = HdfSbufWriteDouble(sBuf, data);
+    ASSERT_EQ(ret, true);
+    ret = HdfSbufReadDouble(sBuf, &readData);
+    ASSERT_EQ(ret, true);
+    ASSERT_EQ(fabs(data - readData) < EPS, true);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufFloat022, TestSize.Level1)
+{
+    const float EPS = 1e-6;
+    float data = 1;
+    bool ret;
+    float readData = 0;
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    ret = HdfSbufWriteFloat(sBuf, data);
+    ASSERT_EQ(ret, true);
+    ret = HdfSbufReadFloat(sBuf, &readData);
+    ASSERT_EQ(ret, true);
+    ASSERT_EQ(fabs(data - readData) < EPS, true);
+    HdfSbufRecycle(sBuf);
+    HdfRemoteAdapterAddService(nullptr, nullptr);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufFileDescriptor023, TestSize.Level1)
+{
+    int fd = 0;
+    bool ret;
+    int readFd;
+    HdfSBuf *sBuf = HdfSbufTypedObtain(SBUF_IPC);
+    ASSERT_NE(sBuf, nullptr);
+    ret = HdfSbufWriteFileDescriptor(sBuf, fd);
+    ASSERT_EQ(ret, true);
+    readFd = HdfSbufReadFileDescriptor(sBuf);
+    ASSERT_TRUE(readFd >= 0);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufGetCapacity024, TestSize.Level1)
+{
+    constexpr int HDF_SBUF_DEFAULT_SIZE = 256;
+    HdfSBuf *sBuf = nullptr;
+    size_t capacity;
+    sBuf = HdfSbufObtainDefaultSize();
+    ASSERT_NE(sBuf, nullptr);
+    capacity = HdfSbufGetCapacity(sBuf);
+    ASSERT_EQ(capacity, HDF_SBUF_DEFAULT_SIZE);
+    HdfSbufRecycle(sBuf);
+}
+
+HWTEST_F(HdfSBufTest, SbufTestSbufSetDataSize025, TestSize.Level1)
+{
+    constexpr int HDF_SBUF_TEST_SIZE = 128;
+    HdfSBuf *sBuf = nullptr;
+    sBuf = HdfSbufObtainDefaultSize();
+    ASSERT_NE(sBuf, nullptr);
+    HdfSbufSetDataSize(sBuf, HDF_SBUF_TEST_SIZE);
+    ASSERT_EQ(HdfSbufGetDataSize(sBuf), HDF_SBUF_TEST_SIZE);
+    HdfSbufRecycle(sBuf);
+}
+#endif
 } // namespace OHOS
