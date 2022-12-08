@@ -597,8 +597,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 
     HDF_LOGI("%s: chipDetect succ, ret = %d ", __func__, ret);
 
-#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) \
-    || defined(CONFIG_MACH_XBURST) || defined(CONFIG_MACH_XBURST2)
+#if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || defined(CONFIG_MACH_XBURST) || defined(CONFIG_MACH_XBURST2)
     HDF_LOGI("%s: do not update firmware", __func__);
 #elif defined(CONFIG_ARCH_NXP_TOUCH)
     HDF_LOGI("%s: NXP TOUCH do not update firmware", __func__);
