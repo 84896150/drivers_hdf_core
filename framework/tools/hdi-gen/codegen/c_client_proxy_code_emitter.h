@@ -79,7 +79,7 @@ private:
 
     void EmitKernelProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
         const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
-        StringBuilder &sb);
+        StringBuilder &sb) const;
 
     // the release metod for releasing kernel driver client object
     void EmitKernelProxyReleaseMethodImpl(const std::string &remoteName, const std::string &recycleFuncName,
@@ -101,13 +101,13 @@ private:
 
     void EmitProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
         const std::string &serMinorName, const std::string &remoteName, const std::string &serviceName,
-        StringBuilder &sb);
+        StringBuilder &sb) const;
 
     void EmitProxyGetRemoteService(const std::string &remoteName,
         const std::string &serviceName, StringBuilder &sb, const std::string &prefix) const;
 
     void EmitProxySetInterfaceDesc(const std::string &remoteName, const std::string &recycleFuncName,
-        StringBuilder &sb, const std::string &prefix);
+        StringBuilder &sb, const std::string &prefix) const;
 
     void EmitProxyCreateProxyObject(const std::string &clientObjName, const std::string &remoteName,
         const std::string &recycleFuncName, StringBuilder &sb, const std::string &prefix) const;
@@ -122,7 +122,7 @@ private:
         const std::string &recycleFuncName, StringBuilder &sb);
 
     void EmitProxyLoadOrUnLoadHdiImpl(const std::string &serviceName, bool isLoad, StringBuilder &sb,
-        const std::string &prefix);
+        const std::string &prefix) const;
 
     void GetUtilMethods(UtilMethodMap &methods) override;
 

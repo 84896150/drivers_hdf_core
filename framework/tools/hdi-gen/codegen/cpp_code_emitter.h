@@ -64,8 +64,6 @@ protected:
 
     std::string MacroName(const std::string &name) const;
 
-    std::string ConstantName(const std::string &name);
-
     std::string SpecificationParam(StringBuilder &paramSb, const std::string &prefix) const;
 };
 } // namespace HDI

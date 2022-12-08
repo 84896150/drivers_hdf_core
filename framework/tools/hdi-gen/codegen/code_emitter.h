@@ -91,7 +91,7 @@ protected:
 
     std::string EmitMethodCmdID(const AutoPtr<ASTMethod> &method);
 
-    void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
+    virtual void EmitInterfaceMethodCommands(StringBuilder &sb, const std::string &prefix);
 
     /* add version prefix
      * MajorVersion: 1
