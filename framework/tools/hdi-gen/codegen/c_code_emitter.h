@@ -48,8 +48,6 @@ protected:
 
     std::string MacroName(const std::string &name) const;
 
-    std::string ConstantName(const std::string &name);
-
     std::string SpecificationParam(StringBuilder &sb, const std::string &prefix) const;
 
     static constexpr const char *errorsLabelName_ = "ERRORS";

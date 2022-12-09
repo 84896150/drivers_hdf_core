@@ -355,7 +355,8 @@ void CppCustomTypesCodeEmitter::EmitBeginNamespace(StringBuilder &sb)
 void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
     std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
-    for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
+    for (std::vector<std::string>::const_reverse_iterator nspaceIter = cppNamespaceVec.rbegin();
+        nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
         sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }

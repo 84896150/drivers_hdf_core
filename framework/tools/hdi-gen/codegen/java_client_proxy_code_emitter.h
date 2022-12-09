@@ -51,13 +51,14 @@ private:
     void EmitProxyMethodBody(const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix);
 
     void EmitReadMethodParameter(const AutoPtr<ASTParameter> &param, const std::string &parcelName, StringBuilder &sb,
-        const std::string &prefix);
+        const std::string &prefix) const;
 
     void EmitReadVariable(const std::string &parcelName, const std::string &name, const AutoPtr<ASTType> &type,
         ParamAttr attribute, StringBuilder &sb, const std::string &prefix);
 
     void EmitReadArrayVariable(const std::string &parcelName, const std::string &name,
-        const AutoPtr<ASTArrayType> &arrayType, ParamAttr attribute, StringBuilder &sb, const std::string &prefix);
+        const AutoPtr<ASTArrayType> &arrayType, ParamAttr attribute, StringBuilder &sb,
+        const std::string &prefix) const;
 
     void EmitReadOutArrayVariable(const std::string &parcelName, const std::string &name,
         const AutoPtr<ASTArrayType> &arrayType, StringBuilder &sb, const std::string &prefix);
