@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/lite/config/component/lite_component.gni")
+import("//build/hb/config/component/lite_component.gni")
 
 shared_library("hdf_posix_osal") {
   output_name = "hdf_osal"

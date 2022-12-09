@@ -22,7 +22,7 @@ template("hc_gen") {
     deps = [ "//drivers/hdf_core/framework/tools/hc-gen:build_hc_gen" ]
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
-      script = "//build/lite/run_shell_cmd.py"
+      script = "//build/hb/run_shell_cmd.py"
     }
     sources = invoker.sources
     if (defined(invoker.hc_gen_hex) && invoker.hc_gen_hex) {
