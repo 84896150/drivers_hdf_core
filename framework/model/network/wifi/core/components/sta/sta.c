@@ -394,12 +394,152 @@ static int32_t WifiCmdSetScanningMacAddress(const RequestContext *context, struc
     return HDF_SUCCESS;
 }
 
+static int32_t WifiFillSchedScanParam(struct WlanSchedScanReq *params, struct HdfSBuf *reqData)
+{
+    uint32_t dataSize = 0;
+
+    if (!HdfSbufReadBuffer(reqData, (const void **)&params->ssids, &dataSize)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ssids");
+        return HDF_FAILURE;
+    }
+    params->ssidCount = dataSize / sizeof(params->ssids[0]);
+    if (!HdfSbufReadBuffer(reqData, (const void **)&params->freqs, &dataSize)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "freqs");
+        return HDF_FAILURE;
+    }
+    params->freqsCount =
+        (dataSize / sizeof(params->freqs[0])) < MAX_FREQ_FTILTER_COUNT ? (dataSize / sizeof(params->freqs[0])) : 0;
+
+    if (!HdfSbufReadBuffer(reqData, (const void **)&params->extraIEs, &dataSize)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "extraIes");
+        return HDF_FAILURE;
+    }
+    params->extraIEsLen = dataSize;
+    if (!HdfSbufReadBuffer(reqData, (const void **)&params->scanPlans, &dataSize)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "scanPlans");
+        return HDF_FAILURE;
+    }
+    params->scanPlansLen = dataSize / sizeof(params->scanPlans[0]);
+    if (!HdfSbufReadInt32(reqData, &params->filterRssi)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "filterRssi");
+        return HDF_FAILURE;
+    }
+    if (!HdfSbufReadUint32(reqData, &params->schedScanStartDelay)) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "schedScanStartDelay");
+        return HDF_FAILURE;
+    }
+
+    return HDF_SUCCESS;
+}
+
+static int32_t SchedScan(struct NetDevice *netdev, struct WlanSchedScanReq *params)
+{
+    struct HdfChipDriver *chipDriver = NULL;
+    int32_t ret;
+
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->staOps == NULL) {
+        HDF_LOGE("%s:chipDriver->staOps is NULL!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (chipDriver->staOps->StartSchedScan == NULL) {
+        HDF_LOGE("%s:chipDriver->staOps->StopSchedScan is NULL!", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    ret = chipDriver->staOps->StartSchedScan(netdev, params);
+    if (ret != HDF_SUCCESS && ret != HDF_ERR_NOT_SUPPORT) {
+        HDF_LOGE("%s: fail to start sched scan! ret=%d", __func__, ret);
+    }
+    return ret;
+}
+
+static int32_t WifiCmdStartSchedScan(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    struct NetDevice *netdev = NULL;
+    const char *ifName = NULL;
+    struct WlanSchedScanReq params = { 0 };
+    int32_t ret;
+    (void)context;
+    (void)rspData;
+
+    if (reqData == NULL) {
+        HDF_LOGE("%s: reqData is NULL", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        return HDF_FAILURE;
+    }
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    ret = WifiFillSchedScanParam(&params, reqData);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: WifiFillScanParam failed", __func__);
+        return ret;
+    }
+    ret = SchedScan(netdev, &params);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: ScanAll failed! ret=%d", __func__, ret);
+    }
+    HDF_LOGI("%s: WifiCmdScan finished!", __func__);
+    return ret;
+}
+
+static int32_t WifiCmdStopSchedScan(const RequestContext *context, struct HdfSBuf *reqData, struct HdfSBuf *rspData)
+{
+    struct NetDevice *netdev = NULL;
+    const char *ifName = NULL;
+    struct HdfChipDriver *chipDriver = NULL;
+    int32_t ret;
+    (void)context;
+    (void)rspData;
+
+    ifName = HdfSbufReadString(reqData);
+    if (ifName == NULL) {
+        HDF_LOGE("%s: %s!ParamName=%s", __func__, ERROR_DESC_READ_REQ_FAILED, "ifName");
+        return HDF_FAILURE;
+    }
+    netdev = NetDeviceGetInstByName(ifName);
+    if (netdev == NULL) {
+        HDF_LOGE("%s:netdev not found!ifName=%s", __func__, ifName);
+        return HDF_FAILURE;
+    }
+    chipDriver = GetChipDriver(netdev);
+    if (chipDriver == NULL) {
+        HDF_LOGE("%s:bad net device found!", __func__);
+        return HDF_FAILURE;
+    }
+    if (chipDriver->staOps == NULL) {
+        HDF_LOGE("%s:chipDriver->staOps is NULL!", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    if (chipDriver->staOps->StopSchedScan == NULL) {
+        HDF_LOGE("%s:chipDriver->staOps->StopSchedScan is NULL!", __func__);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    ret = chipDriver->staOps->StopSchedScan(netdev);
+    if (ret != HDF_SUCCESS && ret != HDF_ERR_NOT_SUPPORT) {
+        HDF_LOGE("%s: fail to stop sched scan! ret=%d", __func__, ret);
+    }
+    return ret;
+}
+
 static struct MessageDef g_wifiStaFeatureCmds[] = {
     DUEMessage(CMD_STA_CONNECT, WifiCmdAssoc, 0),
     DUEMessage(CMD_STA_DISCONNECT, WifiCmdDisconnect, 0),
     DUEMessage(CMD_STA_SCAN, WifiCmdScan, 0),
     DUEMessage(CMD_STA_ABORT_SCAN, WifiCmdAbortScan, 0),
-    DUEMessage(CMD_STA_SET_SCAN_MAC_ADDR, WifiCmdSetScanningMacAddress, 0)
+    DUEMessage(CMD_STA_SET_SCAN_MAC_ADDR, WifiCmdSetScanningMacAddress, 0),
+    DUEMessage(CMD_STA_START_SCHED_SCAN, WifiCmdStartSchedScan, 0),
+    DUEMessage(CMD_STA_STOP_SCHED_SCAN, WifiCmdStopSchedScan, 0)
 };
 ServiceDefine(STAService, STA_SERVICE_ID, g_wifiStaFeatureCmds);
 
