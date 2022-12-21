@@ -410,16 +410,24 @@ void CppServiceStubCodeEmitter::EmitLocalVariable(const AutoPtr<ASTParameter> &p
 {
     sb.Append(prefix).Append(param->EmitCppLocalVar()).Append("\n");
     AutoPtr<ASTType> type = param->GetType();
-    if (type->IsStringType() || type->IsArrayType() || type->IsListType()) {
-        sb.Append(prefix).AppendFormat("if (%s) {\n", flagOfSetMemName_.c_str());
-        std::string capacityName = "capacity";
-        sb.Append(prefix + TAB)
-            .AppendFormat("uint32_t %s = %s.ReadUint32();\n", capacityName.c_str(), parcelName.c_str());
-        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s, HDF_ERR_INVALID_PARAM);\n", CHECK_VALUE_RETURN_MACRO,
-            capacityName.c_str(), MAX_BUFF_SIZE_MACRO);
-        sb.Append(prefix + TAB).AppendFormat("%s.reserve(%s);\n", param->GetName().c_str(), capacityName.c_str());
-        sb.Append(prefix).Append("}\n");
+    if (!type->IsStringType() && !type->IsArrayType() && !type->IsListType()) {
+        return;
     }
+
+    sb.Append(prefix).AppendFormat("if (%s) {\n", flagOfSetMemName_.c_str());
+    std::string capacityName = "capacity";
+    sb.Append(prefix + TAB).AppendFormat("uint32_t %s = %s.ReadUint32();\n", capacityName.c_str(), parcelName.c_str());
+    if (type->IsStringType()) {
+        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s / sizeof(char), HDF_ERR_INVALID_PARAM);\n",
+            CHECK_VALUE_RETURN_MACRO, capacityName.c_str(), MAX_BUFF_SIZE_MACRO);
+    } else {
+        AutoPtr<ASTArrayType> arrayType = dynamic_cast<ASTArrayType *>(type.Get());
+        sb.Append(prefix + TAB).AppendFormat("%s(%s, >, %s / sizeof(%s), HDF_ERR_INVALID_PARAM);\n",
+            CHECK_VALUE_RETURN_MACRO, capacityName.c_str(), MAX_BUFF_SIZE_MACRO,
+            arrayType->GetElementType()->EmitCppType().c_str());
+    }
+    sb.Append(prefix + TAB).AppendFormat("%s.reserve(%s);\n", param->GetName().c_str(), capacityName.c_str());
+    sb.Append(prefix).Append("}\n");
 }
 
 void CppServiceStubCodeEmitter::GetUtilMethods(UtilMethodMap &methods)
