@@ -45,6 +45,9 @@ public:
     void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
+    void EmitCWritePodArrayLen(const std::string &parcelName, const std::string &name, const std::string &ecName,
+        const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const;
+
     void EmitCProxyWriteOutVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;
 
