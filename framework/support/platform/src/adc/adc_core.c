@@ -13,12 +13,15 @@
 #include "osal_spinlock.h"
 #include "osal_time.h"
 #include "platform_core.h"
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
 #include "platform_trace.h"
+#endif
 
 #define HDF_LOG_TAG adc_core_c
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
 #define ADC_TRACE_BASIC_PARAM_NUM  2
 #define ADC_TRACE_PARAM_STOP_NUM   2
-
+#endif
 #define ADC_HANDLE_SHIFT    0xFF00U
 
 struct AdcManager {
@@ -86,6 +89,7 @@ int32_t AdcDeviceStart(struct AdcDevice *device)
     }
 
     ret = device->ops->start(device);
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[ADC_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
@@ -94,6 +98,7 @@ int32_t AdcDeviceStart(struct AdcDevice *device)
             infos, ADC_TRACE_BASIC_PARAM_NUM);
         PlatformTraceStop();
     }
+#endif
     AdcDeviceUnlock(device);
     return ret;
 }
@@ -118,6 +123,7 @@ int32_t AdcDeviceStop(struct AdcDevice *device)
     }
 
     ret = device->ops->stop(device);
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[ADC_TRACE_PARAM_STOP_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = device->devNum;
@@ -127,6 +133,7 @@ int32_t AdcDeviceStop(struct AdcDevice *device)
         PlatformTraceStop();
         PlatformTraceInfoDump();
     }
+#endif
     AdcDeviceUnlock(device);
     return ret;
 }

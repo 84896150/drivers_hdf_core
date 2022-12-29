@@ -9,11 +9,15 @@
 #include "i2s_core.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
 #include "platform_trace.h"
+#endif
 
 #define HDF_LOG_TAG i2s_core
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
 #define I2S_TRACE_BASIC_PARAM_NUM  2
 #define I2S_TRACE_PARAM_WRITE_NUM  2
+#endif
 
 int32_t I2sCntlrOpen(struct I2sCntlr *cntlr)
 {
@@ -102,6 +106,7 @@ int32_t I2sCntlrStartRead(struct I2sCntlr *cntlr)
 
     (void)OsalMutexLock(&(cntlr->lock));
     ret = cntlr->method->StartRead(cntlr);
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[I2S_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
@@ -110,6 +115,7 @@ int32_t I2sCntlrStartRead(struct I2sCntlr *cntlr)
             infos, I2S_TRACE_BASIC_PARAM_NUM);
         PlatformTraceStop();
     }
+#endif
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
@@ -146,6 +152,7 @@ int32_t I2sCntlrStartWrite(struct I2sCntlr *cntlr)
     }
     (void)OsalMutexLock(&(cntlr->lock));
     ret = cntlr->method->StartWrite(cntlr);
+#ifdef LOSCFG_DRIVERS_HDF_PLATFORM_TRACE
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[I2S_TRACE_PARAM_WRITE_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
@@ -155,6 +162,7 @@ int32_t I2sCntlrStartWrite(struct I2sCntlr *cntlr)
         PlatformTraceStop();
         PlatformTraceInfoDump();
     }
+#endif
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
