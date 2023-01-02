@@ -19,6 +19,7 @@
 #include "osal_time.h"
 
 #define HDF_LOG_TAG devmgr_service
+#define INVALID_PID (-1)
 
 static bool DevmgrServiceDynamicDevInfoFound(
     const char *svcName, struct DevHostServiceClnt **targetHostClnt, struct HdfDeviceInfo **targetDeviceInfo)
@@ -131,6 +132,7 @@ static int DevmgrServiceStopHost(struct DevHostServiceClnt *hostClnt)
     }
     installer->StopDeviceHost(hostClnt->hostId, hostClnt->hostName);
     hostClnt->stopFlag = true;
+    hostClnt->hostPid = INVALID_PID;
     return HDF_SUCCESS;
 }
 
@@ -157,17 +159,21 @@ static int DevmgrServiceUnloadDevice(struct IDevmgrService *devMgrSvc, const cha
         return HDF_FAILURE;
     }
     ret = hostClnt->hostService->DelDevice(hostClnt->hostService, deviceInfo->deviceId);
-    OsalMutexUnlock(&hostClnt->hostLock);
     if (ret != HDF_SUCCESS) {
+        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGI("%{public}s:unload service %{public}s delDevice failed", __func__, serviceName);
         return ret;
     }
     deviceInfo->status = HDF_SERVICE_UNUSABLE;
     if (!HdfSListIsEmpty(&hostClnt->devices)) {
+        OsalMutexUnlock(&hostClnt->hostLock);
         HDF_LOGD("%{public}s host %{public}s devices is not empty", __func__, hostClnt->hostName);
         return HDF_SUCCESS;
     }
-    return DevmgrServiceStopHost(hostClnt);
+    ret = DevmgrServiceStopHost(hostClnt);
+    OsalMutexUnlock(&hostClnt->hostLock);
+
+    return ret;
 }
 
 int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
