@@ -31,7 +31,7 @@ import("//kernel/uniproton/uniproton.gni")
 
 HDF_FRAMEWORKS_PATH = "//drivers/hdf_core/framework"
 HDF_PERIPHERAL_PATH = "//drivers/peripheral"
-HDF_ADAPTER_PLATFORM_PATH = "//drivers/hdf_core/adapter/platform"
+HDF_ADAPTER_PLATFORM_PATH = "//device/soc/st/stm32f407zg/uniproton/board/hdf_platform"
 
 template("hdf_driver") {
   if (defined(invoker.module_switch)) {

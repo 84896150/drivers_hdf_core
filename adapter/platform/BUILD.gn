@@ -6,34 +6,16 @@
 # See the LICENSE file in the root of this repository for complete details.
 #
 
-if (ohos_kernel_type == "liteos_m") {
-  import("//drivers/hdf_core/adapter/khdf/liteos_m/hdf.gni")
+import("//drivers/hdf_core/adapter/khdf/liteos_m/hdf.gni")
 
-  module_group("platform") {
-    modules = [
-      "gpio",
-      "i2c",
-      "pwm",
-      "spi",
-      "uart",
-      "watchdog",
-      "mipi_dsi",
-    ]
-  }
-}
-
-if (ohos_kernel_type == "uniproton") {
-  import("//drivers/hdf_core/adapter/khdf/uniproton/hdf.gni")
-
-  module_group("platform") {
-    modules = [
-      "gpio",
-      "i2c",
-      #"pwm",
-      #"spi",
-      #"uart",
-      #"watchdog",
-      #"mipi_dsi",
-    ]
-  }
+module_group("platform") {
+  modules = [
+    "gpio",
+    "i2c",
+    "pwm",
+    "spi",
+    "uart",
+    "watchdog",
+    "mipi_dsi",
+  ]
 }
