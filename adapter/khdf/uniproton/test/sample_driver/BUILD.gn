@@ -32,22 +32,21 @@ module_switch = defined(DRIVERS_HDF)
 hdf_driver("sample_driver") {
   include_dirs = [ "include" ]
   sources = [
-    "src/platform_device_test.c",
-    "src/platform_manager_test.c",
+    "src/file_test.c",
+    "src/gpio_test.c",
     "src/hdf_platform_entry_test.c",
     "src/hdf_test_suit.c",
-    "src/platform_driver_test.c",
-    "src/osal_all_test.c",
-    "src/gpio_test.c",
-    "src/file_test.c",
     "src/i2c_test.c",
+    "src/osal_all_test.c",
+    "src/platform_device_test.c",
+    "src/platform_driver_test.c",
+    "src/platform_manager_test.c",
   ]
   deps = [ "//device/soc/st/stm32f407zg/uniproton/board/hdf_config" ]
   include_dirs += [
     "//drivers/hdf_core/framework/test/unittest/osal",
     "//device/soc/st/stm32f407zg/uniproton/board/common/STM32F4xx_StdPeriph_Driver/inc",
   ]
-  configs += [
-        "//device/soc/st/stm32f407zg/uniproton/board/common:stm32_config",
-    ]
+  configs +=
+      [ "//device/soc/st/stm32f407zg/uniproton/board/common:stm32_config" ]
 }

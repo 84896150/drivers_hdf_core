@@ -31,16 +31,14 @@ import("//drivers/hdf_core/adapter/khdf/uniproton/hdf.gni")
 hdf_driver("hdf_lite") {
   deps = [
     "core",
+    "network",
     "osal",
     "platform",
     "storage",
-    "network",
     HDF_ADAPTER_PLATFORM_PATH,
   ]
-  if(defined(LOSCFG_DRIVERS_HDF_TESTS_ENABLE)) {
-    deps += [
-      "test",
-    ]
+  if (defined(LOSCFG_DRIVERS_HDF_TESTS_ENABLE)) {
+    deps += [ "test" ]
   }
 }
 

@@ -31,9 +31,7 @@ import("//drivers/hdf_core/adapter/khdf/uniproton/hdf.gni")
 module_name = get_path_info(rebase_path("."), "name")
 
 hdf_driver(module_name) {
-  sources = [
-    "src/ethernet_init.c",
-  ]
+  sources = [ "src/ethernet_init.c" ]
 
   configs += [
     "//device/soc/st/stm32f407zg/uniproton/board/common:stm32_config",

@@ -31,7 +31,5 @@ import("//drivers/hdf_core/adapter/khdf/uniproton/hdf.gni")
 module_name = get_path_info(rebase_path("."), "name")
 
 hdf_driver(module_name) {
-    sources = [
-        "src/fs_init.c",
-    ]
+  sources = [ "src/fs_init.c" ]
 }
