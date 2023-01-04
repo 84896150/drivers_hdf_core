@@ -36,6 +36,7 @@ struct HdfDevListenerThread {
     bool shouldStop;
     struct DListHead *listenerListPtr;
     uint8_t status;
+    int policy;
 };
 
 struct HdfSyscallAdapter {

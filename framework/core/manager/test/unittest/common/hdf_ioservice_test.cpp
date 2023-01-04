@@ -6,14 +6,16 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include <unistd.h>
+#include <cinttypes>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
 #include <fcntl.h>
-#include <cinttypes>
-#include <string>
 #include <gtest/gtest.h>
+#include <securec.h>
+#include <string>
+#include <unistd.h>
+
 #include "hdf_io_service.h"
 #include "hdf_log.h"
 #include "hdf_power_state.h"
@@ -24,6 +26,7 @@
 #include "sample_driver_test.h"
 #include "svcmgr_ioservice.h"
 
+namespace OHOS {
 using namespace testing::ext;
 
 struct Eventlistener {
@@ -40,9 +43,10 @@ public:
     static int OnDevEventReceived(
         struct HdfDevEventlistener *listener, struct HdfIoService *service, uint32_t id, struct HdfSBuf *data);
 
-    void TestServiceStop(struct IoServiceStatusData* issd);
+    void TestServiceStop(struct IoServiceStatusData *issd);
     static struct Eventlistener listener0;
     static struct Eventlistener listener1;
+    static struct Eventlistener listener2;
     const char *testSvcName = SAMPLE_SERVICE;
     const int eventWaitTimeUs = (150 * 1000);
     static int eventCount;
@@ -53,6 +57,7 @@ int IoServiceTest::eventCount = 0;
 
 struct Eventlistener IoServiceTest::listener0;
 struct Eventlistener IoServiceTest::listener1;
+struct Eventlistener IoServiceTest::listener2;
 
 void IoServiceTest::SetUpTestCase()
 {
@@ -61,6 +66,9 @@ void IoServiceTest::SetUpTestCase()
 
     listener1.listener.onReceive = OnDevEventReceived;
     listener1.listener.priv = const_cast<void *>(static_cast<const void *>("listener1"));
+
+    listener2.listener.onReceive = OnDevEventReceived;
+    listener2.listener.priv = const_cast<void *>(static_cast<const void *>("listener2"));
 }
 
 void IoServiceTest::TearDownTestCase()
@@ -71,6 +79,7 @@ void IoServiceTest::SetUp()
 {
     listener0.eventCount = 0;
     listener1.eventCount = 0;
+    listener2.eventCount = 0;
     eventCount = 0;
 }
 
@@ -905,3 +914,89 @@ HWTEST_F(IoServiceTest, HdfIoService017, TestSize.Level0)
     SvcMgrIoserviceRelease(servmgr);
     HdfSbufRecycle(data);
 }
+
+HWTEST_F(IoServiceTest, HdfIoService018, TestSize.Level1)
+{
+    struct HdfIoService *serv1 = HdfIoServiceBind(testSvcName);
+    ASSERT_NE(serv1, nullptr);
+    serv1->priv = const_cast<void *>(static_cast<const void *>("serv2"));
+
+    int ret = HdfDeviceRegisterEventListener(serv1, &listener2.listener);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    for (int i = 0; i < 100; i++) {
+        for (int j = 0; j < 10; j++) {
+            char temp[6] = {0};
+            sprintf_s(temp, 6, "%d", i * 10 + j);
+            ret = SendEvent(serv1, temp, false);
+            ASSERT_EQ(ret, HDF_SUCCESS);
+            OsalMSleep(10);
+        }
+    }
+
+    ret = HdfDeviceUnregisterEventListener(serv1, &listener2.listener);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    HdfIoServiceRecycle(serv1);
+}
+
+HWTEST_F(IoServiceTest, HdfIoService019, TestSize.Level1)
+{
+    struct HdfIoService *serv = HdfIoServiceBind(testSvcName);
+    ASSERT_NE(serv, nullptr);
+    serv->priv = const_cast<void *>(static_cast<const void *>("serv2"));
+
+    struct HdfIoServiceGroup *group = HdfIoServiceGroupObtain();
+    ASSERT_NE(group, nullptr);
+
+    int ret = HdfIoServiceGroupAddService(group, serv);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = HdfIoServiceGroupRegisterListenerWithSchedPolicy(group, &listener1.listener, SCHED_FIFO);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = HdfIoServiceGroupRegisterListenerWithSchedPolicy(group, &listener2.listener, SCHED_RR);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = SendEvent(serv, testSvcName, false);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    usleep(eventWaitTimeUs);
+    ASSERT_EQ(1, listener1.eventCount);
+    ASSERT_EQ(1, listener2.eventCount);
+
+    ret = HdfDeviceUnregisterEventListener(serv, &listener2.listener);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = HdfDeviceUnregisterEventListener(serv, &listener1.listener);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    HdfIoServiceGroupRecycle(group);
+    HdfIoServiceRecycle(serv);
+}
+
+HWTEST_F(IoServiceTest, HdfIoService020, TestSize.Level1)
+{
+    struct HdfIoService *serv1 = HdfIoServiceBind(testSvcName);
+    ASSERT_NE(serv1, nullptr);
+    serv1->priv = const_cast<void *>(static_cast<const void *>("serv2"));
+
+    int ret = HdfDeviceRegisterEventListenerWithSchedPolicy(serv1, &listener1.listener, SCHED_FIFO);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = HdfDeviceRegisterEventListenerWithSchedPolicy(serv1, &listener2.listener, SCHED_RR);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = SendEvent(serv1, testSvcName, false);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    usleep(eventWaitTimeUs);
+    ASSERT_EQ(1, listener1.eventCount);
+    ASSERT_EQ(1, listener2.eventCount);
+
+    ret = HdfDeviceUnregisterEventListener(serv1, &listener1.listener);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+
+    ret = HdfDeviceUnregisterEventListener(serv1, &listener2.listener);
+    ASSERT_EQ(ret, HDF_SUCCESS);
+    HdfIoServiceRecycle(serv1);
+}
+} // namespace OHOS

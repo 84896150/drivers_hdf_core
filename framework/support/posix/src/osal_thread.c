@@ -6,12 +6,14 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
-#include "osal_thread.h"
-#include <securec.h>
 #include <pthread.h>
+#include <sched.h>
+#include <securec.h>
+
 #include "hdf_base.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
+#include "osal_thread.h"
 #ifndef PTHREAD_STACK_MIN
 #define OSAL_PTHREAD_STACK_MIN 4096
 #else
@@ -116,6 +118,23 @@ static int OsalCreatePthread(pthread_t *threadId, pthread_attr_t *attribute, str
     return HDF_SUCCESS;
 }
 
+static int32_t OsalThreadSetSchedPolicy(pthread_attr_t *attribute, const int policy)
+{
+    if (policy == SCHED_FIFO || policy == SCHED_RR) {
+        int resultCode = pthread_attr_setinheritsched(attribute, PTHREAD_EXPLICIT_SCHED);
+        if (resultCode < 0) {
+            HDF_LOGE("pthread_attr_setinheritsched errorno: %d", resultCode);
+            return HDF_FAILURE;
+        }
+        resultCode = pthread_attr_setschedpolicy(attribute, policy);
+        if (resultCode < 0) {
+            HDF_LOGE("pthread_attr_setschedpolicy errorno: %d", resultCode);
+            return HDF_FAILURE;
+        }
+    }
+    return HDF_SUCCESS;
+}
+
 int32_t OsalThreadStart(struct OsalThread *thread, const struct OsalThreadParam *param)
 {
     pthread_attr_t attribute;
@@ -157,7 +176,7 @@ int32_t OsalThreadStart(struct OsalThread *thread, const struct OsalThreadParam 
         HDF_LOGE("pthread_attr_setschedparam errorno: %d", resultCode);
         goto DEAL_FAIL;
     }
-
+    OsalThreadSetSchedPolicy(&attribute, param->policy);
     resultCode = OsalCreatePthread(&para->id, &attribute, thread->realThread, param->name);
     if (resultCode != 0) {
         HDF_LOGE("OsalCreatePthread errorno: %d", resultCode);
