@@ -92,7 +92,7 @@ void CodeEmitter::CleanData()
     errorCodeName_ = "";
 }
 
-bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
+bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method) const
 {
     for (size_t i = 0; i < method->GetParameterNumber(); i++) {
         AutoPtr<ASTParameter> param = method->GetParameter(i);
@@ -113,7 +113,7 @@ bool CodeEmitter::NeedFlag(const AutoPtr<ASTMethod> &method)
  * subPath: foo/v1_0
  * GenPath: ./out/foo/v1_0/
  */
-std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
+std::string CodeEmitter::GetFileParentPath(const std::string &outDir) const
 {
     std::string outPath = StringHelper::EndWith(outDir, SEPARATOR) ? outDir.substr(0, outDir.size() - 1) : outDir;
     std::string subPackage = Options::GetInstance().GetSubPackage(ast_->GetPackageName());
@@ -125,7 +125,7 @@ std::string CodeEmitter::GetFileParentPath(const std::string &outDir)
     }
 }
 
-std::string CodeEmitter::PackageToFilePath(const std::string &packageName)
+std::string CodeEmitter::PackageToFilePath(const std::string &packageName) const
 {
     std::vector<std::string> packageVec = StringHelper::Split(Options::GetInstance().GetSubPackage(packageName), ".");
     StringBuilder filePath;
@@ -161,12 +161,12 @@ std::string CodeEmitter::EmitVersionHeaderName(const std::string &name)
     return StringHelper::Format("v%u_%u/%s", ast_->GetMajorVer(), ast_->GetMinorVer(), FileName(name).c_str());
 }
 
-void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name)
+void CodeEmitter::EmitLogTagMacro(StringBuilder &sb, const std::string &name) const
 {
     sb.AppendFormat("#define HDF_LOG_TAG    %s\n", name.c_str());
 }
 
-std::string CodeEmitter::ConstantName(const std::string &name)
+std::string CodeEmitter::ConstantName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -189,7 +189,7 @@ std::string CodeEmitter::ConstantName(const std::string &name)
     return sb.ToString();
 }
 
-std::string CodeEmitter::PascalName(const std::string &name)
+std::string CodeEmitter::PascalName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -218,7 +218,7 @@ std::string CodeEmitter::PascalName(const std::string &name)
     return sb.ToString();
 }
 
-std::string CodeEmitter::FileName(const std::string &name)
+std::string CodeEmitter::FileName(const std::string &name) const
 {
     if (name.empty()) {
         return name;
@@ -259,7 +259,7 @@ void CodeEmitter::EmitUtilMethods(
     }
 }
 
-void CodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb)
+void CodeEmitter::EmitInterfaceBuffSizeMacro(StringBuilder &sb) const
 {
     sb.AppendFormat("#ifndef %s\n", MAX_BUFF_SIZE_MACRO);
     sb.AppendFormat("#define %s (%s)\n", MAX_BUFF_SIZE_MACRO, MAX_BUFF_SIZE_VALUE);

@@ -27,7 +27,7 @@ enum class TokenType {
     DOUBLE,  // "double"
     FD,      // "FileDescriptor"
     ASHMEM,  // "Ashmem"
-    BUFFER_HANDLE, // "BufferHandle"
+    NATIVE_BUFFER, // "NativeBuffer"
     LIST,    // "List"
     MAP,     // "Map"
     SMQ,     // "SharedMemQueue"
@@ -100,7 +100,7 @@ struct Token {
 };
 
 struct TokenTypeCompare {
-    bool operator()(const Token &lhs, const Token &rhs)
+    bool operator()(const Token &lhs, const Token &rhs) const
     {
         return lhs.kind_ > rhs.kind_;
     }
