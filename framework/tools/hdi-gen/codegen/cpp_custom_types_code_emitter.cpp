@@ -123,7 +123,7 @@ void CppCustomTypesCodeEmitter::EmitHeaderFileInclusions(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppCustomTypesCodeEmitter::GetHeaderOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "message_parcel");
 }
@@ -134,7 +134,7 @@ void CppCustomTypesCodeEmitter::EmitUsingNamespace(StringBuilder &sb)
     EmitImportUsingNamespace(sb);
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
+void CppCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -145,7 +145,7 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDecls(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const AutoPtr<ASTType> &type) const
 {
     switch (type->GetTypeKind()) {
         case TypeKind::TYPE_ENUM: {
@@ -168,7 +168,7 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDecl(StringBuilder &sb, const Auto
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
+void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -184,14 +184,16 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeFuncDecl(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingDecl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat("bool %sBlockMarshalling(OHOS::MessageParcel &data, const %s& %s);\n", type->GetName().c_str(),
         type->EmitCppType().c_str(), objName.c_str());
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingDecl(StringBuilder &sb,
+    const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
     sb.AppendFormat("bool %sBlockUnmarshalling(OHOS::MessageParcel &data, %s& %s);\n", type->GetName().c_str(),
@@ -238,13 +240,13 @@ void CppCustomTypesCodeEmitter::EmitSourceFileInclusions(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles)
+void CppCustomTypesCodeEmitter::GetSourceOtherLibInclusions(HeaderFile::HeaderFileSet &headerFiles) const
 {
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "hdf_log");
     headerFiles.emplace(HeaderFileType::OTHER_MODULES_HEADER_FILE, "securec");
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
+void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb) const
 {
     for (size_t i = 0; i < ast_->GetTypeDefinitionNumber(); i++) {
         AutoPtr<ASTType> type = ast_->GetTypeDefintion(i);
@@ -260,7 +262,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeDataProcess(StringBuilder &sb)
     }
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
 
@@ -290,7 +293,8 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeMarshallingImpl(StringBuilder &sb,
     sb.Append("}\n");
 }
 
-void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &sb, const AutoPtr<ASTStructType> &type)
+void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(
+    StringBuilder &sb, const AutoPtr<ASTStructType> &type) const
 {
     std::string objName("dataBlock");
 
@@ -314,19 +318,20 @@ void CppCustomTypesCodeEmitter::EmitCustomTypeUnmarshallingImpl(StringBuilder &s
             AutoPtr<ASTType> memberType = type->GetMemberType(i);
             std::string memberName = type->GetMemberName(i);
             std::string name = StringHelper::Format("%s.%s", objName.c_str(), memberName.c_str());
-            if (i > 0 &&
-                (memberType->GetTypeKind() == TypeKind::TYPE_STRUCT ||
-                    memberType->GetTypeKind() == TypeKind::TYPE_UNION ||
-                    memberType->GetTypeKind() == TypeKind::TYPE_ARRAY ||
-                    memberType->GetTypeKind() == TypeKind::TYPE_LIST)) {
+            if (i > 0) {
                 sb.Append("\n");
             }
 
             if (memberType->GetTypeKind() == TypeKind::TYPE_UNION) {
                 std::string cpName = StringHelper::Format("%sCp", memberName.c_str());
                 memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
-                sb.Append(TAB).AppendFormat("(void)memcpy_s(&%s, sizeof(%s), %s, sizeof(%s));\n", name.c_str(),
-                    memberType->EmitCppType().c_str(), cpName.c_str(), memberType->EmitCppType().c_str());
+                sb.Append(TAB).AppendFormat("if (memcpy_s(&%s, sizeof(%s), %s, sizeof(%s)) != EOK) {\n",
+                    name.c_str(), memberType->EmitCppType().c_str(), cpName.c_str(),
+                    memberType->EmitCppType().c_str());
+                sb.Append(TAB).Append(TAB).AppendFormat("HDF_LOGE(\"%%{public}s: failed to memcpy %s\", __func__);\n",
+                    name.c_str());
+                sb.Append(TAB).Append(TAB).Append("return false;\n");
+                sb.Append(TAB).Append("}\n");
             } else if (memberType->GetTypeKind() == TypeKind::TYPE_STRING) {
                 std::string cpName = StringHelper::Format("%sCp", memberName.c_str());
                 memberType->EmitCppUnMarshalling("data", cpName, sb, TAB, false);
@@ -351,7 +356,8 @@ void CppCustomTypesCodeEmitter::EmitBeginNamespace(StringBuilder &sb)
 void CppCustomTypesCodeEmitter::EmitEndNamespace(StringBuilder &sb)
 {
     std::vector<std::string> cppNamespaceVec = EmitCppNameSpaceVec(ast_->GetPackageName());
-    for (auto nspaceIter = cppNamespaceVec.rbegin(); nspaceIter != cppNamespaceVec.rend(); nspaceIter++) {
+    for (std::vector<std::string>::const_reverse_iterator nspaceIter = cppNamespaceVec.rbegin();
+        nspaceIter != cppNamespaceVec.rend(); ++nspaceIter) {
         sb.AppendFormat("} // %s\n", nspaceIter->c_str());
     }
 }

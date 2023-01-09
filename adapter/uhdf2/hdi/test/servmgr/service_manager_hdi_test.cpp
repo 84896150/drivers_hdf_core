@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
+#include <base/hdi_smq.h>
 #include <functional>
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
 #include <hdf_log.h>
-#include <hdi_smq.h>
 #include <idevmgr_hdi.h>
 #include <iostream>
 #include <ipc_object_stub.h>

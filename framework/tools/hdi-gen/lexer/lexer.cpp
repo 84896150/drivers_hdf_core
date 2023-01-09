@@ -24,7 +24,7 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"double",         TokenType::DOUBLE       },
     {"FileDescriptor", TokenType::FD           },
     {"Ashmem",         TokenType::ASHMEM       },
-    {"BufferHandle",   TokenType::BUFFER_HANDLE},
+    {"NativeBuffer",   TokenType::NATIVE_BUFFER},
     {"List",           TokenType::LIST         },
     {"Map",            TokenType::MAP          },
     {"SharedMemQueue", TokenType::SMQ          },
@@ -276,6 +276,7 @@ void Lexer::ReadNum(Token &token)
             ReadDecNum(token);
             break;
     }
+    ReadNumSuffix(token);
 }
 
 void Lexer::ReadBinaryNum(Token &token)
@@ -363,6 +364,19 @@ void Lexer::ReadDecNum(Token &token)
 
     token.kind_ = TokenType::NUM;
     token.value_ = sb.ToString();
+}
+
+void Lexer::ReadNumSuffix(Token &token)
+{
+    while (!file_->IsEof()) {
+        char c = file_->PeekChar();
+        if (isalpha(c) || isdigit(c) || c == '_' || c == '.') {
+            token.value_ += c;
+            file_->GetChar();
+        } else {
+            break;
+        }
+    }
 }
 
 void Lexer::ReadShiftLeftOp(Token &token)
