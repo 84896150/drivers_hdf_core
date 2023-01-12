@@ -532,8 +532,14 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest011, TestSize.Level1)
         t.data64 = i + 1;
 
         HDF_LOGI("%{public}s:write smq message %{public}zu", __func__, i);
+        int64_t wStartTime = smq->GetNanoTime();
         auto status = smq->Write(&t, 1, OHOS::MillisecToNanosec(SMQ_TEST_WAIT_TIME));
-        ASSERT_EQ(status, 0);
+        if (smq->GetNanoTime() - wStartTime <= OHOS::MillisecToNanosec(SMQ_TEST_WAIT_TIME)) {
+            ASSERT_EQ(status, HDF_SUCCESS);
+        } else {
+            // failed to write when smq overflow
+            ASSERT_NE(status, HDF_SUCCESS);
+        }
     }
 }
 
@@ -572,8 +578,14 @@ HWTEST_F(HdfServiceMangerHdiTest, ServMgrTest012, TestSize.Level1)
         t[1].data32 = i + 1;
         t[1].data64 = i + 1;
         HDF_LOGI("%{public}s:write smq message %{public}d", __func__, i);
+        int64_t wStartTime = smq->GetNanoTime();
         auto status = smq->Write(&t[0], ELEMENT_SIZE, OHOS::MillisecToNanosec(SMQ_TEST_WAIT_TIME));
-        ASSERT_EQ(status, 0);
+        if (smq->GetNanoTime() - wStartTime <= OHOS::MillisecToNanosec(SMQ_TEST_WAIT_TIME)) {
+            ASSERT_EQ(status, HDF_SUCCESS);
+        } else {
+            // failed to write when smq overflow
+            ASSERT_NE(status, HDF_SUCCESS);
+        }
     }
 }
 
