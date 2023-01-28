@@ -74,7 +74,7 @@ private:
 
     void EmitProxyExternalMethodImpl(StringBuilder &sb);
 
-	// the get method for getting kernel driver client object
+    // the get method for getting kernel driver client object
     void EmitKernelProxyGetMethodImpl(StringBuilder &sb) const;
 
     void EmitKernelProxyGetInstanceMethodImpl(const std::string &objName, const std::string &serMajorName,
