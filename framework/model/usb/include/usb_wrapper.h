@@ -9,11 +9,15 @@
 #ifndef USB_WRAPPER_H
 #define USB_WRAPPER_H
 #include "hdf_base.h"
+#include "hdf_remote_service.h"
+#include "servmgr_hdi.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 #ifndef __LITEOS__
+int32_t UsbPnpRegisterDevice(const char *serviceName);
+int32_t UsbPnpUnregisterDevice(const char *serviceName);
 void UsbDDKDriverMatchFailEvent(const struct UsbPnpNotifyMatchInfoTable *infoTable);
 #endif
 #ifdef __cplusplus

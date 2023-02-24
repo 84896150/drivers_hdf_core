@@ -26,6 +26,8 @@
 #include "usb_pnp_manager.h"
 #ifndef __LITEOS__
 #include "usb_wrapper.h"
+#define WAIT_DRIVER_LOAD_TIME 1
+#define CMD_INIT_USB_DRIVER 100
 #endif
 
 
@@ -109,6 +111,7 @@ static bool UsbDdkPnpLoaderMatchDevice(
     return true;
 }
 
+#ifdef __LITEOS__
 // Need optimize this device object array later, should bind device object to usb device
 #define REGISTER_DEV_MAX 16
 static struct HdfDeviceObject *g_resistedDevice[REGISTER_DEV_MAX] = {0};
@@ -140,9 +143,47 @@ static struct HdfDeviceObject *GetRegistedDevice(const char *serviceName)
 
     return dev;
 }
+#endif
+
+#ifndef __LITEOS__
+static int32_t ServiceManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
+{
+    int32_t ret = UsbPnpRegisterDevice(managerInfo->serviceName);
+    if (ret != 0) {
+        HDF_LOGE("%{public}s: UsbPnpRegisterDevice failed", __func__);
+        return ret;
+    }
+    HDF_LOGI("%{public}s: UsbPnpRegisterDevice %{public}s", __func__, managerInfo->serviceName);
+    sleep(WAIT_DRIVER_LOAD_TIME);
+    struct HDIServiceManager *servmgr = HDIServiceManagerGet();
+    if (servmgr == NULL) {
+        HDF_LOGE("%{public}s: HDIServiceManagerGet failed", __func__);
+        return HDF_FAILURE;
+    }
+    struct HdfRemoteService *driverService = servmgr->GetService(servmgr, managerInfo->serviceName);
+    if (driverService == NULL) {
+        HDF_LOGE("%{public}s: Get %{public}s service failed", __func__, managerInfo->serviceName);
+        return HDF_FAILURE;
+    }
+    struct HdfSBuf *notifyData = HdfSbufTypedObtain(SBUF_IPC);
+    struct HdfSBuf *replyData = HdfSbufTypedObtain(SBUF_IPC);
+    if (!HdfSbufWriteBuffer(notifyData, managerInfo->privateData, sizeof(struct UsbPnpNotifyServiceInfo))) {
+        HDF_LOGE("%{public}s: write buf failed", __func__);
+        return HDF_FAILURE;
+    }
+    ret = driverService->dispatcher->Dispatch(driverService, CMD_INIT_USB_DRIVER, notifyData, replyData);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s: Dispatch  failed ret = %{public}d", __func__, ret);
+    }
+    HdfSbufRecycle(notifyData);
+    HdfSbufRecycle(replyData);
+    return HDF_SUCCESS;
+}
+#endif
 
 static int32_t UsbPnpManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
 {
+#ifdef __LITEOS__
     int32_t ret = HDF_FAILURE;
     struct HdfDeviceObject *devObj = HdfDeviceObjectAlloc(managerInfo->usbPnpManager, managerInfo->moduleName);
     if (devObj == NULL) {
@@ -172,10 +213,14 @@ static int32_t UsbPnpManagerRegisterDevice(struct UsbPnpManagerDeviceInfo *manag
     }
     // need optimize this code to remove SaveRegistedDevice function later
     return SaveRegistedDevice(devObj);
+#else
+    return ServiceManagerRegisterDevice(managerInfo);
+#endif
 }
 
 static int32_t UsbPnpManagerUnregisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
 {
+#ifdef __LITEOS__
     // need optimize this code to remove GetRegistedDevice function later
     struct HdfDeviceObject *devObj = GetRegistedDevice(managerInfo->serviceName);
     if (devObj == NULL) {
@@ -183,6 +228,9 @@ static int32_t UsbPnpManagerUnregisterDevice(struct UsbPnpManagerDeviceInfo *man
     }
     HdfDeviceObjectRelease(devObj);
     return HDF_SUCCESS;
+#else
+    return UsbPnpUnregisterDevice(managerInfo->serviceName);
+#endif
 }
 
 int32_t UsbPnpManagerRegisterOrUnregisterDevice(struct UsbPnpManagerDeviceInfo *managerInfo)
