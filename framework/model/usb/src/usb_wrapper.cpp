@@ -11,9 +11,34 @@
 #include "hdf_log.h"
 #include "hdf_usb_pnp_manage.h"
 #include "hisysevent.h"
+#include "idevmgr_hdi.h"
 
+using OHOS::HDI::DeviceManager::V1_0::IDeviceManager;
 using namespace OHOS::HiviewDFX;
 #ifndef __LITEOS__
+int32_t UsbPnpRegisterDevice(const char *serviceName)
+{
+    std::string serName(serviceName);
+    OHOS::sptr<IDeviceManager> devMgr = IDeviceManager::Get();
+    int32_t ret = devMgr->LoadDevice(serName);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s, load %{public}s failed", __func__, serviceName);
+        return ret;
+    }
+    return ret;
+}
+
+int32_t UsbPnpUnregisterDevice(const char *serviceName)
+{
+    std::string serName(serviceName);
+    OHOS::sptr<IDeviceManager> devMgr = IDeviceManager::Get();
+    int32_t ret = devMgr->UnloadDevice(serName);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s, %{public}s unload  failed", __func__, serviceName);
+    }
+    return ret;
+}
+
 void UsbDDKDriverMatchFailEvent(const struct UsbPnpNotifyMatchInfoTable *infoTable)
 {
     HiSysEventWrite(HiSysEvent::Domain::HDF_USB, "RECOGNITION_FAIL", HiSysEvent::EventType::FAULT,
