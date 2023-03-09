@@ -464,6 +464,35 @@ struct WlanHwCapability {
 };
 
 /**
+ * @brief Describes sched scan plan parameters.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct WlanSchedScanPlan {
+    uint32_t interval;   /**< In seconds */
+    uint32_t iterations; /**< Zero to run infinitely */
+};
+/**
+ * @brief Describes sched scan request parameters.
+ *
+ * @since 1.0
+ * @version 1.0
+ */
+struct WlanSchedScanReq {
+    uint8_t ssidCount;                   /**< Number of SSIDs */
+    uint8_t freqsCount;                  /**< Number of frequencies */
+    struct WlanSSID *ssids;              /**< SSIDs to scan for */
+    uint32_t *freqs;                     /**< An array of frequencies */
+    uint32_t extraIEsLen;                /**< Length of an extended information element (IE) */
+    uint8_t *extraIEs;                   /**< Extended IEs */
+    struct WlanSchedScanPlan *scanPlans; /**< An array of sched scan plans */
+    uint32_t scanPlansLen;               /**< Number of scanplans */
+    int32_t filterRssi;                  /**< Rssi to filter the scan results */
+    uint32_t schedScanStartDelay;        /**< Delay to start sched scan plan */
+};
+
+/**
  * @brief Describes the MAC-layer APIs for basic operations that need to be implemented by the driver.
  *
  * @since 1.0
@@ -761,6 +790,31 @@ struct HdfMac80211STAOps {
      * @version 1.0
      */
     int32_t (*SetScanningMacAddress)(NetDevice *netDev, unsigned char *mac, uint32_t len);
+
+    // add by wangyanzhen
+    /**
+     * @brief Start a sched scan.
+     *
+     * @param netDev Indicates the pointer to the network device structure obtained during initialization.
+     * @param schedScan Indicates the pointer to the sched scan parameters.
+     *
+     * @return Returns <b>0</b> if the sched scan is started; returns a non-zero value otherwise.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    int32_t (*StartSchedScan)(NetDevice *netDev, const struct WlanSchedScanReq *schedScan);
+    /**
+     * @brief Stops a sched scan.
+     *
+     * @param netDev Indicates the pointer to the network device structure obtained during initialization.
+     *
+     * @return Returns <b>0</b> if the scan is stopped; returns a non-zero value otherwise.
+     *
+     * @since 1.0
+     * @version 1.0
+     */
+    int32_t (*StopSchedScan)(NetDevice *netDev);
 };
 
 /**
