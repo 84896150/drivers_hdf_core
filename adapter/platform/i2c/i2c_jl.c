@@ -1,0 +1,349 @@
+/*
+ * Copyright (c) 2022 Jiangsu Hoperun Software Co., Ltd.
+ *
+ * This file is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
+ */
+
+#include <stdlib.h>
+#include <securec.h>
+#include "i2c_core.h"
+#include "i2c_if.h"
+#include "device_resource_if.h"
+#include "osal_mutex.h"
+
+#include "iic_hw.h"
+#include "gpio.h"
+
+#define DEC_NUM 10
+#define GROUP_PIN_NUM 4
+#define I2C_INVALID_ADDR 0xFFFF
+#define HAL_I2C_ID_NUM 1
+#define ONE_HUNDRED_THOUSAND 100000
+
+struct I2cResource {
+    uint32_t port;
+    uint32_t sclPin;
+    uint32_t sdaPin;
+    uint32_t speed;
+};
+
+struct I2cDevice {
+    uint16_t devAddr;
+    uint32_t addressWidth;
+    struct OsalMutex mutex;
+    uint32_t port;
+    struct I2cResource resource;
+};
+
+static int32_t I2cDriverBind(struct HdfDeviceObject *device);
+static int32_t I2cDriverInit(struct HdfDeviceObject *device);
+static void I2cDriverRelease(struct HdfDeviceObject *device);
+
+static struct HdfDriverEntry g_i2cDriverEntry = {
+    .moduleVersion = 1,
+    .moduleName = "HDF_PLATFORM_I2C",
+    .Bind = I2cDriverBind,
+    .Init = I2cDriverInit,
+    .Release = I2cDriverRelease,
+};
+
+HDF_INIT(g_i2cDriverEntry);
+
+struct hw_iic_config g_hwIicCfg[] = {
+    {
+        .port = 'A',
+        .baudrate = ONE_HUNDRED_THOUSAND,
+        .hdrive   = 0,
+        .io_filter = 1,
+        .io_pu      = 1,
+    },
+};
+
+struct g_i2cIomapping {
+    uint8_t scl;
+    uint8_t sda;
+    char group;
+};
+
+static const struct g_i2cIomapping hwiic_iomap[HAL_I2C_ID_NUM][GROUP_PIN_NUM] = {
+    {
+        {IO_PORT_DP, IO_PORT_DM},
+        {IO_PORTC_04, IO_PORTC_05},
+        {IO_PORTB_04, IO_PORTB_06},
+        {IO_PORTA_05, IO_PORTA_06},
+    },
+};
+
+static int32_t I2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t count);
+
+static struct I2cMethod g_i2cHostMethod = {
+    .transfer = I2cHostTransfer,
+};
+
+static int32_t InitI2cDevice(struct I2cDevice *device)
+{
+    uint32_t i2cPort;
+    struct I2cResource *resource = NULL;
+
+    if (device == NULL) {
+        HDF_LOGE("%s: device is NULL\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (device->port >= HAL_I2C_ID_NUM) {
+        HDF_LOGE("%s: i2c port %u not support\r\n", __func__, i2cPort);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+    resource = &device->resource;
+    device->port = resource->port;
+    i2cPort = device->port;
+
+    if (OsalMutexInit(&device->mutex) != HDF_SUCCESS) {
+        HDF_LOGE("%s %d OsalMutexInit fail\r\n", __func__, __LINE__);
+        return HDF_FAILURE;
+    }
+
+    if (OsalMutexLock(&device->mutex) != HDF_SUCCESS) {
+        HDF_LOGE("%s %d osMutexWait fail\r\n", __func__, __LINE__);
+        return HDF_ERR_TIMEOUT;
+    }
+
+    for (int i = 0; i < GROUP_PIN_NUM ; i++) {
+        if (resource->sclPin == hwiic_iomap[device->port][i].scl &&
+            resource->sdaPin == hwiic_iomap[device->port][i].sda) {
+            g_hwIicCfg[device->port].port = 'A' + i;
+            break;
+        }
+    }
+
+    HDF_LOGI("hw iic port%u  group%c\n", device->port, g_hwIicCfg[device->port].port);
+
+    hw_iic_init(device->port);
+    OsalMutexUnlock(&device->mutex);
+    return HDF_SUCCESS;
+}
+
+static uint32_t GetI2cDeviceResource(struct I2cDevice *device, const struct DeviceResourceNode *resourceNode)
+{
+    char *tempString = NULL;
+    struct I2cResource *resource = NULL;
+    struct DeviceResourceIface *dri = NULL;
+    if (device == NULL || resourceNode == NULL) {
+        HDF_LOGE("%s: device or resourceNode is NULL\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    resource = &device->resource;
+    if (resource == NULL) {
+        HDF_LOGE("%s %d: invalid parameter\r\n", __func__, __LINE__);
+        OsalMemFree(device);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+    dri = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
+    if (dri == NULL || dri->GetUint32 == NULL || dri->GetString == NULL) {
+        HDF_LOGE("%s: DeviceResourceIface is invalid\r\n", __func__);
+        return HDF_ERR_INVALID_OBJECT;
+    }
+
+    if (dri->GetUint32(resourceNode, "port", &resource->port, NULL) != HDF_SUCCESS) {
+        HDF_LOGE("%s: i2c config port fail\r\n", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (dri->GetString(resourceNode, "sclPin", &tempString, NULL) != HDF_SUCCESS) {
+        HDF_LOGE("%s: i2c config sclPin fail\r\n", __func__);
+        return HDF_FAILURE;
+    }
+
+    resource->sclPin = get_gpio(tempString);
+
+    if (dri->GetString(resourceNode, "sdaPin", &tempString, NULL) != HDF_SUCCESS) {
+        HDF_LOGE("%s: i2c config sdaPin fail\r\n", __func__);
+        return HDF_FAILURE;
+    }
+    resource->sdaPin = get_gpio(tempString);
+
+    if (dri->GetUint32(resourceNode, "speed", &resource->speed, 0) != HDF_SUCCESS) {
+        HDF_LOGE("%s: i2c config speed fail\r\n", __func__);
+        return HDF_FAILURE;
+    }
+    HDF_LOGD("i2c%u speed:%u\n", resource->port, resource->speed);
+    return HDF_SUCCESS;
+}
+
+static int32_t AttachI2cDevice(struct I2cCntlr *host, struct HdfDeviceObject *device)
+{
+    int32_t ret;
+    struct I2cDevice *i2cDevice = NULL;
+    struct I2cResource *resource = NULL;
+
+    if (device == NULL || host == NULL) {
+        HDF_LOGE("%s: device or host is NULL\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    i2cDevice = (struct I2cDevice *)OsalMemCalloc(sizeof(struct I2cDevice));
+    if (i2cDevice == NULL) {
+        HDF_LOGE("%s: OsalMemCalloc i2cDevice error\r\n", __func__);
+        return HDF_ERR_MALLOC_FAIL;
+    }
+    ret = GetI2cDeviceResource(i2cDevice, device->property);
+    if (ret != HDF_SUCCESS) {
+        OsalMemFree(i2cDevice);
+        return HDF_FAILURE;
+    }
+    resource = &i2cDevice->resource;
+
+    host->priv = i2cDevice;
+    host->busId = i2cDevice->port;
+
+    return InitI2cDevice(i2cDevice);
+}
+
+static int32_t I2cDriverInit(struct HdfDeviceObject *device)
+{
+    int32_t ret;
+    struct I2cCntlr *host = NULL;
+    if (device == NULL) {
+        HDF_LOGE("%s: device is NULL\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    host = (struct I2cCntlr *)OsalMemCalloc(sizeof(struct I2cCntlr));
+    if (host == NULL) {
+        HDF_LOGE("%s: host is NULL\r\n", __func__);
+        return HDF_ERR_MALLOC_FAIL;
+    }
+
+    host->ops = &g_i2cHostMethod;
+    device->priv = (void *)host;
+    ret = AttachI2cDevice(host, device);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: attach error\r\n", __func__);
+        I2cDriverRelease(device);
+        return HDF_DEV_ERR_ATTACHDEV_FAIL;
+    }
+    ret = I2cCntlrAdd(host);
+    if (ret != HDF_SUCCESS) {
+        I2cDriverRelease(device);
+        return HDF_FAILURE;
+    }
+    return ret;
+}
+
+static int32_t I2cDriverBind(struct HdfDeviceObject *device)
+{
+    (void)device;
+    return HDF_SUCCESS;
+}
+
+static void I2cDriverRelease(struct HdfDeviceObject *device)
+{
+    struct I2cCntlr *i2cCntrl = NULL;
+    struct I2cDevice *i2cDevice = NULL;
+
+    if (device == NULL) {
+        HDF_LOGE("%s: device is NULL\r\n", __func__);
+        return;
+    }
+    i2cCntrl = device->priv;
+    if (i2cCntrl == NULL || i2cCntrl->priv == NULL) {
+        HDF_LOGE("%s: i2cCntrl is NULL\r\n", __func__);
+        return;
+    }
+    i2cCntrl->ops = NULL;
+    i2cDevice = (struct I2cDevice *)i2cCntrl->priv;
+    OsalMemFree(i2cCntrl);
+
+    if (i2cDevice != NULL) {
+        OsalMutexDestroy(&i2cDevice->mutex);
+        OsalMemFree(i2cDevice);
+    }
+}
+
+static char I2cReadByte(uint8_t ifack, uint8_t ifStop)
+{
+    uint8_t data;
+    hw_iic_start(0);
+    data = hw_iic_rx_byte(0, ifack);
+    if (ifStop != 0) {
+        hw_iic_stop(0);
+    }
+    return data;
+}
+
+static void I2cWriteByte(uint8_t data, uint8_t ifStart)
+{
+    if (ifStart != 0) {
+        hw_iic_start(0);
+    }
+    hw_iic_tx_byte(0, data);
+    hw_iic_stop(0);
+}
+
+static void I2cSend(struct I2cMsg *msg)
+{
+    uint16_t len;
+    uint8_t ifack, ifstop, ifstart;
+
+    len = msg->len;
+    ifstop = 0;
+    if ((msg->flags & I2C_FLAG_READ) != 0) {
+        ifack = (msg->flags & I2C_FLAG_READ_NO_ACK) ? 0 : 1;
+        for (int32_t j = 0; j < len; j++) {
+            if (((msg->flags & I2C_FLAG_STOP) && j) == (len - 1)) {
+                ifstop = 1;
+            }
+            msg->buf[j] = I2cReadByte(ifack, ifstop);
+        }
+    } else {
+        ifack = (msg->flags & I2C_FLAG_IGNORE_NO_ACK) ? 0 : 1;
+        for (int32_t j = 0; j < len; j++) {
+            if (((msg->flags & I2C_FLAG_NO_START) == 0) && (j == 0)) {
+                ifstart = 1;
+            }
+            I2cWriteByte(msg->buf[j], ifstart);
+        }
+    }
+}
+
+static int32_t I2cDataTransfer(struct I2cDevice *device, struct I2cMsg *msgs, int16_t count)
+{
+    uint32_t i2cPort;
+    struct I2cMsg *msg = NULL;
+
+    if (device == NULL || msgs == NULL) {
+        HDF_LOGE("%s: device or  msgs is NULL\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    i2cPort = (uint32_t)device->port;
+    if (i2cPort > HAL_I2C_ID_NUM) {
+        HDF_LOGE("%s: i2c port %u not support\r\n", __func__, i2cPort);
+        return HDF_ERR_NOT_SUPPORT;
+    }
+
+    if (OsalMutexLock(&device->mutex) != HDF_SUCCESS) {
+        HDF_LOGE("%s %d OsalMutexTimedLock fail\r\n", __func__, __LINE__);
+        return HDF_ERR_TIMEOUT;
+    }
+    for (int32_t i = 0; i < count; i++) {
+        msg = &msgs[i];
+        I2cSend(msg);
+    }
+    OsalMutexUnlock(&device->mutex);
+    return count;
+}
+
+static int32_t I2cHostTransfer(struct I2cCntlr *cntlr, struct I2cMsg *msgs, int16_t count)
+{
+    struct I2cDevice *device = NULL;
+    if (cntlr == NULL || msgs == NULL || cntlr->priv == NULL) {
+        HDF_LOGE("%s: I2cCntlr or msgs is NULL\r\n", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    device = (struct I2cDevice *)cntlr->priv;
+
+    return I2cDataTransfer(device, msgs, count);
+}
