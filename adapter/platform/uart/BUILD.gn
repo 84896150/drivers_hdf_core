@@ -29,6 +29,10 @@ hdf_driver(module_name) {
     sources += [ "uart_stm32f4xx.c" ]
   }
 
+  if (defined(LOSCFG_SOC_COMPANY_BOUFFALOLAB)) {
+    sources += [ "uart_bl.c" ]
+  }
+
   include_dirs = [ "." ]
   if (defined(LOSCFG_SHIELD_V200ZR_EVB_T1) &&
       defined(LOSCFG_DRIVERS_HDF_CONFIG_MACRO)) {
