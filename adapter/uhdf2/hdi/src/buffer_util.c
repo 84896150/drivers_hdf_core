@@ -75,6 +75,11 @@ BufferHandle *CloneNativeBufferHandle(const BufferHandle *other)
     handle->phyAddr = other->phyAddr;
     handle->key = other->key;
 
+    if (handle->reserveFds != other->reserveFds) {
+        HDF_LOGE("CloneBufferHandle Source len and target len inconsistency");
+        FreeNativeBufferHandle(handle);
+        return NULL;
+    }
     for (uint32_t i = 0; i < handle->reserveFds; i++) {
         handle->reserve[i] = dup(other->reserve[i]);
         if (handle->reserve[i] == -1) {
