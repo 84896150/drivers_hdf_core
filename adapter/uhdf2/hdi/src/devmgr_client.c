@@ -168,7 +168,7 @@ static int32_t DevmgrProcessLoad(struct HDIDeviceManager *iDevMgr, const char *s
             break;
         }
         if (!HdfSbufWriteString(data, serviceName)) {
-            HDF_LOGE("%{public}s: writing service name failed!", __func__);
+            HDF_LOGE("%{public}s:xxq sdadriting service name failed!", __func__);
             break;
         }
         status = DeviceManagerHdiCall(iDevMgr, id, data, NULL);
