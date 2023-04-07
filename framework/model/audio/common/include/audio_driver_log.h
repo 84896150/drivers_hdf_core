@@ -17,9 +17,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 // 1 is on; 0 is off
-#define AUDIO_ADM_DEBUG_ON 0
-#define AUDIO_DRIVER_DEBUG_ON 0
-#define AUDIO_DEVICE_DEBUG_ON 0
+#define AUDIO_ADM_DEBUG_ON 1
+#define AUDIO_DRIVER_DEBUG_ON 1
+#define AUDIO_DEVICE_DEBUG_ON 1
 
 // audio ADM log define
 #ifdef __LITEOS__
