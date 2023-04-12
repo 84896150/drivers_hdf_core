@@ -98,8 +98,9 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
         HDF_LOGE("%s: allocate camera device failed!", __func__);
         ret = HDF_FAILURE;
     }
-
-    camDev->deviceDriver = deviceDriver;
+    else {
+        camDev->deviceDriver = deviceDriver;
+    }
 
     ret = deviceDriver->init(deviceDriver, camDev);
     if (ret != HDF_SUCCESS) {
