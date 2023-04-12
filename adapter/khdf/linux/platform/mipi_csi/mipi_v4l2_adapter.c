@@ -23,6 +23,7 @@
 #include <media/v4l2-fwnode.h>
 #include <linux/acpi.h>
 #include <linux/i2c.h>
+#include <linux/slab.h>
 #include <linux/module.h>
 #include <linux/version.h>
 #include "hdf_log.h"
@@ -260,11 +261,17 @@ static int LinuxInitControls(struct AdapterDrvData *drvData)
     ImgRect *rect = &(drvData->attr->imgRect);
 
     if (ctrl_hdlr == NULL) {
+        ctrl_hdlr = kzalloc(sizeof(*ctrl_hdlr), GFP_KERNEL);
+        if (!ctrl_hdlr) {
+            HDF_LOGE("%s: [kzalloc] failed.", __func__);
+            return -ENOMEM;
+        }
         ret = v4l2_ctrl_handler_init(ctrl_hdlr, CTRLS_COUNT);
         if (ret != 0) {
             HDF_LOGE("LinuxInitControls: [v4l2_ctrl_handler_init] fail!");
             return ret;
         }
+        camera->ctrl_handler = ctrl_hdlr;
     }
     ctrl_hdlr->lock = &drvData->mutex;
     if (camera->link_freq == NULL) {
