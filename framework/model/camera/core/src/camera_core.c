@@ -86,28 +86,32 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
 
     deviceDriver = factory->build(deviceName);
     if (deviceDriver == NULL) {
-        HDF_LOGE("%s: device driver %{public}s build fail!", __func__, factory->deviceName);
-        ret = HDF_FAILURE;
-    } else if (deviceDriver->init == NULL) {
-        HDF_LOGI("%s: device driver %{public}s not 'init' api", __func__, factory->deviceName);
-        ret = HDF_DEV_ERR_OP;
+        HDF_LOGE("%s: device driver %{public}s build fail!", __func__, deviceName);
+        return HDF_FAILURE;
+    }
+
+    if (deviceDriver->init == NULL) {
+        HDF_LOGI("%s: device driver %{public}s not 'init' api", __func__, deviceName);
+        if (factory->release != NULL) {
+            factory->release(deviceDriver);
+        }
+        return HDF_DEV_ERR_OP;
     }
 
     camDev = CameraDeviceCreate(deviceName, strlen(deviceName));
     if (camDev == NULL) {
         HDF_LOGE("%s: allocate camera device failed!", __func__);
-        ret = HDF_FAILURE;
+        if (factory->release != NULL) {
+            factory->release(deviceDriver);
+        }
+        return HDF_FAILURE;
     }
 
     camDev->deviceDriver = deviceDriver;
 
     ret = deviceDriver->init(deviceDriver, camDev);
     if (ret != HDF_SUCCESS) {
-        HDF_LOGE("%s: init device %{public}s failed! ret=%{public}d", __func__, factory->deviceName, ret);
-    }
-    deviceDriver = NULL;
-
-    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: init device %{public}s failed! ret=%{public}d", __func__, deviceName, ret);
         if (deviceDriver != NULL && factory->release != NULL) {
             factory->release(deviceDriver);
         }
