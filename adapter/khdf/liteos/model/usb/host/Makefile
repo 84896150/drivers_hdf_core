@@ -36,10 +36,12 @@ PERIPHERAL_USB_DDK_HOST = $(LITEOSTOPDIR)/../../drivers/peripheral/usb/ddk/host
 
 LOCAL_INCLUDE := $(PERIPHERAL_USB_DDK_HOST)/../../interfaces/ddk/common \
                  $(PERIPHERAL_USB_DDK_HOST)/../../interfaces/ddk/host \
-                 $(PERIPHERAL_USB_DDK_HOST)/include
+                 $(PERIPHERAL_USB_DDK_HOST)/include \
+                 $(PERIPHERAL_USB_DDK_HOST)/../../ddk/ndk
 
 LOCAL_SRCS += $(PERIPHERAL_USB_DDK_HOST)/src/liteos_adapter.c \
               $(PERIPHERAL_USB_DDK_HOST)/src/usb_raw_api.c \
+              $(PERIPHERAL_USB_DDK_HOST)/src/usb_config_desc_parser.c \
               $(PERIPHERAL_USB_DDK_HOST)/src/usb_raw_api_library.c \
               $(PERIPHERAL_USB_DDK_HOST)/src/usb_protocol.c \
               $(PERIPHERAL_USB_DDK_HOST)/src/usb_io_manage.c \
@@ -73,6 +75,7 @@ LOCAL_INCLUDE := $(FRAMEWORKS_USB_SERIAL_DEMO_ROOT)/../gadget/function/include \
                  $(FRAMEWORKS_USB_SERIAL_DEMO_ROOT)/../interfaces/ddk/common \
                  $(FRAMEWORKS_USB_SERIAL_DEMO_ROOT)/../interfaces/ddk/host \
                  $(FRAMEWORKS_USB_SERIAL_DEMO_ROOT)/../ddk/host/include \
+                 $(FRAMEWORKS_USB_SERIAL_DEMO_ROOT)/../ddk/ndk \
                  $(FRAMEWORKS_USB_SERIAL_DEMO_ROOT)/include \
                  $(FRAMEWORKS_USB_NET_DEMO_ROOT)/include \
                  $(FRAMEWORKS_USB_DDK_SPEED_TEST_ROOT)/include

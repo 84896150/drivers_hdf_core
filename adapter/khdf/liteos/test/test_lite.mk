@@ -99,12 +99,14 @@ HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/ddk/common/include
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/ddk/device/include
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/interfaces/ddk/common
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/interfaces/ddk/device
+HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/ddk/ndk
 endif
 ifeq ($(LOSCFG_DRIVERS_HDF_USB_DDK_HOST), y)
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/test/unittest/model/usb/host/include
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/interfaces/ddk/common
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/interfaces/ddk/host
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/gadget/function/include
+HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/peripheral/usb/ddk/ndk
 endif
 LOCAL_CFLAGS += $(HDF_TEST_INCLUDE)
 HDF_DRIVER_TEST = $(HDF_ROOT_TEST_DIR)/hdf_core/adapter/khdf/liteos/hdf_driver.mk

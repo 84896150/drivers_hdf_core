@@ -355,6 +355,7 @@ config("test_lite") {
       "$HDF_PERIPHERAL_PATH/usb/ddk/device/include",
       "$HDF_PERIPHERAL_PATH/usb/interfaces/ddk/common",
       "$HDF_PERIPHERAL_PATH/usb/interfaces/ddk/device",
+      "$HDF_PERIPHERAL_PATH/usb/ddk/ndk",
     ]
   }
 
@@ -364,6 +365,7 @@ config("test_lite") {
       "$HDF_PERIPHERAL_PATH/usb/interfaces/ddk/common",
       "$HDF_PERIPHERAL_PATH/usb/interfaces/ddk/host",
       "$HDF_PERIPHERAL_PATH/usb/gadget/function/include",
+      "$HDF_PERIPHERAL_PATH/usb/ddk/ndk",
     ]
   }
 }

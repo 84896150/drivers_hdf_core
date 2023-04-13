@@ -39,7 +39,8 @@ LOCAL_INCLUDE := $(USB_DEVICE_ROOT) \
                  $(USB_DEVICE_ROOT)/gadget/fconfig/include \
                  $(FRAMEWORKS_USB_DDK_DEVICE)/../../interfaces/ddk/common \
                  $(FRAMEWORKS_USB_DDK_DEVICE)/../../interfaces/ddk/device \
-                 $(FRAMEWORKS_USB_DDK_DEVICE)/include
+                 $(FRAMEWORKS_USB_DDK_DEVICE)/include \
+                 $(FRAMEWORKS_USB_DDK_DEVICE)/../../ddk/ndk
 
 LOCAL_SRCS += $(FRAMEWORKS_USB_DDK_DEVICE)/src/adapter_if_liteos.c \
               $(FRAMEWORKS_USB_DDK_DEVICE)/src/usbfn_cfg_mgr.c \
@@ -61,6 +62,7 @@ FRAMEWORKS_USB_DEVICE_DEMO_ROOT = $(LITEOSTOPDIR)/../../drivers/peripheral/usb/g
 
 LOCAL_INCLUDE += $(FRAMEWORKS_USB_DDK_DEVICE)/../../interfaces/ddk/common \
                  $(FRAMEWORKS_USB_DDK_DEVICE)/../../interfaces/ddk/device \
+                 $(FRAMEWORKS_USB_DDK_DEVICE)/../../ddk/ndk \
                  $(FRAMEWORKS_USB_DEVICE_DEMO_ROOT)/include \
                  $(LITEOSTOPDIR)/../../device/soc/hisilicon/common/hal/usb/hi3516dv300/include
 
