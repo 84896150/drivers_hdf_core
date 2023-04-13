@@ -65,6 +65,10 @@ struct usb_endpoint_descriptor *AudioEndpointDescriptor(struct usb_host_interfac
         AUDIO_DRIVER_LOG_ERR("input param is NULL.");
         return NULL;
     }
+    if (alts->endpoint == NULL) {
+        AUDIO_DRIVER_LOG_ERR("endpoint[%d] is NULL.", epIndex);
+        return NULL;
+    }
     return (&(alts)->endpoint[epIndex].desc);
 }
 

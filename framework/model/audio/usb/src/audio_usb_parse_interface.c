@@ -821,23 +821,32 @@ static int32_t AudioUsbGetAltsd(struct usb_host_interface **alts, struct usb_int
     bool specInterface = false;
     bool invalidEndpoint = false;
     bool invalidPacket = false;
+    AUDIO_DRIVER_LOG_INFO("entry.");
 
     *alts = &iface->altsetting[altsetIdx];
     if (*alts == NULL) {
         AUDIO_DRIVER_LOG_ERR("alts is NULL.");
         return HDF_FAILURE;
     }
+    AUDIO_DRIVER_LOG_INFO("----1-----.");
     uacFmt->altsd = AudioUsbGetIfaceDesc(*alts);
+    AUDIO_DRIVER_LOG_INFO("----2-----.");
     if (uacFmt->altsd == NULL) {
         AUDIO_DRIVER_LOG_ERR("altsd is NULL.");
         return HDF_FAILURE;
     }
     uacFmt->protocol = uacFmt->altsd->bInterfaceProtocol;
+    AUDIO_DRIVER_LOG_INFO("----3-----.");
     epDesc = AudioEndpointDescriptor(*alts, 0);
-
+    if (epDesc == NULL) {
+        AUDIO_DRIVER_LOG_ERR("epDesc is NULL.");
+        return HDF_FAILURE;
+    }
+    AUDIO_DRIVER_LOG_INFO("----4-----.");
     if (uacFmt->altsd->bInterfaceClass != USB_CLASS_AUDIO) {
         audioInterface = true;
     }
+    AUDIO_DRIVER_LOG_INFO("----5-----.");
     if (uacFmt->altsd->bInterfaceSubClass != USB_SUBCLASS_AUDIOSTREAMING &&
         uacFmt->altsd->bInterfaceSubClass != USB_SUBCLASS_VENDOR_SPEC) {
         vendorInterface = true;
@@ -931,26 +940,30 @@ static int32_t AudioUsbSetFormat(struct AudioUsbDriver *audioUsbDriver, struct A
     struct usb_endpoint_descriptor *epDesc = NULL;
     struct AudioUsbFormat *audioUsbFormat = NULL;
     struct usb_device *dev = audioUsbDriver->dev;
+    AUDIO_DRIVER_LOG_INFO("entry.");
 
     for (altsetIdx = 0; altsetIdx < uacFmt.num; altsetIdx++) {
+        AUDIO_DRIVER_LOG_INFO("-----1----.");
         if (AudioUsbGetAltsd(&alts, iface, &uacFmt, altsetIdx, &dataFlag) != HDF_SUCCESS) {
             AUDIO_DRIVER_LOG_ERR("AudioUsbGetAltsd failed.");
             return HDF_FAILURE;
         }
+        AUDIO_DRIVER_LOG_INFO("-----2----.");
         if (!dataFlag) {
             dataFlag = true;
             continue;
         }
         epDesc = AudioEndpointDescriptor(alts, 0);
+        AUDIO_DRIVER_LOG_INFO("-----3----.");
         /* must be isochronous */
         if ((epDesc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK) != USB_ENDPOINT_XFER_ISOC) {
             continue;
         }
+        AUDIO_DRIVER_LOG_INFO("-----4----.");
         AudioUsbGetFormatSub(audioUsbDriver, alts, &uacFmt, altsetIdx, &audioUsbFormat);
+        AUDIO_DRIVER_LOG_INFO("-----5----.");
         if (audioUsbFormat == NULL) {
             continue;
-        } else if (IS_ERR(audioUsbFormat)) {
-            return PTR_ERR(audioUsbFormat);
         }
         if (audioUsbFormat->fmtType != UAC_FORMAT_TYPE_I) {
             *hasNonPcm = true;
@@ -960,8 +973,11 @@ static int32_t AudioUsbSetFormat(struct AudioUsbDriver *audioUsbDriver, struct A
             audioUsbFormat = NULL;
             continue;
         }
+        AUDIO_DRIVER_LOG_INFO("-----6----.");
         AudioUsbInitFormatAndRate(audioUsbDriver, audioUsbFormat, &uacFmt, alts, dev);
+        AUDIO_DRIVER_LOG_INFO("-----7----.");
     }
+    AUDIO_DRIVER_LOG_INFO("success.");
     return HDF_SUCCESS;
 }
 
@@ -972,6 +988,7 @@ static int32_t AudioUsbParseIfaceSub(
     struct usb_device *dev = NULL;
     struct usb_interface *iface = NULL;
     int ret;
+    AUDIO_DRIVER_LOG_INFO("entry");
 
     if (audioUsbDriver == NULL || hasNonPcm == NULL) {
         AUDIO_DRIVER_LOG_ERR("audioUsbDriver is NULL.");
@@ -979,7 +996,9 @@ static int32_t AudioUsbParseIfaceSub(
     }
     (void)memset_s(&uacFmt, sizeof(struct AudioUsbUacFormat), 0, sizeof(struct AudioUsbUacFormat));
     uacFmt.ifaceNo = ifaceNo;
+    AUDIO_DRIVER_LOG_INFO("---1---");
     dev = audioUsbDriver->dev;
+    AUDIO_DRIVER_LOG_INFO("---2---");
 
     /* parse the interface's altsettings */
     iface = usb_ifnum_to_if(dev, ifaceNo);
@@ -987,6 +1006,7 @@ static int32_t AudioUsbParseIfaceSub(
         AUDIO_DRIVER_LOG_ERR("iface is NULL.");
         return HDF_FAILURE;
     }
+    AUDIO_DRIVER_LOG_INFO("---3---");
     uacFmt.num = iface->num_altsetting;
 
     /*
@@ -996,12 +1016,14 @@ static int32_t AudioUsbParseIfaceSub(
     if (audioUsbDriver->usbId == AudioUsbGetUsbId(0x04fa, 0x4201)) { /* Dallas DS4201 */
         uacFmt.num = AUDIO_USB_FORMAT_NUM_4;
     }
+    AUDIO_DRIVER_LOG_INFO("---4---");
 
     ret = AudioUsbSetFormat(audioUsbDriver, uacFmt, iface, hasNonPcm, nonPcm);
     if (ret != HDF_SUCCESS) {
         AUDIO_DRIVER_LOG_ERR("AudioUsbSetFormat is failed.");
         return HDF_FAILURE;
     }
+    AUDIO_DRIVER_LOG_INFO("success");
     return HDF_SUCCESS;
 }
 
@@ -1009,6 +1031,7 @@ int32_t AudioUsbParseAudioInterface(struct AudioUsbDriver *audioUsbDriver, int32
 {
     int32_t ret;
     bool hasNonPcm = false;
+    AUDIO_DRIVER_LOG_DEBUG("entry");
 
     /* parse PCM formats */
     ret = AudioUsbParseIfaceSub(audioUsbDriver, ifaceNo, &hasNonPcm, false);
@@ -1018,6 +1041,7 @@ int32_t AudioUsbParseAudioInterface(struct AudioUsbDriver *audioUsbDriver, int32
     }
 
     if (!hasNonPcm) {
+        AUDIO_DRIVER_LOG_DEBUG("success");
         return HDF_SUCCESS;
     }
 
@@ -1028,5 +1052,6 @@ int32_t AudioUsbParseAudioInterface(struct AudioUsbDriver *audioUsbDriver, int32
         return ret;
     }
 
+    AUDIO_DRIVER_LOG_DEBUG("success");
     return HDF_SUCCESS;
 }
