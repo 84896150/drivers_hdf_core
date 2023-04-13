@@ -105,7 +105,6 @@ static int32_t HdfCameraInitInterfaces(const char *deviceName, struct CameraDevi
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s: init device %{public}s failed! ret=%{public}d", __func__, factory->deviceName, ret);
     }
-    deviceDriver = NULL;
 
     if (ret != HDF_SUCCESS) {
         if (deviceDriver != NULL && factory->release != NULL) {
