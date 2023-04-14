@@ -11,27 +11,30 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/lite/config/component/lite_component.gni")
+import("./../../../../../..//build/lite/config/component/lite_component.gni")
+
+FRAMEWORK_CORE_RELATIVE_PATH = "./../../../../framework/support/posix/src"
+ROOT_PATH = "./../../../../../.."
 
 shared_library("hdf_posix_osal") {
   output_name = "hdf_osal"
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//third_party/bounds_checking_function:libsec_shared",
+    "$ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$ROOT_PATH/third_party/bounds_checking_function:libsec_shared",
   ]
   sources = [
-    "//drivers/hdf_core/framework/support/posix/src/osal_mem.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_mutex.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_sem.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_spinlock.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_thread.c",
-    "//drivers/hdf_core/framework/support/posix/src/osal_time.c",
+    "$FRAMEWORK_CORE_RELATIVE_PATH/osal_mem.c",
+    "$FRAMEWORK_CORE_RELATIVE_PATH/osal_mutex.c",
+    "$FRAMEWORK_CORE_RELATIVE_PATH/osal_sem.c",
+    "$FRAMEWORK_CORE_RELATIVE_PATH/osal_spinlock.c",
+    "$FRAMEWORK_CORE_RELATIVE_PATH/osal_thread.c",
+    "$FRAMEWORK_CORE_RELATIVE_PATH/osal_time.c",
   ]
   include_dirs = [
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
+    "$ROOT_PATH/drivers/hdf_core/framework/include/osal",
+    "$ROOT_PATH/drivers/hdf_core/interfaces/inner_api/osal/shared",
+    "$ROOT_PATH/drivers/hdf_core/interfaces/inner_api/utils",
+    "$ROOT_PATH/drivers/hdf_core/adapter/uhdf/posix/include",
   ]
   defines = [ "__USER__" ]
   ldflags = [ "-lpthread" ]

@@ -11,8 +11,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../build/ohos.gni")
+import("./../uhdf.gni")
+
+hdf_framework_path = "./../../../framework"
 
 config("lib_utils_pub_config") {
   visibility = [ ":*" ]

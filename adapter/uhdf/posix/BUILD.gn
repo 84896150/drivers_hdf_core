@@ -11,35 +11,41 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("./../../../../../build/ohos.gni")
+
+
+INNER_API_RELATIVE_PATH = "./../../../interfaces/inner_api"
+
 
 config("hdf_osal_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
+    "$INNER_API_RELATIVE_PATH/osal/shared",
+    "$INNER_API_RELATIVE_PATH/osal/uhdf",
+    "$INNER_API_RELATIVE_PATH/utils",
   ]
 }
 if (defined(ohos_lite)) {
   ohos_shared_library("hdf_posix_osal") {
+    FRAMEWORK_CORE_RELATIVE_PATH = "./../../../framework/support/posix/src"
+    ROOT_PATH = "./../../../../.."
     output_extension = "z.so"
 
     public_configs = [ ":hdf_osal_pub_config" ]
 
     sources = [
-      "//drivers/hdf_core/framework/support/posix/src/osal_mem.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_mutex.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_sem.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_spinlock.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_thread.c",
-      "//drivers/hdf_core/framework/support/posix/src/osal_time.c",
+      "$FRAMEWORK_CORE_RELATIVE_PATH/osal_mem.c",
+      "$FRAMEWORK_CORE_RELATIVE_PATH/osal_mutex.c",
+      "$FRAMEWORK_CORE_RELATIVE_PATH/osal_sem.c",
+      "$FRAMEWORK_CORE_RELATIVE_PATH/osal_spinlock.c",
+      "$FRAMEWORK_CORE_RELATIVE_PATH/osal_thread.c",
+      "$FRAMEWORK_CORE_RELATIVE_PATH/osal_time.c",
     ]
 
     deps = [
-      "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-      "//third_party/bounds_checking_function:libsec_shared",
+      "$ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+      "$ROOT_PATH/third_party/bounds_checking_function:libsec_shared",
     ]
 
     defines = [ "__USER__" ]

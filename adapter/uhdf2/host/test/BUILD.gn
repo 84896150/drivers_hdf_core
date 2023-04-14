@@ -11,8 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../../build/test.gni")
+import("./../../uhdf.gni")
+
+BASE_ROOT_PATH = "./../../../../../.."
+hdf_framework_path = "./../../../../framework"
+hdf_uhdf_path = "./../.."
 
 ###########################palTest###########################
 ohos_unittest("DevMgrTest") {
@@ -20,12 +24,12 @@ ohos_unittest("DevMgrTest") {
   sources = [ "unittest/devmgr_test.cpp" ]
 
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
-    "//drivers/hdf_core/adapter/uhdf2/hdi/include",
-    "//drivers/hdf_core/adapter/uhdf2/include/hidl",
+    "$BASE_ROOT_PATH/commonlibrary/c_utils/base/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
+    "$hdf_uhdf_path/hdi/include",
+    "$hdf_uhdf_path/include/hidl",
     "unittest/common/",
   ]
 
@@ -33,8 +37,8 @@ ohos_unittest("DevMgrTest") {
     "$hdf_uhdf_path/hdi:libhdi",
     "$hdf_uhdf_path/host/test/unittest/sample_driver:sample_driver",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
+    "$BASE_ROOT_PATH/third_party/googletest:gmock_main",
+    "$BASE_ROOT_PATH/third_party/googletest:gtest_main",
   ]
 
   if (is_standard_system) {
@@ -52,23 +56,23 @@ ohos_unittest("DevHostTest") {
   sources = [ "unittest/devhost_test.cpp" ]
 
   include_dirs = [
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/core/manager/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/utils/include",
-    "//drivers/hdf_core/framework/core/host/include",
-    "//drivers/hdf_core/adapter/uhdf2/host/include",
-    "//drivers/hdf_core/adapter/uhdf2/manager/include",
-    "//drivers/hdf_core/adapter/uhdf2/ipc/include",
+    "$hdf_framework_path/core/shared/include",
+    "$hdf_framework_path/core/manager/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/utils/include",
+    "$hdf_framework_path/core/host/include",
+    "$hdf_uhdf_path/host/include",
+    "$hdf_uhdf_path/manager/include",
+    "$hdf_uhdf_path/ipc/include",
   ]
 
   deps = [
     "$hdf_uhdf_path/host:libhdf_host",
     "$hdf_uhdf_path/ipc:libhdf_ipc_adapter",
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//third_party/googletest:gmock_main",
-    "//third_party/googletest:gtest_main",
+    "$BASE_ROOT_PATH/third_party/googletest:gmock_main",
+    "$BASE_ROOT_PATH/third_party/googletest:gtest_main",
   ]
 
   if (is_standard_system) {

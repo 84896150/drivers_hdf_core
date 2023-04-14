@@ -12,9 +12,11 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/dev_attribute_serialize"
+hdf_uhdf_path = "./../.."
+hdf_framework_path = "./../../../../framework"
 
 ohos_unittest("dev_attribute_serialize_test") {
   module_out_path = module_output_path

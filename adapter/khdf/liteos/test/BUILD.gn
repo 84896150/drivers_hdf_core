@@ -26,9 +26,16 @@
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
+import("./../hdf.gni")
+#import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
+
+HDF_FRAMEWORKS_PATH = "//drivers/hdf_core/framework"
+HDF_PERIPHERAL_PATH = "//drivers/peripheral"
+HDF_ADAPTERS_PATH = "//drivers/hdf_core/adapter"
 
 HDF_TEST_FRAMWORK_ROOT = "$HDF_FRAMEWORKS_PATH/test/unittest"
+INTERFACES_INNER_ROOT = "../../../../interfaces/inner_api"
+
 
 module_switch = defined(LOSCFG_DRIVERS_HDF_TEST)
 module_name = "hdf_test"
@@ -287,9 +294,11 @@ config("test_lite") {
     "$HDF_FRAMEWORKS_PATH/utils/include",
     "$HDF_FRAMEWORKS_PATH/include/platform",
     "$HDF_FRAMEWORKS_PATH/include/core",
-    "//drivers/hdf_core/interfaces/inner_api/core",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
+    
+    "$INTERFACES_INNER_ROOT/core",
+    "$INTERFACES_INNER_ROOT/utils",
+    "$INTERFACES_INNER_ROOT/osal/shared",
+
     "$HDF_FRAMEWORKS_PATH/support/platform/include",
     "$HDF_FRAMEWORKS_PATH/core/host/include",
     "$HDF_FRAMEWORKS_PATH/core/master/include",

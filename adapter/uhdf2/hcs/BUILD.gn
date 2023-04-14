@@ -11,16 +11,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
-import("$hdf_framework_path/tools/hc-gen/hc_gen.gni")
+import("./../../../../../build/ohos.gni")
+import("./../uhdf.gni")
+# import("$hdf_framework_path/tools/hc-gen/hc_gen.gni")
+import("./../../../framework/tools/hc-gen/hc_gen.gni")
+
+BASE_ROOT = "./../../../../.."
+
 
 hcs_source = "hdf.hcs"
 if (product_company == "openharmony") {
   hcs_file = "default/$hcs_source"
 } else {
   hcs_file =
-      "//vendor/$product_company/$product_name/hdf_config/uhdf/$hcs_source"
+      "$BASE_ROOT/vendor/$product_company/$product_name/hdf_config/uhdf/$hcs_source"
 }
 
 hc_gen("build_hcs") {
