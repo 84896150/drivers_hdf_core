@@ -88,7 +88,7 @@ void *CameraBufferGetPlaneVaddr(struct CameraBuffer *buffer, uint32_t planeId)
 /* init queue */
 int32_t BufferQueueInit(struct BufferQueue *queue)
 {
-	if (queue == NULL) {
+    if (queue == NULL) {
         HDF_LOGE("%s: queue ptr is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
