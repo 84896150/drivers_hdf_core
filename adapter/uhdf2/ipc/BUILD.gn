@@ -11,15 +11,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../build/ohos.gni")
+import("./../uhdf.gni")
+
+hdf_framework_path = "./../../../framework"
+hdf_interface_path = "./../../../interfaces"
 
 config("libhdf_ipc_adapter_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/ipc",
-    "//drivers/hdf_core/interfaces/inner_api/core",
+    "$hdf_interface_path/inner_api/ipc",
+    "$hdf_interface_path/inner_api/core",
   ]
 }
 if (defined(ohos_lite)) {
@@ -30,8 +33,8 @@ if (defined(ohos_lite)) {
   ohos_shared_library("libhdf_ipc_adapter") {
     include_dirs = [
       "include",
-      "//drivers/hdf_core/framework/utils/include",
-      "//drivers/hdf_core/framework/core/shared/include",
+      "$hdf_framework_path/utils/include",
+      "$hdf_framework_path/core/shared/include",
     ]
 
     public_configs = [ ":libhdf_ipc_adapter_pub_config" ]

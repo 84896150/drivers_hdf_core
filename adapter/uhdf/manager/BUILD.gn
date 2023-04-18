@@ -13,19 +13,22 @@
 
 import("//build/ohos.gni")
 
+INNER_API_RELATIVE_PATH = "./../../../interfaces/inner_api"
+
 config("hdf_core_pub_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-    "//drivers/hdf_core/interfaces/inner_api/utils",
-    "//drivers/hdf_core/interfaces/inner_api/core",
+    "$INNER_API_RELATIVE_PATH/osal/shared",
+    "$INNER_API_RELATIVE_PATH/osal/uhdf",
+    "$INNER_API_RELATIVE_PATH/utils",
+    "$INNER_API_RELATIVE_PATH/core",
   ]
 }
 
 ohos_shared_library("hdf_core") {
-  HDF_FRAMEWORKS = "//drivers/hdf_core/framework"
+  HDF_FRAMEWORKS = "./../../../framework"
+  ROOT_PATH = "./../../../../../"
   include_dirs = [
     "$HDF_FRAMEWORKS/core/adapter/vnode/include",
     "$HDF_FRAMEWORKS/core/adapter/syscall/include",
@@ -51,8 +54,8 @@ ohos_shared_library("hdf_core") {
   ]
 
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//third_party/bounds_checking_function:libsec_shared",
+    "$ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$ROOT_PATH/third_party/bounds_checking_function:libsec_shared",
   ]
 
   external_deps = [ "hdf_core:hdf_posix_osal" ]

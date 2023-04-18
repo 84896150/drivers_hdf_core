@@ -11,20 +11,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../build/ohos.gni")
+import("./../uhdf.gni")
 group("uhdf_sec_pkg") {
   deps = [ ":libhdf_sec" ]
 }
 
+hdf_uhdf_path = "./.."
+hdf_framework_path = "./../../../framework"
+
 ohos_shared_library("libhdf_sec") {
   include_dirs = [
-    "//commonlibrary/c_utils/base/include",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/core/sec/include",
-    "//drivers/hdf_core/framework/include/platform",
+    "./../../../../../commonlibrary/c_utils/base/include",
+    "$hdf_framework_path/include",
+    "$hdf_framework_path/include/osal",
+    "$hdf_framework_path/include/utils",
+    "$hdf_framework_path/core/sec/include",
+    "$hdf_framework_path/include/platform",
     "$hdf_uhdf_path/security/include",
   ]
 

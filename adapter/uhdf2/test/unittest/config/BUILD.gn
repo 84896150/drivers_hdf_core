@@ -11,20 +11,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../../../build/test.gni")
+import("./../../../uhdf.gni")
+
+hdf_core_path = "./../../../../.."
 
 module_output_path = "hdf_core/config"
 ohos_unittest("hdf_adapter_uhdf_test_config") {
   module_out_path = module_output_path
-  include_dirs = [ "//drivers/hdf_core/framework/test/unittest/include" ]
+  include_dirs = [ "$hdf_core_path/framework/test/unittest/include" ]
 
-  sources = [ "//drivers/hdf_core/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp" ]
+  sources = [ "$hdf_core_path/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp" ]
   resource_config_file =
-      "//drivers/hdf_core/adapter/uhdf2/test/resource/config/ohos_test.xml"
+      "$hdf_core_path/adapter/uhdf2/test/resource/config/ohos_test.xml"
   deps = [
     "$hdf_uhdf_path/utils:libhdf_utils",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
+    "$hdf_core_path/adapter/build/test_common:libhdf_test_common",
   ]
   if (is_standard_system) {
     external_deps = [

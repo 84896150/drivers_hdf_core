@@ -12,7 +12,8 @@
 # limitations under the License.
 
 import("//build/test.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+# import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../adapter/uhdf2/uhdf.gni")
 
 module_output_path = "hdf_core/srvmgr"
 
@@ -72,6 +73,6 @@ group("unittest") {
     ":HdiServiceManagerTest",
     ":HdiServiceManagerTestCC",
     "stub_collector:stub_collector_test",
-    "//drivers/hdf_core/adapter/uhdf2/hdi/test/buffer_handle:hdi_buffer_handle_test",
+    "./../../../../adapter/uhdf2/hdi/test/buffer_handle:hdi_buffer_handle_test",
   ]
 }

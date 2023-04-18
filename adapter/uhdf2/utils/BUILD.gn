@@ -11,8 +11,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../build/ohos.gni")
+import("./../uhdf.gni")
+
+interfaces_folder_path = "./../../../interfaces"
+hdf_framework_path = "./../../../framework"
+hdf_uhdf_path = "./.."
 
 group("uhdf_utils_pkg") {
   deps = [ ":libhdf_utils" ]
@@ -22,10 +26,10 @@ if (defined(ohos_lite)) {
     visibility = [ ":*" ]
 
     include_dirs = [
-      "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-      "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-      "//drivers/hdf_core/interfaces/inner_api/utils",
-      "//drivers/hdf_core/interfaces/inner_api/core",
+      "$interfaces_folder_path/inner_api/osal/shared",
+      "$interfaces_folder_path/inner_api/osal/uhdf",
+      "$interfaces_folder_path/inner_api/utils",
+      "$interfaces_folder_path/inner_api/core",
     ]
   }
 
@@ -45,7 +49,7 @@ if (defined(ohos_lite)) {
       "$hdf_framework_path/core/common/include/host",
       "$hdf_uhdf_path/osal/include",
       "$hdf_uhdf_path/utils/include",
-      "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+      "./../../../../../base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
     ]
     sources = [
       "$hdf_framework_path/core/adapter/syscall/src/hdf_devmgr_adapter.c",
@@ -79,7 +83,7 @@ if (defined(ohos_lite)) {
     ]
 
     public_deps =
-        [ "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
+        [ "./../../../../..//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared" ]
 
     subsystem_name = "hdf"
     part_name = "hdf_core"
@@ -89,12 +93,12 @@ if (defined(ohos_lite)) {
     visibility = [ ":*" ]
 
     include_dirs = [
-      "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-      "//drivers/hdf_core/interfaces/inner_api/osal/uhdf",
-      "//drivers/hdf_core/interfaces/inner_api/utils",
-      "//drivers/hdf_core/interfaces/inner_api/core",
-      "//drivers/hdf_core/interfaces/inner_api/ipc",
-      "//drivers/hdf_core/interfaces/inner_api/hdi",
+      "$interfaces_folder_path/inner_api/osal/shared",
+      "$interfaces_folder_path/inner_api/osal/uhdf",
+      "$interfaces_folder_path/inner_api/utils",
+      "$interfaces_folder_path/inner_api/core",
+      "$interfaces_folder_path/inner_api/ipc",
+      "$interfaces_folder_path/inner_api/hdi",
     ]
     defines = [ "__OHOS_USER__" ]
 

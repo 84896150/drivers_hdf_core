@@ -11,30 +11,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+BASE_ROOT_PATH = "./../../../../../../.."
+CORE_PATH = "./../../../../.."
+
 import("//build/lite/config/test.gni")
 
 unittest("hdf_adapter_uhdf_test_config") {
   output_extension = "bin"
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
-    "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
-    "//drivers/hdf_core/framework/include/platform",
-    "//drivers/hdf_core/framework/include/core",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/test/unittest/include",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "$BASE_ROOT_PATH/third_party/googletest/googletest/include",
+    "$BASE_ROOT_PATH/third_party/bounds_checking_function/include",
+    "$CORE_PATH/framework/include/platform",
+    "$CORE_PATH/framework/include/core",
+    "$CORE_PATH/framework/include/osal",
+    "$CORE_PATH/adapter/uhdf/posix/include",
+    "$CORE_PATH/framework/include/utils",
+    "$CORE_PATH/framework/include",
+    "$CORE_PATH/framework/test/unittest/include",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
-  sources = [ "//drivers/hdf_core/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp" ]
+  sources = [ "$CORE_PATH/framework/utils/src/hcs_parser/test/unittest/common/hdf_config_test.cpp" ]
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$CORE_PATH/adapter/build/test_common:libhdf_test_common",
+    "$CORE_PATH/adapter/uhdf/manager:hdf_core",
+    "$CORE_PATH/adapter/uhdf/posix:hdf_posix_osal",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_deps = [ "$BASE_ROOT_PATH/third_party/bounds_checking_function:libsec_shared" ]
 }

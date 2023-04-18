@@ -7,5 +7,5 @@
 group("hdf_platform_test") {
   testonly = true
   deps = []
-  deps += [ "//drivers/hdf_core/framework/support/platform/test/fuzztest:hdf_platform_fuzztest" ]
+  deps += [ "./../../../../framework/support/platform/test/fuzztest:hdf_platform_fuzztest" ]
 }

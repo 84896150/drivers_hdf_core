@@ -35,7 +35,7 @@ if (hdf_core_khdf_test_support) {
       "unittest/osal:hdf_adapter_uhdf_test_osal",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
       "unittest/platform/i2c:ui2c_test",
-      "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
+      "./../../../framework/test/fuzztest:hdf_framework_fuzztest",
     ]
     if (hdf_core_platform_test_support) {
       deps += [ "unittest/platform:hdf_adapter_uhdf_test_platform" ]
@@ -53,7 +53,7 @@ if (hdf_core_khdf_test_support) {
       "unittest/manager:hdf_adapter_uhdf_test_remote_adapter",
       "unittest/manager:hdf_adapter_uhdf_test_sbuf",
       "unittest/osal:hdf_adapter_uhdf_test_osal_posix",
-      "//drivers/hdf_core/framework/test/fuzztest:hdf_framework_fuzztest",
+      "./../../../framework/test/fuzztest:hdf_framework_fuzztest",
     ]
   }
 }

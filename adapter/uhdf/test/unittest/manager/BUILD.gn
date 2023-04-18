@@ -11,35 +11,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/lite/config/test.gni")
+BASE_ROOT_PATH = "./../../../../../../.."
+CORE_PATH = "./../../../../.."
+
+import("$BASE_ROOT_PATH/build/lite/config/test.gni")
 
 unittest("hdf_adapter_uhdf_test_manager") {
   output_extension = "bin"
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
-    "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
+    "$BASE_ROOT_PATH/third_party/googletest/googletest/include",
+    "$BASE_ROOT_PATH/third_party/bounds_checking_function/include",
 
-    "//drivers/hdf_core/framework/include/platform",
-    "//drivers/hdf_core/framework/include/core",
-    "//drivers/hdf_core/framework/core/common/include/host",
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/test/unittest/include",
-    "//drivers/hdf_core/framework/test/unittest/manager",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "$CORE_PATH/framework/include/platform",
+    "$CORE_PATH/framework/include/core",
+    "$CORE_PATH/framework/core/common/include/host",
+    "$CORE_PATH/framework/core/shared/include",
+    "$CORE_PATH/framework/include/osal",
+    "$CORE_PATH/adapter/uhdf/posix/include",
+    "$CORE_PATH/framework/include/utils",
+    "$CORE_PATH/framework/include",
+    "$CORE_PATH/framework/test/unittest/include",
+    "$CORE_PATH/framework/test/unittest/manager",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
   defines = [ "__USER__" ]
-  sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_lite_manager_test.cpp" ]
+  sources = [ "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_lite_manager_test.cpp" ]
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$CORE_PATH/adapter/build/test_common:libhdf_test_common",
+    "$CORE_PATH/adapter/uhdf/manager:hdf_core",
+    "$CORE_PATH/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 }
@@ -48,28 +51,28 @@ unittest("hdf_adapter_uhdf_test_ioservice") {
   output_extension = "bin"
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
-    "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
-    "//drivers/hdf_core/framework/include/platform",
-    "//drivers/hdf_core/framework/include/core",
-    "//drivers/hdf_core/framework/core/common/include/host",
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/test/unittest/include",
-    "//drivers/hdf_core/framework/test/unittest/manager",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "$BASE_ROOT_PATH/third_party/googletest/googletest/include",
+    "$BASE_ROOT_PATH/third_party/bounds_checking_function/include",
+    "$CORE_PATH/framework/include/platform",
+    "$CORE_PATH/framework/include/core",
+    "$CORE_PATH/framework/core/common/include/host",
+    "$CORE_PATH/framework/core/shared/include",
+    "$CORE_PATH/framework/include/osal",
+    "$CORE_PATH/adapter/uhdf/posix/include",
+    "$CORE_PATH/framework/include/utils",
+    "$CORE_PATH/framework/include",
+    "$CORE_PATH/framework/test/unittest/include",
+    "$CORE_PATH/framework/test/unittest/manager",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
   defines = [ "__USER__" ]
-  sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_ioservice_test.cpp" ]
+  sources = [ "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_ioservice_test.cpp" ]
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$CORE_PATH/adapter/build/test_common:libhdf_test_common",
+    "$CORE_PATH/adapter/uhdf/manager:hdf_core",
+    "$CORE_PATH/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 }
@@ -78,48 +81,48 @@ unittest("hdf_adapter_uhdf_test_sbuf") {
   output_extension = "bin"
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
-    "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/test/unittest/include",
-    "//drivers/hdf_core/framework/test/unittest/manager",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "$BASE_ROOT_PATH/third_party/googletest/googletest/include",
+    "$BASE_ROOT_PATH/third_party/bounds_checking_function/include",
+    "$CORE_PATH/framework/include/osal",
+    "$CORE_PATH/adapter/uhdf/posix/include",
+    "$CORE_PATH/framework/include/utils",
+    "$CORE_PATH/framework/include",
+    "$CORE_PATH/framework/test/unittest/include",
+    "$CORE_PATH/framework/test/unittest/manager",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
   defines = [
     "__USER__",
     "__LITEOS__",
   ]
-  sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp" ]
+  sources = [ "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp" ]
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$CORE_PATH/adapter/build/test_common:libhdf_test_common",
+    "$CORE_PATH/adapter/uhdf/manager:hdf_core",
+    "$CORE_PATH/adapter/uhdf/posix:hdf_posix_osal",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_deps = [ "$BASE_ROOT_PATH/third_party/bounds_checking_function:libsec_shared" ]
 }
 
 unittest("hdf_adapter_uhdf_test_door") {
   output_extension = "bin"
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
-    "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
-    "//drivers/hdf_core/framework/include/platform",
-    "//drivers/hdf_core/framework/include/core",
-    "//drivers/hdf_core/framework/core/common/include/host",
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/test/unittest/include",
-    "//drivers/hdf_core/framework/test/unittest/manager",
-    "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
+    "$BASE_ROOT_PATH/third_party/googletest/googletest/include",
+    "$BASE_ROOT_PATH/third_party/bounds_checking_function/include",
+    "$CORE_PATH/framework/include/platform",
+    "$CORE_PATH/framework/include/core",
+    "$CORE_PATH/framework/core/common/include/host",
+    "$CORE_PATH/framework/core/shared/include",
+    "$CORE_PATH/framework/include/osal",
+    "$CORE_PATH/adapter/uhdf/posix/include",
+    "$CORE_PATH/framework/include/utils",
+    "$CORE_PATH/framework/include",
+    "$CORE_PATH/framework/test/unittest/include",
+    "$CORE_PATH/framework/test/unittest/manager",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
   defines = [
@@ -127,15 +130,15 @@ unittest("hdf_adapter_uhdf_test_door") {
     "__LITEOS__",
   ]
   sources = [
-    "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_ioservice_test.cpp",
-    "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_lite_manager_test.cpp",
-    "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp",
+    "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_ioservice_test.cpp",
+    "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_lite_manager_test.cpp",
+    "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_sbuf_test.cpp",
   ]
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$CORE_PATH/adapter/build/test_common:libhdf_test_common",
+    "$CORE_PATH/adapter/uhdf/manager:hdf_core",
+    "$CORE_PATH/adapter/uhdf/posix:hdf_posix_osal",
   ]
   public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
 }
@@ -144,29 +147,29 @@ unittest("hdf_adapter_uhdf_test_pm") {
   output_extension = "bin"
   output_dir = "$root_out_dir/test/unittest/hdf"
   include_dirs = [
-    "//third_party/googletest/googletest/include",
-    "//third_party/bounds_checking_function/include",
-    "//drivers/hdf_core/framework/include/platform",
-    "//drivers/hdf_core/framework/include/core",
-    "//drivers/hdf_core/framework/core/common/include/host",
-    "//drivers/hdf_core/framework/core/shared/include",
-    "//drivers/hdf_core/framework/include/osal",
-    "//drivers/hdf_core/adapter/uhdf/posix/include",
-    "//drivers/hdf_core/framework/include/utils",
-    "//drivers/hdf_core/framework/include",
-    "//drivers/hdf_core/framework/test/unittest/include",
-    "//drivers/hdf_core/framework/test/unittest/manager",
-    "//drivers/hdf_core/framework/test/unittest/pm",
+    "$BASE_ROOT_PATH/third_party/googletest/googletest/include",
+    "$BASE_ROOT_PATH/third_party/bounds_checking_function/include",
+    "$CORE_PATH/framework/include/platform",
+    "$CORE_PATH/framework/include/core",
+    "$CORE_PATH/framework/core/common/include/host",
+    "$CORE_PATH/framework/core/shared/include",
+    "$CORE_PATH/framework/include/osal",
+    "$CORE_PATH/adapter/uhdf/posix/include",
+    "$CORE_PATH/framework/include/utils",
+    "$CORE_PATH/framework/include",
+    "$CORE_PATH/framework/test/unittest/include",
+    "$CORE_PATH/framework/test/unittest/manager",
+    "$CORE_PATH/framework/test/unittest/pm",
     "//base/hiviewdfx/hilog_lite/interfaces/native/innerkits",
   ]
 
   defines = [ "__USER__" ]
-  sources = [ "//drivers/hdf_core/framework/core/manager/test/unittest/common/hdf_pm_test.cpp" ]
+  sources = [ "$CORE_PATH/framework/core/manager/test/unittest/common/hdf_pm_test.cpp" ]
   deps = [
-    "//base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
-    "//drivers/hdf_core/adapter/build/test_common:libhdf_test_common",
-    "//drivers/hdf_core/adapter/uhdf/manager:hdf_core",
-    "//drivers/hdf_core/adapter/uhdf/posix:hdf_posix_osal",
+    "$BASE_ROOT_PATH/base/hiviewdfx/hilog_lite/frameworks/featured:hilog_shared",
+    "$CORE_PATH/adapter/build/test_common:libhdf_test_common",
+    "$CORE_PATH/adapter/uhdf/manager:hdf_core",
+    "$CORE_PATH/adapter/uhdf/posix:hdf_posix_osal",
   ]
-  public_deps = [ "//third_party/bounds_checking_function:libsec_shared" ]
+  public_deps = [ "$BASE_ROOT_PATH/third_party/bounds_checking_function:libsec_shared" ]
 }

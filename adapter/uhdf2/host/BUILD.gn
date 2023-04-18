@@ -11,16 +11,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
-import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+# import("//build/ohos.gni")
+# import("//drivers/hdf_core/adapter/uhdf2/uhdf.gni")
+import("./../../../../../build/ohos.gni")
+import("./../uhdf.gni")
+
+hdf_framework_path = "./../../../framework"
+hdf_interfaces_path = "./../../../interfaces"
+# hdf_uhdf_path = "//drivers/hdf_core/adapter/uhdf2"
+hdf_uhdf_path = "./.."
+
 config("libhdf_host_public_config") {
   visibility = [ ":*" ]
 
   include_dirs = [
-    "//drivers/hdf_core/interfaces/inner_api/core",
-    "//drivers/hdf_core/interfaces/inner_api/osal/shared",
-    "//drivers/hdf_core/interfaces/inner_api/host/shared",
-    "//drivers/hdf_core/interfaces/inner_api/host/uhdf",
+    "$hdf_interfaces_path/inner_api/core",
+    "$hdf_interfaces_path/inner_api/osal/shared",
+    "$hdf_interfaces_path/inner_api/host/shared",
+    "$hdf_interfaces_path/inner_api/host/uhdf",
   ]
 }
 if (defined(ohos_lite)) {
@@ -109,7 +117,7 @@ if (defined(ohos_lite)) {
       "$hdf_uhdf_path/shared/include",
       "$hdf_uhdf_path/manager/include",
       "$hdf_uhdf_path/osal/include",
-      "//drivers/hdf_core/interfaces/inner_api/core",
+      "$hdf_interfaces_path/inner_api/core",
       "include",
     ]
 
