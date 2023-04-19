@@ -28,10 +28,6 @@ if (defined(ohos_lite)) {
     ]
   }
 } else {
-  declare_args() {
-    hdf_core_feature_config = true
-  }
-
   group("uhdf_entry") {
     deps = [
       "//drivers/hdf_core/adapter/uhdf2/hdi:libhdi",
@@ -51,10 +47,6 @@ if (defined(ohos_lite)) {
       "//drivers/peripheral/base:audio_hifi_watchdog.para.dac",
       "//drivers/peripheral/base:hdf_peripheral.cfg",
     ]
-
-    if (hdf_core_feature_config) {
-      deps += [ "//drivers/hdf_core/adapter/uhdf2/hcs:hcs_entry" ]
-    }
   }
   group("uhdf_test_entry") {
     testonly = true
