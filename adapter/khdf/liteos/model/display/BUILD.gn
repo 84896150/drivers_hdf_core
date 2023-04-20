@@ -31,7 +31,8 @@ import("//drivers/hdf_core/adapter/khdf/liteos/hdf.gni")
 module_switch = defined(LOSCFG_DRIVERS_HDF_DISP)
 module_name = "hdf_display"
 hdf_driver(module_name) {
-  FRAMEWORKS_DISPLAY_ROOT = "$HDF_FRAMEWORKS_PATH/model/display/driver"
+  HDF_FRAMEWORKS_REAL_PATH = "./../../../../../framework"
+  FRAMEWORKS_DISPLAY_ROOT = "$HDF_FRAMEWORKS_REAL_PATH/model/display/driver"
   sources = [
     "$FRAMEWORKS_DISPLAY_ROOT/backlight/hdf_bl.c",
     "$FRAMEWORKS_DISPLAY_ROOT/hdf_disp.c",
