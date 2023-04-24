@@ -30,13 +30,8 @@ if (defined(ohos_lite)) {
     ]
   }
 } else {
-  declare_args() {
-    hdf_core_feature_config = true
-  }
-
   group("uhdf_entry") {
     hdf_framework_path = "./../framework"
-    hdf_peripheral_path = "./../../peripheral"
     deps = [
       "$hdf_adapter_path/uhdf2/hdi:libhdi",
       "$hdf_adapter_path/uhdf2/host:hdf_devhost",
@@ -51,12 +46,7 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/pub_utils:libpub_utils",
       "$hdf_adapter_path/uhdf2/utils:libhdf_utils",
       "$hdf_framework_path/tools/hdf_dbg:hdf_dbg",
-      "$hdf_peripheral_path/base:hdf_peripheral.cfg",
     ]
-
-    if (hdf_core_feature_config) {
-      deps += [ "$hdf_adapter_path/uhdf2/hcs:hcs_entry" ]
-    }
   }
   group("uhdf_test_entry") {
     testonly = true
