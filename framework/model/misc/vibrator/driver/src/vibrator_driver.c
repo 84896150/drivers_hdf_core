@@ -17,6 +17,7 @@
 
 #define VIBRATOR_WORK_QUEUE_NAME    "vibrator_queue"
 #define VIBRATOR_START_TIME    10
+#define PRIMITIVE_VIBRATION_DURATION    20
 
 struct VibratorDriverData *g_vibratorDrvData = NULL;
 
@@ -37,6 +38,8 @@ int32_t RegisterVibratorOps(struct VibratorOps *ops)
     drvData->ops.StartEffect = ops->StartEffect;
     drvData->ops.Stop = ops->Stop;
     drvData->ops.SetParameter = ops->SetParameter;
+    drvData->ops.SetEffectId = ops->SetEffectId;
+    drvData->ops.EnablePrimitiveEffect = ops->EnablePrimitiveEffect;
     (void)OsalMutexUnlock(&drvData->mutex);
 
     return HDF_SUCCESS;
@@ -66,7 +69,12 @@ void StartVibrator(void)
 
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
 
-    drvData->state = VIBRATOR_STATE_START_TIMER;
+    if (drvData->mode == VIBRATOR_MODE_ONCE) {
+        drvData->state = VIBRATOR_STATE_START_TIMER;
+    } else if (drvData->mode == VIBRATOR_MODE_PRIMITIVE_EFFECT) {
+        drvData->state = VIBRATOR_STATE_PRIMITIVE_EFFECT;
+    }
+
     HdfAddWork(&drvData->workQueue, &drvData->work);
 }
 
@@ -104,9 +112,17 @@ static void VibratorWorkEntry(void *para)
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData);
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData->ops.Start);
     CHECK_VIBRATOR_NULL_PTR_RETURN(drvData->ops.Stop);
+    CHECK_VIBRATOR_NULL_PTR_RETURN(drvData->ops.EnablePrimitiveEffect);
 
     if (drvData->state == VIBRATOR_STATE_START_TIMER) {
         ret = drvData->ops.Start();
+        if (ret != HDF_SUCCESS) {
+            HDF_LOGE("%s: add vibrator work fail! device state[%d]!", __func__, drvData->state);
+        }
+    }
+
+    if (drvData->state == VIBRATOR_STATE_PRIMITIVE_EFFECT) {
+        ret = drvData->ops.EnablePrimitiveEffect();
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: add vibrator work fail! device state[%d]!", __func__, drvData->state);
         }
@@ -313,12 +329,58 @@ static int32_t EnableModulationParameter(struct HdfSBuf *data, struct HdfSBuf *r
 
     return HDF_SUCCESS;
 }
+
+static int32_t EnablePrimitiveEffect(struct HdfSBuf *data, struct HdfSBuf *reply)
+{
+    int32_t ret;
+    uint8_t effectId;
+    struct VibratorEffectCfg config;
+    struct VibratorDriverData *drvData = GetVibratorDrvData();
+    (void)reply;
+
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(data, HDF_FAILURE);
+    CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(drvData, HDF_FAILURE);
+
+    if (!HdfSbufReadUint8(data, &effectId)) {
+        HDF_LOGE("%s: sbuf read effect failed!", __func__);
+        return HDF_FAILURE;
+    }
+
+    if (effectId == 0) {
+        HDF_LOGE("%s: effect ID invalid para!", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
+
+    if (drvData->mode != VIBRATOR_MODE_BUTT) {
+        HDF_LOGI("%s: vibrater haptic is busy now, please stop first!", __func__);
+        return HDF_ERR_DEVICE_BUSY;
+    }
+
+    (void)OsalMutexLock(&drvData->mutex);
+    drvData->mode = VIBRATOR_MODE_PRIMITIVE_EFFECT;
+    (void)OsalMutexUnlock(&drvData->mutex);
+
+    ret = drvData->ops.SetEffectId(effectId);
+
+    config.cfgMode = VIBRATOR_MODE_ONCE;
+    config.duration = PRIMITIVE_VIBRATION_DURATION;
+    config.effect = NULL;
+
+    ret = StartHaptic(&config);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: start haptic failed!", __func__);
+        return ret;
+    }
+    return HDF_SUCCESS;
+}
+
 static struct VibratorCmdHandleList g_vibratorCmdHandle[] = {
     {VIBRATOR_DRV_IO_START_ONCE, StartOnce},
     {VIBRATOR_DRV_IO_START_PRESET, StartEffect},
     {VIBRATOR_DRV_IO_STOP, Stop},
     {VIBRATOR_DRV_IO_GET_INFO, GetVibratorInfo},
     {VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER, EnableModulationParameter},
+    {VIBRATOR_DRV_IO_ENABLE_PRIMITIVE_EFFECT, EnablePrimitiveEffect},
 };
 
 static int32_t DispatchVibrator(struct HdfDeviceIoClient *client,
