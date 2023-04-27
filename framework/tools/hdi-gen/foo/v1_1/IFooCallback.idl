@@ -1,0 +1,7 @@
+package ohos.hdi.foo.v1_1;
+
+import ohos.hdi.foo.v1_0.IFooCallback;
+
+[callback] interface IFooCallback extends ohos.hdi.foo.v1_0.IFooCallback {
+    Ping2();
+};

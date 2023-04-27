@@ -179,6 +179,7 @@ bool Parser::ParserPackageInfo(const std::string &packageName)
     size_t majorVersion = std::stoul(result.str(RE_PACKAGE_MAJOR_VER_INDEX));
     size_t minorVersion = std::stoul(result.str(RE_PACKAGE_MINOR_VER_INDEX));
     ast_->SetVersion(majorVersion, minorVersion);
+
     return true;
 }
 
@@ -794,6 +795,7 @@ AutoPtr<ASTType> Parser::ParseType()
     while (lexer_.PeekToken().kind == TokenType::BRACKETS_LEFT) {
         type = ParseArrayType(type);
     }
+
     return type;
 }
 
@@ -851,11 +853,12 @@ AutoPtr<ASTType> Parser::ParseArrayType(const AutoPtr<ASTType> &elementType)
 
     AutoPtr<ASTArrayType> arrayType = new ASTArrayType();
     arrayType->SetElementType(elementType);
-    AutoPtr<ASTType> retType = ast_->FindType(arrayType->ToString());
-    if (retType == nullptr) {
-        retType = arrayType.Get();
-    }
+    // AutoPtr<ASTType> retType = ast_->FindType(arrayType->ToString());
+    // if (retType == nullptr) {
+    //     retType = arrayType.Get();
+    // }
 
+    AutoPtr<ASTType> retType = arrayType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -886,12 +889,14 @@ AutoPtr<ASTType> Parser::ParseListType()
 
     AutoPtr<ASTListType> listType = new ASTListType();
     listType->SetElementType(type);
-    AutoPtr<ASTType> retType = ast_->FindType(listType->ToString());
-    if (retType == nullptr) {
-        retType = listType.Get();
-    }
+    // AutoPtr<ASTType> retType = ast_->FindType(listType->ToString());
+    // if (retType == nullptr) {
+    //     retType = listType.Get();
+    // }
 
+    AutoPtr<ASTType> retType = listType.Get();
     ast_->AddType(retType);
+
     return retType;
 }
 
@@ -937,11 +942,12 @@ AutoPtr<ASTType> Parser::ParseMapType()
     AutoPtr<ASTMapType> mapType = new ASTMapType();
     mapType->SetKeyType(keyType);
     mapType->SetValueType(valueType);
-    AutoPtr<ASTType> retType = ast_->FindType(mapType->ToString());
-    if (retType == nullptr) {
-        retType = mapType.Get();
-    }
+    // AutoPtr<ASTType> retType = ast_->FindType(mapType->ToString());
+    // if (retType == nullptr) {
+    //     retType = mapType.Get();
+    // }
 
+    AutoPtr<ASTType> retType = mapType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -972,11 +978,11 @@ AutoPtr<ASTType> Parser::ParseSmqType()
 
     AutoPtr<ASTSmqType> smqType = new ASTSmqType();
     smqType->SetInnerType(innerType);
-    AutoPtr<ASTType> retType = ast_->FindType(smqType->ToString());
-    if (retType == nullptr) {
-        retType = smqType.Get();
-    }
-
+    // AutoPtr<ASTType> retType = ast_->FindType(smqType->ToString());
+    // if (retType == nullptr) {
+    //     retType = smqType.Get();
+    // }
+    AutoPtr<ASTType> retType = smqType.Get();
     ast_->AddType(retType);
     return retType;
 }
@@ -988,7 +994,7 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
         return ast_->FindType(token.value);
     }
 
-    std::string typePrefix = token.value;
+    // std::string typePrefix = token.value;
 
     token = lexer_.PeekToken();
     if (token.kind != TokenType::ID) {
@@ -998,7 +1004,8 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
         lexer_.GetToken();
     }
 
-    std::string typeName = typePrefix + " " + token.value;
+    // std::string typeName = typePrefix + " " + token.value;
+    std::string typeName = token.value;
     AutoPtr<ASTType> type = ast_->FindType(typeName);
     ast_->AddType(type);
     return type;
@@ -1008,7 +1015,6 @@ void Parser::ParseEnumDeclaration(const AttrSet &attrs)
 {
     AutoPtr<ASTEnumType> enumType = new ASTEnumType;
     enumType->SetAttribute(ParseUserDefTypeAttr(attrs));
-
     lexer_.GetToken();
     Token token = lexer_.PeekToken();
     if (token.kind != TokenType::ID) {

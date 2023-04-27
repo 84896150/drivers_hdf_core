@@ -97,8 +97,6 @@ public:
 
     void SetPackageName(const std::string &packageName);
 
-    std::string GetPackageName();
-
     AutoPtr<ASTNamespace> ParseNamespace(const std::string &nspaceStr);
 
     void AddNamespace(const AutoPtr<ASTNamespace> &nspace);
@@ -133,7 +131,7 @@ public:
 
     void AddType(const AutoPtr<ASTType> &type);
 
-    AutoPtr<ASTType> FindType(const std::string &typeName);
+    AutoPtr<ASTType> FindType(const std::string &typeName, bool lookImports = true);
 
     inline const TypeStringMap &GetTypes() const
     {
@@ -198,6 +196,8 @@ private:
     size_t majorVersion_;
     size_t minorVersion_;
     std::vector<AutoPtr<ASTNamespace>> namespaces_;
+    std::vector<AutoPtr<ASTNamespace>> allNamespaces_;
+    AutoPtr<ASTNamespace> namespace_;
     std::vector<AutoPtr<ASTType>> typeDefinitions_;
     AutoPtr<ASTSequenceableType> sequenceableDef_ = nullptr;
     AutoPtr<ASTInterfaceType> interfaceDef_ = nullptr;
