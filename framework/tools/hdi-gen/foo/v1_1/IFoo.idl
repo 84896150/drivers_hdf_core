@@ -1,0 +1,10 @@
+package ohos.hdi.foo.v1_1;
+
+import ohos.hdi.foo.v1_0.IFoo;
+import ohos.hdi.foo.v1_1.IFooCallback;
+
+interface IFoo extends ohos.hdi.foo.v1_0.IFoo {
+    SendCallback2([in] ohos.hdi.foo.v1_1.IFooCallback cb);
+
+    SendCallback3([in] IFooCallback[] cb);
+};

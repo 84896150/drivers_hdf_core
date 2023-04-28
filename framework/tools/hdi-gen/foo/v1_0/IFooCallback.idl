@@ -1,0 +1,5 @@
+package ohos.hdi.foo.v1_0;
+
+[callback] interface IFooCallback {
+    Ping();
+};

@@ -67,10 +67,10 @@ bool ASTInterfaceType::IsInterfaceType()
     return true;
 }
 
-std::string ASTInterfaceType::ToString() const
-{
-    return name_;
-}
+// std::string ASTInterfaceType::ToString() const
+// {
+//     return name_;
+// }
 
 std::string ASTInterfaceType::Dump(const std::string &prefix)
 {
