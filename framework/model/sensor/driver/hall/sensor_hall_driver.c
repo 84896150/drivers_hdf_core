@@ -40,7 +40,7 @@ int32_t HallRegisterChipOps(const struct HallOpsCall *ops)
     return HDF_SUCCESS;
 }
 
-void ReadGpioData()
+void ReadGpioData(void)
 {
     int32_t ret;
     uint16_t tmp;
