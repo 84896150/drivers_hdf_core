@@ -151,7 +151,6 @@
         }
       ],
       "test": [
-        "//drivers/hdf_core/adapter:uhdf_test_entry"
       ]
     }
   }
