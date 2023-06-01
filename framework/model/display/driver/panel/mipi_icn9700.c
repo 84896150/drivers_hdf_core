@@ -33,7 +33,17 @@
 #define VERTICAL_SYNC_WIDTH       2
 #define FRAME_RATE                60
 
-/* panel on command payload */
+#define WIDTH1                    480
+#define HEIGHT1                   960
+#define HORIZONTAL_BACK_PORCH1    44
+#define HORIZONTAL_FRONT_PORCH1   46
+#define HORIZONTAL_SYNC_WIDTH1    4
+#define VERTICAL_BACK_PORCH1      15
+#define VERTICAL_FRONT_PORCH1     15
+#define VERTICAL_SYNC_WIDTH1      2
+#define FRAME_RATE1               60
+
+/* panel0 on command payload */
 static uint8_t g_payLoad0[] = { 0xF0, 0x5A, 0x5A };
 static uint8_t g_payLoad1[] = { 0xF1, 0xA5, 0xA5 };
 static uint8_t g_payLoad2[] = { 0xB3, 0x03, 0x03, 0x03, 0x07, 0x05, 0x0D, 0x0F, 0x11, 0x13, 0x09, 0x0B };
@@ -60,7 +70,7 @@ static uint8_t g_payLoad18[] = {
 static uint8_t g_payLoad19[] = { 0x11 };
 static uint8_t g_payLoad20[] = { 0x29 };
 
-struct DsiCmdDesc g_OnCmd[] = {
+struct DsiCmdDesc g_OnCmd0[] = {
     { 0x29, 0, sizeof(g_payLoad0), g_payLoad0 },
     { 0x29, 0, sizeof(g_payLoad1), g_payLoad1 },
     { 0x29, 0, sizeof(g_payLoad2), g_payLoad2 },
@@ -84,6 +94,103 @@ struct DsiCmdDesc g_OnCmd[] = {
     { 0x05, 120, sizeof(g_payLoad20), g_payLoad20 },
 };
 
+/* panel1 on command payload */
+static uint8_t g_payLoad1_0[] = { 0xFF,0x77,0x01,0x00,0x00,0x13};
+static uint8_t g_payLoad1_1[] = { 0xEF,0x08};
+static uint8_t g_payLoad1_2[] = { 0xFF,0x77,0x01,0x00,0x00,0x10};
+static uint8_t g_payLoad1_3[] = { 0xC0,0xF7,0x02};
+static uint8_t g_payLoad1_4[] = { 0xC1,0x0C,0x02};
+static uint8_t g_payLoad1_5[] = { 0xC2,0x07,0x02};
+static uint8_t g_payLoad1_6[] = { 0xC6,0x21};
+static uint8_t g_payLoad1_7[] = { 0xCC,0x30};
+static uint8_t g_payLoad1_8[] = { 0xB0,0x00,0x0B,0x12,0x0D,0x11,0x07,0x04,0x08,0x07,0x20,0x05,0x12,0x0F,0x28,0x30,0x1B};
+static uint8_t g_payLoad1_9[] = { 0xB1,0x00,0x0B,0x12,0x0D,0x11,0x05,0x03,0x08,0x08,0x20,0x03,0x10,0x10,0x29,0x30,0x1B};
+static uint8_t g_payLoad1_10[] = { 0xFF,0x77,0x01,0x00,0x00,0x11};
+static uint8_t g_payLoad1_11[] = { 0xB0,0x4D};
+static uint8_t g_payLoad1_12[] = { 0xB1,0x2A};
+static uint8_t g_payLoad1_13[] = { 0xB2,0x87};
+static uint8_t g_payLoad1_14[] = { 0xB3,0x80};
+static uint8_t g_payLoad1_15[] = { 0xB5,0x49};
+static uint8_t g_payLoad1_16[] = { 0xB7,0x87};
+static uint8_t g_payLoad1_17[] = { 0xB8,0x21};
+static uint8_t g_payLoad1_18[] = { 0xB9,0x10};
+static uint8_t g_payLoad1_19[] = { 0xBB,0x00};
+static uint8_t g_payLoad1_20[] = { 0xC0,0x09};
+static uint8_t g_payLoad1_21[] = { 0xC1,0x78};
+static uint8_t g_payLoad1_22[] = { 0xC2,0x78};
+static uint8_t g_payLoad1_23[] = { 0xD0,0x88};
+static uint8_t g_payLoad1_24[] = { 0xFF,0x77,0x01,0x00,0x00,0x11};
+static uint8_t g_payLoad1_25[] = { 0xE0,0x00,0x19,0x00};
+static uint8_t g_payLoad1_26[] = { 0xE1,0x07,0x82,0x00,0x82,0x06,0x82,0x00,0x82,0x00,0x40,0x40};
+static uint8_t g_payLoad1_27[] = { 0xE2,0x30,0x30,0x40,0x40,0xCC,0x82,0x00,0x82,0xCB,0x82,0x00,0x82,0x00};
+static uint8_t g_payLoad1_28[] = { 0xE3,0x00,0x00,0x33,0x33};
+static uint8_t g_payLoad1_29[] = { 0xE4,0x44,0x44};
+static uint8_t g_payLoad1_30[] = { 0xE5,0x09,0xC5,0xAA,0x82,0x0B,0xC7,0xAA,0x82,0x0D,0xC9,0xAA,0x82,0x0F,0xCB,0xAA,0x82};
+static uint8_t g_payLoad1_31[] = { 0xE6,0x00,0x00,0x33,0x33};
+static uint8_t g_payLoad1_32[] = { 0xE7,0x44,0x44};
+static uint8_t g_payLoad1_33[] = { 0xE8,0x08,0xC4,0xAA,0x82,0x0A,0xC6,0xAA,0x82,0x0C,0xC8,0xAA,0x82,0x0E,0xCA,0xAA,0x82};
+static uint8_t g_payLoad1_34[] = { 0xEB,0x00,0x00,0xE4,0xE4,0x88,0x00,0x10};
+static uint8_t g_payLoad1_35[] = { 0xEC,0x3D,0x00};
+static uint8_t g_payLoad1_36[] = { 0xED,0xAB,0x98,0x76,0x54,0x02,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0x20,0x45,0x67,0x89,0xBA};
+static uint8_t g_payLoad1_37[] = { 0xEF,0x08,0x08,0x08,0x45,0x3F,0x54};
+static uint8_t g_payLoad1_38[] = { 0xFF,0x77,0x01,0x00,0x00,0x00};
+// --Bank2 bist mode strat-- //
+// static uint8_t g_payLoad1_39[] = { 0xFF,0x77,0x01,0x00,0x00,0x12};  // BK2
+// static uint8_t g_payLoad1_40[] = { 0xD1,0x81}; // bist mode
+// static uint8_t g_payLoad1_41[] = { 0xD2,0x08}; // test pattern
+// --bist mode end-- //
+static uint8_t g_payLoad1_42[] = { 0x11};
+static uint8_t g_payLoad1_43[] = { 0x29};
+
+struct DsiCmdDesc g_OnCmd1[] = {
+    { 0x29, 0, sizeof(g_payLoad1_0), g_payLoad1_0 },
+    { 0x23, 0, sizeof(g_payLoad1_1), g_payLoad1_1 },
+    { 0x29, 0, sizeof(g_payLoad1_2), g_payLoad1_2 },
+    { 0x29, 0, sizeof(g_payLoad1_3), g_payLoad1_3 },
+    { 0x29, 0, sizeof(g_payLoad1_4), g_payLoad1_4 },
+    { 0x29, 0, sizeof(g_payLoad1_5), g_payLoad1_5 },
+    { 0x23, 0, sizeof(g_payLoad1_6), g_payLoad1_6 },
+    { 0x23, 0, sizeof(g_payLoad1_7), g_payLoad1_7 },
+    { 0x29, 0, sizeof(g_payLoad1_8), g_payLoad1_8 },
+    { 0x29, 0, sizeof(g_payLoad1_9), g_payLoad1_9 },
+    { 0x29, 0, sizeof(g_payLoad1_10), g_payLoad1_10 },
+    { 0x23, 0, sizeof(g_payLoad1_11), g_payLoad1_11 },
+    { 0x23, 0, sizeof(g_payLoad1_12), g_payLoad1_12 },
+    { 0x23, 0, sizeof(g_payLoad1_13), g_payLoad1_13 },
+    { 0x23, 0, sizeof(g_payLoad1_14), g_payLoad1_14 },
+    { 0x23, 0, sizeof(g_payLoad1_15), g_payLoad1_15 },
+    { 0x23, 0, sizeof(g_payLoad1_16), g_payLoad1_16 },
+    { 0x23, 0, sizeof(g_payLoad1_17), g_payLoad1_17 },
+    { 0x23, 0, sizeof(g_payLoad1_18), g_payLoad1_18 },
+    { 0x23, 0, sizeof(g_payLoad1_19), g_payLoad1_19 },
+    { 0x23, 0, sizeof(g_payLoad1_20), g_payLoad1_20 },
+    { 0x23, 0, sizeof(g_payLoad1_21), g_payLoad1_21 },
+    { 0x23, 0, sizeof(g_payLoad1_22), g_payLoad1_22 },
+    { 0x23, 0, sizeof(g_payLoad1_23), g_payLoad1_23 },
+    { 0x29, 0, sizeof(g_payLoad1_24), g_payLoad1_24 },
+    { 0x29, 0, sizeof(g_payLoad1_25), g_payLoad1_25 },
+    { 0x29, 0, sizeof(g_payLoad1_26), g_payLoad1_26 },
+    { 0x29, 0, sizeof(g_payLoad1_27), g_payLoad1_27 },
+    { 0x29, 0, sizeof(g_payLoad1_28), g_payLoad1_28 },
+    { 0x29, 0, sizeof(g_payLoad1_29), g_payLoad1_29 },
+    { 0x29, 0, sizeof(g_payLoad1_30), g_payLoad1_30 },
+    { 0x29, 0, sizeof(g_payLoad1_31), g_payLoad1_31 },
+    { 0x29, 0, sizeof(g_payLoad1_32), g_payLoad1_32 },
+    { 0x29, 0, sizeof(g_payLoad1_33), g_payLoad1_33 },
+    { 0x29, 0, sizeof(g_payLoad1_34), g_payLoad1_34 },
+    { 0x29, 0, sizeof(g_payLoad1_35), g_payLoad1_35 },
+    { 0x29, 0, sizeof(g_payLoad1_36), g_payLoad1_36 },
+    { 0x29, 0, sizeof(g_payLoad1_37), g_payLoad1_37 },
+    { 0x29, 0, sizeof(g_payLoad1_38), g_payLoad1_38 },
+    // --Bank2 bist mode strat-- //
+    // { 0x29, 0, sizeof(g_payLoad1_39), g_payLoad1_39 },
+    // { 0x23, 0, sizeof(g_payLoad1_40), g_payLoad1_40 },
+    // { 0x23, 0, sizeof(g_payLoad1_41), g_payLoad1_41 },
+    // --bist mode end-- //
+    { 0x05, 120, sizeof(g_payLoad1_42), g_payLoad1_42 },
+    { 0x05, 50, sizeof(g_payLoad1_43), g_payLoad1_43 },
+};
+
 /* panel off command payload */
 static uint8_t g_offPayLoad0[] = { 0x28 };
 static uint8_t g_offPayLoad1[] = { 0x10 };
@@ -91,6 +198,8 @@ struct DsiCmdDesc g_offCmd[] = {
     { 0x05, 20, sizeof(g_offPayLoad0), g_offPayLoad0 },
     { 0x05, 120, sizeof(g_offPayLoad1), g_offPayLoad1 },
 };
+
+static uint8_t g_panelSolution = 0;  //0-icn9700[default], 1-ST7701SN
 
 struct Icn9700Dev {
     struct PanelData panel;
@@ -153,6 +262,42 @@ static struct Icn9700Dev *PanelToIcn9700Dev(const struct PanelData *panel)
     return icn9700;
 }
 
+static int32_t LcdCheckChipId(struct PanelData *panel)
+{
+    int32_t ret;
+    struct Icn9700Dev *icn9700 = NULL;
+    uint8_t payload = 0xA1;
+    uint8_t bufRead[2] = { 0 };
+    struct DsiCmdDesc cmdRead = {
+        .dataType = 0x06,     /* 0x06: read data type */
+        .dataLen = 1,         /* 1: data len */
+        .delay = 0,
+        .payload = &payload,
+    };
+    icn9700 = PanelToIcn9700Dev(panel);
+    if ((icn9700 == NULL) || (icn9700->mipiHandle == NULL)) {
+        HDF_LOGE("%s: icn9700 || mipiHandle is null", __func__);
+        return HDF_FAILURE;
+    }
+    /* lcd reset power on */
+    ret = LcdResetOn(icn9700);
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%s: LcdResetOn failed", __func__);
+        return HDF_FAILURE;
+    }
+    ret = MipiDsiRx(icn9700->mipiHandle, &cmdRead, sizeof(bufRead), bufRead);
+    if (ret == HDF_SUCCESS) {
+        if(bufRead[0] == 0x99) {
+            g_panelSolution = 1;
+        } else {
+            g_panelSolution = 0;
+        }
+    }
+    /* lcd reset power off */
+    ret = LcdResetOff(icn9700);
+    return ret;
+}
+
 static int32_t Icn9700Init(struct PanelData *panel)
 {
     struct Icn9700Dev *icn9700 = NULL;
@@ -167,6 +312,7 @@ static int32_t Icn9700Init(struct PanelData *panel)
         HDF_LOGE("%s: MipiDsiOpen failed", __func__);
         return HDF_FAILURE;
     }
+    LcdCheckChipId(panel);
     return HDF_SUCCESS;
 }
 
@@ -191,8 +337,16 @@ static int32_t Icn9700On(struct PanelData *panel)
         return HDF_FAILURE;
     }
     /* send mipi init code */
-    int32_t count = sizeof(g_OnCmd) / sizeof(g_OnCmd[0]);
+    int32_t count = 0;
     int32_t i;
+    struct DsiCmdDesc* g_OnCmd = NULL;
+    if (g_panelSolution == 1) {
+        count = sizeof(g_OnCmd1) / sizeof(g_OnCmd1[0]);
+        g_OnCmd = &(g_OnCmd1[0]);
+    } else {
+        count = sizeof(g_OnCmd0) / sizeof(g_OnCmd0[0]);
+        g_OnCmd = &(g_OnCmd0[0]);
+    }
     /* set mipi to lp mode */
     MipiDsiSetLpMode(icn9700->mipiHandle);
     for (i = 0; i < count; i++) {
@@ -257,15 +411,15 @@ static int32_t Icn9700EsdCheckFunc(struct PanelData *panel)
 
 #define OUTPUT_USER 0 /* output timing type */
 static struct PanelInfo g_panelInfo = {
-    .width = WIDTH,                     /* width */
-    .height = HEIGHT,                   /* height */
-    .hbp = HORIZONTAL_BACK_PORCH,       /* horizontal back porch */
-    .hfp = HORIZONTAL_FRONT_PORCH,      /* horizontal front porch */
-    .hsw = HORIZONTAL_SYNC_WIDTH,       /* horizontal sync width */
-    .vbp = VERTICAL_BACK_PORCH,         /* vertical back porch */
-    .vfp = VERTICAL_FRONT_PORCH,        /* vertical front porch */
-    .vsw = VERTICAL_SYNC_WIDTH,         /* vertical sync width */
-    .frameRate = FRAME_RATE,            /* frame rate */
+    .width = WIDTH1,                    /* width */
+    .height = HEIGHT1,                  /* height */
+    .hbp = HORIZONTAL_BACK_PORCH1,      /* horizontal back porch */
+    .hfp = HORIZONTAL_FRONT_PORCH1,     /* horizontal front porch */
+    .hsw = HORIZONTAL_SYNC_WIDTH1,      /* horizontal sync width */
+    .vbp = VERTICAL_BACK_PORCH1,        /* vertical back porch */
+    .vfp = VERTICAL_FRONT_PORCH1,       /* vertical front porch */
+    .vsw = VERTICAL_SYNC_WIDTH1,        /* vertical sync width */
+    .frameRate = FRAME_RATE1,           /* frame rate */
     .intfType = MIPI_DSI,               /* panel interface type */
     .intfSync = OUTPUT_USER,
     /* mipi config info */
