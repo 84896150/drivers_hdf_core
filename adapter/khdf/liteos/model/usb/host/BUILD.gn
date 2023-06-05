@@ -34,6 +34,7 @@ hdf_driver(module_name) {
   PERIPHERAL_USB_DDK_HOST = "$HDF_PERIPHERAL_PATH/usb/ddk/host"
   sources = [
     "$PERIPHERAL_USB_DDK_HOST/src/liteos_adapter.c",
+    "$PERIPHERAL_USB_DDK_HOST/src/usb_config_desc_parser.c",
     "$PERIPHERAL_USB_DDK_HOST/src/usb_interface_pool.c",
     "$PERIPHERAL_USB_DDK_HOST/src/usb_io_manage.c",
     "$PERIPHERAL_USB_DDK_HOST/src/usb_protocol.c",
@@ -88,6 +89,7 @@ hdf_driver(module_name) {
     "$PERIPHERAL_USB_DDK_HOST/../../interfaces/ddk/common",
     "$PERIPHERAL_USB_DDK_HOST/../../interfaces/ddk/host",
     "$PERIPHERAL_USB_DDK_HOST/include",
+    "$PERIPHERAL_USB_DDK_HOST/../../ddk/ndk",
   ]
 }
 
