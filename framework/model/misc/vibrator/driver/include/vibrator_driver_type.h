@@ -43,11 +43,13 @@ enum VibratorState {
     VIBRATOR_STATE_START_TIMER = 1,
     VIBRATOR_STATE_STOP        = 2,
     VIBRATOR_STATE_SET_EFFECT  = 3,
+    VIBRATOR_STATE_PRIMITIVE_EFFECT = 4,
 };
 
 enum VibratorConfigMode {
     VIBRATOR_MODE_ONCE   = 0,    // The mode of a one-shot vibration effect.
     VIBRATOR_MODE_PRESET = 1,    // The mode of a preset vibration effect.
+    VIBRATOR_MODE_PRIMITIVE_EFFECT = 2,    // The mode of a primitive vibration effect.
     VIBRATOR_MODE_BUTT   = 0XFF,
 };
 
@@ -57,6 +59,7 @@ enum VibratorDrvIoCmd {
     VIBRATOR_DRV_IO_STOP                        = 2,
     VIBRATOR_DRV_IO_GET_INFO                    = 3,
     VIBRATOR_DRV_IO_ENABLE_MODULATION_PARAMETER = 4,
+    VIBRATOR_DRV_IO_ENABLE_PRIMITIVE_EFFECT     = 5,
     VIBRATOR_DRV_IO_END,
 };
 

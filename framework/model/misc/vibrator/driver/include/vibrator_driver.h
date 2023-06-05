@@ -18,6 +18,8 @@
 struct VibratorOps {
     int32_t (*Start)(void);
     int32_t (*Stop)(void);
+    int32_t (*SetEffectId)(uint8_t effectId);
+    int32_t (*EnablePrimitiveEffect)(void);
     int32_t (*StartEffect)(uint32_t effectType);
     int32_t (*SetParameter)(uint16_t intensity, int16_t frequency);
 };

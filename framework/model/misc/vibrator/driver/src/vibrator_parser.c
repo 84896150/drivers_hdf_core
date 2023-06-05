@@ -40,10 +40,8 @@ static int32_t ParseVibratorInfo(struct DeviceResourceIface *parser, const struc
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(infoNode, HDF_ERR_INVALID_PARAM);
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(config, HDF_ERR_INVALID_PARAM);
 
-    ret = parser->GetBool(infoNode, "isSupportIntensity");
-    CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "isSupportIntensity");
-    ret = parser->GetBool(infoNode, "isSupportFrequency");
-    CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "isSupportFrequency");
+    config->vibratorInfo.isSupportIntensity = parser->GetBool(infoNode, "isSupportIntensity");
+    config->vibratorInfo.isSupportFrequency = parser->GetBool(infoNode, "isSupportFrequency");
     ret = parser->GetUint16(infoNode, "intensityMaxValue", (uint16_t *)&config->vibratorInfo.intensityMaxValue, 0);
     CHECK_VIBRATOR_PARSER_RESULT_RETURN_VALUE(ret, "intensityMaxValue");
     ret = parser->GetUint16(infoNode, "intensityMinValue", (uint16_t *)&config->vibratorInfo.intensityMinValue, 0);
