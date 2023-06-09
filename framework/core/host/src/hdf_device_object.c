@@ -303,11 +303,12 @@ int HdfDeviceObjectRemoveService(struct HdfDeviceObject *dev)
 }
 int HdfDeviceObjectSetServInfo(struct HdfDeviceObject *dev, const char *info)
 {
+    struct HdfDeviceNode *devNode = NULL;
     if (dev == NULL || info == NULL || strlen(info) > SERVICE_INFO_LEN_MAX) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
+    devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (devNode->servInfo != NULL) {
         OsalMemFree((char *)devNode->servInfo);
     }
@@ -320,11 +321,11 @@ int HdfDeviceObjectSetServInfo(struct HdfDeviceObject *dev, const char *info)
 
 int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev)
 {
+    struct HdfServiceInfo servInfo;
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     if (dev == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
-    struct HdfServiceInfo servInfo;
     HdfServiceInfoInit(&servInfo, devNode);
     return DevSvcManagerClntUpdateService(&devNode->deviceObject, &servInfo);
 }

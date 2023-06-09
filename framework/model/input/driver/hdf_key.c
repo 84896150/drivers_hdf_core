@@ -25,12 +25,10 @@ int32_t KeyIrqHandle(uint16_t intGpioNum, void *data)
 {
     int32_t ret;
     uint16_t gpioValue = 0;
+    uint64_t curTime;
     KeyDriver *driver = (KeyDriver *)data;
-    if (driver == NULL) {
-        return HDF_FAILURE;
-    }
     KeyEventData *event = &driver->eventData;
-    if (event == NULL) {
+    if (driver == NULL || event == NULL) {
         return HDF_FAILURE;
     }
     ret = GpioDisableIrq(intGpioNum);
@@ -43,7 +41,7 @@ int32_t KeyIrqHandle(uint16_t intGpioNum, void *data)
         HDF_LOGE("%s: gpio read failed, ret %d", __func__, ret);
         return HDF_FAILURE;
     }
-    uint64_t curTime = OsalGetSysTimeMs();
+    curTime = OsalGetSysTimeMs();
     driver->preStatus = gpioValue;
     driver->timeStamp = curTime;
 
@@ -144,6 +142,7 @@ static int32_t RegisterKeyDevice(KeyChipCfg *keyCfg)
 {
     int32_t ret;
     KeyDriver *keyDrv = KeyDriverInstance(keyCfg);
+    InputDevice *inputDev = NULL;
     if (keyDrv == NULL) {
         HDF_LOGE("%s: instance key config failed", __func__);
         return HDF_ERR_MALLOC_FAIL;
@@ -155,7 +154,7 @@ static int32_t RegisterKeyDevice(KeyChipCfg *keyCfg)
         goto EXIT;
     }
 
-    InputDevice *inputDev = InputDeviceInstance(keyDrv);
+    inputDev = InputDeviceInstance(keyDrv);
     if (inputDev == NULL) {
         HDF_LOGE("%s: instance input device failed", __func__);
         goto EXIT;
@@ -179,12 +178,13 @@ EXIT:
 static int32_t HdfKeyDriverInit(struct HdfDeviceObject *device)
 {
     int32_t ret;
+    KeyChipCfg *keyCfg = NULL;
     HDF_LOGI("%s: enter", __func__);
     if (device == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    KeyChipCfg *keyCfg = KeyConfigInstance(device);
+    keyCfg = KeyConfigInstance(device);
     if (keyCfg == NULL) {
         HDF_LOGE("%s: instance key config failed", __func__);
         return HDF_ERR_MALLOC_FAIL;
@@ -214,13 +214,13 @@ static int32_t HdfKeyDispatch(struct HdfDeviceIoClient *client, int cmd, struct 
 
 static int32_t HdfKeyDriverBind(struct HdfDeviceObject *device)
 {
-    if (device == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
     static struct IDeviceIoService keyService = {
         .object.objectId = 1,
         .Dispatch = HdfKeyDispatch,
     };
+    if (device == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     device->service = &keyService;
     return HDF_SUCCESS;
 }

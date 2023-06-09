@@ -27,6 +27,7 @@ int32_t ParseInfraredConfig(const struct DeviceResourceNode *node, InfraredCfg *
 {
     int32_t ret;
     struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *infraredNode = node;
     if (node == NULL || config == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_FAILURE;
@@ -38,7 +39,6 @@ int32_t ParseInfraredConfig(const struct DeviceResourceNode *node, InfraredCfg *
         return HDF_FAILURE;
     }
 
-    const struct DeviceResourceNode *infraredNode = node;
     ret = parser->GetString(infraredNode, "infraredName", &config->infraredName, NULL);
     CHECK_PARSER_RET(ret, "GetString");
     ret = parser->GetUint8(infraredNode, "inputType", &config->devType, 0);
@@ -55,6 +55,7 @@ int32_t ParseKeyConfig(const struct DeviceResourceNode *node, KeyChipCfg *config
 {
     int32_t ret;
     struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *keyNode = node;
     if (node == NULL || config == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_FAILURE;
@@ -66,7 +67,6 @@ int32_t ParseKeyConfig(const struct DeviceResourceNode *node, KeyChipCfg *config
         return HDF_FAILURE;
     }
 
-    const struct DeviceResourceNode *keyNode = node;
     ret = parser->GetString(keyNode, "keyName", &config->keyName, NULL);
     CHECK_PARSER_RET(ret, "GetString");
     ret = parser->GetUint8(keyNode, "inputType", &config->devType, 0);
@@ -83,20 +83,21 @@ int32_t ParseKeyConfig(const struct DeviceResourceNode *node, KeyChipCfg *config
 
 int32_t ParseEncoderConfig(const struct DeviceResourceNode *node, EncoderCfg *config)
 {
+    struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *encoderNode = node;
+    int32_t ret;
     if (node == NULL || config == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_FAILURE;
     }
 
-    struct DeviceResourceIface *parser = NULL;
     parser = DeviceResourceGetIfaceInstance(HDF_CONFIG_SOURCE);
     if (parser == NULL) {
         HDF_LOGE("%s: instance parser failed", __func__);
         return HDF_FAILURE;
     }
 
-    const struct DeviceResourceNode *encoderNode = node;
-    int32_t ret = parser->GetUint8(encoderNode, "inputType", &config->devType, 0);
+    ret = parser->GetUint8(encoderNode, "inputType", &config->devType, 0);
     CHECK_PARSER_RET(ret, "GetUint8");
     ret = parser->GetUint16(encoderNode, "gpioClk", &config->gpioClk, 0);
     CHECK_PARSER_RET(ret, "GetUint16");
@@ -214,6 +215,11 @@ int32_t ParseTouchBoardConfig(const struct DeviceResourceNode *node, TouchBoardC
 {
     int32_t ret;
     struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *attrNode = NULL;
+    const struct DeviceResourceNode *busNode = NULL;
+    const struct DeviceResourceNode *pinsNode = NULL;
+    const struct DeviceResourceNode *powerNode = NULL;
+    const struct DeviceResourceNode *featureNode = NULL;
 
     if (node == NULL || config == NULL) {
         HDF_LOGE("%s: input param is null", __func__);
@@ -225,11 +231,11 @@ int32_t ParseTouchBoardConfig(const struct DeviceResourceNode *node, TouchBoardC
         return HDF_FAILURE;
     }
     config->boardNode = node;
-    const struct DeviceResourceNode *attrNode = parser->GetChildNode(node, "inputAttr");
-    const struct DeviceResourceNode *busNode = parser->GetChildNode(node, "busConfig");
-    const struct DeviceResourceNode *pinsNode = parser->GetChildNode(node, "pinConfig");
-    const struct DeviceResourceNode *powerNode = parser->GetChildNode(node, "powerConfig");
-    const struct DeviceResourceNode *featureNode = parser->GetChildNode(node, "featureConfig");
+    attrNode = parser->GetChildNode(node, "inputAttr");
+    busNode = parser->GetChildNode(node, "busConfig");
+    pinsNode = parser->GetChildNode(node, "pinConfig");
+    powerNode = parser->GetChildNode(node, "powerConfig");
+    featureNode = parser->GetChildNode(node, "featureConfig");
     if (attrNode == NULL || busNode == NULL || pinsNode == NULL || powerNode == NULL || featureNode == NULL) {
         HDF_LOGE("%s: get child node fail!", __func__);
         return HDF_FAILURE;
@@ -307,6 +313,7 @@ int32_t ParseTouchChipConfig(const struct DeviceResourceNode *node, TouchChipCfg
 {
     int32_t ret;
     struct DeviceResourceIface *parser = NULL;
+    const struct DeviceResourceNode *pwrSeqNode = NULL;
     if (node == NULL || config == NULL) {
         HDF_LOGE("%s: point is null", __func__);
         return HDF_FAILURE;
@@ -345,7 +352,7 @@ int32_t ParseTouchChipConfig(const struct DeviceResourceNode *node, TouchChipCfg
         ret = parser->GetUint32(node, "maxSpeed", &config->bus.chipSpi.maxSpeed, DEFAULT_SPI_SPEED);
         CHECK_PARSER_RET(ret, "GetUint32");
     }
-    const struct DeviceResourceNode *pwrSeqNode = parser->GetChildNode(node, "powerSequence");
+    pwrSeqNode = parser->GetChildNode(node, "powerSequence");
     if (pwrSeqNode == NULL) {
         HDF_LOGE("%s: get powerSequence child node failed", __func__);
         return HDF_FAILURE;

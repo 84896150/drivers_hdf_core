@@ -9,7 +9,11 @@
 #ifndef HDF_INPUT_DEVICE_MANAGER_H
 #define HDF_INPUT_DEVICE_MANAGER_H
 
+#ifdef __LITEOS__
 #include "input-event-codes.h"
+#else
+#include <uapi/linux/input-event-codes.h>
+#endif
 #include "osal_mutex.h"
 #include "osal_spinlock.h"
 #include "hdf_types.h"
@@ -26,13 +30,25 @@
 #define ONLINE    0
 #define OFFLINE   1
 
+#ifdef __LITEOS__
 #ifdef DIV_ROUND_UP
 #undef DIV_ROUND_UP
 #endif
 #define DIV_ROUND_UP(nr, d) (((nr) + (d) - 1) / (d))
+#else
+#ifdef DIV_ROUND_UP_TO_INTEGER
+#undef DIV_ROUND_UP_TO_INTEGER
+#endif
+#define DIV_ROUND_UP_TO_INTEGER(nr, d) (((nr) + (d) - 1) / (d))
+#endif
 
 #define BYTE_HAS_BITS 8
+
+#ifdef __LITEOS__
 #define BITS_TO_UINT64(count)    DIV_ROUND_UP(count, BYTE_HAS_BITS * sizeof(unsigned long))
+#else
+#define BITS_TO_UINT64(count)    DIV_ROUND_UP_TO_INTEGER(count, BYTE_HAS_BITS * sizeof(unsigned long))
+#endif
 
 #ifndef BITS_PER_LONG
 #define BITS_PER_LONG 32
@@ -40,7 +56,7 @@
 #define SET_BIT(nr)    (1UL << ((nr) % BITS_PER_LONG))
 
 #define FF_MAX    0x7f
-#define FF_CNT    (FF_MAX + 1)
+#define FF_CNT          (FF_MAX + 1)
 
 #define CHECK_RETURN_VALUE(ret) do { \
     if ((ret) != HDF_SUCCESS) { \

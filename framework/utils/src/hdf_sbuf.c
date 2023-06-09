@@ -63,6 +63,7 @@ static const struct HdfSbufConstructor g_sbufConstructorMap[SBUF_TYPE_MAX] = {
     },
 };
 
+#ifndef __KERNEL__
 static const struct HdfSbufConstructor *HdfSbufConstructorGet(uint32_t type)
 {
     if (type >= SBUF_TYPE_MAX) {
@@ -71,6 +72,7 @@ static const struct HdfSbufConstructor *HdfSbufConstructorGet(uint32_t type)
 
     return &g_sbufConstructorMap[type];
 }
+#endif
 
 uint8_t *HdfSbufGetData(const struct HdfSBuf *sbuf)
 {

@@ -149,11 +149,11 @@ void HdfDeviceNodeRemovePowerStateListener(
 int HdfDeviceNodePublishPublicService(struct HdfDeviceNode *devNode)
 {
     int ret;
+    struct HdfServiceInfo servInfo;
     if (devNode == NULL || devNode->deviceObject.service == NULL) {
         HDF_LOGE("failed to publish public service, devNode is NULL");
         return HDF_FAILURE;
     }
-    struct HdfServiceInfo servInfo;
     HdfServiceInfoInit(&servInfo, devNode);
     ret = DevSvcManagerClntAddService(&devNode->deviceObject, &servInfo);
     if (ret == HDF_SUCCESS) {

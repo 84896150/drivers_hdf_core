@@ -66,15 +66,15 @@ static void NotifyServiceStatusOnRegisterLocked(
 {
     struct DevSvcRecord *record = NULL;
     DLIST_FOR_EACH_ENTRY(record, &devSvcManager->services, struct DevSvcRecord, entry) {
-        if ((listenerHolder->listenClass & record->devClass) == 0) {
-            continue;
-        }
         struct ServiceStatus svcstat = {
             .deviceClass = record->devClass,
             .serviceName = record->servName,
             .status = SERVIE_STATUS_START,
             .info = record->servInfo,
         };
+        if ((listenerHolder->listenClass & record->devClass) == 0) {
+            continue;
+        }
         if (listenerHolder->NotifyStatus != NULL) {
             listenerHolder->NotifyStatus(listenerHolder, &svcstat);
         }
@@ -413,12 +413,12 @@ struct HdfObject *DevSvcManagerCreate(void)
 
 void DevSvcManagerRelease(struct IDevSvcManager *inst)
 {
+    struct DevSvcRecord *record = NULL;
+    struct DevSvcRecord *tmp = NULL;
     struct DevSvcManager *devSvcManager = CONTAINER_OF(inst, struct DevSvcManager, super);
     if (inst == NULL) {
         return;
     }
-    struct DevSvcRecord *record = NULL;
-    struct DevSvcRecord *tmp = NULL;
     DLIST_FOR_EACH_ENTRY_SAFE(record, tmp, &devSvcManager->services, struct DevSvcRecord, entry) {
         DevSvcRecordFreeInstance(record);
     }

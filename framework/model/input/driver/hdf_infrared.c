@@ -7,8 +7,12 @@
  */
 
 #include "hdf_infrared.h"
-#include "hdf_device_desc.h"
+#ifdef __LITEOS__
 #include "input-event-codes.h"
+#else
+#include <uapi/linux/input-event-codes.h>
+#endif
+#include "hdf_device_desc.h"
 #include "osal_mem.h"
 #include "gpio_if.h"
 #include "hdf_log.h"

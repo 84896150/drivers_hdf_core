@@ -288,6 +288,7 @@ static void RepateEvent(const InputDevice *device)
 
 void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t value)
 {
+    InputDevice *device = NULL;
     bool loaded = InputDriverLoaded();
     if (!loaded) {
         HDF_LOGD("%s: device not loaded", __func__);
@@ -297,7 +298,7 @@ void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t 
     if (type == EV_KEY && code == KEY_POWER)
         hung_wp_screen_powerkey_ncb(value);
 #endif
-    InputDevice *device = (InputDevice *)inputDev;
+    device = (InputDevice *)inputDev;
     PushOnePackage(device, type, code, value);
     if (type == EV_KEY && KEY_RESERVED < code && code < KEY_MAX && value == 0 && code == g_kbdcode) {
         OsalTimerDelete(&g_timer);
@@ -312,8 +313,8 @@ void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t 
 
 static int32_t HdfHIDDriverInit(struct HdfDeviceObject *device)
 {
-    (void)device;
     static bool cachedHidRegistered = false;
+    (void)device;
     if (!cachedHidRegistered) {
         cachedHidRegistered = true;
         LoadCachedHid();
@@ -324,8 +325,8 @@ static int32_t HdfHIDDriverInit(struct HdfDeviceObject *device)
 static int32_t HidGetDevType(InputDevice *inputDev, struct HdfSBuf *reply)
 {
     uint32_t devType = inputDev->devType;
-    HDF_LOGI("%s: enter, devType is %u", __func__, devType);
     bool ret = HdfSbufWriteUint32(reply, devType);
+    HDF_LOGI("%s: enter, devType is %u", __func__, devType);
     if (!ret) {
         HDF_LOGE("%s: HdfSbufWriteUint32 failed", __func__);
         return HDF_FAILURE;
@@ -336,6 +337,7 @@ static int32_t HidGetDevType(InputDevice *inputDev, struct HdfSBuf *reply)
 static int32_t HidGetDeviceStrInfo(InputDevice *inputDev, int32_t cmd, struct HdfSBuf *reply)
 {
     const char *info = NULL;
+    bool ret;
     if (inputDev == NULL) {
         HDF_LOGE("%s: parameter invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -356,7 +358,7 @@ static int32_t HidGetDeviceStrInfo(InputDevice *inputDev, int32_t cmd, struct Hd
             break;
     }
 
-    bool ret = HdfSbufWriteString(reply, info);
+    ret = HdfSbufWriteString(reply, info);
     if (!ret) {
         HDF_LOGE("%s: HdfSbufWriteUint32 failed", __func__);
         return HDF_FAILURE;
@@ -402,9 +404,9 @@ static int32_t HidGetDeviceAbility(InputDevice *inputDev, struct HdfSBuf *reply)
 
 static int32_t HdfHIDDispatch(struct HdfDeviceIoClient *client, int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    (void)cmd;
     int32_t ret;
     InputDevice *inputDev = NULL;
+    (void)cmd;
     if (client == NULL || data == NULL || reply == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_FAILURE;
@@ -442,12 +444,12 @@ static int32_t HdfHIDDispatch(struct HdfDeviceIoClient *client, int cmd, struct 
 
 static int32_t HdfHIDDriverBind(struct HdfDeviceObject *device)
 {
-    if (device == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
     static struct IDeviceIoService hidService = {
         .Dispatch = HdfHIDDispatch,
     };
+    if (device == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     device->service = &hidService;
     return HDF_SUCCESS;
 }
