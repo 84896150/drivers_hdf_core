@@ -29,8 +29,8 @@
 import("hdf.gni")
 
 HDF_FRAMEWORKS_PATH = "./../../../framework"
-HDF_INTERFACE_PATH = ".../../../interfaces"
-HDF_ADAPTER_PATH = ".../../../adapter"
+HDF_INTERFACE_PATH = "./../../../interfaces"
+HDF_ADAPTER_PATH = "./../../../adapter"
 
 hdf_driver("hdf_lite") {
   deps = [
