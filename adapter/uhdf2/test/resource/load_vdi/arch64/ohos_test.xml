@@ -18,6 +18,7 @@
         <preparer>
             <option name="push" value="hdf/hdf_core/libvdi_sample1_driver.z.so -> /vendor/lib64" src="out"/>
             <option name="push" value="hdf/hdf_core/libvdi_sample2_driver.z.so -> /vendor/lib64" src="out"/>
+            <option name="push" value="hdf/hdf_core/libvdi_sample1_fault.z.so -> /vendor/lib64" src="out"/>
         </preparer>
     </target>
 </configuration>
