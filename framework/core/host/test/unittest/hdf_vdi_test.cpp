@@ -116,6 +116,13 @@ HWTEST_F(HdfVdiTest, HdfVdiTestLoadInvalidLibName, TestSize.Level3)
     HdfCloseVdi(vdi);
 }
 
+HWTEST_F(HdfVdiTest, HdfVdiTestLoadInvalidLibDesc, TestSize.Level3)
+{
+    struct HdfVdiObject *vdi = nullptr;
+    vdi = HdfLoadVdi("libvdi_sample1_fault.z.so");
+    ASSERT_TRUE(vdi == nullptr);
+}
+
 HWTEST_F(HdfVdiTest, HdfVdiTestNulVdiGetVersion, TestSize.Level3)
 {
     struct HdfVdiObject *vdi = nullptr;
