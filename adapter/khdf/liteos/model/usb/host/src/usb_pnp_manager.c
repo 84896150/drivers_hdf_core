@@ -75,7 +75,7 @@ static int32_t UsbPnpManagerBind(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
-static int32_t UsbPnpManagerInit(struct HdfDeviceObject *device)
+static int32_t UsbPnpManagerInit(const struct HdfDeviceObject *device)
 {
     int32_t ret;
 
@@ -97,7 +97,7 @@ static int32_t UsbPnpManagerInit(struct HdfDeviceObject *device)
     return ret;
 }
 
-static void UsbPnpManagerRelease(struct HdfDeviceObject *device)
+static void UsbPnpManagerRelease(const struct HdfDeviceObject *device)
 {
     if (device == NULL) {
         dprintf("%s: device is null\n", __func__);

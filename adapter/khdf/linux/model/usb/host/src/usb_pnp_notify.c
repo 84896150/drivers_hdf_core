@@ -906,7 +906,7 @@ static int32_t UsbPnpNotifyInit(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
-static void UsbPnpNotifyRelease(struct HdfDeviceObject *device)
+static void UsbPnpNotifyRelease(const struct HdfDeviceObject *device)
 {
     if (device == NULL) {
         HDF_LOGI("%s: device is null", __func__);
