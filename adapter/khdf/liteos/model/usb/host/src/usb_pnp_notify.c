@@ -66,7 +66,7 @@ struct UsbPnpNotifyMatchInfoTable *g_testUsbPnpInfo = NULL;
 struct DListHead g_usbPnpDeviceListHead;
 struct OsalMutex g_usbPnpNotifyDevicelistLock;
 
-static bool UsbPnpNotifyFindDeviceList(struct usb_device *deviceObj, bool freeFlag)
+static bool UsbPnpNotifyFindDeviceList(const struct usb_device *deviceObj, bool freeFlag)
 {
     struct UsbPnpNotifyDeviceList *pnpNotifyDevicePos = NULL;
     struct UsbPnpNotifyDeviceList *pnpNotifyDeviceTemp = NULL;
@@ -995,7 +995,7 @@ static int32_t UsbPnpNotifyInit(struct HdfDeviceObject *device)
     return HDF_SUCCESS;
 }
 
-static void UsbPnpNotifyRelease(struct HdfDeviceObject *device)
+static void UsbPnpNotifyRelease(const struct HdfDeviceObject *device)
 {
     HDF_STATUS ret;
 
