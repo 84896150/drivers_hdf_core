@@ -326,6 +326,7 @@ int32_t StartHaptic(struct VibratorEffectCfg *effectCfg)
 
 int32_t StopHaptic()
 {
+HDF_LOGE("%s: vibrator_haptic: init", __func__);
     int32_t ret;
     struct VibratorHapticData *hapticData = GetHapticData();
 

@@ -142,8 +142,22 @@ int32_t OsalTimerSetTimeout(OsalTimer *timer, uint32_t interval)
 {
 	struct osal_ktimer *ktimer = NULL;
 
-	if (timer == NULL || timer->realTimer == NULL || interval == 0) {
-		HDF_LOGE("%s invalid para", __func__);
+	// if (timer == NULL || timer->realTimer == NULL || interval == 0) {
+	// 	HDF_LOGE("%s invalid para", __func__);
+	// 	return HDF_ERR_INVALID_PARAM;
+	// }
+	if (timer == NULL) {
+		HDF_LOGE("%s invalid para: timer == NULL", __func__);
+		return HDF_ERR_INVALID_PARAM;
+	}
+
+	if (timer->realTimer == NULL) {
+		HDF_LOGE("%s invalid para: timer->realTimer == NULL", __func__);
+		return HDF_ERR_INVALID_PARAM;
+	}
+
+	if (interval == NULL) {
+		HDF_LOGE("%s invalid para: interval == NULL", __func__);
 		return HDF_ERR_INVALID_PARAM;
 	}
 
