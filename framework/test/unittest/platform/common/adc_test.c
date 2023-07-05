@@ -107,7 +107,6 @@ static int32_t AdcTestRead(void)
 {
     struct AdcTester *tester = NULL;
     uint32_t value[TEST_ADC_VAL_NUM];
-    int32_t ret;
     int i;
 
     HDF_LOGI("AdcTestRead: enter!");
@@ -118,7 +117,7 @@ static int32_t AdcTestRead(void)
     }
     for (i = 0; i < TEST_ADC_VAL_NUM; i++) {
         value[i] = 0;
-        ret = AdcRead(tester->handle, tester->config.channel, &value[i]);
+        int32_t ret = AdcRead(tester->handle, tester->config.channel, &value[i]);
         if (ret != HDF_SUCCESS || value[i] >= (1U << tester->config.dataWidth)) {
             HDF_LOGE("AdcTestRead: read value fail, ret: %d!", ret);
             return HDF_ERR_IO;
@@ -135,7 +134,6 @@ static int AdcTestThreadFunc(void *param)
     struct AdcTester *tester = NULL;
     uint32_t val;
     int i;
-    int32_t ret;
 
     HDF_LOGI("AdcTestThreadFunc: enter!");
     tester = AdcTesterGet();
@@ -146,7 +144,7 @@ static int AdcTestThreadFunc(void *param)
     }
 
     for (i = 0; i < ADC_TEST_WAIT_TIMES; i++) {
-        ret = AdcRead(tester->handle, tester->config.channel, &val);
+        int32_t ret = AdcRead(tester->handle, tester->config.channel, &val);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("AdcTestThreadFunc: adc read fail, ret: %d!", ret);
             *((int32_t *)param) = 1;
@@ -259,8 +257,6 @@ static int32_t AdcIfPerformanceTest(void)
 #endif
     struct AdcTester *tester = NULL;
     uint64_t startMs;
-    uint64_t endMs;
-    uint64_t useTime;    // ms
     uint32_t val;
     int32_t ret;
 
@@ -273,8 +269,8 @@ static int32_t AdcIfPerformanceTest(void)
     startMs = OsalGetSysTimeMs();
     ret = AdcRead(tester->handle, tester->config.channel, &val);
     if (ret == HDF_SUCCESS) {
-        endMs = OsalGetSysTimeMs();
-        useTime = endMs - startMs;
+        uint64_t endMs = OsalGetSysTimeMs();
+        uint64_t useTime = endMs - startMs;
         HDF_LOGI("AdcIfPerformanceTest: ----->interface performance test:[start - end] < 1ms[%{pubilc}s]\r\n",
             useTime < 1 ? "yes" : "no");
         return HDF_SUCCESS;

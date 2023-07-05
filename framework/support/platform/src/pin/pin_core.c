@@ -178,14 +178,13 @@ struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc)
 static int32_t GetPinIndex(struct PinCntlr *cntlr, struct PinDesc *desc)
 {
     uint16_t index;
-    int32_t ret;
 
     for (index = 0; index < cntlr->pinCount; index++) {
         if (cntlr->pins[index].pinName == NULL) {
             HDF_LOGE("GetPinIndex: cntlr->pin[index].pinName is null!");
             break;
         }
-        ret = strcmp(cntlr->pins[index].pinName, desc->pinName);
+        int32_t ret = strcmp(cntlr->pins[index].pinName, desc->pinName);
         if (ret == 0) {
             HDF_LOGI("GetPinIndex: get pin index:%hu success!", index);
             return (int32_t)index;

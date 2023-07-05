@@ -124,18 +124,16 @@ static int32_t HdmiHdcpWriteMsgAn(struct HdmiHdcp *hdcp)
 
 static int32_t HdmiHdcpReadMsgHv(struct HdmiHdcp *hdcp)
 {
-    uint8_t offset;
     uint8_t i;
     uint8_t vhNum = HDMI_HDCP_MSG_ALL_VH_LEN / HDMI_HDCP_MSG_PER_VH_LEN;
-    int32_t ret;
 
     if (hdcp == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
     for (i = 0; i < vhNum; i++) {
-        offset = HDMI_HDCP_V_H0 + i * HDMI_HDCP_MSG_PER_VH_LEN;
-        ret = HdmiHdcpRead(hdcp, offset, &(hdcp->vh[i]), HDMI_HDCP_MSG_PER_VH_LEN);
+        uint8_t offset = HDMI_HDCP_V_H0 + i * HDMI_HDCP_MSG_PER_VH_LEN;
+        int32_t ret = HdmiHdcpRead(hdcp, offset, &(hdcp->vh[i]), HDMI_HDCP_MSG_PER_VH_LEN);
         if (ret != HDF_SUCCESS) {
             return ret;
         }
@@ -175,11 +173,9 @@ static void HdmiHdcpRegPrepare(const struct HdmiHdcp *hdcp)
 
 static int32_t HdmiHdcpAuthenticationPrepare(struct HdmiHdcp *hdcp)
 {
-    int32_t ret;
-
     HdmiHdcpRegPrepare(hdcp);
     if (hdcp->aksvValid == false) {
-        ret = HdmiHdcpAuthenticationGenerateAksvAn(hdcp);
+        int32_t ret = HdmiHdcpAuthenticationGenerateAksvAn(hdcp);
         if (ret != HDF_SUCCESS) {
             hdcp->state = HDMI_HDCP_AUTH_AKSV_INVALID;
             return ret;

@@ -21,10 +21,8 @@ static struct PlatformManager *g_manager;
 
 static struct PlatformManager *CanManagerGet(void)
 {
-    int32_t ret;
-
     if (g_manager == NULL) {
-        ret = PlatformManagerCreate("CAN_BUS_MANAGER", &g_manager);
+        int32_t ret = PlatformManagerCreate("CAN_BUS_MANAGER", &g_manager);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("CanManagerGet: create can manager fail, ret: %d!", ret);
         }
@@ -42,7 +40,6 @@ static void CanManagerDestroyIfNeed(void)
 
 static int32_t CanIrqThreadWorker(void *data)
 {
-    int32_t ret;
     struct CanCntlr *cntlr = (struct CanCntlr *)data;
 
     if (cntlr == NULL) {
@@ -53,7 +50,7 @@ static int32_t CanIrqThreadWorker(void *data)
     cntlr->threadStatus |= CAN_THREAD_RUNNING;
     while ((cntlr->threadStatus & CAN_THREAD_RUNNING) != 0) {
         /* wait event */
-        ret = OsalSemWait(&cntlr->sem, HDF_WAIT_FOREVER);
+        int32_t ret = OsalSemWait(&cntlr->sem, HDF_WAIT_FOREVER);
         if (ret != HDF_SUCCESS) {
             continue;
         }

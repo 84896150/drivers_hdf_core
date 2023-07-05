@@ -98,7 +98,6 @@ void PlatformManagerDestroy(struct PlatformManager *manager)
 
 struct PlatformManager *PlatformManagerGet(int module)
 {
-    int32_t ret;
     struct PlatformManager *manager = NULL;
     struct PlatformModuleInfo *info = NULL;
 
@@ -110,7 +109,7 @@ struct PlatformManager *PlatformManagerGet(int module)
 
     PlatformGlobalLock();
     if (info->priv == NULL) {
-        ret = PlatformManagerCreate(info->moduleName, &manager);
+        int32_t ret = PlatformManagerCreate(info->moduleName, &manager);
         if (ret != HDF_SUCCESS) {
             PLAT_LOGE("PlatformManagerGet: create manager fail, ret: %d!", ret);
         } else {

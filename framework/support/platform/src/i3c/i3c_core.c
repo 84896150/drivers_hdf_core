@@ -248,12 +248,9 @@ struct I3cDevice *I3cGetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr
 
 static int32_t I3cDeviceDefineI3cDevices(struct I3cDevice *device)
 {
-    int32_t ret;
-    int32_t addr;
-
-    ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_I3C_DEVICE);
+    int32_t ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_I3C_DEVICE);
     if (ret != HDF_SUCCESS) {
-        addr = GetFreeAddr(device->cntlr);
+        int32_t addr = GetFreeAddr(device->cntlr);
         if (addr <= 0) {
             HDF_LOGE("I3cDeviceDefineI3cDevices: no free addresses left!");
             return HDF_ERR_DEVICE_BUSY;

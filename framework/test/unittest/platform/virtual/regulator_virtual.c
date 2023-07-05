@@ -257,7 +257,6 @@ static int32_t VirtualRegulatorParseAndInit(struct HdfDeviceObject *device, cons
 
 static int32_t VirtualRegulatorInit(struct HdfDeviceObject *device)
 {
-    int32_t ret;
     const struct DeviceResourceNode *childNode = NULL;
 
     if (device == NULL || device->property == NULL) {
@@ -266,7 +265,7 @@ static int32_t VirtualRegulatorInit(struct HdfDeviceObject *device)
     }
 
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {
-        ret = VirtualRegulatorParseAndInit(device, childNode);
+        int32_t ret = VirtualRegulatorParseAndInit(device, childNode);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("VirtualRegulatorInit: VirtualRegulatorParseAndInit fail, ret: %d!", ret);
             return ret;

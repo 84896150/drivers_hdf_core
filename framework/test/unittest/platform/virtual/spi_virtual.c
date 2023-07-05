@@ -274,7 +274,6 @@ static int32_t VirtualSpiTransferOneMessage(struct VirtualSpi *virtual, struct S
 
 static int32_t VirtualSpiTransfer(struct SpiCntlr *cntlr, struct SpiMsg *msg, uint32_t count)
 {
-    int32_t ret;
     uint32_t i;
     struct VirtualSpi *virtual = NULL;
 
@@ -293,7 +292,7 @@ static int32_t VirtualSpiTransfer(struct SpiCntlr *cntlr, struct SpiMsg *msg, ui
         return HDF_FAILURE;
     }
     for (i = 0; i < count; i++) {
-        ret = VirtualSpiTransferOneMessage(virtual, &(msg[i]));
+        int32_t ret = VirtualSpiTransferOneMessage(virtual, &(msg[i]));
         if (ret != 0) {
             HDF_LOGE("VirtualSpiTransfer: transfer error, ret: %d!", ret);
             return ret;

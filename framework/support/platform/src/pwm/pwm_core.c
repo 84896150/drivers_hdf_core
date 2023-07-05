@@ -14,8 +14,6 @@
 
 int32_t PwmDeviceGet(struct PwmDev *pwm)
 {
-    int32_t ret;
-
     if (pwm == NULL) {
         HDF_LOGE("PwmDeviceGet: pwm is null!\n");
         return HDF_ERR_INVALID_PARAM;
@@ -28,7 +26,7 @@ int32_t PwmDeviceGet(struct PwmDev *pwm)
         return HDF_ERR_DEVICE_BUSY;
     }
     if (pwm->method != NULL && pwm->method->open != NULL) {
-        ret = pwm->method->open(pwm);
+        int32_t ret = pwm->method->open(pwm);
         if (ret != HDF_SUCCESS) {
             (void)OsalSpinUnlock(&(pwm->lock));
             HDF_LOGE("PwmDeviceGet: open fail, ret: %d!", ret);
@@ -43,15 +41,13 @@ int32_t PwmDeviceGet(struct PwmDev *pwm)
 
 int32_t PwmDevicePut(struct PwmDev *pwm)
 {
-    int32_t ret;
-
     if (pwm == NULL) {
         HDF_LOGE("PwmDevicePut: pwm is null!\n");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (pwm->method != NULL && pwm->method->close != NULL) {
-        ret = pwm->method->close(pwm);
+        int32_t ret = pwm->method->close(pwm);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("PwmDevicePut: close fail, ret: %d!", ret);
             return ret;

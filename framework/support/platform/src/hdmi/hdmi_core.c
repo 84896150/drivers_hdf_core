@@ -142,8 +142,6 @@ static void HdmiFrlDeinit(struct HdmiCntlr *cntlr)
 
 static void HdmiHdcpInit(struct HdmiCntlr *cntlr)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         return;
     }
@@ -158,7 +156,7 @@ static void HdmiHdcpInit(struct HdmiCntlr *cntlr)
             HDF_LOGE("hdcp malloc fail");
             return;
         }
-        ret = OsalMutexInit(&(cntlr->hdcp->hdcpMutex));
+        int32_t ret = OsalMutexInit(&(cntlr->hdcp->hdcpMutex));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("HdmiHdcpInit: mutex init fail!");
             return;
@@ -321,13 +319,11 @@ static void HdmiCntlrUninit(struct HdmiCntlr *cntlr)
 
 int32_t HdmiCntlrAdd(struct HdmiCntlr *cntlr)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = HdmiCntlrInit(cntlr);
+    int32_t ret = HdmiCntlrInit(cntlr);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
@@ -683,8 +679,6 @@ static void HdmiAttrInit(struct HdmiCntlr *cntlr)
 
 int32_t HdmiCntlrOpen(struct HdmiCntlr *cntlr)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -699,7 +693,7 @@ int32_t HdmiCntlrOpen(struct HdmiCntlr *cntlr)
     HdmiCntlrHardWareInit(cntlr);
     /* HDCP on. */
     if ((cntlr->cap.baseCap.data & HDMI_CAP_HDCP_MARK) > 0) {
-        ret = HdmiHdcpOpen(cntlr->hdcp);
+        int32_t ret = HdmiHdcpOpen(cntlr->hdcp);
         if (ret != HDF_SUCCESS) {
             HdmiHdcpClose(cntlr->hdcp);
         }
@@ -1079,8 +1073,6 @@ static void HdmiFillVideoAttrFromHardwareStatus(
     struct HdmiVideoAttr *videoAttr, const struct HdmiHardwareStatus *hwStatus, struct HdmiCommonAttr *commAttr)
 {
     bool rgb;
-    bool aspectIs256;
-    uint8_t vic;
     enum HdmiVsVideoFormat format;
     enum Hdmi4kVic vic4k;
 
@@ -1102,7 +1094,7 @@ static void HdmiFillVideoAttrFromHardwareStatus(
      * ...
      */
     if (hwStatus->infoFrameStatus.aviEnable) {
-        vic = hwStatus->infoFrameStatus.avi[7];
+        uint8_t vic = hwStatus->infoFrameStatus.avi[7];
         /*
          * when the timing is 4096*2160, the aspect ratio in AVI infoFrame is 0
          * (but the real aspect ratio is 256:135<0x04>, the video_code is 0)
@@ -1114,7 +1106,7 @@ static void HdmiFillVideoAttrFromHardwareStatus(
          * vsif[7]: BIT[7]: reserved for future, BIT[6:5]: HDMI_Video_Format, BIT[4:0]: reserved.
          * vsif[8]: HDMI_VIC, 0x04: 4K*2K @24Hz(SMPTE).
          */
-        aspectIs256 = (((vic == 0) && (hwStatus->infoFrameStatus.vsif[8] == 0x04)) ||
+        bool aspectIs256 = (((vic == 0) && (hwStatus->infoFrameStatus.vsif[8] == 0x04)) ||
             ((vic >= HDMI_VIC_4096X2160P25_256_135) && (vic <= HDMI_VIC_4096X2160P60_256_135)));
         videoAttr->aspect = (aspectIs256 == true) ? HDMI_PICTURE_ASPECT_256_135 :
             ((hwStatus->infoFrameStatus.avi[5] >> 4) & 0x3);                        /* 4'b, BIT[2:1] */
@@ -1219,7 +1211,6 @@ static int32_t HdmiVedioAttrHandle(struct HdmiCntlr *cntlr, struct HdmiHardwareS
     struct HdmiVideoAttr *videoAttr = &(cntlr->attr.videoAttr);
     struct HdmiCommonAttr curCommAttr = {0};
     struct HdmiVideoAttr curVideoAttr = {0};
-    int32_t ret;
 
     /* support HDR. */
     if (cntlr->cap.baseCap.bits.hdr > 0) {
@@ -1228,7 +1219,7 @@ static int32_t HdmiVedioAttrHandle(struct HdmiCntlr *cntlr, struct HdmiHardwareS
 
     /* support FRL. */
     if (cntlr->cap.baseCap.bits.frl > 0) {
-        ret = HdmiFrlModeSelect(cntlr->frl);
+        int32_t ret = HdmiFrlModeSelect(cntlr->frl);
         if (ret != HDF_SUCCESS) {
             return ret;
         }

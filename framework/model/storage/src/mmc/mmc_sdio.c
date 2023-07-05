@@ -157,7 +157,6 @@ static int32_t SdioDeviceDefaultFunc0ReadBytes(struct SdioDevice *dev,
     struct SdioFunction *func = dev->curFunction;
     struct MmcCntlr *cntlr = NULL;
     uint32_t i;
-    int32_t ret;
 
     if (func == NULL) {
         HDF_LOGE("SdioDeviceDefaultFunc0ReadBytes: fail, func is null!");
@@ -174,7 +173,7 @@ static int32_t SdioDeviceDefaultFunc0ReadBytes(struct SdioDevice *dev,
     }
 
     for (i = 0; i < size; i++) {
-        ret = SdioReadWriteByte(cntlr, false, 0, (addr + i), &data[i]);
+        int32_t ret = SdioReadWriteByte(cntlr, false, 0, (addr + i), &data[i]);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioDeviceDefaultFunc0ReadBytes: fail, i = %u!", i);
             return ret;
@@ -188,7 +187,6 @@ static int32_t SdioDeviceDefaultFunc0WriteBytes(struct SdioDevice *dev,
 {
     struct SdioFunction *func = dev->curFunction;
     struct MmcCntlr *cntlr = NULL;
-    int32_t ret;
     uint32_t i;
 
     if (func == NULL) {
@@ -206,7 +204,7 @@ static int32_t SdioDeviceDefaultFunc0WriteBytes(struct SdioDevice *dev,
     }
 
     for (i = 0; i < size; i++) {
-        ret = SdioReadWriteByte(cntlr, true, 0, (addr + i), &data[i]);
+        int32_t ret = SdioReadWriteByte(cntlr, true, 0, (addr + i), &data[i]);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioDeviceDefaultFunc0WriteBytes: fail, i = %u!", i);
             return ret;

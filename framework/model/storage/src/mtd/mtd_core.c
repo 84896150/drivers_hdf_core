@@ -94,11 +94,10 @@ static void MtdDeviceUnlockDefault(struct MtdDevice *mtdDevice)
 
 struct PlatformManager *MtdManagerGet(void)
 {
-    int32_t ret;
     static struct PlatformManager *g_mtdManager = NULL;
 
     if (g_mtdManager == NULL) {
-        ret = PlatformManagerCreate("STORAGE_MTD", &g_mtdManager);
+        int32_t ret = PlatformManagerCreate("STORAGE_MTD", &g_mtdManager);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("MtdManagerGet: create manager fail, ret: %d!", ret);
             return NULL;
@@ -209,14 +208,13 @@ static void MtdDumpBuf(uint8_t *buf, size_t len)
     size_t i;
     size_t idx;
     size_t lidx;
-    size_t line;
 #define MTD_DUMP_SIGLE_WIDTH  2
 #define MTD_DUMP_LINE_LEN     32
 #define MTD_DUMP_BUF_LEN    (MTD_DUMP_LINE_LEN * MTD_DUMP_SIGLE_WIDTH + 1)
     char lineBuf[MTD_DUMP_BUF_LEN];
     idx = 0;
     while (idx < len) {
-        line = (MTD_DUMP_LINE_LEN <= (len - idx)) ? MTD_DUMP_LINE_LEN : (len - idx);
+        size_t line = (MTD_DUMP_LINE_LEN <= (len - idx)) ? MTD_DUMP_LINE_LEN : (len - idx);
         for (i = 0, lidx = 0; i < line; i++, lidx += MTD_DUMP_SIGLE_WIDTH, buf++) {
             ret = snprintf_s(lineBuf + lidx, MTD_DUMP_SIGLE_WIDTH + 1, MTD_DUMP_SIGLE_WIDTH, "%02x", *buf);
             if (ret < 0) {

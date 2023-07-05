@@ -493,14 +493,13 @@ static int32_t SpiIfPerformanceTest(struct SpiTester *tester)
     struct SpiCfg cfg = {0};
     uint64_t startMs;
     uint64_t endMs;
-    uint64_t useTime;    // ms
 
     startMs = OsalGetSysTimeMs();
     ret = SpiGetCfg(tester->handle, &cfg);
     endMs = OsalGetSysTimeMs();
 
     if (ret == HDF_SUCCESS) {
-        useTime = endMs - startMs;
+        uint64_t useTime = endMs - startMs;
         HDF_LOGI("SpiIfPerformanceTest: ----->interface performance test:[start - end] < 1ms[%s]\r\n",
             useTime < 1 ? "yes" : "no");
         return HDF_SUCCESS;

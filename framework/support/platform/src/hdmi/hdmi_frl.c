@@ -679,8 +679,6 @@ static void HdmiFrlTrainingResultCheckTimeout(struct HdmiFrl *frl)
 
 static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
 {
-    uint64_t curTime;
-    bool frlStart;
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
 
     if (cntlr == NULL || cntlr->ops == NULL) {
@@ -688,7 +686,7 @@ static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
     }
 
     do {
-        frlStart = HdmiFrlGetFrlStart(cntlr->scdc);
+        bool frlStart = HdmiFrlGetFrlStart(cntlr->scdc);
         if (frlStart == true && frl->info.start == true) {
             frl->info.work = true;
             /* n/cts config */
@@ -705,7 +703,7 @@ static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
             break;
         }
 
-        curTime = OsalGetSysTimeMs();
+        uint64_t curTime = OsalGetSysTimeMs();
         if ((curTime - frl->info.machineInfo.startTime) > frl->info.machineInfo.waitHandleTime) {
             (frl->info.machineInfo.timeoutCnt)++;
             break;
