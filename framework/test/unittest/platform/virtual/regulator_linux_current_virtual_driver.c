@@ -64,7 +64,7 @@ enum RegulatorStatus {
 };
 
 static int g_virStatus = VIR_REGULATOR_STATUS_OFF;
-static int VirtualCurrentRegulatorEnable(struct regulator_dev *rdev)
+static int VirtualCurrentRegulatorEnable(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualCurrentRegulatorEnable: rdev is null!");
@@ -75,7 +75,7 @@ static int VirtualCurrentRegulatorEnable(struct regulator_dev *rdev)
     return HDF_SUCCESS;
 }
 
-static int VirtualCurrentRegulatorDisable(struct regulator_dev *rdev)
+static int VirtualCurrentRegulatorDisable(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualCurrentRegulatorDisable: rdev is null!");
@@ -86,7 +86,7 @@ static int VirtualCurrentRegulatorDisable(struct regulator_dev *rdev)
     return HDF_SUCCESS;
 }
 
-static int VirtualCurrentRegulatorIsEnabled(struct regulator_dev *rdev)
+static int VirtualCurrentRegulatorIsEnabled(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualCurrentRegulatorIsEnabled: rdev is null!");
@@ -114,7 +114,7 @@ static int VirtualCurrentRegulatorSetCurrent(struct regulator_dev *rdev, int min
 }
 
 #define VIRTUAL_CURRENT_VAL_500 500
-static int VirtualCurrentRegulatorGetCurrent(struct regulator_dev *rdev)
+static int VirtualCurrentRegulatorGetCurrent(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualCurrentRegulatorGetCurrent: rdev is null!");

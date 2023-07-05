@@ -157,7 +157,6 @@ static int32_t SdioDeviceDefaultFunc0ReadBytes(struct SdioDevice *dev,
     struct SdioFunction *func = dev->curFunction;
     struct MmcCntlr *cntlr = NULL;
     uint32_t i;
-    int32_t ret;
 
     if (func == NULL) {
         HDF_LOGE("SdioDeviceDefaultFunc0ReadBytes: fail, func is null!");
@@ -174,7 +173,7 @@ static int32_t SdioDeviceDefaultFunc0ReadBytes(struct SdioDevice *dev,
     }
 
     for (i = 0; i < size; i++) {
-        ret = SdioReadWriteByte(cntlr, false, 0, (addr + i), &data[i]);
+        int32_t ret = SdioReadWriteByte(cntlr, false, 0, (addr + i), &data[i]);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioDeviceDefaultFunc0ReadBytes: fail, i = %u!", i);
             return ret;
@@ -188,7 +187,6 @@ static int32_t SdioDeviceDefaultFunc0WriteBytes(struct SdioDevice *dev,
 {
     struct SdioFunction *func = dev->curFunction;
     struct MmcCntlr *cntlr = NULL;
-    int32_t ret;
     uint32_t i;
 
     if (func == NULL) {
@@ -206,7 +204,7 @@ static int32_t SdioDeviceDefaultFunc0WriteBytes(struct SdioDevice *dev,
     }
 
     for (i = 0; i < size; i++) {
-        ret = SdioReadWriteByte(cntlr, true, 0, (addr + i), &data[i]);
+        int32_t ret = SdioReadWriteByte(cntlr, true, 0, (addr + i), &data[i]);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioDeviceDefaultFunc0WriteBytes: fail, i = %u!", i);
             return ret;
@@ -220,7 +218,6 @@ static int32_t SdioDeviceDefaultSetBlockSize(struct SdioDevice *dev, uint32_t bl
     struct SdioFunction *func = dev->curFunction;
     struct MmcCntlr *cntlr = NULL;
     uint32_t blockSize = blkSize;
-    int32_t ret;
 
     if (func == NULL) {
         HDF_LOGE("SdioDeviceDefaultSetBlockSize: func is null!");
@@ -233,7 +230,7 @@ static int32_t SdioDeviceDefaultSetBlockSize(struct SdioDevice *dev, uint32_t bl
     }
     blockSize = MMC_MIN(blockSize, MMC_SEC_SIZE);
 
-    ret = SdioSetFbrIoBlockSize(cntlr, blockSize);
+    int32_t ret = SdioSetFbrIoBlockSize(cntlr, blockSize);
     if (ret == HDF_SUCCESS) {
         func->curBlkSize = blockSize;
     }
@@ -322,7 +319,6 @@ static int32_t SdioDeviceDefaultFlushData(struct SdioDevice *dev)
 static int32_t SdioDeviceDefaultEnableFunc(struct SdioDevice *dev)
 {
     struct SdioFunction *func = dev->curFunction;
-    int32_t ret;
     uint32_t i;
     uint8_t val;
 
@@ -331,7 +327,7 @@ static int32_t SdioDeviceDefaultEnableFunc(struct SdioDevice *dev)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = SdioCccrIoEnable(dev->sd.mmc.cntlr);
+    int32_t ret = SdioCccrIoEnable(dev->sd.mmc.cntlr);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("SdioDeviceDefaultEnableFunc: Io Enable fail, ret: %d!", ret);
         return ret;
@@ -367,7 +363,6 @@ static int32_t SdioDeviceDefaultClaimIrq(struct SdioDevice *dev, SdioIrqHandler 
 {
     struct SdioFunction *func = dev->curFunction;
     struct MmcCntlr *cntlr = NULL;
-    int32_t ret;
 
     if (func == NULL) {
         HDF_LOGE("SdioDeviceDefaultClaimIrq: func is null!");
@@ -388,7 +383,7 @@ static int32_t SdioDeviceDefaultClaimIrq(struct SdioDevice *dev, SdioIrqHandler 
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = SdioCccrIntEnable(cntlr);
+    int32_t ret = SdioCccrIntEnable(cntlr);
     if (ret != HDF_SUCCESS) {
         return ret;
     }

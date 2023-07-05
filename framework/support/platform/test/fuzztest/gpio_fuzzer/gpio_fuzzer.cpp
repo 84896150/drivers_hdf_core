@@ -22,7 +22,7 @@ constexpr int32_t MAX = 2;
 constexpr uint16_t GPIO_TEST_NUM = 3;
 }
 
-struct AllParameters {
+struct GpioAllParameters {
     uint16_t descVal;
     uint16_t descDir;
     uint16_t descMode;
@@ -39,7 +39,7 @@ namespace OHOS {
 static bool GpioFuzzTest(const uint8_t *data, size_t size)
 {
     int32_t number;
-    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    const struct GpioAllParameters *params = reinterpret_cast<const struct GpioAllParameters *>(data);
 
     number = randNum(MIN, MAX);
     switch (static_cast<ApiTestCmd>(number)) {
@@ -68,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    if (size < sizeof(struct AllParameters)) {
+    if (size < sizeof(struct GpioAllParameters)) {
         HDF_LOGE("LLVMFuzzerTestOneInput: gpio fuzz test size is small!");
         return 0;
     }

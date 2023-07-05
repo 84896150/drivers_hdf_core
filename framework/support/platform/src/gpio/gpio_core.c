@@ -142,7 +142,6 @@ void GpioCntlrIrqCallback(struct GpioCntlr *cntlr, uint16_t local)
 
 static int32_t GpioCntlrIrqThreadHandler(void *data)
 {
-    int32_t ret;
     uint32_t irqSave;
     struct GpioIrqRecord *irqRecord = (struct GpioIrqRecord *)data;
 
@@ -151,7 +150,7 @@ static int32_t GpioCntlrIrqThreadHandler(void *data)
         return HDF_FAILURE;
     }
     while (true) {
-        ret = OsalSemWait(&irqRecord->sem, HDF_WAIT_FOREVER);
+        int32_t ret = OsalSemWait(&irqRecord->sem, HDF_WAIT_FOREVER);
         if (irqRecord->removed) {
             break;
         }
@@ -174,7 +173,6 @@ static int32_t GpioCntlrIrqThreadHandler(void *data)
 
 static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord *irqRecord)
 {
-    int32_t ret;
     uint16_t local = GpioInfoToLocal(ginfo);
     struct GpioCntlr *cntlr = ginfo->cntlr;
 
@@ -192,7 +190,7 @@ static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord
 
     ginfo->irqRecord = irqRecord;
     GpioInfoUnlock(ginfo);
-    ret = cntlr->ops->setIrq(cntlr, local, irqRecord->mode);
+    int32_t ret = cntlr->ops->setIrq(cntlr, local, irqRecord->mode);
     if (ret != HDF_SUCCESS) {
         GpioInfoLock(ginfo);
         HDF_LOGE("GpioCntlrSetIrqInner: gpio fail to setIrq!");
@@ -205,7 +203,6 @@ static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord
 static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIrqFunc func, void *arg,
     struct GpioIrqRecord **new)
 {
-    int32_t ret;
     struct GpioIrqRecord *irqRecord = NULL;
     struct OsalThreadParam cfg;
 
@@ -221,7 +218,7 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
     irqRecord->irqData = arg;
     irqRecord->global = GpioInfoToGlobal(ginfo);
     if (irqRecord->btmFunc != NULL) {
-        ret = OsalThreadCreate(&irqRecord->thread, GpioCntlrIrqThreadHandler, irqRecord);
+        int32_t ret = OsalThreadCreate(&irqRecord->thread, GpioCntlrIrqThreadHandler, irqRecord);
         if (ret != HDF_SUCCESS) {
             OsalMemFree(irqRecord);
             HDF_LOGE("GpioIrqRecordCreate: fail to create irq thread, ret: %d!", ret);
@@ -250,7 +247,6 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
 
 int32_t GpioCntlrSetIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t mode, GpioIrqFunc func, void *arg)
 {
-    int32_t ret;
     struct GpioInfo *ginfo = NULL;
     struct GpioIrqRecord *irqRecord = NULL;
 
@@ -268,7 +264,7 @@ int32_t GpioCntlrSetIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t mode, 
     }
 
     ginfo = &cntlr->ginfos[local];
-    ret = GpioIrqRecordCreate(ginfo, mode, func, arg, &irqRecord);
+    int32_t ret = GpioIrqRecordCreate(ginfo, mode, func, arg, &irqRecord);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("GpioCntlrSetIrq: fail to create irq record, ret: %d!", ret);
         return ret;
@@ -284,7 +280,6 @@ int32_t GpioCntlrSetIrq(struct GpioCntlr *cntlr, uint16_t local, uint16_t mode, 
 
 int32_t GpioCntlrUnsetIrq(struct GpioCntlr *cntlr, uint16_t local, void *arg)
 {
-    int32_t ret;
     struct GpioInfo *ginfo = NULL;
     struct GpioIrqRecord *irqRecord = NULL;
 
@@ -314,7 +309,7 @@ int32_t GpioCntlrUnsetIrq(struct GpioCntlr *cntlr, uint16_t local, void *arg)
         HDF_LOGE("GpioCntlrUnsetIrq: gpio(%hu+%hu) arg not match!", cntlr->start, local);
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = cntlr->ops->unsetIrq(cntlr, local);
+    int32_t ret = cntlr->ops->unsetIrq(cntlr, local);
     if (ret == HDF_SUCCESS) {
         ginfo->irqRecord = NULL;
     }

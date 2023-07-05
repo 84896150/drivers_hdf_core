@@ -177,15 +177,12 @@ struct PinCntlr *PinCntlrGetByPin(const struct PinDesc *desc)
 
 static int32_t GetPinIndex(struct PinCntlr *cntlr, struct PinDesc *desc)
 {
-    uint16_t index;
-    int32_t ret;
-
-    for (index = 0; index < cntlr->pinCount; index++) {
+    for (uint16_t index = 0; index < cntlr->pinCount; index++) {
         if (cntlr->pins[index].pinName == NULL) {
             HDF_LOGE("GetPinIndex: cntlr->pin[index].pinName is null!");
             break;
         }
-        ret = strcmp(cntlr->pins[index].pinName, desc->pinName);
+        int32_t ret = strcmp(cntlr->pins[index].pinName, desc->pinName);
         if (ret == 0) {
             HDF_LOGI("GetPinIndex: get pin index:%hu success!", index);
             return (int32_t)index;
@@ -202,9 +199,6 @@ void PinCntlrPutPin(const struct PinDesc *desc)
 
 int32_t PinCntlrSetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum PinPullType pullType)
 {
-    int32_t ret;
-    uint32_t index;
-
     if (cntlr == NULL) {
         HDF_LOGE("PinCntlrSetPinPull: cntlr is null!!");
         return HDF_ERR_INVALID_OBJECT;
@@ -220,14 +214,14 @@ int32_t PinCntlrSetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
         return HDF_ERR_INVALID_PARAM;
     }
 
-    index = (uint32_t)GetPinIndex(cntlr, desc);
+    uint32_t index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
         HDF_LOGE("PinCntlrSetPinPull: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
-    ret = cntlr->method->SetPinPull(cntlr, index, pullType);
+    int32_t ret = cntlr->method->SetPinPull(cntlr, index, pullType);
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[PIN_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->number;
@@ -242,9 +236,6 @@ int32_t PinCntlrSetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
 
 int32_t PinCntlrGetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum PinPullType *pullType)
 {
-    int32_t ret;
-    uint32_t index;
-
     if (cntlr == NULL) {
         HDF_LOGE("PinCntlrGetPinPull: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -265,14 +256,14 @@ int32_t PinCntlrGetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
         return HDF_ERR_INVALID_PARAM;
     }
 
-    index = (uint32_t)GetPinIndex(cntlr, desc);
+    uint32_t index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
         HDF_LOGE("PinCntlrGetPinPull: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
-    ret = cntlr->method->GetPinPull(cntlr, index, pullType);
+    int32_t ret = cntlr->method->GetPinPull(cntlr, index, pullType);
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[PIN_TRACE_PARAM_GET_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->number;
@@ -288,9 +279,6 @@ int32_t PinCntlrGetPinPull(struct PinCntlr *cntlr, struct PinDesc *desc, enum Pi
 
 int32_t PinCntlrSetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uint32_t strength)
 {
-    int32_t ret;
-    uint32_t index;
-
     if (cntlr == NULL) {
         HDF_LOGE("PinCntlrSetPinStrength: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -306,23 +294,20 @@ int32_t PinCntlrSetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uin
         return HDF_ERR_INVALID_PARAM;
     }
 
-    index = (uint32_t)GetPinIndex(cntlr, desc);
+    uint32_t index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
         HDF_LOGE("PinCntlrSetPinStrength: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
-    ret = cntlr->method->SetPinStrength(cntlr, index, strength);
+    int32_t ret = cntlr->method->SetPinStrength(cntlr, index, strength);
     (void)OsalSpinUnlockIrqRestore(&cntlr->spin, &g_pinmanager->irqSave);
     return ret;
 }
 
 int32_t PinCntlrGetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uint32_t *strength)
 {
-    int32_t ret;
-    uint32_t index;
-
     if (cntlr == NULL) {
         HDF_LOGE("PinCntlrGetPinStrength: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -343,14 +328,14 @@ int32_t PinCntlrGetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uin
         return HDF_ERR_INVALID_PARAM;
     }
 
-    index = (uint32_t)GetPinIndex(cntlr, desc);
+    uint32_t index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
         HDF_LOGE("PinCntlrGetPinStrength: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
-    ret = cntlr->method->GetPinStrength(cntlr, index, strength);
+    int32_t ret = cntlr->method->GetPinStrength(cntlr, index, strength);
     (void)OsalSpinUnlockIrqRestore(&cntlr->spin, &g_pinmanager->irqSave);
 
     return ret;
@@ -358,9 +343,6 @@ int32_t PinCntlrGetPinStrength(struct PinCntlr *cntlr, struct PinDesc *desc, uin
 
 int32_t PinCntlrSetPinFunc(struct PinCntlr *cntlr, struct PinDesc *desc, const char *funcName)
 {
-    int32_t ret;
-    uint32_t index;
-
     if (cntlr == NULL) {
         HDF_LOGE("PinCntlrSetPinFunc: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -381,23 +363,20 @@ int32_t PinCntlrSetPinFunc(struct PinCntlr *cntlr, struct PinDesc *desc, const c
         return HDF_ERR_INVALID_PARAM;
     }
 
-    index = (uint32_t)GetPinIndex(cntlr, desc);
+    uint32_t index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
         HDF_LOGE("PinCntlrSetPinFunc: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
-    ret = cntlr->method->SetPinFunc(cntlr, index, funcName);
+    int32_t ret = cntlr->method->SetPinFunc(cntlr, index, funcName);
     (void)OsalSpinUnlockIrqRestore(&cntlr->spin, &g_pinmanager->irqSave);
     return ret;
 }
 
 int32_t PinCntlrGetPinFunc(struct PinCntlr *cntlr, struct PinDesc *desc, const char **funcName)
 {
-    int32_t ret;
-    uint32_t index;
-
     if (cntlr == NULL) {
         HDF_LOGE("PinCntlrGetPinFunc: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -418,14 +397,14 @@ int32_t PinCntlrGetPinFunc(struct PinCntlr *cntlr, struct PinDesc *desc, const c
         return HDF_ERR_INVALID_PARAM;
     }
 
-    index = (uint32_t)GetPinIndex(cntlr, desc);
+    uint32_t index = (uint32_t)GetPinIndex(cntlr, desc);
     if (index < HDF_SUCCESS) {
         HDF_LOGE("PinCntlrGetPinFunc: get pin index fail!");
         return HDF_ERR_INVALID_PARAM;
     }
 
     (void)OsalSpinLockIrqSave(&cntlr->spin, &g_pinmanager->irqSave);
-    ret = cntlr->method->GetPinFunc(cntlr, index, funcName);
+    int32_t ret = cntlr->method->GetPinFunc(cntlr, index, funcName);
     (void)OsalSpinUnlockIrqRestore(&cntlr->spin, &g_pinmanager->irqSave);
     return ret;
 }
@@ -489,7 +468,6 @@ static int32_t PinIoPut(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t PinIoSetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     uint32_t pullType;
     DevHandle handle = NULL;
 
@@ -509,7 +487,7 @@ static int32_t PinIoSetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    ret = PinSetPull(handle, pullType);
+    int32_t ret = PinSetPull(handle, pullType);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinIoSetPull: pin set pull fail, ret: %d!", ret);
         return ret;
@@ -519,7 +497,6 @@ static int32_t PinIoSetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t PinIoGetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     uint32_t pullType;
     DevHandle handle = NULL;
 
@@ -533,7 +510,7 @@ static int32_t PinIoGetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
         HDF_LOGE("PinIoGetPull: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = PinGetPull(handle, &pullType);
+    int32_t ret = PinGetPull(handle, &pullType);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinIoGetPull: pin get pull fail, ret: %d!", ret);
         return ret;
@@ -548,7 +525,6 @@ static int32_t PinIoGetPull(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t PinIoSetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     uint32_t strength;
     DevHandle handle = NULL;
 
@@ -569,7 +545,7 @@ static int32_t PinIoSetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    ret = PinSetStrength(handle, strength);
+    int32_t ret = PinSetStrength(handle, strength);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinIoSetStrength: pin set strength fail, ret: %d!", ret);
         return ret;
@@ -579,7 +555,6 @@ static int32_t PinIoSetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t PinIoGetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     uint32_t strength;
     DevHandle handle = NULL;
 
@@ -593,7 +568,7 @@ static int32_t PinIoGetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
         HDF_LOGE("PinIoGetStrength: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = PinGetStrength(handle, &strength);
+    int32_t ret = PinGetStrength(handle, &strength);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinIoGetStrength: pin get strength fail, ret: %d!", ret);
         return ret;
@@ -608,7 +583,6 @@ static int32_t PinIoGetStrength(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t PinIoSetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     DevHandle handle = NULL;
     const char *funcNameData = NULL;
 
@@ -630,7 +604,7 @@ static int32_t PinIoSetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    ret = PinSetFunc(handle, funcNameData);
+    int32_t ret = PinSetFunc(handle, funcNameData);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinIoSetFunc: pin set func fail, ret: %d!", ret);
         return ret;
@@ -640,7 +614,6 @@ static int32_t PinIoSetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t PinIoGetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     DevHandle handle = NULL;
     char *funcName = NULL;
 
@@ -654,7 +627,7 @@ static int32_t PinIoGetFunc(struct HdfSBuf *data, struct HdfSBuf *reply)
         HDF_LOGE("PinIoGetFunc: get handle fail!");
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = PinGetFunc(handle, (const char **)&funcName);
+    int32_t ret = PinGetFunc(handle, (const char **)&funcName);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinIoGetFunc: pin get func fail, ret: %d!", ret);
         return ret;

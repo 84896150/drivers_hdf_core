@@ -194,13 +194,12 @@ static int32_t PlatformManagerTestGetDevice(struct PlatformManager *manager)
 
 static int32_t PlatformManagerTestReliability(struct PlatformManager *manager)
 {
-    int32_t ret;
     struct PlatformDevice *device = g_platDevices[0];
     int32_t number = device->number;
 
     PLAT_LOGD("PlatformManagerTestReliability: enter!");
     // should not add success when manager is NULL
-    ret = PlatformManagerAddDevice(NULL, device);
+    int32_t ret = PlatformManagerAddDevice(NULL, device);
     CHECK_NE_RETURN(ret, HDF_SUCCESS, HDF_FAILURE);
 
     // should not add success when device is NULL
@@ -284,11 +283,10 @@ int PlatformManagerTestExecute(int cmd)
 void PlatformManagerTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     for (i = 0; i < PLAT_MANAGER_TEST_CMD_MAX; i++) {
-        ret = PlatformManagerTestExecute(i);
+        int32_t ret = PlatformManagerTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 

@@ -48,10 +48,6 @@ static uint32_t MmcEndianConversion(uint32_t x)
 /* Decoding algorithm */
 static uint32_t MmcParseBits(const uint32_t *data, uint32_t bitsLen, uint32_t start, uint32_t size)
 {
-    uint32_t index;
-    uint32_t shift;
-    uint32_t ret;
-
     if (start >= bitsLen || size == 0) {
         HDF_LOGE("MmcParseBits: input invalid!");
         return 0;
@@ -61,9 +57,9 @@ static uint32_t MmcParseBits(const uint32_t *data, uint32_t bitsLen, uint32_t st
         return 0;
     }
 
-    index = (bitsLen / BITS_NUMBER_OF_4_BYTES) - (start / BITS_NUMBER_OF_4_BYTES) - 1;
-    shift = start & (BITS_NUMBER_OF_4_BYTES - 1);
-    ret = data[index] >> shift;
+    uint32_t index = (bitsLen / BITS_NUMBER_OF_4_BYTES) - (start / BITS_NUMBER_OF_4_BYTES) - 1;
+    uint32_t shift = start & (BITS_NUMBER_OF_4_BYTES - 1);
+    uint32_t ret = data[index] >> shift;
     if (size + shift > BITS_NUMBER_OF_4_BYTES) {
         ret |= data[index - 1] << (BITS_NUMBER_OF_4_BYTES - shift);
     }
@@ -76,9 +72,6 @@ static uint32_t MmcParseBits(const uint32_t *data, uint32_t bitsLen, uint32_t st
 
 static int32_t MmcSendCmd(struct MmcCntlr *cntlr, struct MmcCmd *cmd, struct MmcData *data, uint32_t retryTimes)
 {
-    uint32_t i;
-    int32_t ret;
-
     if (cntlr == NULL || cmd == NULL || retryTimes == 0) {
         HDF_LOGE("MmcSendCmd: cntlr or cmd or retryTimes is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -89,8 +82,8 @@ static int32_t MmcSendCmd(struct MmcCntlr *cntlr, struct MmcCmd *cmd, struct Mmc
     }
 
     cmd->data = data;
-    for (i = 0; i < retryTimes; i++) {
-        ret = MmcCntlrDoRequest(cntlr, cmd);
+    for (uint32_t i = 0; i < retryTimes; i++) {
+        int32_t ret = MmcCntlrDoRequest(cntlr, cmd);
         if (ret != HDF_SUCCESS) {
             continue;
         }
@@ -170,7 +163,6 @@ static int32_t MmcAllSendCid(struct MmcCntlr *cntlr)
 {
     struct MmcCmd cmd = {0};
     uint32_t *cid = NULL;
-    int32_t err;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         HDF_LOGE("MmcAllSendCid: cntlr or curDev is null!");
@@ -182,7 +174,7 @@ static int32_t MmcAllSendCid(struct MmcCntlr *cntlr)
     cmd.argument = 0;
     /* Broadcast Commands with Response(bcr). */
     cmd.respType = MMC_RESP_R2 | MMC_CMD_TYPE_BCR;
-    err = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
+    int32_t err = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("MmcAllSendCid: mmc send cmd fail!");
         return err;
@@ -249,7 +241,6 @@ static int32_t MmcSendCsd(struct MmcCntlr *cntlr)
 {
     struct MmcCmd cmd = {0};
     uint32_t *csd = NULL;
-    int32_t err;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         HDF_LOGE("MmcSendCsd: cntlr or curDev is null!");
@@ -259,7 +250,7 @@ static int32_t MmcSendCsd(struct MmcCntlr *cntlr)
     cmd.cmdCode = SEND_CSD;
     cmd.argument = (cntlr->curDev->reg.rca << 16);
     cmd.respType = MMC_RESP_R2 | MMC_CMD_TYPE_AC;
-    err = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
+    int32_t err = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("MmcSendCsd: mmc send cmd fail!");
         return err;
@@ -275,7 +266,6 @@ static int32_t MmcSendCsd(struct MmcCntlr *cntlr)
 int32_t MmcSendStatus(struct MmcCntlr *cntlr, uint32_t *status)
 {
     struct MmcCmd cmd = {0};
-    int32_t error;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         HDF_LOGE("MmcSendStatus: cntlr or curDev is null!");
@@ -286,7 +276,7 @@ int32_t MmcSendStatus(struct MmcCntlr *cntlr, uint32_t *status)
     /* [31:16] RCA, [15:0] stuff bits. */
     cmd.argument = (cntlr->curDev->reg.rca << 16);
     cmd.respType = MMC_RESP_SPI_R2 | MMC_RESP_R1 | MMC_CMD_TYPE_AC;
-    error = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
+    int32_t error = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -298,7 +288,6 @@ int32_t MmcSendStatus(struct MmcCntlr *cntlr, uint32_t *status)
 
 static int32_t MmcSwitch(struct MmcCntlr *cntlr, uint8_t set, uint8_t index, uint8_t value)
 {
-    int32_t error;
     struct MmcCmd cmd = {0};
     uint32_t status;
 
@@ -312,7 +301,7 @@ static int32_t MmcSwitch(struct MmcCntlr *cntlr, uint8_t set, uint8_t index, uin
             | (value << 8)
             | set;
     cmd.respType = MMC_RESP_SPI_R1B | MMC_RESP_R1B | MMC_CMD_TYPE_AC;
-    error = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
+    int32_t error = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("MmcSwitch: send cmd fail!");
         return error;
@@ -342,7 +331,6 @@ static int32_t MmcSwitch(struct MmcCntlr *cntlr, uint8_t set, uint8_t index, uin
 
 static int32_t MmcAppCmd(struct MmcCntlr *cntlr, uint32_t acmd)
 {
-    int32_t err;
     struct MmcCmd cmd = {0};
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
@@ -363,7 +351,7 @@ static int32_t MmcAppCmd(struct MmcCntlr *cntlr, uint32_t acmd)
         cmd.argument = 0;
         cmd.respType = MMC_RESP_R1 | MMC_CMD_TYPE_BCR;
     }
-    err = MmcSendCmd(cntlr, &cmd, NULL, 1);
+    int32_t err = MmcSendCmd(cntlr, &cmd, NULL, 1);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("MmcAppCmd: mmc send cmd fail!");
         return err;
@@ -399,7 +387,6 @@ static int32_t MmcWaitCardReady(struct MmcCntlr *cntlr)
 
 int32_t MmcStopTransmission(struct MmcCntlr *cntlr, bool writeFlag, uint32_t *stopStatus)
 {
-    int32_t err;
     struct MmcCmd cmd = {0};
     
     if (stopStatus == NULL) {
@@ -414,7 +401,7 @@ int32_t MmcStopTransmission(struct MmcCntlr *cntlr, bool writeFlag, uint32_t *st
     } else {
         cmd.respType = MMC_RESP_R1 | MMC_CMD_TYPE_AC;
     }
-    err = MmcSendCmd(cntlr, &cmd, NULL, STOP_TRANSMISSION_CMD_RETRY_TIMES);
+    int32_t err = MmcSendCmd(cntlr, &cmd, NULL, STOP_TRANSMISSION_CMD_RETRY_TIMES);
     if (err != HDF_SUCCESS) {
         return err;
     }
@@ -562,14 +549,13 @@ static int32_t MmcSendEraseCmd(struct MmcCntlr *cntlr, uint32_t arg)
 static int32_t MmcAlignEraseSize(struct MmcCntlr *cntlr, uint32_t *start, uint32_t *end, uint32_t size)
 {
     uint32_t curSize = size;
-    uint32_t tmp;
 
     if (cntlr->curDev->eraseSize == 0) {
         return HDF_ERR_NOT_SUPPORT;
     }
 
     /* align start. */
-    tmp = (*start) % cntlr->curDev->eraseSize;
+    uint32_t tmp = (*start) % cntlr->curDev->eraseSize;
     if (tmp > 0) {
         tmp = cntlr->curDev->eraseSize - tmp;
         (*start) += tmp;
@@ -595,7 +581,6 @@ static int32_t MmcAlignEraseSize(struct MmcCntlr *cntlr, uint32_t *start, uint32
 
 int32_t MmcSendErase(struct MmcCntlr *cntlr, uint32_t startSec, uint32_t nSec)
 {
-    int32_t ret;
     uint32_t start = startSec;
     uint32_t end = start + nSec;
 
@@ -609,7 +594,7 @@ int32_t MmcSendErase(struct MmcCntlr *cntlr, uint32_t startSec, uint32_t nSec)
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    ret = MmcAlignEraseSize(cntlr, &start, &end, nSec);
+    int32_t ret = MmcAlignEraseSize(cntlr, &start, &end, nSec);
     if (ret != HDF_SUCCESS) {
         /* after align, no need to erase. */
         return HDF_SUCCESS;
@@ -696,8 +681,6 @@ int32_t MmcSendReadWriteBlocks(struct MmcCntlr *cntlr, struct MmcRwData *info)
 static int32_t EmmcDecodeCsd(struct MmcCntlr *cntlr)
 {
     struct MmcCsd *csd = NULL;
-    uint32_t unit;
-    uint32_t factor;
     uint32_t *rawCsd = NULL;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
@@ -718,8 +701,8 @@ static int32_t EmmcDecodeCsd(struct MmcCntlr *cntlr)
     /* SPEC_VERS: [125:122]. */
     csd->specVers = MmcParseBits(rawCsd, CSD_BITS, 122, 4);
     /* TAAC: [119:112]; TAAC bit position-->Time unit: [2:0], Multiplier factor: [6:3]. */
-    factor = MmcParseBits(rawCsd, CSD_BITS, 115, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, 112, 3);
+    uint32_t factor = MmcParseBits(rawCsd, CSD_BITS, 115, 4);
+    uint32_t unit = MmcParseBits(rawCsd, CSD_BITS, 112, 3);
     csd->taccNs = (g_taccUnit[unit] * g_commFactor[factor] + 9) / 10;
     /* NSAC: [111:104] */
     csd->taccClks = MmcParseBits(rawCsd, CSD_BITS, 104, 8) * 100;
@@ -771,8 +754,6 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
     uint32_t i;
     struct MmcCid *cid = NULL;
     uint32_t *rawCid = NULL;
-    uint8_t specVers;
-    uint8_t cbx;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         HDF_LOGE("EmmcDecodeCid: cntlr or curDev is null!");
@@ -781,7 +762,7 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
 
     rawCid = cntlr->curDev->reg.rawCid;
     cid = &(cntlr->curDev->reg.cid);
-    specVers = cntlr->curDev->reg.csd.specVers;
+    uint8_t specVers = cntlr->curDev->reg.csd.specVers;
     if (specVers > MMC_CSD_SPEC_VER_4) {
         HDF_LOGE("EmmcDecodeCid: specVers is invalid!");
         return HDF_ERR_NOT_SUPPORT;
@@ -820,7 +801,7 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
          * Card or BGA(CBX): [113:112]
          * 00: Card (removable); 01: BGA (Discrete embedded); 10: POP; 11: Reserved.
          */
-        cbx = MmcParseBits(rawCid, CID_BITS, 112, 2);
+        uint8_t cbx = MmcParseBits(rawCid, CID_BITS, 112, 2);
         if (cbx == 0) {
             cntlr->curDev->state.bits.removable = 1;
             HDF_LOGD("EmmcDecodeCid: Emmc is removable!");
@@ -1038,8 +1019,6 @@ static int32_t EmmcDecodeExtCsd(struct MmcCntlr *cntlr, uint8_t *rawExtCsd, uint
 static void EmmcSetBlockCapacity(struct MmcCntlr *cntlr)
 {
     struct EmmcDevice *emmcDev = (struct EmmcDevice *)cntlr->curDev;
-    uint32_t gibVal;
-    uint32_t mibVal;
 
     /*
      * ERASE_GROUP_DEF  Bit0: ENABLE:
@@ -1060,8 +1039,8 @@ static void EmmcSetBlockCapacity(struct MmcCntlr *cntlr)
             (emmcDev->mmc.reg.csd.readBlkLen - MMC_MAX_BLOCKSIZE_SHIFT);
     }
 
-    gibVal = emmcDev->mmc.capacity >> 21;
-    mibVal = (emmcDev->mmc.capacity & ~(gibVal << 21)) >> 11;
+    uint32_t gibVal = emmcDev->mmc.capacity >> 21;
+    uint32_t mibVal = (emmcDev->mmc.capacity & ~(gibVal << 21)) >> 11;
     HDF_LOGD("EmmcSetBlockCapacity: Emmc dev capacity %u.%u Gib!", gibVal, mibVal);
 }
 
@@ -1122,10 +1101,9 @@ static int32_t EmmcSelectHighSpeedBusWidth(struct MmcCntlr *cntlr)
 
 static int32_t EmmcCheckSwitchStatus(struct MmcCntlr *cntlr)
 {
-    int err;
     uint32_t status;
 
-    err = MmcSendStatus(cntlr, &status);
+    int err = MmcSendStatus(cntlr, &status);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("EmmcCheckSwitchStatus: send status cmd fail!");
         return err;
@@ -1138,13 +1116,11 @@ static int32_t EmmcCheckSwitchStatus(struct MmcCntlr *cntlr)
 
 static int32_t EmmcSwitchHighSpeed(struct MmcCntlr *cntlr)
 {
-    int err;
-
     /*
      * Switch dev to HS mode.
      * HS_TIMING must be set to "0x1" before setting BUS_WIDTH for dual data rate operation (values 5 or 6).
      */
-    err = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_HS_TIMING, EMMC_EXT_CSD_BUS_TIMING_HS);
+    int err = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_HS_TIMING, EMMC_EXT_CSD_BUS_TIMING_HS);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("EmmcSwitchHighSpeed: switch hs fail!");
         return err;
@@ -1158,9 +1134,7 @@ static int32_t EmmcSwitchHighSpeed(struct MmcCntlr *cntlr)
 
 static int32_t EmmcSelectHs400(struct MmcCntlr *cntlr)
 {
-    int err;
-
-    err = EmmcSwitchHighSpeed(cntlr);
+    int err = EmmcSwitchHighSpeed(cntlr);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("EmmcSelectHs400: switch hs fail!");
         return err;
@@ -1186,9 +1160,7 @@ static int32_t EmmcSelectHs400(struct MmcCntlr *cntlr)
 
 static int32_t EmmcSelectHs400es(struct MmcCntlr *cntlr, struct EmmcDevice *emmcDev)
 {
-    int err;
-
-    err = EmmcSwitchVoltage(cntlr, emmcDev);
+    int err = EmmcSwitchVoltage(cntlr, emmcDev);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("EmmcSelectHs400es: emmc switch voltage fail!");
         return err;
@@ -1228,9 +1200,7 @@ static int32_t EmmcSelectHs400es(struct MmcCntlr *cntlr, struct EmmcDevice *emmc
 
 static int32_t EmmcSelectHs200(struct MmcCntlr *cntlr, struct EmmcDevice *emmcDev)
 {
-    int err;
-
-    err = EmmcSwitchVoltage(cntlr, emmcDev);
+    int err = EmmcSwitchVoltage(cntlr, emmcDev);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("EmmcSelectHs200: emmc switch voltage fail!");
         return err;
@@ -1255,14 +1225,11 @@ static int32_t EmmcSelectHs200(struct MmcCntlr *cntlr, struct EmmcDevice *emmcDe
 static uint32_t EmmcGetPowerClassValue(struct MmcCntlr *cntlr, struct EmmcExtCsd *extCsd)
 {
     uint32_t val = 0;
-    uint32_t vdd;
-    uint32_t busWidthBit;
-    uint32_t clock;
 
-    busWidthBit = (cntlr->curDev->workPara.width == BUS_WIDTH8) ?
+    uint32_t busWidthBit = (cntlr->curDev->workPara.width == BUS_WIDTH8) ?
         EMMC_EXT_CSD_BUS_WIDTH_8 : EMMC_EXT_CSD_BUS_WIDTH_4;
-    vdd = 1 << (cntlr->vddBit);
-    clock = cntlr->curDev->workPara.clock;
+    uint32_t vdd = 1 << (cntlr->vddBit);
+    uint32_t clock = cntlr->curDev->workPara.clock;
 
     if (vdd == MMC_OCR_1V65_1V95) {
         if (clock <= EMMC_EXT_CSD_HIGH_SPEED_26) {
@@ -1295,13 +1262,12 @@ static uint32_t EmmcGetPowerClassValue(struct MmcCntlr *cntlr, struct EmmcExtCsd
 static int32_t EmmcSelectPowerClass(struct MmcCntlr *cntlr, struct EmmcExtCsd *extCsd)
 {
     int32_t error = 0;
-    uint32_t val;
 
     if (cntlr->curDev->reg.csd.specVers < MMC_CSD_SPEC_VER_4) {
         return HDF_SUCCESS;
     }
 
-    val = EmmcGetPowerClassValue(cntlr, extCsd);
+    uint32_t val = EmmcGetPowerClassValue(cntlr, extCsd);
     if (val > 0) {
         error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_POWER_CLASS, val);
     }
@@ -1311,10 +1277,8 @@ static int32_t EmmcSelectPowerClass(struct MmcCntlr *cntlr, struct EmmcExtCsd *e
 static int32_t EmmcSelectActivateHighSpeed(struct MmcCntlr *cntlr,
     struct EmmcDevice *emmcDev, struct EmmcExtCsd *extCsd)
 {
-    int32_t error;
-
     if (extCsd->hsMaxDtr > 0) {
-        error = HDF_SUCCESS;
+        int32_t error = HDF_SUCCESS;
         if (MmcCntlrSupportHighSpeed200(cntlr) == true &&
             extCsd->hsMaxDtr > EMMC_EXT_CSD_HIGH_SPEED_52) {
             error = EmmcSelectHs200(cntlr, emmcDev);
@@ -1416,9 +1380,7 @@ static uint32_t EmmcGetDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice *emmcDe
 static int32_t EmmcSwitchDdrMode(struct MmcCntlr *cntlr, uint32_t ddrMode,
     enum MmcBusWidth width, uint32_t widthBit)
 {
-    int32_t error;
-
-    error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_BUS_WIDTH, widthBit);
+    int32_t error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_BUS_WIDTH, widthBit);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("EmmcSwitchDdrMode: switch BUS_WIDTH fail!");
         return error;
@@ -1441,8 +1403,6 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
     struct EmmcExtCsd *extCsd)
 {
     int32_t error;
-    uint32_t index;
-    uint32_t ddrMode;
     enum MmcBusWidth width;
     const enum MmcBusWidth busWidths[] = { BUS_WIDTH8, BUS_WIDTH4, BUS_WIDTH1 };
     uint32_t busWidthBit[][2] = {
@@ -1451,13 +1411,13 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
         { EMMC_EXT_CSD_BUS_WIDTH_1, EMMC_EXT_CSD_BUS_WIDTH_1 },
     };
 
-    ddrMode = EmmcGetDdrMode(cntlr, emmcDev, extCsd);
+    uint32_t ddrMode = EmmcGetDdrMode(cntlr, emmcDev, extCsd);
     if (emmcDev->mmc.state.bits.hs400es == 0 &&
         emmcDev->mmc.state.bits.hs400 == 0 &&
         emmcDev->mmc.state.bits.hs200 == 0 &&
         cntlr->curDev->reg.csd.specVers >= MMC_CSD_SPEC_VER_4 &&
         (cntlr->caps.bits.cap4Bit | cntlr->caps.bits.cap8Bit) > 0) {
-        index = 1;
+        uint32_t index = 1;
         if (cntlr->caps.bits.cap8Bit > 0) {
             index = 0;
         }
@@ -1491,10 +1451,8 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
 
 static int32_t EmmcActivateHpiMechanism(struct MmcCntlr *cntlr, struct EmmcExtCsd *extCsd)
 {
-    int32_t error;
-
     if (extCsd->hpi == true) {
-        error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_HPI_MGMT, 1);
+        int32_t error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_HPI_MGMT, 1);
         if (error == HDF_SUCCESS) {
             extCsd->hpiEnable = true;
         } else if (error != HDF_MMC_ERR_SWITCH_FAIL) {
@@ -1548,13 +1506,12 @@ static int32_t EmmcSwitchOperationMode(struct MmcCntlr *cntlr)
 static int32_t EmmcReadExtCsd(struct MmcCntlr *cntlr)
 {
     uint8_t extCsd[EXT_CSD_BYTES_LEN] = {0};
-    int32_t error;
 
     if (cntlr->curDev->reg.csd.specVers < MMC_CSD_SPEC_VER_4) {
         return HDF_SUCCESS;
     }
 
-    error = MmcSendExtCsd(cntlr, extCsd, EXT_CSD_BYTES_LEN);
+    int32_t error = MmcSendExtCsd(cntlr, extCsd, EXT_CSD_BYTES_LEN);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("EmmcReadExtCsd: send cmd8 fail, error = %d.", error);
         return error;
@@ -1571,12 +1528,11 @@ static int32_t EmmcReadExtCsd(struct MmcCntlr *cntlr)
 static int32_t EmmcSelect(struct MmcCntlr *cntlr, union MmcOcr ocr)
 {
     union MmcOcr curOcr;
-    int32_t error;
 
     MmcGoIdleState(cntlr);
     ocr.bits.hcs = 1;
     /* set dev work voltage. */
-    error = MmcSendOpCond(cntlr, ocr.ocrData, &curOcr.ocrData);
+    int32_t error = MmcSendOpCond(cntlr, ocr.ocrData, &curOcr.ocrData);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("EmmcSelect: Emmc cmd1(set voltage) fail, error = %d.", error);
         return error;
@@ -1639,11 +1595,10 @@ static int32_t EmmcDeviceAdd(struct MmcCntlr *cntlr)
 
 static int32_t EmmcInit(struct MmcCntlr *cntlr)
 {
-    int32_t error;
     union MmcOcr ocr = {0};
 
     /* cmd1, detect emmc dev and get the voltage range. */
-    error = MmcSendOpCond(cntlr, 0, &(ocr.ocrData));
+    int32_t error = MmcSendOpCond(cntlr, 0, &(ocr.ocrData));
     if (error != HDF_SUCCESS) {
         HDF_LOGE("EmmcInit: cmd1(detect emmc) fail, error = %d.", error);
         return error;
@@ -1671,11 +1626,9 @@ static int32_t EmmcInit(struct MmcCntlr *cntlr)
 
 static int32_t EmmcDetect(struct MmcCntlr *cntlr)
 {
-    int32_t ret;
-
     HDF_LOGD("EmmcDetect: Detect emmc dev start...");
     MmcGoIdleState(cntlr);
-    ret = EmmcInit(cntlr);
+    int32_t ret = EmmcInit(cntlr);
     if (ret == HDF_SUCCESS) {
         HDF_LOGD("EmmcDetect: Detect emmc dev success! %s dev at address 0x%x!",
             cntlr->curDev->state.bits.uhs ? "Ultra high speed" :
@@ -1755,7 +1708,6 @@ static int32_t SdAcmdSdStatus(struct MmcCntlr *cntlr, uint32_t *ssr, uint32_t le
 {
     struct MmcCmd cmd = {0};
     struct MmcData data = {0};
-    int32_t error;
     uint32_t i;
 
     if (cntlr == NULL || ssr == NULL || len == 0) {
@@ -1772,7 +1724,7 @@ static int32_t SdAcmdSdStatus(struct MmcCntlr *cntlr, uint32_t *ssr, uint32_t le
     data.blockNum = 1;
     data.dataFlags = DATA_READ;
     data.dataBuffer = (uint8_t *)ssr;
-    error = SdSendAppCmd(cntlr, &cmd, &data, 1);
+    int32_t error = SdSendAppCmd(cntlr, &cmd, &data, 1);
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -1786,7 +1738,6 @@ static int32_t SdAppSendScr(struct MmcCntlr *cntlr, uint32_t *scr, uint32_t len)
 {
     struct MmcCmd cmd = {0};
     struct MmcData data = {0};
-    int32_t error;
     uint32_t i;
 
     if (cntlr == NULL || scr == NULL || len == 0) {
@@ -1803,7 +1754,7 @@ static int32_t SdAppSendScr(struct MmcCntlr *cntlr, uint32_t *scr, uint32_t len)
     data.blockNum = 1;
     data.dataFlags = DATA_READ;
     data.dataBuffer = (uint8_t *)scr;
-    error = SdSendAppCmd(cntlr, &cmd, &data, 1);
+    int32_t error = SdSendAppCmd(cntlr, &cmd, &data, 1);
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -1829,19 +1780,17 @@ static int32_t SdAcmdSetBusWidth(struct MmcCntlr *cntlr, uint32_t width)
 static int32_t SdCmdSendIfCond(struct MmcCntlr *cntlr, uint32_t ocr)
 {
     struct MmcCmd cmd = {0};
-    int32_t err;
-    uint32_t vhs;
 
     cmd.cmdCode = SD_CMD_SEND_IF_COND;
     /*
      * [31:12]reserved bits, [11:8]supply voltage(VHS), [7:0]check pattern.
      * VHS = 0001, 2.7-3.6V.
      */
-    vhs = ((ocr & 0xFF8000U) > 0) ? 1 : 0;
+    uint32_t vhs = ((ocr & 0xFF8000U) > 0) ? 1 : 0;
     cmd.argument = (vhs << 8) | 0xAA;
     cmd.respType = MMC_RESP_SPI_R7 | MMC_RESP_R7 | MMC_CMD_TYPE_BCR;
 
-    err = MmcSendCmd(cntlr, &cmd, NULL, 1);
+    int32_t err = MmcSendCmd(cntlr, &cmd, NULL, 1);
     if (err != HDF_SUCCESS) {
         return err;
     }
@@ -1858,14 +1807,13 @@ static int32_t SdCmdSendIfCond(struct MmcCntlr *cntlr, uint32_t ocr)
 
 static int32_t SdCmdSendRelativeAddr(struct MmcCntlr *cntlr, uint32_t *rca)
 {
-    int32_t error;
     struct MmcCmd cmd = {0};
 
     cmd.cmdCode = SD_CMD_SEND_RELATIVE_ADDR;
     /* [31:0] stuff bits. */
     cmd.argument = 0;
     cmd.respType = MMC_RESP_R6 | MMC_CMD_TYPE_BCR;
-    error = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
+    int32_t error = MmcSendCmd(cntlr, &cmd, NULL, MMC_CMD_DEFAULT_RETRY_TIMES);
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -1878,7 +1826,6 @@ static int32_t SdCmdSendRelativeAddr(struct MmcCntlr *cntlr, uint32_t *rca)
 
 static int32_t SdCmdSwitchVoltage(struct MmcCntlr *cntlr)
 {
-    int32_t error;
     struct MmcCmd cmd = {0};
 
     /* Voltage switch command to change signaling level 3.3V to 1.8V. */
@@ -1886,7 +1833,7 @@ static int32_t SdCmdSwitchVoltage(struct MmcCntlr *cntlr)
     /* [31:0] stuff bits. */
     cmd.argument = 0;
     cmd.respType = MMC_RESP_R1 | MMC_CMD_TYPE_AC;
-    error = MmcSendCmd(cntlr, &cmd, NULL, 1);
+    int32_t error = MmcSendCmd(cntlr, &cmd, NULL, 1);
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -1935,7 +1882,6 @@ static int32_t SdDecodeScr(struct MmcCntlr *cntlr)
     struct SdScr *scr = NULL;
     uint32_t *rawScr = NULL;
     struct SdDevice *sdDev = NULL;
-    uint32_t scrStruct;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         HDF_LOGE("SdDecodeScr: cntlr or curDev is null!");
@@ -1950,7 +1896,7 @@ static int32_t SdDecodeScr(struct MmcCntlr *cntlr)
      * SCR_STRUCTURE: [63:60];
      * SCR_STRUCTURE equal 0, SCR version 1.0; SCR_STRUCTURE equal 1-15, reserved.
      */
-    scrStruct = (uint8_t)MmcParseBits(rawScr, SCR_BITS, 60, 4);
+    uint32_t scrStruct = (uint8_t)MmcParseBits(rawScr, SCR_BITS, 60, 4);
     if (scrStruct != 0) {
         HDF_LOGE("SdDecodeScr: scrStruct is invalid!");
         return HDF_ERR_INVALID_PARAM;
@@ -1980,8 +1926,6 @@ static int32_t SdDecodeSSr(struct MmcCntlr *cntlr, uint32_t *rawSsr, uint32_t le
     struct SdSsr *ssr = NULL;
     struct SdScr *scr = NULL;
     struct SdDevice *sdDev = NULL;
-    uint32_t eraseSize;
-    uint32_t eraseTimeout;
 
     if (cntlr == NULL || cntlr->curDev == NULL || rawSsr == NULL || len == 0) {
         HDF_LOGE("SdDecodeSSr: cntlr or curDev or rawSsr is null or len is invalid!");
@@ -2002,9 +1946,9 @@ static int32_t SdDecodeSSr(struct MmcCntlr *cntlr, uint32_t *rawSsr, uint32_t le
              * ERASE_SIZE: [423:408]. If this field is set to 0, the erase timeout calculation is not supported.
              * ERASE_SIZE = 1, value = 1AU; ERASE_SIZE = 2, value = 2AU...
              */
-            eraseSize = MmcParseBits(rawSsr, SSR_BITS, 408, 16);
+            uint32_t eraseSize = MmcParseBits(rawSsr, SSR_BITS, 408, 16);
             /* ERASE_TIMEOUT: [407:402] */
-            eraseTimeout = MmcParseBits(rawSsr, SSR_BITS, 402, 6);
+            uint32_t eraseTimeout = MmcParseBits(rawSsr, SSR_BITS, 402, 6);
             if (eraseSize > 0) {
                 ssr->eraseTimeout = (eraseTimeout * 1000) / eraseSize;
                 /* ERASE_OFFSET: [401:400] */
@@ -2064,26 +2008,21 @@ static void SdDecodeCid(struct MmcCntlr *cntlr)
 static void SdSetBlockCapacity(struct MmcCntlr *cntlr)
 {
     struct SdDevice *sdDev = (struct SdDevice *)cntlr->curDev;
-    uint32_t gibVal;
-    uint32_t mibVal;
 
     sdDev->mmc.eraseSize = sdDev->mmc.reg.csd.eraseSize;
     sdDev->mmc.capacity = sdDev->mmc.reg.csd.capacity <<
         (sdDev->mmc.reg.csd.readBlkLen - MMC_MAX_BLOCKSIZE_SHIFT);
 
-    gibVal = sdDev->mmc.capacity >> 21;
-    mibVal = (sdDev->mmc.capacity & ~(gibVal << 21)) >> 11;
+    uint32_t gibVal = sdDev->mmc.capacity >> 21;
+    uint32_t mibVal = (sdDev->mmc.capacity & ~(gibVal << 21)) >> 11;
     HDF_LOGD("SdSetBlockCapacity: SD dev capacity %d.%d Gib", gibVal, mibVal);
 }
 
 static void SdDecodeCsdRev1Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uint32_t *rawCsd)
 {
-    uint32_t unit;
-    uint32_t factor;
-
     /* TAAC: [119:112]; TAAC bit position-->Time unit: [2:0], Multiplier factor: [6:3]. */
-    factor = MmcParseBits(rawCsd, CSD_BITS, 115, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, 112, 3);
+    uint32_t factor = MmcParseBits(rawCsd, CSD_BITS, 115, 4);
+    uint32_t unit = MmcParseBits(rawCsd, CSD_BITS, 112, 3);
     csd->taccNs = (g_taccUnit[unit] * g_commFactor[factor] + 9) / 10;
     /* NSAC: [111:104], the unit for NSAC is 100 clock cycles */
     csd->taccClks = MmcParseBits(rawCsd, CSD_BITS, 104, 8) * 100;
@@ -2133,13 +2072,10 @@ static void SdDecodeCsdRev1Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uin
 
 static void SdDecodeCsdRev2Field(struct MmcCntlr *cntlr, struct MmcCsd *csd, uint32_t *rawCsd)
 {
-    uint32_t unit;
-    uint32_t factor;
-
     cntlr->curDev->state.bits.blockAddr = 1;
     /* TRAN_SPEED: [103:96]; TRAN_SPEED bit-->Frequency unit: [2:0], Multiplier factor: [6:3]. */
-    factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
-    unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
+    uint32_t factor = MmcParseBits(rawCsd, CSD_BITS, 99, 4);
+    uint32_t unit = MmcParseBits(rawCsd, CSD_BITS, 96, 3);
     csd->maxDtr = g_tranSpeedUnit[unit] * g_commFactor[factor];
     /* card command classes: [95:84] */
     csd->ccc = MmcParseBits(rawCsd, CSD_BITS, 84, 12);
@@ -2277,9 +2213,7 @@ static int32_t SdSelect(struct MmcCntlr *cntlr, uint32_t *rocr)
 
 static int32_t SdReadCsd(struct MmcCntlr *cntlr)
 {
-    int32_t error;
-
-    error = MmcSendCsd(cntlr);
+    int32_t error = MmcSendCsd(cntlr);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdReadCsd: cmd9 fail, error = %d.", error);
         return error;
@@ -2289,10 +2223,9 @@ static int32_t SdReadCsd(struct MmcCntlr *cntlr)
 
 static int32_t SdReadScr(struct MmcCntlr *cntlr)
 {
-    int32_t error;
     struct SdDevice *dev = (struct SdDevice *)cntlr->curDev;
 
-    error = SdAppSendScr(cntlr, dev->reg.rawScr, SCR_LEN);
+    int32_t error = SdAppSendScr(cntlr, dev->reg.rawScr, SCR_LEN);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdReadScr: acmd51 fail, error = %d.", error);
         return error;
@@ -2302,7 +2235,6 @@ static int32_t SdReadScr(struct MmcCntlr *cntlr)
 
 static int32_t SdReadSsr(struct MmcCntlr *cntlr)
 {
-    int32_t err;
     uint32_t rawSsr[SSR_LEN] = {0};
 
     /* don't support ACMD. */
@@ -2310,7 +2242,7 @@ static int32_t SdReadSsr(struct MmcCntlr *cntlr)
         return HDF_SUCCESS;
     }
 
-    err = SdAcmdSdStatus(cntlr, rawSsr, SSR_LEN);
+    int32_t err = SdAcmdSdStatus(cntlr, rawSsr, SSR_LEN);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdReadSsr: acmd13 fail, err = %d.", err);
         return err;
@@ -2320,7 +2252,6 @@ static int32_t SdReadSsr(struct MmcCntlr *cntlr)
 
 static int32_t SdReadSwitchCapbility(struct MmcCntlr *cntlr)
 {
-    int32_t err;
     uint8_t status[SD_SWITCH_FUNCTION_STATUS_BYTES_LEN] = {0};
     struct SdDevice *dev = (struct SdDevice *)cntlr->curDev;
     struct SdSwitchFuncParam param = {0};
@@ -2336,7 +2267,7 @@ static int32_t SdReadSwitchCapbility(struct MmcCntlr *cntlr)
     param.group = SD_SWITCH_FUNC_GROUP_1;
     param.value = 1;
     /* The data(status) is in reverse order relative to the protocol. */
-    err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
+    int32_t err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdReadSwitchCapbility: swutch func group 1 fail, err = %d.", err);
         return err;
@@ -2397,10 +2328,8 @@ static void SdFillBusSpeedMode(struct MmcCntlr *cntlr)
 
 static int32_t SdReadRegisters(struct MmcCntlr *cntlr)
 {
-    int32_t error;
-
     /* get SCR */
-    error = SdReadScr(cntlr);
+    int32_t error = SdReadScr(cntlr);
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -2456,10 +2385,8 @@ static uint32_t SdGetDevMaxCurrentLimitValue(enum SdMaxCurrentLimitBit devCap)
 
 static uint32_t SdGetMaxCurrentLimitValue(union MmcCaps *hostCap, enum SdMaxCurrentLimitBit devCap)
 {
-    uint32_t currentLimit;
-
     /* get max support by dev. */
-    currentLimit = SdGetDevMaxCurrentLimitValue(devCap);
+    uint32_t currentLimit = SdGetDevMaxCurrentLimitValue(devCap);
     if (hostCap->bits.maxCurrentLimit800 == 1) {
         currentLimit = ((currentLimit < SD_MAX_CURRENT_LIMIT_800_VALUE) ?
             currentLimit : SD_MAX_CURRENT_LIMIT_800_VALUE);
@@ -2482,7 +2409,6 @@ static int32_t SdSetMaxCurrentLimit(struct MmcCntlr *cntlr)
     uint8_t status[SD_SWITCH_FUNCTION_STATUS_BYTES_LEN] = {0};
     struct SdSwitchFuncParam param = {0};
     uint32_t currentLimit;
-    int32_t err;
 
     if ((dev->busSpeedMode == SD_BUS_SPEED_MODE_UHS_SDR104) ||
         (dev->busSpeedMode == SD_BUS_SPEED_MODE_UHS_DDR50) ||
@@ -2496,7 +2422,7 @@ static int32_t SdSetMaxCurrentLimit(struct MmcCntlr *cntlr)
     param.group = SD_SWITCH_FUNC_GROUP_4;
     param.value = currentLimit;
     /* Current Limit is selected by CMD6 Function Group 4. */
-    err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
+    int32_t err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdSetMaxCurrentLimit: swutch func group 3 fail!");
         return err;
@@ -2513,7 +2439,6 @@ static int32_t SdSetBusSpeedMode(struct MmcCntlr *cntlr)
     struct SdDevice *dev = (struct SdDevice *)cntlr->curDev;
     uint8_t status[SD_SWITCH_FUNCTION_STATUS_BYTES_LEN] = {0};
     struct SdSwitchFuncParam param = {0};
-    int32_t err;
     enum MmcBusTiming timing;
 
     switch (dev->busSpeedMode) {
@@ -2544,7 +2469,7 @@ static int32_t SdSetBusSpeedMode(struct MmcCntlr *cntlr)
     param.mode = SD_SWITCH_FUNC_MODE_SET;
     param.group = SD_SWITCH_FUNC_GROUP_1;
     param.value = dev->busSpeedMode;
-    err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
+    int32_t err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdSetBusSpeedMode: swutch func group 1 fail!");
         return err;
@@ -2578,7 +2503,6 @@ static int32_t SdSwitch4BitBusWidth(struct MmcCntlr *cntlr, struct SdDevice *dev
 
 static int32_t SdUltraHighSpeedDevInit(struct MmcCntlr *cntlr)
 {
-    int32_t err;
     struct SdDevice *dev = (struct SdDevice *)cntlr->curDev;
 
     if (dev->reg.scr.sdSpec3 == 0) {
@@ -2588,7 +2512,7 @@ static int32_t SdUltraHighSpeedDevInit(struct MmcCntlr *cntlr)
         return HDF_SUCCESS;
     }
 
-    err = SdSwitch4BitBusWidth(cntlr, dev);
+    int32_t err = SdSwitch4BitBusWidth(cntlr, dev);
     if (err != HDF_SUCCESS) {
         return err;
     }
@@ -2605,7 +2529,6 @@ static int32_t SdUltraHighSpeedDevInit(struct MmcCntlr *cntlr)
 
 static int32_t SdSwitchHighSpeed(struct MmcCntlr *cntlr)
 {
-    int32_t err;
     struct SdDevice *dev = (struct SdDevice *)cntlr->curDev;
     uint8_t status[SD_SWITCH_FUNCTION_STATUS_BYTES_LEN] = {0};
     struct SdSwitchFuncParam param = {0};
@@ -2626,7 +2549,7 @@ static int32_t SdSwitchHighSpeed(struct MmcCntlr *cntlr)
     param.mode = SD_SWITCH_FUNC_MODE_SET;
     param.group = SD_SWITCH_FUNC_GROUP_1;
     param.value = SD_BUS_SPEED_MODE_HS;
-    err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
+    int32_t err = SdCmdSwitchFunc(cntlr, &param, status, SD_SWITCH_FUNCTION_STATUS_BYTES_LEN);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdSwitchHighSpeed: switch func group 1 fail!");
         return err;
@@ -2640,10 +2563,9 @@ static int32_t SdSwitchHighSpeed(struct MmcCntlr *cntlr)
 
 static int32_t SdHighSpeedDevInit(struct MmcCntlr *cntlr)
 {
-    int err;
     struct SdDevice *sdDev = (struct SdDevice *)cntlr->curDev;
 
-    err = SdSwitchHighSpeed(cntlr);
+    int err = SdSwitchHighSpeed(cntlr);
     if (err == HDF_SUCCESS) {
         cntlr->curDev->state.bits.highSpeed = 1;
         MmcCntlrSetBusTiming(cntlr, BUS_TIMING_SD_HS);
@@ -2671,11 +2593,10 @@ static int32_t SdDeviceAdd(struct MmcCntlr *cntlr)
 
 static int32_t SdInit(struct MmcCntlr *cntlr)
 {
-    int32_t error;
     union MmcOcr ocr = {0};
 
     /* acmd41, detect sd dev and get the voltage range. dev state: idle -> ready. */
-    error = SdAcmdOpCond(cntlr, 0, &(ocr.ocrData));
+    int32_t error = SdAcmdOpCond(cntlr, 0, &(ocr.ocrData));
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdInit: acmd41(detect sd) fail, err = %d!", error);
         return error;
@@ -2734,15 +2655,13 @@ static int32_t SdInit(struct MmcCntlr *cntlr)
 
 static int32_t SdDetect(struct MmcCntlr *cntlr)
 {
-    int32_t ret;
-
     HDF_LOGD("SdDetect: Detect sd dev start...");
     /* dev state: idle. */
     MmcGoIdleState(cntlr);
     /* dev state: idle -> idle. */
     (void)SdCmdSendIfCond(cntlr, cntlr->ocrDef.ocrData);
     /* Initialize SD. */
-    ret = SdInit(cntlr);
+    int32_t ret = SdInit(cntlr);
     if (ret == HDF_SUCCESS) {
         HDF_LOGD("SdDetect: Detect sd dev success! %s dev at address 0x%x!",
             cntlr->curDev->state.bits.uhs ? "Ultra high speed" :
@@ -2812,7 +2731,6 @@ static int32_t SdioRespR5Check(struct MmcCmd *cmd)
 int32_t SdioRwDirect(struct MmcCntlr *cntlr, struct SdioCmdParam *param, uint8_t *out)
 {
     struct MmcCmd cmd = {0};
-    int32_t err;
 
     if (cntlr == NULL || param == NULL) {
         HDF_LOGE("SdioRwDirect: cntlr or param is null!");
@@ -2834,7 +2752,7 @@ int32_t SdioRwDirect(struct MmcCntlr *cntlr, struct SdioCmdParam *param, uint8_t
     /* [7:0] Write Data or Stuff Bits. */
     cmd.argument |= param->writeData;
     cmd.respType = MMC_RESP_SPI_R5 | MMC_RESP_R5 | MMC_CMD_TYPE_AC;
-    err = MmcSendCmd(cntlr, &cmd, NULL, 1);
+    int32_t err = MmcSendCmd(cntlr, &cmd, NULL, 1);
     if (err != HDF_SUCCESS) {
         return err;
     }
@@ -2855,7 +2773,6 @@ int32_t SdioRwExtended(struct MmcCntlr *cntlr, struct SdioCmdParam *param,
 {
     struct MmcCmd cmd = {0};
     struct MmcData data = {0};
-    int32_t err;
 
     if (cntlr == NULL || param == NULL) {
         HDF_LOGE("SdioRwExtended: cntlr or param is null!");
@@ -2900,7 +2817,7 @@ int32_t SdioRwExtended(struct MmcCntlr *cntlr, struct SdioCmdParam *param,
         data.scatterLen = param->scatterLen;
     }
 
-    err = MmcSendCmd(cntlr, &cmd, &data, 1);
+    int32_t err = MmcSendCmd(cntlr, &cmd, &data, 1);
     if (err != HDF_SUCCESS) {
         return err;
     }
@@ -2913,7 +2830,6 @@ static void SdioIoReset(struct MmcCntlr *cntlr)
 {
     struct SdioCmdParam param = {0};
     uint8_t out = 0;
-    int32_t error;
 
     /*
      * In order to reset an I/O only card or the I/O portion of a combo card,
@@ -2922,7 +2838,7 @@ static void SdioIoReset(struct MmcCntlr *cntlr)
      */
     param.regAddr = IO_ABORT;
     /* read register 6 of CCCR. */
-    error = SdioRwDirect(cntlr, &param, &out);
+    int32_t error = SdioRwDirect(cntlr, &param, &out);
     if (error < 0) {
         out = SDIO_CCCR_RES;
     } else {
@@ -2957,15 +2873,12 @@ int32_t SdioReadWriteByte(struct MmcCntlr *cntlr, bool writeFlag,
 static int32_t SdioReadWriteRemainBytes(struct MmcCntlr *cntlr, struct SdioCmdParam *param,
     uint8_t *data, uint32_t size, uint32_t addr)
 {
-    uint32_t maxBlkSize;
-    uint32_t curSize;
     struct SdioDevice *dev = (struct SdioDevice *)cntlr->curDev;
     uint32_t remLen = size;
     uint32_t curAddr = addr;
     uint8_t *buffer = data;
-    int32_t err;
 
-    maxBlkSize = MMC_MIN(cntlr->maxBlkSize, dev->curFunction->maxBlkSize);
+    uint32_t maxBlkSize = MMC_MIN(cntlr->maxBlkSize, dev->curFunction->maxBlkSize);
     maxBlkSize = MMC_MIN(maxBlkSize, BYTES_PER_BLOCK);
     if (maxBlkSize == 0) {
         HDF_LOGE("SdioReadWriteRemainBytes: max block size is invalid!");
@@ -2973,9 +2886,9 @@ static int32_t SdioReadWriteRemainBytes(struct MmcCntlr *cntlr, struct SdioCmdPa
     }
 
     while (remLen > 0) {
-        curSize = MMC_MIN(remLen, maxBlkSize);
+        uint32_t curSize = MMC_MIN(remLen, maxBlkSize);
         param->regAddr = curAddr;
-        err = SdioRwExtended(cntlr, param, buffer, 1, curSize);
+        int32_t err = SdioRwExtended(cntlr, param, buffer, 1, curSize);
         if (err != HDF_SUCCESS) {
             HDF_LOGD("SdioReadWriteRemainBytes: bytes mode, err = %d, addr = %d, curSize = %d!", err, addr, curSize);
             return err;
@@ -3004,10 +2917,6 @@ static void SdioFillRwExtendedCmdParam(struct SdioCmdParam *param,
 
 int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
 {
-    uint32_t maxBlkNum;
-    uint32_t curblkNum;
-    uint32_t curSize;
-    int32_t err;
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
 
@@ -3037,14 +2946,14 @@ int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
     }
     /* send block. */
     if (dev->sdioReg.cccr.multiBlock > 0 && (remLen > maxBlkSize)) {
-        maxBlkNum = MMC_MIN((cntlr->maxReqSize / dev->curFunction->curBlkSize), cntlr->maxBlkNum);
+        uint32_t maxBlkNum = MMC_MIN((cntlr->maxReqSize / dev->curFunction->curBlkSize), cntlr->maxBlkNum);
         maxBlkNum = MMC_MIN(maxBlkNum, SDIO_BLOCK_TRANSFER_MAX_BLKNUM);
         while (remLen > dev->curFunction->curBlkSize) {
-            curblkNum = remLen / dev->curFunction->curBlkSize;
+            uint32_t curblkNum = remLen / dev->curFunction->curBlkSize;
             curblkNum = MMC_MIN(curblkNum, maxBlkNum);
-            curSize = curblkNum * dev->curFunction->curBlkSize;
+            uint32_t curSize = curblkNum * dev->curFunction->curBlkSize;
             param.regAddr = curAddr;
-            err = SdioRwExtended(cntlr, &param, buffer, curblkNum, dev->curFunction->curBlkSize);
+            int32_t err = SdioRwExtended(cntlr, &param, buffer, curblkNum, dev->curFunction->curBlkSize);
             if (err != HDF_SUCCESS) {
                 return err;
             }
@@ -3063,12 +2972,11 @@ int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
 static int32_t SdioCdDisable(struct MmcCntlr *cntlr)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t ctrl;
 
     param.regAddr = BUS_INTERFACE_CONTROL;
     /* read register 7 of CCCR. */
-    error = SdioRwDirect(cntlr, &param, &ctrl);
+    int32_t error = SdioRwDirect(cntlr, &param, &ctrl);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioCdDisable: read BIC fail!");
         return error;
@@ -3086,12 +2994,11 @@ static int32_t SdioCdDisable(struct MmcCntlr *cntlr)
 static int32_t SdioReadCccrSdioRev(struct MmcCntlr *cntlr, struct SdioCccr *cccr, uint8_t *cccrRev)
 {
     struct SdioCmdParam param = {0};
-    int32_t err;
     uint8_t data;
 
     /* read register 0 of CCCR. */
     param.regAddr = CCCR_SDIO_REVISION;
-    err = SdioRwDirect(cntlr, &param, &data);
+    int32_t err = SdioRwDirect(cntlr, &param, &data);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdioReadCccrSdioRev: read sdio rev fail!");
         return err;
@@ -3110,12 +3017,11 @@ static int32_t SdioReadCccrSdioRev(struct MmcCntlr *cntlr, struct SdioCccr *cccr
 static int32_t SdioReadCccrCapbility(struct MmcCntlr *cntlr, struct SdioCccr *cccr)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t cap;
 
     /* read register 8 of CCCR. */
     param.regAddr = CARD_CAPBILITY;
-    error = SdioRwDirect(cntlr, &param, &cap);
+    int32_t error = SdioRwDirect(cntlr, &param, &cap);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioReadCccrCapbility: read card cap fail!");
         return error;
@@ -3136,12 +3042,11 @@ static int32_t SdioReadCccrCapbility(struct MmcCntlr *cntlr, struct SdioCccr *cc
 static int32_t SdioReadCccrPowerControl(struct MmcCntlr *cntlr, struct SdioCccr *cccr)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t ctrl;
 
     /* read register 18 of CCCR. */
     param.regAddr = POWER_CONTROL;
-    error = SdioRwDirect(cntlr, &param, &ctrl);
+    int32_t error = SdioRwDirect(cntlr, &param, &ctrl);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioReadCccrPowerControl: read power control fail!");
         return error;
@@ -3156,12 +3061,11 @@ static int32_t SdioReadCccrPowerControl(struct MmcCntlr *cntlr, struct SdioCccr 
 static int32_t SdioReadCccrBusSpeed(struct MmcCntlr *cntlr, struct SdioCccr *cccr)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t speed;
 
     /* read register 19 of CCCR. */
     param.regAddr = BUS_SPEED_SELECT;
-    error = SdioRwDirect(cntlr, &param, &speed);
+    int32_t error = SdioRwDirect(cntlr, &param, &speed);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioReadCccrBusSpeed: read bus speed select fail!");
         return error;
@@ -3191,7 +3095,6 @@ int32_t SdioCccrIoEnable(struct MmcCntlr *cntlr)
 {
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
-    int32_t err;
     uint8_t data;
 
     if (cntlr == NULL) {
@@ -3206,7 +3109,7 @@ int32_t SdioCccrIoEnable(struct MmcCntlr *cntlr)
 
     /* read register 2(IOEx) of CCCR. */
     param.regAddr = IO_ENABLE;
-    err = SdioRwDirect(cntlr, &param, &data);
+    int32_t err = SdioRwDirect(cntlr, &param, &data);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdioCccrIoEnable: read io enable fail! err = %d.", err);
         return err;
@@ -3229,7 +3132,6 @@ int32_t SdioCccrIoDisable(struct MmcCntlr *cntlr)
 {
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
-    int32_t err;
     uint8_t data;
 
     if (cntlr == NULL) {
@@ -3244,7 +3146,7 @@ int32_t SdioCccrIoDisable(struct MmcCntlr *cntlr)
 
     /* read register 2(IOEx) of CCCR. */
     param.regAddr = IO_ENABLE;
-    err = SdioRwDirect(cntlr, &param, &data);
+    int32_t err = SdioRwDirect(cntlr, &param, &data);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdioCccrIoDisable: read io enable fail! err = %d.", err);
         return err;
@@ -3299,7 +3201,6 @@ int32_t SdioReadCccrIntPending(struct MmcCntlr *cntlr, uint8_t *val)
 
 int32_t SdioCccrIntEnable(struct MmcCntlr *cntlr)
 {
-    int32_t err;
     uint8_t val;
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
@@ -3316,7 +3217,7 @@ int32_t SdioCccrIntEnable(struct MmcCntlr *cntlr)
 
     /* read register 4 of CCCR. */
     param.regAddr = INT_ENABLE;
-    err = SdioRwDirect(cntlr, &param, &val);
+    int32_t err = SdioRwDirect(cntlr, &param, &val);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdioCccrIntEnable: read int enable fail! err = %d.", err);
         return err;
@@ -3343,7 +3244,6 @@ int32_t SdioCccrIntDisable(struct MmcCntlr *cntlr)
 {
     struct SdioDevice *dev = (struct SdioDevice *)cntlr->curDev;
     struct SdioCmdParam param = {0};
-    int32_t err;
     uint8_t val;
 
     if (dev == NULL || dev->curFunction == NULL) {
@@ -3353,7 +3253,7 @@ int32_t SdioCccrIntDisable(struct MmcCntlr *cntlr)
 
     /* read register 4 of CCCR. */
     param.regAddr = INT_ENABLE;
-    err = SdioRwDirect(cntlr, &param, &val);
+    int32_t err = SdioRwDirect(cntlr, &param, &val);
     if (err != HDF_SUCCESS) {
         HDF_LOGE("SdioCccrIntDisable: read int enable fail! err = %d.", err);
         return err;
@@ -3371,7 +3271,6 @@ int32_t SdioCccrIntDisable(struct MmcCntlr *cntlr)
 
 static int32_t SdioReadCccr(struct MmcCntlr *cntlr)
 {
-    int32_t ret;
     uint8_t cccrRev;
     struct SdioDevice *sdioDev = NULL;
     struct SdioCccr *cccr = NULL;
@@ -3383,7 +3282,7 @@ static int32_t SdioReadCccr(struct MmcCntlr *cntlr)
 
     sdioDev = (struct SdioDevice *)cntlr->curDev;
     cccr = &(sdioDev->sdioReg.cccr);
-    ret = SdioReadCccrSdioRev(cntlr, cccr, &cccrRev);
+    int32_t ret = SdioReadCccrSdioRev(cntlr, cccr, &cccrRev);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
@@ -3408,12 +3307,11 @@ static int32_t SdioReadCccr(struct MmcCntlr *cntlr)
 static int32_t SdioBusSpeedSelect(struct MmcCntlr *cntlr, bool enableHighSpeed)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t speed;
 
     /* read register 19 of CCCR. */
     param.regAddr = BUS_SPEED_SELECT;
-    error = SdioRwDirect(cntlr, &param, &speed);
+    int32_t error = SdioRwDirect(cntlr, &param, &speed);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioBusSpeedSelect: read bus speed select fail! err = %d.", error);
         return error;
@@ -3448,9 +3346,7 @@ static int32_t SdioSwitchHighSpeed(struct MmcCntlr *cntlr)
 
 static int32_t SdioEnableHighSpeed(struct MmcCntlr *cntlr)
 {
-    int32_t err;
-
-    err = SdioSwitchHighSpeed(cntlr);
+    int32_t err = SdioSwitchHighSpeed(cntlr);
     if (cntlr->curDev->type == MMC_DEV_SDIO || err != HDF_SUCCESS) {
         return err;
     }
@@ -3470,12 +3366,11 @@ static int32_t SdioEnableHighSpeed(struct MmcCntlr *cntlr)
 static int32_t SdioSetBusWidth(struct MmcCntlr *cntlr, uint8_t width)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t data;
 
     /* read register 7 of CCCR. */
     param.regAddr = BUS_INTERFACE_CONTROL;
-    error = SdioRwDirect(cntlr, &param, &data);
+    int32_t error = SdioRwDirect(cntlr, &param, &data);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioSetBusWidth: read BIC fail, error = %d!", error);
         return error;
@@ -3514,7 +3409,6 @@ static int32_t SdioSwitch4BitBusWidth(struct MmcCntlr *cntlr)
 
 static int32_t SdioEnable4BitBusWidth(struct MmcCntlr *cntlr)
 {
-    int32_t error;
     struct SdDevice *dev = (struct SdDevice *)cntlr->curDev;
 
     /*
@@ -3522,7 +3416,7 @@ static int32_t SdioEnable4BitBusWidth(struct MmcCntlr *cntlr)
      * For an SDIO card a write to the CCCR usingCMD52 is used to select bus width.
      * In the case of a combo card, both selection methods exist.
      */
-    error = SdioSwitch4BitBusWidth(cntlr);
+    int32_t error = SdioSwitch4BitBusWidth(cntlr);
     if (cntlr->curDev->type == MMC_DEV_SDIO || error != HDF_SUCCESS) {
         return error;
     }
@@ -3547,8 +3441,6 @@ static int32_t SdioReadCisTplField(struct MmcCntlr *cntlr, uint32_t addr, uint8_
 static void SdioDecodeCisTplManfId(struct MmcCntlr *cntlr, struct SdioFunction *function,
     struct SdioCisTuple *tuple)
 {
-    uint16_t vendorId;
-    uint16_t deviceId;
     struct SdioDevice *dev = NULL;
 
     if (tuple->tplLink < SDIO_CIS_TPL_MANFID_MIN_SIZE) {
@@ -3560,8 +3452,8 @@ static void SdioDecodeCisTplManfId(struct MmcCntlr *cntlr, struct SdioFunction *
      * bit04-05[manufacturer information(Part Number and /or Revision)].
      * bit02-03-->tplBody[0:1], bit04-05-->tplBody[2:3].
      */
-    vendorId = (tuple->tplBody[1] << BITS_PER_BYTE) | tuple->tplBody[0];
-    deviceId = (tuple->tplBody[3] << BITS_PER_BYTE) | tuple->tplBody[2];
+    uint16_t vendorId = (tuple->tplBody[1] << BITS_PER_BYTE) | tuple->tplBody[0];
+    uint16_t deviceId = (tuple->tplBody[3] << BITS_PER_BYTE) | tuple->tplBody[2];
 
     /* function CISTPL_MANFID. */
     if (function != NULL) {
@@ -3610,10 +3502,8 @@ static void SdioDecodeCisTplFunceCommon(struct MmcCntlr *cntlr, struct SdioCisTu
 
 static void SdioDecodeCisTplFunceFunction(struct SdioFunction *function, struct SdioCisTuple *tuple)
 {
-    uint32_t minSize;
-
     /* Rev 1.0, TPL_LINK 28bytes; >Rev 1.0, TPL_LINK 42bytes.  */
-    minSize = (function->dev->sdioReg.cccr.sdioRev == SDIO_CCCR_SDIO_REV_1_00) ?
+    uint32_t minSize = (function->dev->sdioReg.cccr.sdioRev == SDIO_CCCR_SDIO_REV_1_00) ?
         SDIO_CIS_TPL_FUNCE_FUNCTION_PC_MIN_SIZE : SDIO_CIS_TPL_FUNCE_FUNCTION_PC_MAX_SIZE;
     if (tuple->tplLink < minSize) {
         return;
@@ -3682,15 +3572,12 @@ static void SdioDecodeCisTplField(struct MmcCntlr *cntlr, struct SdioFunction *f
 static int32_t SdioFillTplInfo(struct MmcCntlr *cntlr, struct SdioCisTuple *tuple,
     uint32_t *addr, uint8_t tplCode, uint8_t tplLink)
 {
-    int32_t ret;
-    uint32_t i;
-
     tuple->tplCode = tplCode;
     tuple->tplLink = tplLink;
     /* read tuple body. */
-    for (i = 0; i < tplLink; i++) {
+    for (uint32_t i = 0; i < tplLink; i++) {
         (*addr)++;
-        ret = SdioReadCisTplField(cntlr, *addr, &(tuple->tplBody[i]));
+        int32_t ret = SdioReadCisTplField(cntlr, *addr, &(tuple->tplBody[i]));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioFillTplInfo: read tuple body fail, err = %d.", ret);
             return ret;
@@ -3755,10 +3642,7 @@ static int32_t SdioDecodeCis(struct MmcCntlr *cntlr, struct SdioFunction *functi
 static int32_t SdioReadCis(struct MmcCntlr *cntlr, struct SdioFunction *function)
 {
     uint32_t funcNum;
-    uint32_t i;
-    uint32_t cisStartAddr;
     uint8_t data;
-    int32_t ret;
     struct SdioCmdParam param = {0};
 
     if (function == NULL) {
@@ -3768,11 +3652,11 @@ static int32_t SdioReadCis(struct MmcCntlr *cntlr, struct SdioFunction *function
     }
 
     /* read CIS pointer. */
-    cisStartAddr = 0;
-    for (i = 0; i < SDIO_CCCR_CIS_START_ADDR_BYTES; i++) {
+    uint32_t cisStartAddr = 0;
+    for (uint32_t i = 0; i < SDIO_CCCR_CIS_START_ADDR_BYTES; i++) {
         /* read register 0xn09-0xn0B of FBR. */
         param.regAddr = SDIO_FBR_BASE_ADDR(funcNum) + SDIO_FBR_POINTER_CIS + i;
-        ret = SdioRwDirect(cntlr, &param, &data);
+        int32_t ret = SdioRwDirect(cntlr, &param, &data);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioReadCis: read CIS pointer fail, err = %d.", ret);
             return ret;
@@ -3785,12 +3669,11 @@ static int32_t SdioReadCis(struct MmcCntlr *cntlr, struct SdioFunction *function
 static int32_t SdioReadFbr(struct MmcCntlr *cntlr, struct SdioFunction *func)
 {
     struct SdioCmdParam param = {0};
-    int32_t error;
     uint8_t data;
 
     /* read register 0xn00 of FBR. */
     param.regAddr = SDIO_FBR_BASE_ADDR(func->funcNum) + SDIO_FBR_STD_FUNCTION_INTERFACE_CODE;
-    error = SdioRwDirect(cntlr, &param, &data);
+    int32_t error = SdioRwDirect(cntlr, &param, &data);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioReadFbr: read SFIC fail, err = %d.", error);
         return error;
@@ -3816,7 +3699,6 @@ int32_t SdioSetFbrIoBlockSize(struct MmcCntlr *cntlr, uint32_t blkSize)
 {
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
-    int32_t ret;
 
     if (cntlr == NULL) {
         HDF_LOGE("SdioSetFbrIoBlockSize: cntlr is null!");
@@ -3839,7 +3721,7 @@ int32_t SdioSetFbrIoBlockSize(struct MmcCntlr *cntlr, uint32_t blkSize)
      * value for the block size supported by each function. This pointer is stored in little-endian format.
      */
     param.writeData = (blkSize & 0xff);
-    ret = SdioRwDirect(cntlr, &param, NULL);
+    int32_t ret = SdioRwDirect(cntlr, &param, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("SdioSetFbrIoBlockSize: write I/O Block Size fail, err = %d.", ret);
         return ret;
@@ -3901,16 +3783,14 @@ static int32_t SdioAddFunctions(struct MmcCntlr *cntlr, uint32_t funcs)
 {
     struct SdioDevice *sdioDev = (struct SdioDevice *)cntlr->curDev;
     struct SdioFunction *function = NULL;
-    uint32_t i;
-    int32_t ret;
 
     sdioDev->functions = 0;
-    for (i = 0; i < funcs; i++) {
+    for (uint32_t i = 0; i < funcs; i++) {
         function = SdioAllocFunction(sdioDev, i + 1);
         if (function == NULL) {
             return HDF_ERR_MALLOC_FAIL;
         }
-        ret = SdioReadFbr(cntlr, function);
+        int32_t ret = SdioReadFbr(cntlr, function);
         if (ret != HDF_SUCCESS) {
             SdioDeleteFunction(function);
             return ret;
@@ -3959,10 +3839,8 @@ static int32_t SdioDeviceAdd(struct MmcCntlr *cntlr)
 
 static int32_t SdioSelect(struct MmcCntlr *cntlr, uint32_t *rocr)
 {
-    int32_t error;
-
     /* cmd5, set the support voltage. */
-    error = SdioSendOpCond(cntlr, cntlr->curDev->reg.ocr.ocrData, rocr);
+    int32_t error = SdioSendOpCond(cntlr, cntlr->curDev->reg.ocr.ocrData, rocr);
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioSelect: cmd5(set voltage) fail, err = %d.", error);
         return error;
@@ -4020,11 +3898,10 @@ static int32_t SdioSelect(struct MmcCntlr *cntlr, uint32_t *rocr)
 
 static int32_t SdioInit(struct MmcCntlr *cntlr)
 {
-    int32_t error;
     union MmcOcr ocr = {0};
 
     /* cmd5, detect sdio dev and get the voltage range. */
-    error = SdioSendOpCond(cntlr, 0, &(ocr.ocrData));
+    int32_t error = SdioSendOpCond(cntlr, 0, &(ocr.ocrData));
     if (error != HDF_SUCCESS) {
         HDF_LOGE("SdioInit: cmd5(detect sdio) fail, err = %d", error);
         return error;
@@ -4076,13 +3953,12 @@ static int32_t SdioInit(struct MmcCntlr *cntlr)
 int32_t SdioReinit(struct MmcCntlr *cntlr)
 {
     union MmcOcr ocr = {0};
-    int error;
 
     MmcGoIdleState(cntlr);
     MmcCntlrSetClock(cntlr, cntlr->freqMin);
 
     /* cmd5, detect sdio dev and get the voltage range. */
-    error = SdioSendOpCond(cntlr, 0, &(ocr.ocrData));
+    int error = SdioSendOpCond(cntlr, 0, &(ocr.ocrData));
     if (error != HDF_SUCCESS) {
         return error;
     }
@@ -4116,8 +3992,6 @@ int32_t SdioReinit(struct MmcCntlr *cntlr)
 
 static int32_t SdioDetect(struct MmcCntlr *cntlr)
 {
-    int32_t err;
-
     HDF_LOGD("SdioDetect: Detect sdio dev start...");
     /*
      * After reset or power-up, all I/O functions on the card are disabled and the I/O portion of the card shall
@@ -4127,7 +4001,7 @@ static int32_t SdioDetect(struct MmcCntlr *cntlr)
     SdioIoReset(cntlr);
     MmcGoIdleState(cntlr);
     /* Initialize SDIO. */
-    err = SdioInit(cntlr);
+    int32_t err = SdioInit(cntlr);
     if (err == HDF_SUCCESS) {
         HDF_LOGD("SdioDetect: Detect sdio dev success! %s dev at address 0x%x!",
             cntlr->curDev->state.bits.highSpeed ? "High speed" : "", cntlr->curDev->reg.rca);

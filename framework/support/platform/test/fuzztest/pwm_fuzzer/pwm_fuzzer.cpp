@@ -22,7 +22,7 @@ constexpr int32_t MAX = 2;
 constexpr int32_t PWM_FUZZ_NUM = 1;
 }
 
-struct AllParameters {
+struct PwmAllParameters {
     uint32_t descPer;
     uint32_t descDuty;
     uint8_t descPolar;
@@ -33,7 +33,7 @@ static bool PwmFuzzTest(const uint8_t *data, size_t size)
 {
     int32_t number;
     DevHandle handle = nullptr;
-    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    const struct PwmAllParameters *params = reinterpret_cast<const struct PwmAllParameters *>(data);
 
     number = randNum(MIN, MAX);
     handle = PwmOpen(PWM_FUZZ_NUM);
@@ -68,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    if (size < sizeof(struct AllParameters)) {
+    if (size < sizeof(struct PwmAllParameters)) {
         HDF_LOGE("LLVMFuzzerTestOneInput: pwm fuzz test size is small!");
         return 0;
     }

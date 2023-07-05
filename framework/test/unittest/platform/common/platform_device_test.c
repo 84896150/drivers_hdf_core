@@ -317,11 +317,10 @@ int PlatformDeviceTestExecute(int cmd)
 void PlatformDeviceTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     for (i = 0; i < PLAT_DEVICE_TEST_CMD_MAX; i++) {
-        ret = PlatformDeviceTestExecute(i);
+        int32_t ret = PlatformDeviceTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 
