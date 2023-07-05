@@ -176,7 +176,6 @@ static bool VirtualSpiReadFifo(struct VirtualSpi *virtual, uint8_t *rx, uint32_t
 
 static int32_t VirtualSpiTxRx(struct VirtualSpi *virtual, const struct SpiMsg *msg)
 {
-    int32_t ret;
     uint32_t tmpLen;
     uint32_t len;
     const uint8_t *tx = msg->wbuf;
@@ -195,7 +194,7 @@ static int32_t VirtualSpiTxRx(struct VirtualSpi *virtual, const struct SpiMsg *m
         }
         tx = (tx == NULL) ? NULL : (tx + tmpLen);
         if (tmpLen == burstSize) {
-            ret = OsalSemWait((struct OsalSem *)(&virtual->sem), WAIT_TIMEOUT);
+            int32_t ret = OsalSemWait((struct OsalSem *)(&virtual->sem), WAIT_TIMEOUT);
             if (ret != HDF_SUCCESS) {
                 HDF_LOGE("VirtualSpiTxRx: sem wait timeout, ret: %d!", ret);
                 return ret;
@@ -256,15 +255,13 @@ static int32_t VirtualSpiGetCfg(struct SpiCntlr *cntlr, struct SpiCfg *cfg)
 
 static int32_t VirtualSpiTransferOneMessage(struct VirtualSpi *virtual, struct SpiMsg *msg)
 {
-    int32_t ret;
-
     if (msg == NULL || (msg->rbuf == NULL && msg->wbuf == NULL)) {
         HDF_LOGE("VirtualSpiTransferOneMessage: invalid parameter!");
         return HDF_ERR_INVALID_PARAM;
     }
     virtual->speed = (msg->speed) == 0 ? DEFAULT_SPEED : msg->speed;
 
-    ret = RingBufferConfig(virtual);
+    int32_t ret = RingBufferConfig(virtual);
     if (ret != HDF_SUCCESS) {
         return ret;
     }
@@ -274,7 +271,6 @@ static int32_t VirtualSpiTransferOneMessage(struct VirtualSpi *virtual, struct S
 
 static int32_t VirtualSpiTransfer(struct SpiCntlr *cntlr, struct SpiMsg *msg, uint32_t count)
 {
-    int32_t ret;
     uint32_t i;
     struct VirtualSpi *virtual = NULL;
 
@@ -293,7 +289,7 @@ static int32_t VirtualSpiTransfer(struct SpiCntlr *cntlr, struct SpiMsg *msg, ui
         return HDF_FAILURE;
     }
     for (i = 0; i < count; i++) {
-        ret = VirtualSpiTransferOneMessage(virtual, &(msg[i]));
+        int32_t ret = VirtualSpiTransferOneMessage(virtual, &(msg[i]));
         if (ret != 0) {
             HDF_LOGE("VirtualSpiTransfer: transfer error, ret: %d!", ret);
             return ret;
@@ -371,7 +367,6 @@ static int32_t SpiGetCfgFromHcs(struct VirtualSpi *virtual, const struct DeviceR
 
 static int32_t VirtualSpiInit(struct SpiCntlr *cntlr, const struct HdfDeviceObject *device)
 {
-    int32_t ret;
     struct VirtualSpi *virtual = NULL;
 
     if (device->property == NULL) {
@@ -384,7 +379,7 @@ static int32_t VirtualSpiInit(struct SpiCntlr *cntlr, const struct HdfDeviceObje
         HDF_LOGE("VirtualSpiInit: OsalMemCalloc error!");
         return HDF_FAILURE;
     }
-    ret = SpiGetCfgFromHcs(virtual, device->property);
+    int32_t ret = SpiGetCfgFromHcs(virtual, device->property);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("VirtualSpiInit: SpiGetCfgFromHcs error, ret: %d!", ret);
         OsalMemFree(virtual);
@@ -417,7 +412,6 @@ static int32_t VirtualSpiDeviceBind(struct HdfDeviceObject *device)
 
 static int32_t VirtualSpiDeviceInit(struct HdfDeviceObject *device)
 {
-    int32_t ret;
     struct SpiCntlr *cntlr = NULL;
 
     if (device == NULL) {
@@ -430,7 +424,7 @@ static int32_t VirtualSpiDeviceInit(struct HdfDeviceObject *device)
         return HDF_FAILURE;
     }
 
-    ret = VirtualSpiInit(cntlr, device);
+    int32_t ret = VirtualSpiInit(cntlr, device);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("VirtualSpiDeviceInit: error init, ret: %d!", ret);
         return ret;

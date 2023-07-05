@@ -144,14 +144,12 @@ static void DmacFreeLli(struct DmacChanInfo *chanInfo)
  */
 void DmaCntlrDestroy(struct DmaCntlr *cntlr)
 {
-    uint16_t i;
-
     if (cntlr == NULL || cntlr->channelNum > DMAC_CHAN_NUM_MAX) {
         HDF_LOGE("DmaCntlrDestroy: dma cntlr is null or channel is invalid!");
         return;
     }
     if (cntlr->channelList != NULL) {
-        for (i = 0; i < cntlr->channelNum; i++) {
+        for (uint16_t i = 0; i < cntlr->channelNum; i++) {
             DmacFreeLli(&(cntlr->channelList[i]));
         }
         OsalMemFree(cntlr->channelList);
@@ -431,9 +429,6 @@ static int32_t DmacPeriphTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
 
 static int32_t DmacM2mTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
 {
-    int32_t ret;
-    size_t leftSize;
-    size_t dmaSize;
     size_t dmaCount = 0;
     struct DmacChanInfo *chanInfo = NULL;
 
@@ -451,10 +446,10 @@ static int32_t DmacM2mTransfer(struct DmaCntlr *cntlr, struct DmacMsg *msg)
     chanInfo->callbackData = msg->para;
     cntlr->dmacCacheFlush((uintptr_t)msg->srcAddr, (uintptr_t)(msg->srcAddr + msg->transLen));
     cntlr->dmacCacheInv((uintptr_t)msg->destAddr, (uintptr_t)(msg->destAddr + msg->transLen));
-    leftSize = msg->transLen;
+    size_t leftSize = msg->transLen;
     while (leftSize > 0) {
-        dmaSize = (leftSize >= cntlr->maxTransSize) ? cntlr->maxTransSize : leftSize;
-        ret = cntlr->dmaM2mChanEnable(cntlr, chanInfo, msg->srcAddr + dmaCount * cntlr->maxTransSize,
+        size_t dmaSize = (leftSize >= cntlr->maxTransSize) ? cntlr->maxTransSize : leftSize;
+        int32_t ret = cntlr->dmaM2mChanEnable(cntlr, chanInfo, msg->srcAddr + dmaCount * cntlr->maxTransSize,
             msg->destAddr + dmaCount * cntlr->maxTransSize, dmaSize);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("DmacM2mTransfer: enable channel m2m fail!");
@@ -525,8 +520,6 @@ uintptr_t DmaGetCurrChanDestAddr(struct DmaCntlr *cntlr, uint16_t chan)
 
 static uint32_t DmacIsr(uint32_t irq, void *dev)
 {
-    uint16_t i;
-    int channelStatus;
     struct DmaCntlr *cntlr = (struct DmaCntlr *)dev;
 
     if (DmacCntlrCheck(cntlr) != HDF_SUCCESS) {
@@ -538,8 +531,8 @@ static uint32_t DmacIsr(uint32_t irq, void *dev)
         HDF_LOGE("DmacIsr: cntlr parm err! irq:%d, channel:%u!", cntlr->irq, cntlr->channelNum);
         return HDF_ERR_INVALID_OBJECT;
     }
-    for (i = 0; i < cntlr->channelNum; i++) {
-        channelStatus = cntlr->dmacGetChanStatus(cntlr, i);
+    for (uint16_t i = 0; i < cntlr->channelNum; i++) {
+        int channelStatus = cntlr->dmacGetChanStatus(cntlr, i);
         if (channelStatus == DMAC_CHN_SUCCESS || channelStatus == DMAC_CHN_ERROR) {
             cntlr->channelList[i].status = channelStatus;
             DmacCallbackHandle(&(cntlr->channelList[i]));

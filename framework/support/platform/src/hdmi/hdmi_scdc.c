@@ -171,13 +171,11 @@ static bool HdmiCntlrScdcSourceScrambleGet(struct HdmiCntlr *cntlr)
 
 static int32_t HdmiCntlrScdcSourceScrambleSet(struct HdmiCntlr *cntlr, bool enable)
 {
-    int32_t ret;
-
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->scdcSourceScrambleSet == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
     HdmiCntlrLock(cntlr);
-    ret = cntlr->ops->scdcSourceScrambleSet(cntlr, enable);
+    int32_t ret = cntlr->ops->scdcSourceScrambleSet(cntlr, enable);
     HdmiCntlrUnlock(cntlr);
     return ret;
 }
@@ -187,13 +185,12 @@ int32_t HdmiScdcRrDisable(struct HdmiScdc *scdc)
 {
     union HdmiScdcsConfig0 cfg = {0};
     union HdmiScdcsTestConfig0 testCfg = {0};
-    int32_t ret;
 
     if (scdc == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = HdmiScdcWriteConfig0(scdc, &(cfg.data));
+    int32_t ret = HdmiScdcWriteConfig0(scdc, &(cfg.data));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("scdc write config0 fail");
         return ret;
@@ -212,13 +209,12 @@ int32_t HdmiScdcRrDisable(struct HdmiScdc *scdc)
 int32_t HdmiScdcScrambleSet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *scramble)
 {
     union HdmiScdcsTmdsConfig cfg = {0};
-    int32_t ret;
 
     if (scdc == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = HdmiCntlrScdcSourceScrambleSet((struct HdmiCntlr *)scdc->priv, scramble->sourceScramble);
+    int32_t ret = HdmiCntlrScdcSourceScrambleSet((struct HdmiCntlr *)scdc->priv, scramble->sourceScramble);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("scdc source scrambler set fail");
         return ret;
@@ -242,13 +238,12 @@ int32_t HdmiScdcScrambleGet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *s
 {
     union HdmiScdcsScramblerStatus status = {0};
     union HdmiScdcsTmdsConfig cfg = {0};
-    int32_t ret;
 
     if (scdc == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = HdmiScdcReadScramblerStatus(scdc, &(status.data));
+    int32_t ret = HdmiScdcReadScramblerStatus(scdc, &(status.data));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("scdc read scrambler status fail");
         return ret;
@@ -270,17 +265,13 @@ int32_t HdmiScdcScrambleGet(struct HdmiScdc *scdc, struct HdmiScdcScrambleCap *s
 
 bool HdmiScdcSinkSupport(struct HdmiScdc *scdc)
 {
-    uint8_t srcVer;
-    uint8_t i;
-    int32_t ret;
-
     if (scdc == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    for (i = 0; i < HDMI_SCDC_READ_SOURCE_VERSION_TIMES; i++) {
-        srcVer = HDMI_SCDC_HDMI20_VERSION;
-        ret = HdmiScdcWriteSourceVersion(scdc, &srcVer);
+    for (uint8_t i = 0; i < HDMI_SCDC_READ_SOURCE_VERSION_TIMES; i++) {
+        uint8_t srcVer = HDMI_SCDC_HDMI20_VERSION;
+        int32_t ret = HdmiScdcWriteSourceVersion(scdc, &srcVer);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("scdc write source version fail");
             return false;

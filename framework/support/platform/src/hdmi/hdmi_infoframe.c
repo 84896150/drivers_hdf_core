@@ -18,10 +18,9 @@
 
 static void HdmiInfoFrameFillCheckSum(uint8_t *data, uint32_t len)
 {
-    uint32_t i;
     uint8_t checkSum = 0;
 
-    for (i = 0; i < len; i++) {
+    for (uint32_t i = 0; i < len; i++) {
         checkSum += data[i];
     }
     if (checkSum > 0) {
@@ -47,12 +46,11 @@ static void HdmiInfoFrameFillHeader(const struct HdmiInfoFrameHeader *header, ui
 
 static int32_t HdmiInfoFramePacketVsEncoding(union HdmiInfoFrameInfo *infoFrame, uint8_t *data, uint32_t len)
 {
-    uint32_t length;
     struct HdmiVs14VsifContent *vsifContent = NULL;
     struct HdmiVsUserVsifContent *userContent = NULL;
     struct HdmiVsInfoFrame *vs = &(infoFrame->vs);
 
-    length = HDMI_INFOFRAME_PACKET_HEADER_LEN + vs->len;
+    uint32_t length = HDMI_INFOFRAME_PACKET_HEADER_LEN + vs->len;
     if (len < length) {
         HDF_LOGE("len = %u, val is too small.", len);
         return HDF_ERR_INVALID_PARAM;
@@ -97,11 +95,10 @@ static int32_t HdmiInfoFramePacketVsEncoding(union HdmiInfoFrameInfo *infoFrame,
 
 static int32_t HdmiInfoFramePacketAviEncoding(union HdmiInfoFrameInfo *infoFrame, uint8_t *data, uint32_t len)
 {
-    uint32_t length;
     uint8_t *buff = data;
     struct HdmiAviInfoFrame *avi = &(infoFrame->avi);
 
-    length = HDMI_INFOFRAME_PACKET_HEADER_LEN + avi->len;
+    uint32_t length = HDMI_INFOFRAME_PACKET_HEADER_LEN + avi->len;
     if (len < length) {
         HDF_LOGE("len = %u, val is too small.", len);
         return HDF_ERR_INVALID_PARAM;
@@ -171,11 +168,10 @@ static int32_t HdmiInfoFramePacketAviEncoding(union HdmiInfoFrameInfo *infoFrame
 
 static int32_t HdmiInfoFramePacketSpdEncoding(union HdmiInfoFrameInfo *infoFrame, uint8_t *data, uint32_t len)
 {
-    uint32_t length;
     uint8_t *buff = data;
     struct HdmiSpdInfoFrame *spd = &(infoFrame->spd);
 
-    length = HDMI_INFOFRAME_PACKET_HEADER_LEN + spd->len;
+    uint32_t length = HDMI_INFOFRAME_PACKET_HEADER_LEN + spd->len;
     if (len < length) {
         HDF_LOGE("len = %u, val is too small.", len);
         return HDF_ERR_INVALID_PARAM;
@@ -207,11 +203,10 @@ static int32_t HdmiInfoFramePacketSpdEncoding(union HdmiInfoFrameInfo *infoFrame
 
 static int32_t HdmiInfoFramePacketAudioEncoding(union HdmiInfoFrameInfo *infoFrame, uint8_t *data, uint32_t len)
 {
-    uint32_t length;
     uint8_t *buff = data;
     struct HdmiAudioInfoFrame *audio = &(infoFrame->audio);
 
-    length = HDMI_INFOFRAME_PACKET_HEADER_LEN + audio->len;
+    uint32_t length = HDMI_INFOFRAME_PACKET_HEADER_LEN + audio->len;
     if (len < length) {
         HDF_LOGE("len = %u, val is too small.", len);
         return HDF_ERR_INVALID_PARAM;
@@ -248,12 +243,11 @@ static int32_t HdmiInfoFramePacketAudioEncoding(union HdmiInfoFrameInfo *infoFra
 
 static int32_t HdmiInfoFramePacketDrmEncoding(union HdmiInfoFrameInfo *infoFrame, uint8_t *data, uint32_t len)
 {
-    uint32_t length;
     uint8_t *buff = data;
     struct HdmiDrmInfoFrame *drm = &(infoFrame->drm);
     struct HdmiStaticMetadataDescriptor1st *des = &(drm->des.type1);
 
-    length = HDMI_INFOFRAME_PACKET_HEADER_LEN + drm->len;
+    uint32_t length = HDMI_INFOFRAME_PACKET_HEADER_LEN + drm->len;
     if (len < length) {
         HDF_LOGE("len = %u, val is too small.", len);
         return HDF_ERR_INVALID_PARAM;
@@ -368,7 +362,6 @@ static int32_t HdmiInfoFrameSend(struct HdmiInfoFrame *frame, union HdmiInfoFram
 {
     uint8_t buffer[HDMI_INFOFRAME_LEN] = {0};
     struct HdmiCntlr *cntlr = NULL;
-    int32_t ret;
 
     if (frame == NULL || frame->priv == NULL || infoFrame == NULL) {
         HDF_LOGE("HdmiInfoFrameSend: input param is invalid.");
@@ -380,7 +373,7 @@ static int32_t HdmiInfoFrameSend(struct HdmiInfoFrame *frame, union HdmiInfoFram
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    ret = HdmiInfoFramePacketEncoding(infoFrame, infoFrame->header.type, buffer, HDMI_INFOFRAME_LEN);
+    int32_t ret = HdmiInfoFramePacketEncoding(infoFrame, infoFrame->header.type, buffer, HDMI_INFOFRAME_LEN);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("encding infoFrame %d fail", infoFrame->header.type);
         return ret;
@@ -653,7 +646,6 @@ static void HdmiFill14Vsif(struct HdmiVsInfoFrame *vs, const struct HdmiVideoAtt
     struct HdmiVideo4kInfo *info = NULL;
     struct HdmiVs14VsifContent *vsif = &(vs->vsifContent.vsif);
     enum HdmiVic vic;
-    uint32_t cnt;
 
     vsif->oui = HDMI_IEEE_OUI_1_4;
     vic = HdmiCommonGetVic(videoAttr->timing, videoAttr->aspect, false);
@@ -661,7 +653,7 @@ static void HdmiFill14Vsif(struct HdmiVsInfoFrame *vs, const struct HdmiVideoAtt
         vic == HDMI_VIC_3840X2160P30_16_9 || vic == HDMI_VIC_4096X2160P24_256_135) &&
         videoAttr->_3dStruct == HDMI_VS_VIDEO_3D_BUTT) {
         vsif->format = HDMI_VS_VIDEO_FORMAT_4K;
-        for (cnt = 0; cnt <= HDMI_VIDEO_4K_CODES_MAX; cnt++) {
+        for (uint32_t cnt = 0; cnt <= HDMI_VIDEO_4K_CODES_MAX; cnt++) {
             info = HdmiCommonGetVideo4kInfo(cnt);
             if (info != NULL && info->timing == videoAttr->timing) {
                 vsif->vic = info->_4kVic;
@@ -681,9 +673,8 @@ static void HdmiFillVsInfoFrame(struct HdmiInfoFrame *frame, const struct HdmiVi
     bool dolbyEnable, bool hdrSupport)
 {
     struct HdmiVsInfoFrame *vs = &(frame->vs);
-    int32_t ret;
 
-    ret = memset_s(vs, sizeof(struct HdmiVsInfoFrame), 0, sizeof(struct HdmiVsInfoFrame));
+    int32_t ret = memset_s(vs, sizeof(struct HdmiVsInfoFrame), 0, sizeof(struct HdmiVsInfoFrame));
     if (ret != EOK) {
         HDF_LOGE("fill vsif, memset_s fail.");
         return;
@@ -730,7 +721,6 @@ static void HdmiFillSpdInfoFrame(struct HdmiSpdInfoFrame *spd,
                                  enum HdmiSpdSdi sdi)
 {
     uint32_t len;
-    uint32_t length;
 
     if (memset_s(spd, sizeof(struct HdmiSpdInfoFrame), 0, sizeof(struct HdmiSpdInfoFrame)) != EOK) {
         HDF_LOGE("fill spd infoFrame, memset_s fail.");
@@ -742,7 +732,7 @@ static void HdmiFillSpdInfoFrame(struct HdmiSpdInfoFrame *spd,
     spd->sdi = sdi;
 
     len = (uint32_t)strlen(vendorName);
-    length = (uint32_t)sizeof(spd->vendorName);
+    uint32_t length = (uint32_t)sizeof(spd->vendorName);
     length = (length > len) ? len : length;
     if (memcpy_s(spd->vendorName, length, vendorName, length) != EOK) {
         HDF_LOGE("fill spd infoFrame vendor name, memcpy_s fail.");

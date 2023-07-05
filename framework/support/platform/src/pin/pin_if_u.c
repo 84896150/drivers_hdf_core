@@ -88,7 +88,6 @@ static struct HdfIoService *PinManagerServiceGet(void)
 
 DevHandle PinGet(const char *pinName)
 {
-    int32_t ret;
     const char *copyName = NULL;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *data = NULL;
@@ -116,7 +115,7 @@ DevHandle PinGet(const char *pinName)
         return NULL;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET, data, NULL);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinGet: PIN_IO_GET service process fail, ret: %d!", ret);
         HdfSbufRecycle(data);
@@ -136,7 +135,6 @@ DevHandle PinGet(const char *pinName)
 
 void PinPut(DevHandle handle)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *data = NULL;
 
@@ -165,7 +163,7 @@ void PinPut(DevHandle handle)
         return;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_PUT, data, NULL);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_PUT, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinPut: PIN_IO_PUT service process fail, ret: %d!", ret);
     }
@@ -175,7 +173,6 @@ void PinPut(DevHandle handle)
 
 int32_t PinSetPull(DevHandle handle, enum PinPullType pullType)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *data = NULL;
 
@@ -208,7 +205,7 @@ int32_t PinSetPull(DevHandle handle, enum PinPullType pullType)
         return HDF_ERR_IO;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_SET_PULL, data, NULL);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_SET_PULL, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinSetPull: PIN_IO_SET_PULL service process fail, ret: %d!", ret);
     }
@@ -218,7 +215,6 @@ int32_t PinSetPull(DevHandle handle, enum PinPullType pullType)
 
 int32_t PinGetPull(DevHandle handle, enum PinPullType *pullType)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *reply = NULL;
     struct HdfSBuf *data = NULL;
@@ -254,7 +250,7 @@ int32_t PinGetPull(DevHandle handle, enum PinPullType *pullType)
         return HDF_ERR_IO;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET_PULL, data, reply);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET_PULL, data, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinGetPull: PIN_IO_GET_PULL service process fail, ret: %d!", ret);
         HdfSbufRecycle(reply);
@@ -274,7 +270,6 @@ int32_t PinGetPull(DevHandle handle, enum PinPullType *pullType)
 
 int32_t PinSetStrength(DevHandle handle, uint32_t strength)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *data = NULL;
 
@@ -307,7 +302,7 @@ int32_t PinSetStrength(DevHandle handle, uint32_t strength)
         return HDF_ERR_IO;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_SET_STRENGTH, data, NULL);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_SET_STRENGTH, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinSetStrength: PIN_IO_SET_STRENGTH service process fail, ret: %d!", ret);
     }
@@ -317,7 +312,6 @@ int32_t PinSetStrength(DevHandle handle, uint32_t strength)
 
 int32_t PinGetStrength(DevHandle handle, uint32_t *strength)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *reply = NULL;
     struct HdfSBuf *data = NULL;
@@ -353,7 +347,7 @@ int32_t PinGetStrength(DevHandle handle, uint32_t *strength)
         return HDF_ERR_IO;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET_STRENGTH, data, reply);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET_STRENGTH, data, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinGetStrength: PIN_IO_GET_STRENGTH service process fail, ret: %d!", ret);
         HdfSbufRecycle(reply);
@@ -373,7 +367,6 @@ int32_t PinGetStrength(DevHandle handle, uint32_t *strength)
 
 int32_t PinSetFunc(DevHandle handle, const char *funcName)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *data = NULL;
 
@@ -406,7 +399,7 @@ int32_t PinSetFunc(DevHandle handle, const char *funcName)
         return HDF_ERR_IO;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_SET_FUNC, data, NULL);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_SET_FUNC, data, NULL);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinSetFunc: PIN_IO_SET_FUNC service process fail, ret: %d!", ret);
     }
@@ -439,7 +432,6 @@ static int32_t CopyFuncName(const char *pinName, const char *tempName, const cha
 
 int32_t PinGetFunc(DevHandle handle, const char **funcName)
 {
-    int32_t ret;
     struct HdfIoService *service = NULL;
     struct HdfSBuf *reply = NULL;
     struct HdfSBuf *data = NULL;
@@ -476,7 +468,7 @@ int32_t PinGetFunc(DevHandle handle, const char **funcName)
         return HDF_ERR_IO;
     }
 
-    ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET_FUNC, data, reply);
+    int32_t ret = service->dispatcher->Dispatch(&service->object, PIN_IO_GET_FUNC, data, reply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PinGetFunc: PIN_IO_GET_FUNC service process fail, ret: %d!", ret);
         HdfSbufRecycle(data);

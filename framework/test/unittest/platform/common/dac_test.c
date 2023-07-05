@@ -99,7 +99,6 @@ static int32_t DacTestWrite(void)
 {
     struct DacTester *tester = NULL;
     uint32_t value[TEST_DAC_VAL_NUM];
-    int32_t ret;
     int i;
 
     tester = DacTesterGet();
@@ -109,7 +108,7 @@ static int32_t DacTestWrite(void)
     }
     for (i = 0; i < TEST_DAC_VAL_NUM; i++) {
         value[i] = i;
-        ret = DacWrite(tester->handle, tester->config.channel, value[i]);
+        int32_t ret = DacWrite(tester->handle, tester->config.channel, value[i]);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("DacTestWrite: write value fail:%u, ret: %d!", value[i], ret);
             return HDF_ERR_IO;
@@ -124,7 +123,6 @@ static int DacTestThreadFunc(void *param)
     struct DacTester *tester = NULL;
     uint32_t val;
     uint32_t i;
-    int32_t ret;
 
     tester = DacTesterGet();
     if (tester == NULL) {
@@ -134,7 +132,7 @@ static int DacTestThreadFunc(void *param)
     }
     for (i = 0; i < DAC_TEST_WAIT_TIMES; i++) {
         val = i;
-        ret = DacWrite(tester->handle, tester->config.channel, val);
+        int32_t ret = DacWrite(tester->handle, tester->config.channel, val);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("DacTestThreadFunc: DacWrite fail, ret: %d!", ret);
             *((int32_t *)param) = 1;

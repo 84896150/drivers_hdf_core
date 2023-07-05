@@ -80,7 +80,6 @@ static int32_t AdcTestGetConfig(struct AdcTestConfig *config)
 
 static struct AdcTester *AdcTesterGet(void)
 {
-    int32_t ret;
     static struct AdcTester tester;
     static bool hasInit = false;
 
@@ -88,7 +87,7 @@ static struct AdcTester *AdcTesterGet(void)
     if (hasInit) {
         return &tester;
     }
-    ret = AdcTestGetConfig(&tester.config);
+    int32_t ret = AdcTestGetConfig(&tester.config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("AdcTesterGet: read config fail, ret: %d!", ret);
         return NULL;
@@ -107,7 +106,6 @@ static int32_t AdcTestRead(void)
 {
     struct AdcTester *tester = NULL;
     uint32_t value[TEST_ADC_VAL_NUM];
-    int32_t ret;
     int i;
 
     HDF_LOGI("AdcTestRead: enter!");
@@ -118,7 +116,7 @@ static int32_t AdcTestRead(void)
     }
     for (i = 0; i < TEST_ADC_VAL_NUM; i++) {
         value[i] = 0;
-        ret = AdcRead(tester->handle, tester->config.channel, &value[i]);
+        int32_t ret = AdcRead(tester->handle, tester->config.channel, &value[i]);
         if (ret != HDF_SUCCESS || value[i] >= (1U << tester->config.dataWidth)) {
             HDF_LOGE("AdcTestRead: read value fail, ret: %d!", ret);
             return HDF_ERR_IO;
@@ -135,7 +133,6 @@ static int AdcTestThreadFunc(void *param)
     struct AdcTester *tester = NULL;
     uint32_t val;
     int i;
-    int32_t ret;
 
     HDF_LOGI("AdcTestThreadFunc: enter!");
     tester = AdcTesterGet();
@@ -146,7 +143,7 @@ static int AdcTestThreadFunc(void *param)
     }
 
     for (i = 0; i < ADC_TEST_WAIT_TIMES; i++) {
-        ret = AdcRead(tester->handle, tester->config.channel, &val);
+        int32_t ret = AdcRead(tester->handle, tester->config.channel, &val);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("AdcTestThreadFunc: adc read fail, ret: %d!", ret);
             *((int32_t *)param) = 1;
@@ -162,7 +159,6 @@ static int AdcTestThreadFunc(void *param)
 static int32_t AdcTestStartThread(struct OsalThread *thread1, struct OsalThread *thread2,
     const int32_t *count1, const int32_t *count2)
 {
-    int32_t ret;
     uint32_t time = 0;
     struct OsalThreadParam cfg1;
     struct OsalThreadParam cfg2;
@@ -178,7 +174,7 @@ static int32_t AdcTestStartThread(struct OsalThread *thread1, struct OsalThread 
     cfg1.priority = cfg2.priority = OSAL_THREAD_PRI_DEFAULT;
     cfg1.stackSize = cfg2.stackSize = ADC_TEST_STACK_SIZE;
 
-    ret = OsalThreadStart(thread1, &cfg1);
+    int32_t ret = OsalThreadStart(thread1, &cfg1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("AdcTestStartThread: start test thread1 fail, ret: %d!", ret);
         return ret;
@@ -202,13 +198,12 @@ static int32_t AdcTestStartThread(struct OsalThread *thread1, struct OsalThread 
 
 static int32_t AdcTestMultiThread(void)
 {
-    int32_t ret;
     struct OsalThread thread1;
     struct OsalThread thread2;
     int32_t count1 = 0;
     int32_t count2 = 0;
 
-    ret = OsalThreadCreate(&thread1, (OsalThreadEntry)AdcTestThreadFunc, (void *)&count1);
+    int32_t ret = OsalThreadCreate(&thread1, (OsalThreadEntry)AdcTestThreadFunc, (void *)&count1);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("AdcTestMultiThread: create test thread1 fail, ret: %d!", ret);
         return ret;
@@ -258,11 +253,7 @@ static int32_t AdcIfPerformanceTest(void)
     return HDF_SUCCESS;
 #endif
     struct AdcTester *tester = NULL;
-    uint64_t startMs;
-    uint64_t endMs;
-    uint64_t useTime;    // ms
     uint32_t val;
-    int32_t ret;
 
     tester = AdcTesterGet();
     if (tester == NULL || tester->handle == NULL) {
@@ -270,11 +261,11 @@ static int32_t AdcIfPerformanceTest(void)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    startMs = OsalGetSysTimeMs();
-    ret = AdcRead(tester->handle, tester->config.channel, &val);
+    uint64_t startMs = OsalGetSysTimeMs();
+    int32_t ret = AdcRead(tester->handle, tester->config.channel, &val);
     if (ret == HDF_SUCCESS) {
-        endMs = OsalGetSysTimeMs();
-        useTime = endMs - startMs;
+        uint64_t endMs = OsalGetSysTimeMs();
+        uint64_t useTime = endMs - startMs;
         HDF_LOGI("AdcIfPerformanceTest: ----->interface performance test:[start - end] < 1ms[%{pubilc}s]\r\n",
             useTime < 1 ? "yes" : "no");
         return HDF_SUCCESS;

@@ -22,7 +22,7 @@ constexpr int32_t MAX = 4;
 constexpr uint8_t RTC_USER_INDEX = 8;
 }
 
-struct AllParameters {
+struct RtcAllParameters {
     uint32_t desFreq;
     uint8_t desValue;
     uint8_t desEnable;
@@ -35,7 +35,7 @@ static bool RtcFuzzTest(const uint8_t *data, size_t size)
 {
     int32_t number;
     DevHandle handle = nullptr;
-    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    const struct RtcAllParameters *params = reinterpret_cast<const struct RtcAllParameters *>(data);
 
     number = randNum(MIN, MAX);
     handle = RtcOpen();
@@ -76,7 +76,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    if (size < sizeof(struct AllParameters)) {
+    if (size < sizeof(struct RtcAllParameters)) {
         HDF_LOGE("LLVMFuzzerTestOneInput: rtc fuzz test size is small!");
         return 0;
     }

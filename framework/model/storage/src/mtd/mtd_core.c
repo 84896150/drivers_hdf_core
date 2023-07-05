@@ -94,11 +94,10 @@ static void MtdDeviceUnlockDefault(struct MtdDevice *mtdDevice)
 
 struct PlatformManager *MtdManagerGet(void)
 {
-    int32_t ret;
     static struct PlatformManager *g_mtdManager = NULL;
 
     if (g_mtdManager == NULL) {
-        ret = PlatformManagerCreate("STORAGE_MTD", &g_mtdManager);
+        int32_t ret = PlatformManagerCreate("STORAGE_MTD", &g_mtdManager);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("MtdManagerGet: create manager fail, ret: %d!", ret);
             return NULL;
@@ -109,14 +108,12 @@ struct PlatformManager *MtdManagerGet(void)
 
 int32_t MtdDeviceAdd(struct MtdDevice *mtdDevice)
 {
-    int32_t ret;
-
     if (mtdDevice == NULL || mtdDevice->ops == NULL) {
         HDF_LOGE("MtdDeviceAdd: mtdDevice or ops is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = MtdDeviceCheckParms(mtdDevice);
+    int32_t ret = MtdDeviceCheckParms(mtdDevice);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MtdDeviceAdd: mtd device check parms fail!");
         return HDF_ERR_INVALID_OBJECT;

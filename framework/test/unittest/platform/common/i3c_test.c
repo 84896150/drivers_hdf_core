@@ -445,7 +445,6 @@ static struct I3cTestEntry g_multiThreadEntry[] = {
 static int32_t I3cTestMultiThread(void *param)
 {
     uint32_t i;
-    int32_t ret;
 
     for (i = 0; i < sizeof(g_multiThreadEntry) / sizeof(g_multiThreadEntry[0]); i++) {
         if (g_multiThreadEntry[i].func == NULL) {
@@ -453,7 +452,7 @@ static int32_t I3cTestMultiThread(void *param)
             return HDF_FAILURE;
         }
         HDF_LOGI("I3cTestMultiThread: =================calling func %u =========================", i);
-        ret = I3cTestThreadFunc((OsalThreadEntry)g_multiThreadEntry[i].func);
+        int32_t ret = I3cTestThreadFunc((OsalThreadEntry)g_multiThreadEntry[i].func);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("I3cTestMultiThread: Multithreading test fail: %u", i);
             return ret;

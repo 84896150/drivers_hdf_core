@@ -148,10 +148,8 @@ static void HdmiFrlSetTrainRate(const struct HdmiFrl *frl)
 static bool HdmiFrlCheckFrlCapability(struct HdmiFrl *frl)
 {
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
-    uint8_t sinkScdcVerion;
-    uint8_t sinkMaxFrlRate;
 
-    sinkScdcVerion = HdmiFrlGetSinkVersion(cntlr->scdc);
+    uint8_t sinkScdcVerion = HdmiFrlGetSinkVersion(cntlr->scdc);
     if (HdmiEdidSupportFrl(cntlr->hdmi) != true ||
         cntlr->cap.baseCap.bits.hdmi21 == 0 ||
         cntlr->cap.baseCap.bits.frl == 0 ||
@@ -159,7 +157,7 @@ static bool HdmiFrlCheckFrlCapability(struct HdmiFrl *frl)
         frl->info.maxFrlRate = 0;
         return HDF_ERR_NOT_SUPPORT;
     }
-    sinkMaxFrlRate = HdmiEdidGetMaxFrlRate(cntlr->hdmi);
+    uint8_t sinkMaxFrlRate = HdmiEdidGetMaxFrlRate(cntlr->hdmi);
     frl->info.maxFrlRate = (sinkMaxFrlRate > cntlr->cap.maxFrlRate) ? cntlr->cap.maxFrlRate : sinkMaxFrlRate;
     return HDF_SUCCESS;
 }
@@ -226,10 +224,9 @@ static bool HdnmiFrlCheckFrlMode(struct HdmiFrl *frl)
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
     struct HdmiVideoDefInfo *videoInfo = NULL;
     struct HdmiDfmParam param = {0};
-    bool enable3d;
     uint32_t i;
 
-    enable3d = (cntlr->attr.videoAttr._3dStruct >= HDMI_VS_VIDEO_3D_BUTT) ? false : true;
+    bool enable3d = (cntlr->attr.videoAttr._3dStruct >= HDMI_VS_VIDEO_3D_BUTT) ? false : true;
     videoInfo = HdmiCommonGetVideoDefInfo(cntlr->attr.videoAttr.timing, cntlr->attr.videoAttr.aspect, enable3d);
     if (videoInfo == NULL) {
         HDF_LOGD("have no this video param, use tmds to transmit.");
@@ -679,8 +676,6 @@ static void HdmiFrlTrainingResultCheckTimeout(struct HdmiFrl *frl)
 
 static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
 {
-    uint64_t curTime;
-    bool frlStart;
     struct HdmiCntlr *cntlr = (struct HdmiCntlr *)frl->priv;
 
     if (cntlr == NULL || cntlr->ops == NULL) {
@@ -688,7 +683,7 @@ static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
     }
 
     do {
-        frlStart = HdmiFrlGetFrlStart(cntlr->scdc);
+        bool frlStart = HdmiFrlGetFrlStart(cntlr->scdc);
         if (frlStart == true && frl->info.start == true) {
             frl->info.work = true;
             /* n/cts config */
@@ -705,7 +700,7 @@ static void HdmiFrlTrainingResultHandleTimeout(struct HdmiFrl *frl)
             break;
         }
 
-        curTime = OsalGetSysTimeMs();
+        uint64_t curTime = OsalGetSysTimeMs();
         if ((curTime - frl->info.machineInfo.startTime) > frl->info.machineInfo.waitHandleTime) {
             (frl->info.machineInfo.timeoutCnt)++;
             break;
@@ -797,7 +792,6 @@ void HdmiFrlEnable(struct HdmiFrl *frl, bool enable)
 
 int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
 {
-    int32_t ret;
     struct HdmiCntlr *cntlr = NULL;
     struct HdmiVideoAttr *videoAttr = NULL;
 
@@ -805,7 +799,7 @@ int32_t HdmiFrlModeSelect(struct HdmiFrl *frl)
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = HdmiFrlCheckFrlCapability(frl);
+    int32_t ret = HdmiFrlCheckFrlCapability(frl);
     if (ret != HDF_SUCCESS) {
         HDF_LOGD("frl check capability fail, change to TMDS.");
         frl->info.mode = HDMI_FRL_MODE_TMDS;

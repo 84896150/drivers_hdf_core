@@ -19,8 +19,6 @@
 
 int32_t SpiCntlrOpen(struct SpiCntlr *cntlr, uint32_t csNum)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("SpiCntlrOpen: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -31,15 +29,13 @@ int32_t SpiCntlrOpen(struct SpiCntlr *cntlr, uint32_t csNum)
     }
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
-    ret = cntlr->method->Open(cntlr);
+    int32_t ret = cntlr->method->Open(cntlr);
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
 
 int32_t SpiCntlrClose(struct SpiCntlr *cntlr, uint32_t csNum)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("SpiCntlrClose: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -50,15 +46,13 @@ int32_t SpiCntlrClose(struct SpiCntlr *cntlr, uint32_t csNum)
     }
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
-    ret = cntlr->method->Close(cntlr);
+    int32_t ret = cntlr->method->Close(cntlr);
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
 
 int32_t SpiCntlrTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiMsg *msg, uint32_t count)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("SpiCntlrTransfer: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -70,15 +64,13 @@ int32_t SpiCntlrTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiMsg *
 
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
-    ret = cntlr->method->Transfer(cntlr, msg, count);
+    int32_t ret = cntlr->method->Transfer(cntlr, msg, count);
     (void)OsalMutexUnlock(&(cntlr->lock));
     return ret;
 }
 
 int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cfg)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("SpiCntlrSetCfg: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -91,7 +83,7 @@ int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
 
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
-    ret = cntlr->method->SetCfg(cntlr, cfg);
+    int32_t ret = cntlr->method->SetCfg(cntlr, cfg);
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[SPI_TRACE_BASIC_PARAM_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
@@ -107,8 +99,6 @@ int32_t SpiCntlrSetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
 
 int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cfg)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("SpiCntlrGetCfg: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -121,7 +111,7 @@ int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
 
     (void)OsalMutexLock(&(cntlr->lock));
     cntlr->curCs = csNum;
-    ret = cntlr->method->GetCfg(cntlr, cfg);
+    int32_t ret = cntlr->method->GetCfg(cntlr, cfg);
     if (PlatformTraceStart() == HDF_SUCCESS) {
         unsigned int infos[SPI_TRACE_PARAM_GET_NUM];
         infos[PLATFORM_TRACE_UINT_PARAM_SIZE_1 - 1] = cntlr->busNum;
@@ -139,13 +129,12 @@ int32_t SpiCntlrGetCfg(struct SpiCntlr *cntlr, uint32_t csNum, struct SpiCfg *cf
 static int32_t SpiMsgsRwProcess(
     struct HdfSBuf *data, uint32_t count, uint8_t *tmpFlag, struct SpiMsg *msgs, uint32_t *lenReply)
 {
-    int32_t i;
     uint32_t len;
     uint8_t *buf = NULL;
     uint32_t rbufLen;
     struct SpiUserMsg *userMsg = NULL;
 
-    for (i = 0; i < count; i++) {
+    for (int32_t i = 0; i < count; i++) {
         if ((!HdfSbufReadBuffer(data, (const void **)&userMsg, &len)) || (userMsg == NULL) ||
             (len != sizeof(struct SpiUserMsg))) {
             HDF_LOGE("SpiMsgsRwProcess: read msg[%d] userMsg fail!", i);
@@ -230,9 +219,7 @@ static int32_t SpiTransferRebuildMsgs(struct HdfSBuf *data, struct SpiMsg **ppms
 
 static int32_t SpiTransferWriteBackMsgs(struct HdfSBuf *reply, struct SpiMsg *msgs, uint32_t count)
 {
-    uint32_t i;
-
-    for (i = 0; i < count; i++) {
+    for (uint32_t i = 0; i < count; i++) {
         if (msgs[i].rbuf == NULL) {
             continue;
         }
@@ -248,7 +235,6 @@ static int32_t SpiTransferWriteBackMsgs(struct HdfSBuf *reply, struct SpiMsg *ms
 
 static int32_t SpiIoTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    int32_t ret;
     uint32_t count;
     struct SpiMsg *msgs = NULL;
     uint8_t *bufReply = NULL;
@@ -258,7 +244,7 @@ static int32_t SpiIoTransfer(struct SpiCntlr *cntlr, uint32_t csNum, struct HdfS
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = SpiTransferRebuildMsgs(data, &msgs, &count, &bufReply);
+    int32_t ret = SpiTransferRebuildMsgs(data, &msgs, &count, &bufReply);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("SpiIoTransfer: rebuild msgs fail, ret: %d!", ret);
         goto EXIT;
@@ -302,10 +288,9 @@ static int32_t SpiIoSetConfig(struct SpiCntlr *cntlr, uint32_t csNum, struct Hdf
 
 static int32_t SpiIoGetConfig(struct SpiCntlr *cntlr, uint32_t csNum, struct HdfSBuf *reply)
 {
-    int32_t ret;
     struct SpiCfg cfg;
 
-    ret = SpiCntlrGetCfg(cntlr, csNum, &cfg);
+    int32_t ret = SpiCntlrGetCfg(cntlr, csNum, &cfg);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("SpiIoGetConfig: get cfg fail!");
         return ret;

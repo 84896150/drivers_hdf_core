@@ -340,9 +340,6 @@ static int32_t I2cTestPeformance(void)
     // liteos the accuracy of the obtained time is too large and inaccurate.
     return HDF_SUCCESS;
 #endif
-    uint64_t startMs;
-    uint64_t endMs;
-    uint64_t useTime;    // ms
     struct I2cTester *tester = NULL;
     DevHandle handle = NULL;
 
@@ -352,12 +349,12 @@ static int32_t I2cTestPeformance(void)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    startMs = OsalGetSysTimeMs();
+    uint64_t startMs = OsalGetSysTimeMs();
     handle = I2cOpen(tester->config.busNum);
-    endMs = OsalGetSysTimeMs();
+    uint64_t endMs = OsalGetSysTimeMs();
 
     if (handle != NULL) {
-        useTime = endMs - startMs;
+        uint64_t useTime = endMs - startMs;
         HDF_LOGI("I2cTestPeformance: ----->interface performance test:[start - end] < 1ms[%s]\r\n",
             useTime < 1 ? "yes" : "no");
         I2cClose(handle);
@@ -442,14 +439,13 @@ int32_t I2cTestExecute(int cmd)
 void I2cTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     /* setup env for all test cases */
     (void)I2cTestExecute(I2C_TEST_CMD_SETUP_ALL);
 
     for (i = 0; i <= I2C_TEST_CMD_RELIABILITY; i++) {
-        ret = I2cTestExecute(i);
+        int32_t ret = I2cTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 

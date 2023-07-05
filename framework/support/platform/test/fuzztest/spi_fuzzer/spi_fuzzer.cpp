@@ -24,7 +24,7 @@ constexpr int32_t CS_TEST_NUM = 0;
 constexpr uint32_t SPI_BUF_SIZE = 8;
 }
 
-struct AllParameters {
+struct SpiAllParameters {
     uint32_t descSpeed;
     uint16_t descDelay;
     uint8_t descKeep;
@@ -62,7 +62,7 @@ static bool SpiFuzzTest(const uint8_t *data, size_t size)
     struct SpiCfg cfg;
     DevHandle handle = nullptr;
     struct SpiDevInfo info;
-    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    const struct SpiAllParameters *params = reinterpret_cast<const struct SpiAllParameters *>(data);
 
     info.busNum = BUS_TEST_NUM;
     info.csNum = CS_TEST_NUM;
@@ -113,7 +113,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    if (size < sizeof(struct AllParameters)) {
+    if (size < sizeof(struct SpiAllParameters)) {
         HDF_LOGE("LLVMFuzzerTestOneInput: spi fuzz test size is small!");
         return 0;
     }

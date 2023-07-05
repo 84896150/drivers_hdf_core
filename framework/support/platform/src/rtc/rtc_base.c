@@ -14,7 +14,6 @@
 uint8_t RtcGetMonthDays(const uint8_t isLeapYear, const uint8_t month)
 {
     uint8_t days;
-    uint8_t oddMonth;
 
     if (IS_INVALID_MONTH(month) || (isLeapYear > RTC_TRUE)) {
         return 0;
@@ -23,7 +22,7 @@ uint8_t RtcGetMonthDays(const uint8_t isLeapYear, const uint8_t month)
     if (month == RTC_FEBRUARY) {
         days = RTC_TWO_MONTH_DAY + isLeapYear;
     } else {
-        oddMonth = (month >= RTC_AUGUST) ? (month - RTC_UNIT_DIFF) : month;
+        uint8_t oddMonth = (month >= RTC_AUGUST) ? (month - RTC_UNIT_DIFF) : month;
         days = (oddMonth & RTC_ODD_MONTH_MASK) ? RTC_GREAT_MONTH_DAY : RTC_SMALL_MONTH_DAY;
     }
     return days;
@@ -52,23 +51,19 @@ uint8_t RtcIsInvalid(const struct RtcTime *time)
 
 uint8_t RtcGetWeekDay(const struct RtcTime *time)
 {
-    uint32_t days;
-    int8_t month;
-    uint16_t year;
-
     if ((time == NULL) || IS_INVALID_MONTH(time->month) || IS_INVALID_YEAR(time->year) ||
         (RtcIsInvalidDay(time->day, time->month, time->year) == RTC_TRUE)) {
         HDF_LOGE("RtcGetWeekDay: time is invalid!");
         return RTC_FALSE;
     }
 
-    days = time->day - RTC_UNIT_DIFF;
-    month = time->month;
+    uint32_t days = time->day - RTC_UNIT_DIFF;
+    int8_t month = time->month;
     while (--month >= RTC_JANUARY) {
         days += RtcGetMonthDays(IS_LEAP_YEAR(time->year), month);
     }
 
-    year = time->year;
+    uint16_t year = time->year;
     while (--year >= RTC_BEGIN_YEAR) {
         days += RTC_YEAR_DAYS(year);
     }
@@ -79,7 +74,6 @@ uint8_t RtcGetWeekDay(const struct RtcTime *time)
 #ifndef __KERNEL__
 uint64_t RtcTimeToTimestamp(const struct RtcTime *time)
 {
-    uint64_t seconds;
     uint32_t days;
     uint16_t year;
     int8_t month;
@@ -95,7 +89,7 @@ uint64_t RtcTimeToTimestamp(const struct RtcTime *time)
         return 0;
     }
 
-    seconds = ((uint64_t)time->hour * RTC_MAX_MINUTE + time->minute) * RTC_MAX_SECOND + time->second;
+    uint64_t seconds = ((uint64_t)time->hour * RTC_MAX_MINUTE + time->minute) * RTC_MAX_SECOND + time->second;
     days = time->day - RTC_UNIT_DIFF;
     month = time->month;
     year = time->year;

@@ -32,13 +32,11 @@ int32_t HdmiEdidReset(struct HdmiEdid *edid)
 
 int32_t HdmiEdidGetRaw(struct HdmiEdid *edid, uint8_t *raw, uint32_t len)
 {
-    uint32_t length;
-
     if (edid == NULL || raw == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    length = ((len < edid->rawLen) ? len : edid->rawLen);
+    uint32_t length = ((len < edid->rawLen) ? len : edid->rawLen);
     if (length == 0) {
         HDF_LOGE("edid data not get.");
         return (int32_t)length;
@@ -82,18 +80,16 @@ static int32_t HdmiEdidBlockCheckSum(uint8_t *data)
 
 static int32_t HdmiEdidVendorInfoPhase(struct HdmiEdid *edid)
 {
-    uint16_t data;
     uint16_t i;
-    uint16_t tmpData;
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     struct HdmiEdidFirstBlockInfo *block = (struct HdmiEdidFirstBlockInfo *)edid->raw;
 
     /* Manufacturer Name */
-    data = (block->vendorName[UINT8_ARRAY_TELEMENT_0] <<
+    uint16_t data = (block->vendorName[UINT8_ARRAY_TELEMENT_0] <<
             HDMI_EDID_MANUFACRURER_NAME_SHIFT) |
             (block->vendorName[UINT8_ARRAY_TELEMENT_1]);
     for (i = 0; i < HDMI_EDID_MANUFACRURER_NAME_MAX_LEN - 1; i++) {
-        tmpData = (data & (HDMI_EDID_MANUFACRURER_NAME_CHAR_MARK << (HDMI_EDID_MANUFACRURER_NAME_CHAR_SHIFT * i)));
+        uint16_t tmpData = (data & (HDMI_EDID_MANUFACRURER_NAME_CHAR_MARK << (HDMI_EDID_MANUFACRURER_NAME_CHAR_SHIFT * i)));
         tmpData = (tmpData >> (HDMI_EDID_MANUFACRURER_NAME_CHAR_SHIFT * i));
         if (tmpData > HDMI_EDID_MANUFACRURER_NAME_LOW_INVALID &&
             tmpData < HDMI_EDID_MANUFACRURER_NAME_HIGH_INVALID) {
@@ -224,7 +220,6 @@ static uint32_t HdmiEdidGetStandardTimingVertPixel(uint32_t aspectRatio, uint32_
 static int32_t HdmiEdidStandardTimingPhase(struct HdmiEdid *edid)
 {
     uint32_t i;
-    uint32_t aspectRatio;
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     struct HdmiEdidFirstBlockInfo *block = (struct HdmiEdidFirstBlockInfo *)edid->raw;
     uint8_t *data = block->stdTiming;
@@ -242,7 +237,7 @@ static int32_t HdmiEdidStandardTimingPhase(struct HdmiEdid *edid)
             sinkCap->stdTimingsInfo[i].refreshRate = (data[UINT8_ARRAY_TELEMENT_1] &
                                                       HDMI_EDID_STANDARD_TIMING_REFRESH_RATE_MARK) +
                                                       HDMI_EDID_STANDARD_TIMING_REFRESH_RATE_BASE;
-            aspectRatio =  (data[UINT8_ARRAY_TELEMENT_1] & HDMI_EDID_STANDARD_TIMING_ASPECT_RATE_MARK) >>
+            uint32_t aspectRatio =  (data[UINT8_ARRAY_TELEMENT_1] & HDMI_EDID_STANDARD_TIMING_ASPECT_RATE_MARK) >>
                 HDMI_EDID_STANDARD_TIMING_ASPECT_RATE_SHIFT;
             sinkCap->stdTimingsInfo[i].vertPixel =
                 HdmiEdidGetStandardTimingVertPixel(aspectRatio, sinkCap->stdTimingsInfo[i].horizPixel);
@@ -401,8 +396,6 @@ static int32_t HdmiEdidExtBlockNumPhase(struct HdmiEdid *edid)
 static int32_t HdmiEdidFirstBlockPhase(struct HdmiEdid *edid)
 {
     uint32_t i;
-    uint32_t len;
-    int32_t ret;
 
     HdmiEdidPhaseFunc func[] = {
         HdmiEdidHeaderPhase,
@@ -416,13 +409,13 @@ static int32_t HdmiEdidFirstBlockPhase(struct HdmiEdid *edid)
         HdmiEdidExtBlockNumPhase
     };
 
-    ret = HdmiEdidBlockCheckSum(edid->raw);
+    int32_t ret = HdmiEdidBlockCheckSum(edid->raw);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("edid block0 check sum fail.");
         return ret;
     }
 
-    len = sizeof(func) / sizeof(func[UINT8_ARRAY_TELEMENT_0]);
+    uint32_t len = sizeof(func) / sizeof(func[UINT8_ARRAY_TELEMENT_0]);
     for (i = 0; i < len; i++) {
         if (func[i] == NULL) {
             continue;
@@ -509,9 +502,6 @@ static void HdmiEdidExtAdbDepthAndMaxRatePhase(struct HdmiEdidAudioInfo *audio, 
 
 static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
 {
-    uint8_t i;
-    uint8_t formatCode;
-
     /*
      * Each Short Audio Descriptor is 3-bytes long. There can be up to 31 bytes following any tag,
      * therefore there may be up to 10 Short Audio Descriptors in the Audio Data Block.
@@ -521,14 +511,14 @@ static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *s
         return HDF_ERR_INVALID_PARAM;
     }
 
-    for (i = 0; i < (len / HDMI_EDID_EXTENSION_SHORT_AUDIO_DESCRIPTOR_LEN); i++) {
+    for (uint8_t i = 0; i < (len / HDMI_EDID_EXTENSION_SHORT_AUDIO_DESCRIPTOR_LEN); i++) {
         if (sinkCap->audioInfoCnt >= HDMI_EDID_EXTENSION_AUDIO_CAP_COUNT) {
             HDF_LOGE("ADB: info cnt reach the maximum");
             break;
         }
         data += (i * HDMI_EDID_EXTENSION_SHORT_AUDIO_DESCRIPTOR_LEN);
         /* byte0: bit[6:3] Audio Format Code; bit[2:0] Max Number of channels - 1 */
-        formatCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_AUDIO_FORMAT_CODE_MARK) >>
+        uint8_t formatCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_AUDIO_FORMAT_CODE_MARK) >>
             HDMI_EDID_EXTENSION_AUDIO_FORMAT_CODE_SHIFT;
         sinkCap->audioInfo[sinkCap->audioInfoCnt].formatCode = (enum HdmiAudioCodingType)formatCode;
         sinkCap->audioInfo[sinkCap->audioInfoCnt].channels =
@@ -549,18 +539,15 @@ static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *s
 static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, const uint8_t *data,
     uint8_t len)
 {
-    uint8_t i;
-    uint32_t vicAll;
-    uint32_t vicLower;
     uint32_t implicitNative = 0;
 
-    for (i = 0; i < len; i++) {
+    for (uint8_t i = 0; i < len; i++) {
         if (sinkCap->videoInfo.vicNum >= HDMI_EDID_EXTENSION_MAX_VIC_COUNT) {
             HDF_LOGD("VDB: vicNum reach the maximum");
             break;
         }
-        vicAll = data[i];
-        vicLower = (vicAll & HDMI_EDID_EXTENSION_VIC_LOWER7_MARK);
+        uint32_t vicAll = data[i];
+        uint32_t vicLower = (vicAll & HDMI_EDID_EXTENSION_VIC_LOWER7_MARK);
         if (vicAll == 0) {
             continue;
         }
@@ -665,8 +652,6 @@ static void HdmiEdidVsdbSinkLatencyPhase(struct HdmiSinkDeviceCapability *sinkCa
 static void HdmiEdidVsdbVicInfoPhase(struct HdmiSinkDeviceCapability *sinkCap,
     const uint8_t *data, uint8_t vicLen, uint8_t *offset)
 {
-    uint8_t i;
-    uint8_t index;
     /* see hdmi spec 1.4 table 8-13. */
     uint32_t hdmi4kVic[] = {
         0,
@@ -676,11 +661,11 @@ static void HdmiEdidVsdbVicInfoPhase(struct HdmiSinkDeviceCapability *sinkCap,
         HDMI_VIC_4096X2160P24_256_135
     };
 
-    for (i = 0; i < vicLen; i++) {
+    for (uint8_t i = 0; i < vicLen; i++) {
         if (sinkCap->videoInfo.vicNum >= HDMI_EDID_EXTENSION_MAX_VIC_COUNT) {
             break;
         }
-        index = data[(*offset)];
+        uint8_t index = data[(*offset)];
         if (index != 0 && index < sizeof(hdmi4kVic) / sizeof(hdmi4kVic[UINT8_ARRAY_TELEMENT_0])) {
             sinkCap->videoInfo.vic[sinkCap->videoInfo.vicNum] = hdmi4kVic[index];
             sinkCap->videoInfo.vicNum++;
@@ -733,7 +718,6 @@ static void HdmiEdidVsdbVicAnd3dInfoPhase(struct HdmiSinkDeviceCapability *sinkC
 {
     uint8_t hdmiVicLen = 0;
     uint8_t hdmi3dLen = 0;
-    uint8_t offset;
 
     if (len < HDMI_EDID_VSDB_MIN_LEN_FOR_3D_PRESENT_INFO) {
         HDF_LOGD("vsdb: these is no vic/3d field.");
@@ -752,7 +736,7 @@ static void HdmiEdidVsdbVicAnd3dInfoPhase(struct HdmiSinkDeviceCapability *sinkC
     }
 
     /* byte14~byteN: Vic info/3D info */
-    offset = HDMI_EDID_VSDB_MIN_LEN_FOR_VIC_INFO;
+    uint8_t offset = HDMI_EDID_VSDB_MIN_LEN_FOR_VIC_INFO;
     if (hdmiVicLen > 0 && (hdmiVicLen + offset + 1) <= len) {
         HdmiEdidVsdbVicInfoPhase(sinkCap, data, hdmiVicLen, &offset);
     }
@@ -952,14 +936,13 @@ static void HdmiEdidExtUseExtDataBlockY420VdbPhase(struct HdmiSinkDeviceCapabili
     const uint8_t *data, uint8_t len)
 {
     uint8_t i;
-    uint32_t vic;
 
     for (i = 1; i < len; i++) {
         if (sinkCap->y420Cap.onlySupportY420VicNum >= HDMI_EDID_EXTENSION_MAX_VIC_COUNT) {
             HDF_LOGD("Y420Vdb: vic num reach to max.");
             break;
         }
-        vic = data[i];
+        uint32_t vic = data[i];
         if (vic == 0 ||
             (vic >= HDMI_EDID_EXTENSION_VIC_INVALID_LOW && vic <= HDMI_EDID_EXTENSION_VIC_INVALID_HIGH)) {
             continue;
@@ -974,8 +957,6 @@ static void HdmiEdidExtUseExtDataBlockY420CmdbPhase(struct HdmiSinkDeviceCapabil
     uint8_t *data, uint8_t len)
 {
     uint32_t i;
-    uint32_t loop;
-
     /*
      * When the Length field is set to 1, the Y420CMDB does not include a YCBCR 4:2:0 Capability Bit Map and
      * all the SVDs in the regular Video Data Block(s) support YCBCR 4:2:0 sampling mode.
@@ -996,7 +977,7 @@ static void HdmiEdidExtUseExtDataBlockY420CmdbPhase(struct HdmiSinkDeviceCapabil
      * Bit 0 of data byte 3 is associated with the first sequential SVD listed in the regular Video Data Block(s)
      * of the EDID, bit 1 the second SVD, bit 2 the third, and so on.
      */
-    loop = len * HDMI_BITS_OF_ONE_BYTE;
+    uint32_t loop = len * HDMI_BITS_OF_ONE_BYTE;
     loop = (loop > HDMI_EDID_EXTENSION_MAX_VIC_COUNT) ? HDMI_EDID_EXTENSION_MAX_VIC_COUNT : loop;
     data++;
     for (i = 0; (i < loop) && (i < sinkCap->videoInfo.vicNum); i++) {
@@ -1101,15 +1082,13 @@ static void HdmiEdidExtUseExtDataBlockVsvdbPhase(struct HdmiSinkDeviceCapability
                                                  uint8_t *data,
                                                  uint8_t len)
 {
-    uint32_t oui;
-
     if (len != HDMI_EDID_VSVDB_DOLBY_VERSION_0_LEN &&
         len != HDMI_EDID_VSVDB_DOLBY_VERSION_1_LEN) {
         HDF_LOGD("Vsvdb: invalid dolby len");
         return;
     }
 
-    oui = (data[UINT8_ARRAY_TELEMENT_1]) | (data[UINT8_ARRAY_TELEMENT_2] << SHIFT_8_BIT) |
+    uint32_t oui = (data[UINT8_ARRAY_TELEMENT_1]) | (data[UINT8_ARRAY_TELEMENT_2] << SHIFT_8_BIT) |
         (data[UINT8_ARRAY_TELEMENT_3] << SHIFT_16_BIT);
     if (oui != HDMI_EDID_VSVDB_DOLBY_OUI) {
         return;
@@ -1199,19 +1178,17 @@ static void HdmiEdidExtSeveralDataBlockPhase(struct HdmiEdid *edid, uint8_t bloc
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     uint8_t blkOffset = HDMI_EDID_EXTENSION_BLOCK_OFFSET;
     uint8_t dtdOffset = data[UINT8_ARRAY_TELEMENT_2];
-    uint8_t dbTagCode;
     uint8_t blkLen;
-    int32_t ret;
 
     data += blkOffset;
     /* phase data block */
     for (blkLen = 0; (blkOffset < dtdOffset) && (data != NULL); blkOffset += (blkLen + 1)) {
         data += blkLen;
         blkLen = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_DATA_BLOCK_LEN_MARK);
-        dbTagCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_DATA_BLOCK_TAG_CODE_MARK) >>
+        uint8_t dbTagCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_DATA_BLOCK_TAG_CODE_MARK) >>
             HDMI_EDID_EXTENSION_DATA_BLOCK_TAG_CODE_SHIFT;
         data++;
-        ret = HdmiEdidExtDataBlockPhase(sinkCap, data, blkLen, dbTagCode);
+        int32_t ret = HdmiEdidExtDataBlockPhase(sinkCap, data, blkLen, dbTagCode);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("data block %hhu phase fail", dbTagCode);
             return;
@@ -1231,7 +1208,6 @@ static int32_t HdmiEdidExtBlockPhase(struct HdmiEdid *edid, uint8_t blockNum)
 {
     uint8_t *data = edid->raw;
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
-    int32_t ret;
 
     if (blockNum >= HDMI_EDID_MAX_BLOCK_NUM) {
         HDF_LOGE("blockNum %hhu is invalid", blockNum);
@@ -1239,7 +1215,7 @@ static int32_t HdmiEdidExtBlockPhase(struct HdmiEdid *edid, uint8_t blockNum)
     }
 
     data += (blockNum * HDMI_EDID_SINGLE_BLOCK_SIZE);
-    ret = HdmiEdidBlockCheckSum(data);
+    int32_t ret = HdmiEdidBlockCheckSum(data);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("edid block%hhu check sum fail.", blockNum);
         return ret;
@@ -1278,14 +1254,13 @@ static int32_t HdmiEdidExtBlockPhase(struct HdmiEdid *edid, uint8_t blockNum)
 int32_t HdmiEdidPhase(struct HdmiEdid *edid)
 {
     uint8_t blockNum;
-    int32_t ret;
     struct HdmiSinkDeviceCapability *sinkCap = NULL;
 
     if (edid == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = HdmiEdidFirstBlockPhase(edid);
+    int32_t ret = HdmiEdidFirstBlockPhase(edid);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("edid first block phase fail.");
         return ret;
@@ -1305,8 +1280,6 @@ int32_t HdmiEdidPhase(struct HdmiEdid *edid)
 int32_t HdmiEdidRawDataRead(struct HdmiEdid *edid, struct HdmiDdc *ddc)
 {
     struct HdmiDdcCfg cfg = {0};
-    int32_t ret;
-    uint8_t extBlkNum;
 
     if (edid == NULL || ddc == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -1319,14 +1292,14 @@ int32_t HdmiEdidRawDataRead(struct HdmiEdid *edid, struct HdmiDdc *ddc)
     cfg.dataLen = HDMI_EDID_SINGLE_BLOCK_SIZE;
     cfg.readFlag = true;
     cfg.devAddr = HDMI_DDC_EDID_DEV_ADDRESS;
-    ret = HdmiDdcTransfer(ddc, &cfg);
+    int32_t ret = HdmiDdcTransfer(ddc, &cfg);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("edid block0 read fail");
         return ret;
     }
     edid->rawLen += HDMI_EDID_SINGLE_BLOCK_SIZE;
 
-    extBlkNum = edid->raw[HDMI_EDID_EXTENSION_BLOCK_ADDR];
+    uint8_t extBlkNum = edid->raw[HDMI_EDID_EXTENSION_BLOCK_ADDR];
     if (extBlkNum > (HDMI_EDID_MAX_BLOCK_NUM - 1)) {
         extBlkNum = (HDMI_EDID_MAX_BLOCK_NUM - 1);
         HDF_LOGD("extBlkNum > max, use max.");

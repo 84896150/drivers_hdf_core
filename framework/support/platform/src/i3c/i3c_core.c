@@ -96,14 +96,12 @@ static void I3cDeviceListPut(void)
 
 static int32_t GetAddrStatus(const struct I3cCntlr *cntlr, uint16_t addr)
 {
-    int32_t status;
-
     if (addr > I3C_ADDR_MAX) {
         HDF_LOGE("GetAddrStatus: The address 0x%x exceeds the maximum address!", addr);
         return HDF_ERR_INVALID_PARAM;
     }
 
-    status = ADDR_STATUS_MASK & ((cntlr->addrSlot[addr / ADDRS_PER_UINT16]) >>
+    int32_t status = ADDR_STATUS_MASK & ((cntlr->addrSlot[addr / ADDRS_PER_UINT16]) >>
         ((addr % ADDRS_PER_UINT16) * ADDRS_STATUS_BITS));
 
     return status;
@@ -111,10 +109,6 @@ static int32_t GetAddrStatus(const struct I3cCntlr *cntlr, uint16_t addr)
 
 static int32_t SetAddrStatus(struct I3cCntlr *cntlr, uint16_t addr, enum I3cAddrStatus status)
 {
-    uint16_t temp;
-    int32_t ret;
-    uint16_t statusMask;
-
     if (addr > I3C_ADDR_MAX) {
         HDF_LOGE("SetAddrStatus: The address 0x%x exceeds the maximum address!", addr);
         return HDF_ERR_INVALID_PARAM;
@@ -125,14 +119,14 @@ static int32_t SetAddrStatus(struct I3cCntlr *cntlr, uint16_t addr, enum I3cAddr
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = I3cCntlrLock(cntlr);
+    int32_t ret = I3cCntlrLock(cntlr);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("SetAddrStatus: lock cntlr fail!");
         return ret;
     }
 
-    statusMask = ADDR_STATUS_MASK << ((addr % ADDRS_PER_UINT16) * ADDRS_STATUS_BITS);
-    temp = (cntlr->addrSlot[addr / (uint16_t)ADDRS_PER_UINT16]) & (uint16_t)~statusMask;
+    uint16_t statusMask = ADDR_STATUS_MASK << ((addr % ADDRS_PER_UINT16) * ADDRS_STATUS_BITS);
+    uint16_t temp = (cntlr->addrSlot[addr / (uint16_t)ADDRS_PER_UINT16]) & (uint16_t)~statusMask;
     temp |= (uint16_t)(((uint16_t)status) << ((addr % ADDRS_PER_UINT16) * ADDRS_STATUS_BITS));
     cntlr->addrSlot[addr / ADDRS_PER_UINT16] = temp;
 
@@ -143,9 +137,7 @@ static int32_t SetAddrStatus(struct I3cCntlr *cntlr, uint16_t addr, enum I3cAddr
 
 static void inline I3cInitAddrStatus(struct I3cCntlr *cntlr)
 {
-    uint16_t addr;
-
-    for (addr = 0; addr <= I3C_ADDR_MAX; addr++) {
+    for (uint16_t addr = 0; addr <= I3C_ADDR_MAX; addr++) {
         if (I3cCheckReservedAddr(addr) == I3C_ADDR_RESERVED) {
             (void)SetAddrStatus(cntlr, addr, I3C_ADDR_RESERVED);
         }
@@ -155,21 +147,19 @@ static void inline I3cInitAddrStatus(struct I3cCntlr *cntlr)
 static int32_t GetFreeAddr(struct I3cCntlr *cntlr)
 {
     enum I3cAddrStatus status;
-    int16_t count;
-    int32_t ret;
 
     if (cntlr == NULL) {
         HDF_LOGE("GetFreeAddr: cntlr is null!");
         return HDF_ERR_INVALID_PARAM;
     }
 
-    ret = I3cCntlrLock(cntlr);
+    int32_t ret = I3cCntlrLock(cntlr);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("GetFreeAddr: lock cntlr fail!");
         return ret;
     }
 
-    for (count = 0; count <= I3C_ADDR_MAX; count++) {
+    for (int16_t count = 0; count <= I3C_ADDR_MAX; count++) {
         status = (enum I3cAddrStatus)GetAddrStatus(cntlr, count);
         if (status == I3C_ADDR_FREE) {
             return (int32_t)count;
@@ -183,8 +173,6 @@ static int32_t GetFreeAddr(struct I3cCntlr *cntlr)
 
 int32_t I3cCntlrSendCccCmd(struct I3cCntlr *cntlr, struct I3cCccCmd *ccc)
 {
-    int32_t ret;
-
     if (ccc == NULL) {
         HDF_LOGE("I3cCntlrSendCccCmd: ccc is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -200,7 +188,7 @@ int32_t I3cCntlrSendCccCmd(struct I3cCntlr *cntlr, struct I3cCccCmd *ccc)
         return HDF_ERR_DEVICE_BUSY;
     }
 
-    ret = cntlr->ops->sendCccCmd(cntlr, ccc);
+    int32_t ret = cntlr->ops->sendCccCmd(cntlr, ccc);
     I3cCntlrUnlock(cntlr);
 
     return ret;
@@ -248,12 +236,9 @@ struct I3cDevice *I3cGetDeviceByAddr(const struct I3cCntlr *cntlr, uint16_t addr
 
 static int32_t I3cDeviceDefineI3cDevices(struct I3cDevice *device)
 {
-    int32_t ret;
-    int32_t addr;
-
-    ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_I3C_DEVICE);
+    int32_t ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_I3C_DEVICE);
     if (ret != HDF_SUCCESS) {
-        addr = GetFreeAddr(device->cntlr);
+        int32_t addr = GetFreeAddr(device->cntlr);
         if (addr <= 0) {
             HDF_LOGE("I3cDeviceDefineI3cDevices: no free addresses left!");
             return HDF_ERR_DEVICE_BUSY;
@@ -314,14 +299,12 @@ int32_t I3cDeviceAdd(struct I3cDevice *device)
 
 void I3cDeviceRemove(struct I3cDevice *device)
 {
-    int32_t ret;
-
     if (device == NULL) {
         HDF_LOGE("I3cDeviceRemove: device is null!");
         return;
     }
 
-    ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_RESERVED);
+    int32_t ret = SetAddrStatus(device->cntlr, device->addr, I3C_ADDR_RESERVED);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("I3cDeviceRemove: set addr status fail!");
         return;
@@ -422,8 +405,6 @@ void I3cCntlrPut(struct I3cCntlr *cntlr)
 
 int32_t I3cCntlrAdd(struct I3cCntlr *cntlr)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrAdd: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -445,7 +426,7 @@ int32_t I3cCntlrAdd(struct I3cCntlr *cntlr)
     }
 
     I3cInitAddrStatus(cntlr);
-    ret = I3cManagerAddCntlr(cntlr);
+    int32_t ret = I3cManagerAddCntlr(cntlr);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("I3cCntlrAdd: i3c manager add cntlr fail!");
         (void)OsalSpinDestroy(&cntlr->lock);
@@ -467,8 +448,6 @@ void I3cCntlrRemove(struct I3cCntlr *cntlr)
 
 int32_t I3cCntlrTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t count)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrTransfer: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -484,7 +463,7 @@ int32_t I3cCntlrTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t co
         return HDF_ERR_DEVICE_BUSY;
     }
 
-    ret = cntlr->ops->Transfer(cntlr, msgs, count);
+    int32_t ret = cntlr->ops->Transfer(cntlr, msgs, count);
     I3cCntlrUnlock(cntlr);
 
     return ret;
@@ -492,8 +471,6 @@ int32_t I3cCntlrTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t co
 
 int32_t I3cCntlrI2cTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t count)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrI2cTransfer: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -508,7 +485,7 @@ int32_t I3cCntlrI2cTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t
         HDF_LOGE("I3cCntlrI2cTransfer: lock cntlr fail!");
         return HDF_ERR_DEVICE_BUSY;
     }
-    ret = cntlr->ops->i2cTransfer(cntlr, msgs, count);
+    int32_t ret = cntlr->ops->i2cTransfer(cntlr, msgs, count);
     I3cCntlrUnlock(cntlr);
 
     return ret;
@@ -516,8 +493,6 @@ int32_t I3cCntlrI2cTransfer(struct I3cCntlr *cntlr, struct I3cMsg *msgs, int16_t
 
 int32_t I3cCntlrSetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrSetConfig: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -538,7 +513,7 @@ int32_t I3cCntlrSetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
         return HDF_ERR_DEVICE_BUSY;
     }
 
-    ret = cntlr->ops->setConfig(cntlr, config);
+    int32_t ret = cntlr->ops->setConfig(cntlr, config);
     cntlr->config = *config;
     I3cCntlrUnlock(cntlr);
 
@@ -547,8 +522,6 @@ int32_t I3cCntlrSetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
 
 int32_t I3cCntlrGetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrGetConfig: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -569,7 +542,7 @@ int32_t I3cCntlrGetConfig(struct I3cCntlr *cntlr, struct I3cConfig *config)
         return HDF_ERR_DEVICE_BUSY;
     }
 
-    ret = cntlr->ops->getConfig(cntlr, config);
+    int32_t ret = cntlr->ops->getConfig(cntlr, config);
     cntlr->config = *config;
     I3cCntlrUnlock(cntlr);
 
@@ -580,7 +553,6 @@ int32_t I3cCntlrRequestIbi(struct I3cCntlr *cntlr, uint16_t addr, I3cIbiFunc fun
 {
     struct I3cDevice *device = NULL;
     struct I3cIbiInfo *ibi = NULL;
-    uint16_t ptr;
 
     if (cntlr == NULL || cntlr->ops == NULL || cntlr->ops->requestIbi == NULL) {
         HDF_LOGE("I3cCntlrRequestIbi: cntlr or ops or requestIbi is null!");
@@ -604,7 +576,7 @@ int32_t I3cCntlrRequestIbi(struct I3cCntlr *cntlr, uint16_t addr, I3cIbiFunc fun
         return HDF_ERR_DEVICE_BUSY;
     }
 
-    for (ptr = 0; ptr < I3C_IBI_MAX; ptr++) {
+    for (uint16_t ptr = 0; ptr < I3C_IBI_MAX; ptr++) {
         if (cntlr->ibiSlot[ptr] != NULL) {
             continue;
         }
@@ -631,7 +603,6 @@ int32_t I3cCntlrRequestIbi(struct I3cCntlr *cntlr, uint16_t addr, I3cIbiFunc fun
 int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
 {
     struct I3cDevice *device = NULL;
-    uint16_t ptr;
 
     if (cntlr == NULL) {
         HDF_LOGE("I3cCntlrFreeIbi: cntlr is null!");
@@ -649,7 +620,7 @@ int32_t I3cCntlrFreeIbi(struct I3cCntlr *cntlr, uint16_t addr)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    for (ptr = 0; ptr < I3C_IBI_MAX; ptr++) {
+    for (uint16_t ptr = 0; ptr < I3C_IBI_MAX; ptr++) {
         if (cntlr->ibiSlot[ptr] == NULL || cntlr->ibiSlot[ptr] != device->ibi) {
             continue;
         }
@@ -709,7 +680,6 @@ static int32_t I3cManagerBind(struct HdfDeviceObject *device)
 
 static int32_t I3cManagerInit(struct HdfDeviceObject *device)
 {
-    int32_t ret;
     struct I3cManager *manager = NULL;
 
     HDF_LOGI("I3cManagerInit: enter!");
@@ -724,7 +694,7 @@ static int32_t I3cManagerInit(struct HdfDeviceObject *device)
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    ret = OsalMutexInit(&manager->lock);
+    int32_t ret = OsalMutexInit(&manager->lock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("I3cManagerInit: mutex init fail, ret: %d!", ret);
         OsalMemFree(manager);

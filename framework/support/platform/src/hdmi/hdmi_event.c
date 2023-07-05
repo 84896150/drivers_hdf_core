@@ -14,8 +14,6 @@
 
 static int32_t HdmiEventPostMsg(struct HdmiCntlr *cntlr, struct HdmiEventMsg *event)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -31,7 +29,7 @@ static int32_t HdmiEventPostMsg(struct HdmiCntlr *cntlr, struct HdmiEventMsg *ev
         return HDF_SUCCESS;
     }
 
-    ret = OsalSemWait(&event->sem, HDF_WAIT_FOREVER);
+    int32_t ret = OsalSemWait(&event->sem, HDF_WAIT_FOREVER);
     (void)OsalSemDestroy(&event->sem);
     OsalMemFree(event);
     if (ret != HDF_SUCCESS) {

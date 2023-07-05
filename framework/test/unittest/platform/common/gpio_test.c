@@ -543,11 +543,10 @@ int32_t GpioTestExecute(int cmd)
 void GpioTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     for (i = 0; i < GPIO_TEST_MAX; i++) {
-        ret = GpioTestExecute(i);
+        int32_t ret = GpioTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 

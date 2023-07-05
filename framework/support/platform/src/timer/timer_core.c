@@ -182,7 +182,6 @@ int32_t TimerCntrlStop(struct TimerCntrl *cntrl)
 static int32_t TimerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     int16_t number;
-    uint32_t handle;
 
     if ((data == NULL) || (reply == NULL)) {
         HDF_LOGE("TimerIoOpen: param invalid!");
@@ -203,7 +202,7 @@ static int32_t TimerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_FAILURE;
     }
 
-    handle = (uint32_t)(number + TIMER_HANDLE_SHIFT);
+    uint32_t handle = (uint32_t)(number + TIMER_HANDLE_SHIFT);
     if (!HdfSbufWriteUint32(reply, handle)) {
         HDF_LOGE("TimerIoOpen: write handle fail!");
         return HDF_ERR_IO;
@@ -214,7 +213,6 @@ static int32_t TimerIoOpen(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t TimerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t handle;
-    int16_t number;
 
     (void)reply;
     if (data == NULL) {
@@ -227,7 +225,7 @@ static int32_t TimerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
+    int16_t number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
     if (number < 0) {
         HDF_LOGE("TimerIoClose: number[%d] invalid!", number);
         return HDF_ERR_INVALID_PARAM;
@@ -238,7 +236,6 @@ static int32_t TimerIoClose(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t TimerIoStart(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t handle;
-    int16_t number;
 
     (void)reply;
     if (data == NULL) {
@@ -250,7 +247,7 @@ static int32_t TimerIoStart(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
+    int16_t number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
     if (number < 0) {
         HDF_LOGE("TimerIoStart: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
@@ -261,7 +258,6 @@ static int32_t TimerIoStart(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t TimerIoStop(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t handle;
-    int16_t number;
 
     (void)reply;
     if (data == NULL) {
@@ -273,7 +269,7 @@ static int32_t TimerIoStop(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
+    int16_t number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
     if (number < 0) {
         HDF_LOGE("TimerIoStop: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
@@ -284,7 +280,6 @@ static int32_t TimerIoStop(struct HdfSBuf *data, struct HdfSBuf *reply)
 static int32_t TimerIoCb(uint32_t number)
 {
     uint32_t handle = number + TIMER_HANDLE_SHIFT;
-    int32_t ret;
     struct HdfSBuf *data = NULL;
 
     data = HdfSbufObtainDefaultSize();
@@ -297,7 +292,7 @@ static int32_t TimerIoCb(uint32_t number)
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
     }
-    ret = HdfDeviceSendEvent(g_timerManager->device, PLATFORM_LISTENER_EVENT_TIMER_NOTIFY, data);
+    int32_t ret = HdfDeviceSendEvent(g_timerManager->device, PLATFORM_LISTENER_EVENT_TIMER_NOTIFY, data);
     HdfSbufRecycle(data);
     HDF_LOGD("TimerIoCb: set service info done, ret = %d %d", ret, handle);
     return HDF_SUCCESS;
@@ -307,7 +302,6 @@ static int32_t TimerIoSet(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t len;
     uint32_t handle;
-    int16_t number;
     struct TimerConfig *cfg = NULL;
 
     (void)reply;
@@ -325,7 +319,7 @@ static int32_t TimerIoSet(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
+    int16_t number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
     if (number < 0) {
         HDF_LOGE("TimerIoSet: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
@@ -337,7 +331,6 @@ static int32_t TimerIoSetOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     uint32_t len;
     uint32_t handle;
-    int16_t number;
     struct TimerConfig *cfg = NULL;
 
     (void)reply;
@@ -355,7 +348,7 @@ static int32_t TimerIoSetOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
+    int16_t number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
     if (number < 0) {
         HDF_LOGE("TimerIoSetOnce: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
@@ -368,7 +361,6 @@ static int32_t TimerIoGet(struct HdfSBuf *data, struct HdfSBuf *reply)
     int32_t ret = HDF_SUCCESS;
     struct TimerConfig cfg;
     uint32_t handle;
-    int16_t number;
 
     if ((data == NULL) || (reply == NULL)) {
         HDF_LOGE("TimerIoGet: data or reply is null!");
@@ -380,7 +372,7 @@ static int32_t TimerIoGet(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_ERR_IO;
     }
 
-    number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
+    int16_t number = (int16_t)(handle - TIMER_HANDLE_SHIFT);
     if (number < 0) {
         HDF_LOGE("TimerIoGet: number[%d] is invalid!", number);
         return HDF_ERR_INVALID_PARAM;
@@ -524,7 +516,6 @@ int32_t TimerCntrlRemoveByNumber(const uint32_t number)
 
 static int32_t TimerManagerBind(struct HdfDeviceObject *device)
 {
-    int32_t ret;
     struct TimerManager *manager = NULL;
 
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_OBJECT);
@@ -535,7 +526,7 @@ static int32_t TimerManagerBind(struct HdfDeviceObject *device)
         return HDF_ERR_MALLOC_FAIL;
     }
 
-    ret = OsalMutexInit(&manager->lock);
+    int32_t ret = OsalMutexInit(&manager->lock);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("TimerManagerBind: mutex init fail, ret: %d", ret);
         OsalMemFree(manager);

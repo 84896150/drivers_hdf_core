@@ -75,7 +75,6 @@ static int32_t CanTestReadConfig(struct CanTestConfig *config, const struct Devi
 
 static int32_t CanTestBind(struct HdfDeviceObject *device)
 {
-    int32_t ret;
     static struct IDeviceIoService service;
 
     if (device == NULL) {
@@ -87,7 +86,7 @@ static int32_t CanTestBind(struct HdfDeviceObject *device)
         HDF_LOGI("CanTestBind: property not configed, using default!");
         CanTestSetDftConfig(&g_config);
     } else {
-        ret = CanTestReadConfig(&g_config, device->property);
+        int32_t ret = CanTestReadConfig(&g_config, device->property);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("CanTestBind: read config fail, ret: %d!", ret);
             return ret;

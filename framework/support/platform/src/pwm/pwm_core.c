@@ -14,8 +14,6 @@
 
 int32_t PwmDeviceGet(struct PwmDev *pwm)
 {
-    int32_t ret;
-
     if (pwm == NULL) {
         HDF_LOGE("PwmDeviceGet: pwm is null!\n");
         return HDF_ERR_INVALID_PARAM;
@@ -28,7 +26,7 @@ int32_t PwmDeviceGet(struct PwmDev *pwm)
         return HDF_ERR_DEVICE_BUSY;
     }
     if (pwm->method != NULL && pwm->method->open != NULL) {
-        ret = pwm->method->open(pwm);
+        int32_t ret = pwm->method->open(pwm);
         if (ret != HDF_SUCCESS) {
             (void)OsalSpinUnlock(&(pwm->lock));
             HDF_LOGE("PwmDeviceGet: open fail, ret: %d!", ret);
@@ -43,15 +41,13 @@ int32_t PwmDeviceGet(struct PwmDev *pwm)
 
 int32_t PwmDevicePut(struct PwmDev *pwm)
 {
-    int32_t ret;
-
     if (pwm == NULL) {
         HDF_LOGE("PwmDevicePut: pwm is null!\n");
         return HDF_ERR_INVALID_PARAM;
     }
 
     if (pwm->method != NULL && pwm->method->close != NULL) {
-        ret = pwm->method->close(pwm);
+        int32_t ret = pwm->method->close(pwm);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("PwmDevicePut: close fail, ret: %d!", ret);
             return ret;
@@ -65,8 +61,6 @@ int32_t PwmDevicePut(struct PwmDev *pwm)
 
 int32_t PwmDeviceSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
 {
-    int32_t ret;
-
     if (pwm == NULL || config == NULL) {
         HDF_LOGE("PwmDeviceSetConfig: pwm or config is null!\n");
         return HDF_ERR_INVALID_PARAM;
@@ -82,7 +76,7 @@ int32_t PwmDeviceSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
         return HDF_ERR_NOT_SUPPORT;
     }
 
-    ret = pwm->method->setConfig(pwm, config);
+    int32_t ret = pwm->method->setConfig(pwm, config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PwmDeviceSetConfig: set config fail, ret: %d!", ret);
         return ret;
@@ -152,14 +146,13 @@ static int32_t PwmUserSetConfig(struct PwmDev *pwm, struct HdfSBuf *data)
 
 static int32_t PwmUserGetConfig(struct PwmDev *pwm, struct HdfSBuf *reply)
 {
-    int32_t ret;
     struct PwmConfig config;
 
     if (reply == NULL) {
         HDF_LOGE("PwmUserGetConfig: reply is null!");
         return HDF_ERR_INVALID_PARAM;
     }
-    ret = PwmDeviceGetConfig(pwm, &config);
+    int32_t ret = PwmDeviceGetConfig(pwm, &config);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("PwmUserGetConfig: get config fail!");
         return ret;

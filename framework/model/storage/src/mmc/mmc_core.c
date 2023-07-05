@@ -71,8 +71,6 @@ static int32_t MmcCntlrExecRequest(struct MmcCntlr *cntlr, struct MmcCmd *cmd)
 
 static int32_t MmcCntlrPlug(struct MmcCntlr *cntlr)
 {
-    uint32_t i;
-
     if (cntlr == NULL) {
         HDF_LOGE("MmcCntlrPlug: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -97,7 +95,7 @@ static int32_t MmcCntlrPlug(struct MmcCntlr *cntlr)
     }
 
     MmcCntlrLock(cntlr);
-    for (i = 0; i < MMC_DETECET_RETRY; i++) {
+    for (uint32_t i = 0; i < MMC_DETECET_RETRY; i++) {
         cntlr->detecting = true;
         if (MmcDoDetect(cntlr) == HDF_SUCCESS) {
             MmcDeviceAddOps(cntlr->curDev, NULL);
@@ -129,7 +127,6 @@ static int32_t MmcCntlrUnplug(struct MmcCntlr *cntlr)
 static int32_t MmcCntlrSdioRescanHandle(struct MmcCntlr *cntlr)
 {
     uint8_t val;
-    int32_t error;
 
     if (cntlr == NULL) {
         HDF_LOGE("MmcCntlrSdioRescanHandle: cntlr is null.");
@@ -138,7 +135,7 @@ static int32_t MmcCntlrSdioRescanHandle(struct MmcCntlr *cntlr)
 
     if (cntlr->curDev != NULL && cntlr->curDev->state.bits.present > 0) {
         if (cntlr->curDev->type == MMC_DEV_SDIO || cntlr->curDev->type == MMC_DEV_COMBO) {
-            error = SdioReadCccrIoEnable(cntlr, &val);
+            int32_t error = SdioReadCccrIoEnable(cntlr, &val);
             if (error != HDF_SUCCESS) {
                 HDF_LOGD("re-detect sdio.");
                 MmcCntlrPlug(cntlr);
@@ -207,7 +204,6 @@ static int32_t MmcMsgHandleDefault(struct PlatformQueue *queue, struct PlatformM
 
 static int32_t MmcCntlrQueueCreate(struct MmcCntlr *cntlr, bool needQueue)
 {
-    int32_t ret;
     const char *threadName = NULL;
 
     if (!needQueue) {
@@ -226,7 +222,7 @@ static int32_t MmcCntlrQueueCreate(struct MmcCntlr *cntlr, bool needQueue)
         HDF_LOGE("MmcCntlrQueueCreate: fail to create msg queue!");
         return HDF_PLT_ERR_OS_API;
     }
-    ret = PlatformQueueStart(cntlr->msgQueue);
+    int32_t ret = PlatformQueueStart(cntlr->msgQueue);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrQueueCreate: fail to start msg queue!");
         PlatformQueueDestroy(cntlr->msgQueue);
@@ -236,8 +232,6 @@ static int32_t MmcCntlrQueueCreate(struct MmcCntlr *cntlr, bool needQueue)
 
 static int32_t MmcCntlrInit(struct MmcCntlr *cntlr, bool needQueue)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("MmcCntlrInit: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -253,7 +247,7 @@ static int32_t MmcCntlrInit(struct MmcCntlr *cntlr, bool needQueue)
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = OsalMutexInit(&cntlr->mutex);
+    int32_t ret = OsalMutexInit(&cntlr->mutex);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrInit: mutex init fail!");
         return ret;
@@ -282,14 +276,12 @@ static void MmcCntlrUninit(struct MmcCntlr *cntlr)
 
 int32_t MmcCntlrAdd(struct MmcCntlr *cntlr, bool needQueue)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("MmcCntlrAdd: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    ret = MmcCntlrInit(cntlr, needQueue);
+    int32_t ret = MmcCntlrInit(cntlr, needQueue);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrAdd: cntlr init fail, ret: %d!", ret);
         return ret;
@@ -334,8 +326,6 @@ struct MmcDevice *MmcCntlrGetDevice(struct MmcCntlr *cntlr)
 
 static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
 {
-    int32_t ret;
-
     if (cntlr == NULL) {
         HDF_LOGE("MmcCntlrPostMsg: cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -353,7 +343,7 @@ static int32_t MmcCntlrPostMsg(struct MmcCntlr *cntlr, struct MmcMsg *mmcMsg)
         return HDF_SUCCESS;
     }
 
-    ret = OsalSemWait(&mmcMsg->sem, HDF_WAIT_FOREVER);
+    int32_t ret = OsalSemWait(&mmcMsg->sem, HDF_WAIT_FOREVER);
     (void)OsalSemDestroy(&mmcMsg->sem);
     OsalMemFree(mmcMsg);
     if (ret != HDF_SUCCESS) {
@@ -453,7 +443,6 @@ int32_t MmcCntlrTune(struct MmcCntlr *cntlr, uint32_t cmdCode)
 
 void MmcCntlrSelectWorkVoltage(struct MmcCntlr *cntlr, union MmcOcr *ocr)
 {
-    uint32_t tmpOcr;
     uint32_t i;
 
     /* ignore reveserd. */
@@ -470,7 +459,7 @@ void MmcCntlrSelectWorkVoltage(struct MmcCntlr *cntlr, union MmcOcr *ocr)
      * obtain the voltage range supported by both the host and the OCR register,
      * and then select the minimum voltage value.
      */
-    tmpOcr = ((ocr->ocrData) & (cntlr->ocrDef.ocrData));
+    uint32_t tmpOcr = ((ocr->ocrData) & (cntlr->ocrDef.ocrData));
     for (i = 0; i <= MMC_OCR_MAX_VOLTAGE_BIT; i++) {
         if ((tmpOcr & (1 << i)) > 0) {
             break;
@@ -805,8 +794,6 @@ int32_t MmcCntlrAddSdioRescanMsgToQueue(struct MmcCntlr *cntlr)
 static void SdioHandlePendingIrq(struct MmcCntlr *cntlr, struct SdioDevice *dev)
 {
     uint8_t val;
-    int32_t ret;
-    uint32_t i;
     struct SdioFunction *func = dev->curFunction;
 
     if (func == NULL) {
@@ -818,13 +805,13 @@ static void SdioHandlePendingIrq(struct MmcCntlr *cntlr, struct SdioDevice *dev)
         return;
     }
 
-    ret = SdioReadCccrIntPending(cntlr, &val);
+    int32_t ret = SdioReadCccrIntPending(cntlr, &val);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrHandleSdioPendingIrq: read cccr int pending fail! ret = %d.", ret);
         return;
     }
 
-    for (i = 0; i < SDIO_MAX_FUNCTION_NUMBER; i++) {
+    for (uint32_t i = 0; i < SDIO_MAX_FUNCTION_NUMBER; i++) {
         if ((val & (1 << (i + 1))) == 0) {
             continue;
         }
@@ -843,7 +830,6 @@ static void SdioHandlePendingIrq(struct MmcCntlr *cntlr, struct SdioDevice *dev)
 
 static int32_t SdioIrqThreadWorker(void *data)
 {
-    int32_t ret;
     struct SdioDevice *dev = (struct SdioDevice *)data;
     struct MmcCntlr *cntlr = NULL;
 
@@ -860,7 +846,7 @@ static int32_t SdioIrqThreadWorker(void *data)
 
     while (true) {
         /* wait envent */
-        ret = OsalSemWait(&dev->sem, HDF_WAIT_FOREVER);
+        int32_t ret = OsalSemWait(&dev->sem, HDF_WAIT_FOREVER);
         if (ret != HDF_SUCCESS) {
             continue;
         }
@@ -876,7 +862,6 @@ static int32_t SdioIrqThreadWorker(void *data)
 
 int32_t MmcCntlrCreatSdioIrqThread(struct MmcCntlr *cntlr)
 {
-    int32_t ret;
     struct OsalThreadParam config = {0};
     struct SdioDevice *dev = NULL;
 
@@ -886,7 +871,7 @@ int32_t MmcCntlrCreatSdioIrqThread(struct MmcCntlr *cntlr)
     }
 
     dev = (struct SdioDevice *)cntlr->curDev;
-    ret = OsalSemInit(&dev->sem, 0);
+    int32_t ret = OsalSemInit(&dev->sem, 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrCreatSdioIrqThread: sem init fail, ret: %d!", ret);
         return ret;
@@ -1012,9 +997,7 @@ int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
 static void MmcCntlrParseCapability(const struct DeviceResourceNode *node,
     struct DeviceResourceIface *drsOps, struct MmcCntlr *cntlr)
 {
-    int32_t ret;
-
-    ret = drsOps->GetUint16(node, "voltDef", &(cntlr->voltDef), 0);
+    int32_t ret = drsOps->GetUint16(node, "voltDef", &(cntlr->voltDef), 0);
     if (ret != HDF_SUCCESS) {
         cntlr->voltDef = 0;
     }
@@ -1059,7 +1042,6 @@ int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
 {
     const struct DeviceResourceNode *node = NULL;
     struct DeviceResourceIface *drsOps = NULL;
-    int32_t ret;
 
     if (obj == NULL || cntlr == NULL) {
         HDF_LOGE("MmcCntlrParse: input param is null!");
@@ -1077,7 +1059,7 @@ int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
         return HDF_FAILURE;
     }
 
-    ret = drsOps->GetUint16(node, "hostId", &(cntlr->index), 0);
+    int32_t ret = drsOps->GetUint16(node, "hostId", &(cntlr->index), 0);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcCntlrParse: read hostId fail, ret: %d", ret);
         return ret;
@@ -1098,8 +1080,6 @@ int32_t MmcCntlrParse(struct MmcCntlr *cntlr, struct HdfDeviceObject *obj)
 
 int32_t MmcDeviceAdd(struct MmcDevice *mmc)
 {
-    int32_t ret;
-
     if (mmc == NULL || mmc->cntlr == NULL) {
         HDF_LOGE("MmcDeviceAdd: mmc or cntlr is null!");
         return HDF_ERR_INVALID_OBJECT;
@@ -1129,7 +1109,7 @@ int32_t MmcDeviceAdd(struct MmcDevice *mmc)
     }
 
     mmc->device.manager = PlatformManagerGet(PLATFORM_MODULE_MMC);
-    ret = PlatformDeviceAdd(&mmc->device);
+    int32_t ret = PlatformDeviceAdd(&mmc->device);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("MmcDeviceAdd: mmc device add fail, ret: %d!", ret);
         MmcCntlrPut(mmc->cntlr);
@@ -1307,7 +1287,6 @@ ssize_t MmcDeviceErase(struct MmcDevice *mmc, size_t startSec, size_t nSec)
     size_t curSec = nSec;
     size_t curStartSec = startSec;
     size_t eraseSec;
-    ssize_t ret;
 
     if (mmc == NULL) {
         HDF_LOGE("MmcDeviceErase: mmc is null!");
@@ -1320,7 +1299,7 @@ ssize_t MmcDeviceErase(struct MmcDevice *mmc, size_t startSec, size_t nSec)
         } else {
             eraseSec = curSec;
         }
-        ret = MmcSendErase(mmc->cntlr, curStartSec, eraseSec);
+        ssize_t ret = MmcSendErase(mmc->cntlr, curStartSec, eraseSec);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("MmcDeviceErase: fail!");
             return ret;

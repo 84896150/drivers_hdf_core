@@ -64,7 +64,7 @@ enum RegulatorStatus {
 };
 
 static int g_virStatus = VIR_REGULATOR_STATUS_OFF;
-static int VirtualVoltageRegulatorEnable(struct regulator_dev *rdev)
+static int VirtualVoltageRegulatorEnable(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualVoltageRegulatorEnable: rdev is null!");
@@ -75,7 +75,7 @@ static int VirtualVoltageRegulatorEnable(struct regulator_dev *rdev)
     return HDF_SUCCESS;
 }
 
-static int VirtualVoltageRegulatorDisable(struct regulator_dev *rdev)
+static int VirtualVoltageRegulatorDisable(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualVoltageRegulatorDisable: rdev is null!");
@@ -86,7 +86,7 @@ static int VirtualVoltageRegulatorDisable(struct regulator_dev *rdev)
     return HDF_SUCCESS;
 }
 
-static int VirtualVoltageRegulatorIsEnabled(struct regulator_dev *rdev)
+static int VirtualVoltageRegulatorIsEnabled(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualVoltageRegulatorIsEnabled: rdev is null!");
@@ -115,7 +115,7 @@ static int VirtualVoltageRegulatorSetVoltage(struct regulator_dev *rdev, int min
 }
 
 #define VIRTUAL_VOLTAGE_VAL_500 500
-static int VirtualVoltageRegulatorGetVoltage(struct regulator_dev *rdev)
+static int VirtualVoltageRegulatorGetVoltage(const struct regulator_dev *rdev)
 {
     if (rdev == NULL) {
         HDF_LOGE("VirtualVoltageRegulatorGetVoltage: rdev is null!");
