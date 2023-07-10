@@ -47,13 +47,12 @@ static int32_t PlatformQueueNextMsg(struct PlatformQueue *queue, struct Platform
 
 static int32_t PlatformQueueWorker(void *data)
 {
-    int32_t ret;
     struct PlatformQueue *queue = (struct PlatformQueue *)data;
     struct PlatformMsg *msg = NULL;
 
     while (true) {
         /* wait envent */
-        ret = OsalSemWait(&queue->sem, HDF_WAIT_FOREVER);
+        int32_t ret = OsalSemWait(&queue->sem, HDF_WAIT_FOREVER);
         if (ret != HDF_SUCCESS) {
             continue;
         }

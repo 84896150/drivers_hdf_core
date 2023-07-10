@@ -237,11 +237,10 @@ int PlatformEventTestExecute(int cmd)
 void PlatformEventTestExecuteAll(void)
 {
     int32_t i;
-    int32_t ret;
     int32_t fails = 0;
 
     for (i = 0; i < PLAT_EVENT_TEST_CMD_MAX; i++) {
-        ret = PlatformEventTestExecute(i);
+        int32_t ret = PlatformEventTestExecute(i);
         fails += (ret != HDF_SUCCESS) ? 1 : 0;
     }
 

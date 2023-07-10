@@ -77,7 +77,6 @@ static uint32_t MmcParseBits(const uint32_t *data, uint32_t bitsLen, uint32_t st
 static int32_t MmcSendCmd(struct MmcCntlr *cntlr, struct MmcCmd *cmd, struct MmcData *data, uint32_t retryTimes)
 {
     uint32_t i;
-    int32_t ret;
 
     if (cntlr == NULL || cmd == NULL || retryTimes == 0) {
         HDF_LOGE("MmcSendCmd: cntlr or cmd or retryTimes is null!");
@@ -90,7 +89,7 @@ static int32_t MmcSendCmd(struct MmcCntlr *cntlr, struct MmcCmd *cmd, struct Mmc
 
     cmd->data = data;
     for (i = 0; i < retryTimes; i++) {
-        ret = MmcCntlrDoRequest(cntlr, cmd);
+        int32_t ret = MmcCntlrDoRequest(cntlr, cmd);
         if (ret != HDF_SUCCESS) {
             continue;
         }
@@ -772,7 +771,6 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
     struct MmcCid *cid = NULL;
     uint32_t *rawCid = NULL;
     uint8_t specVers;
-    uint8_t cbx;
 
     if (cntlr == NULL || cntlr->curDev == NULL) {
         HDF_LOGE("EmmcDecodeCid: cntlr or curDev is null!");
@@ -820,7 +818,7 @@ static int32_t EmmcDecodeCid(struct MmcCntlr *cntlr)
          * Card or BGA(CBX): [113:112]
          * 00: Card (removable); 01: BGA (Discrete embedded); 10: POP; 11: Reserved.
          */
-        cbx = MmcParseBits(rawCid, CID_BITS, 112, 2);
+        uint8_t cbx = MmcParseBits(rawCid, CID_BITS, 112, 2);
         if (cbx == 0) {
             cntlr->curDev->state.bits.removable = 1;
             HDF_LOGD("EmmcDecodeCid: Emmc is removable!");
@@ -1311,10 +1309,8 @@ static int32_t EmmcSelectPowerClass(struct MmcCntlr *cntlr, struct EmmcExtCsd *e
 static int32_t EmmcSelectActivateHighSpeed(struct MmcCntlr *cntlr,
     struct EmmcDevice *emmcDev, struct EmmcExtCsd *extCsd)
 {
-    int32_t error;
-
     if (extCsd->hsMaxDtr > 0) {
-        error = HDF_SUCCESS;
+        int32_t error = HDF_SUCCESS;
         if (MmcCntlrSupportHighSpeed200(cntlr) == true &&
             extCsd->hsMaxDtr > EMMC_EXT_CSD_HIGH_SPEED_52) {
             error = EmmcSelectHs200(cntlr, emmcDev);
@@ -1441,7 +1437,6 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
     struct EmmcExtCsd *extCsd)
 {
     int32_t error;
-    uint32_t index;
     uint32_t ddrMode;
     enum MmcBusWidth width;
     const enum MmcBusWidth busWidths[] = { BUS_WIDTH8, BUS_WIDTH4, BUS_WIDTH1 };
@@ -1457,7 +1452,7 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
         emmcDev->mmc.state.bits.hs200 == 0 &&
         cntlr->curDev->reg.csd.specVers >= MMC_CSD_SPEC_VER_4 &&
         (cntlr->caps.bits.cap4Bit | cntlr->caps.bits.cap8Bit) > 0) {
-        index = 1;
+        uint32_t index = 1;
         if (cntlr->caps.bits.cap8Bit > 0) {
             index = 0;
         }
@@ -1491,10 +1486,8 @@ static int32_t EmmcSelectSwitchDdrMode(struct MmcCntlr *cntlr, struct EmmcDevice
 
 static int32_t EmmcActivateHpiMechanism(struct MmcCntlr *cntlr, struct EmmcExtCsd *extCsd)
 {
-    int32_t error;
-
     if (extCsd->hpi == true) {
-        error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_HPI_MGMT, 1);
+        int32_t error = MmcSwitch(cntlr, EMMC_EXT_CSD_CMD_SET_NORMAL, EMMC_EXT_CSD_HPI_MGMT, 1);
         if (error == HDF_SUCCESS) {
             extCsd->hpiEnable = true;
         } else if (error != HDF_MMC_ERR_SWITCH_FAIL) {
@@ -1980,8 +1973,6 @@ static int32_t SdDecodeSSr(struct MmcCntlr *cntlr, uint32_t *rawSsr, uint32_t le
     struct SdSsr *ssr = NULL;
     struct SdScr *scr = NULL;
     struct SdDevice *sdDev = NULL;
-    uint32_t eraseSize;
-    uint32_t eraseTimeout;
 
     if (cntlr == NULL || cntlr->curDev == NULL || rawSsr == NULL || len == 0) {
         HDF_LOGE("SdDecodeSSr: cntlr or curDev or rawSsr is null or len is invalid!");
@@ -2002,9 +1993,9 @@ static int32_t SdDecodeSSr(struct MmcCntlr *cntlr, uint32_t *rawSsr, uint32_t le
              * ERASE_SIZE: [423:408]. If this field is set to 0, the erase timeout calculation is not supported.
              * ERASE_SIZE = 1, value = 1AU; ERASE_SIZE = 2, value = 2AU...
              */
-            eraseSize = MmcParseBits(rawSsr, SSR_BITS, 408, 16);
+            uint32_t eraseSize = MmcParseBits(rawSsr, SSR_BITS, 408, 16);
             /* ERASE_TIMEOUT: [407:402] */
-            eraseTimeout = MmcParseBits(rawSsr, SSR_BITS, 402, 6);
+            uint32_t eraseTimeout = MmcParseBits(rawSsr, SSR_BITS, 402, 6);
             if (eraseSize > 0) {
                 ssr->eraseTimeout = (eraseTimeout * 1000) / eraseSize;
                 /* ERASE_OFFSET: [401:400] */
@@ -2958,12 +2949,10 @@ static int32_t SdioReadWriteRemainBytes(struct MmcCntlr *cntlr, struct SdioCmdPa
     uint8_t *data, uint32_t size, uint32_t addr)
 {
     uint32_t maxBlkSize;
-    uint32_t curSize;
     struct SdioDevice *dev = (struct SdioDevice *)cntlr->curDev;
     uint32_t remLen = size;
     uint32_t curAddr = addr;
     uint8_t *buffer = data;
-    int32_t err;
 
     maxBlkSize = MMC_MIN(cntlr->maxBlkSize, dev->curFunction->maxBlkSize);
     maxBlkSize = MMC_MIN(maxBlkSize, BYTES_PER_BLOCK);
@@ -2973,9 +2962,9 @@ static int32_t SdioReadWriteRemainBytes(struct MmcCntlr *cntlr, struct SdioCmdPa
     }
 
     while (remLen > 0) {
-        curSize = MMC_MIN(remLen, maxBlkSize);
+        uint32_t curSize = MMC_MIN(remLen, maxBlkSize);
         param->regAddr = curAddr;
-        err = SdioRwExtended(cntlr, param, buffer, 1, curSize);
+        int32_t err = SdioRwExtended(cntlr, param, buffer, 1, curSize);
         if (err != HDF_SUCCESS) {
             HDF_LOGD("SdioReadWriteRemainBytes: bytes mode, err = %d, addr = %d, curSize = %d!", err, addr, curSize);
             return err;
@@ -3004,10 +2993,6 @@ static void SdioFillRwExtendedCmdParam(struct SdioCmdParam *param,
 
 int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
 {
-    uint32_t maxBlkNum;
-    uint32_t curblkNum;
-    uint32_t curSize;
-    int32_t err;
     struct SdioCmdParam param = {0};
     struct SdioDevice *dev = NULL;
 
@@ -3037,14 +3022,14 @@ int32_t SdioReadWriteBlock(struct MmcCntlr *cntlr, struct SdioRwBlockInfo *info)
     }
     /* send block. */
     if (dev->sdioReg.cccr.multiBlock > 0 && (remLen > maxBlkSize)) {
-        maxBlkNum = MMC_MIN((cntlr->maxReqSize / dev->curFunction->curBlkSize), cntlr->maxBlkNum);
+        uint32_t maxBlkNum = MMC_MIN((cntlr->maxReqSize / dev->curFunction->curBlkSize), cntlr->maxBlkNum);
         maxBlkNum = MMC_MIN(maxBlkNum, SDIO_BLOCK_TRANSFER_MAX_BLKNUM);
         while (remLen > dev->curFunction->curBlkSize) {
-            curblkNum = remLen / dev->curFunction->curBlkSize;
+            uint32_t curblkNum = remLen / dev->curFunction->curBlkSize;
             curblkNum = MMC_MIN(curblkNum, maxBlkNum);
-            curSize = curblkNum * dev->curFunction->curBlkSize;
+            uint32_t curSize = curblkNum * dev->curFunction->curBlkSize;
             param.regAddr = curAddr;
-            err = SdioRwExtended(cntlr, &param, buffer, curblkNum, dev->curFunction->curBlkSize);
+            int32_t err = SdioRwExtended(cntlr, &param, buffer, curblkNum, dev->curFunction->curBlkSize);
             if (err != HDF_SUCCESS) {
                 return err;
             }
@@ -3682,7 +3667,6 @@ static void SdioDecodeCisTplField(struct MmcCntlr *cntlr, struct SdioFunction *f
 static int32_t SdioFillTplInfo(struct MmcCntlr *cntlr, struct SdioCisTuple *tuple,
     uint32_t *addr, uint8_t tplCode, uint8_t tplLink)
 {
-    int32_t ret;
     uint32_t i;
 
     tuple->tplCode = tplCode;
@@ -3690,7 +3674,7 @@ static int32_t SdioFillTplInfo(struct MmcCntlr *cntlr, struct SdioCisTuple *tupl
     /* read tuple body. */
     for (i = 0; i < tplLink; i++) {
         (*addr)++;
-        ret = SdioReadCisTplField(cntlr, *addr, &(tuple->tplBody[i]));
+        int32_t ret = SdioReadCisTplField(cntlr, *addr, &(tuple->tplBody[i]));
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioFillTplInfo: read tuple body fail, err = %d.", ret);
             return ret;
@@ -3758,7 +3742,6 @@ static int32_t SdioReadCis(struct MmcCntlr *cntlr, struct SdioFunction *function
     uint32_t i;
     uint32_t cisStartAddr;
     uint8_t data;
-    int32_t ret;
     struct SdioCmdParam param = {0};
 
     if (function == NULL) {
@@ -3772,7 +3755,7 @@ static int32_t SdioReadCis(struct MmcCntlr *cntlr, struct SdioFunction *function
     for (i = 0; i < SDIO_CCCR_CIS_START_ADDR_BYTES; i++) {
         /* read register 0xn09-0xn0B of FBR. */
         param.regAddr = SDIO_FBR_BASE_ADDR(funcNum) + SDIO_FBR_POINTER_CIS + i;
-        ret = SdioRwDirect(cntlr, &param, &data);
+        int32_t ret = SdioRwDirect(cntlr, &param, &data);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("SdioReadCis: read CIS pointer fail, err = %d.", ret);
             return ret;
@@ -3902,7 +3885,6 @@ static int32_t SdioAddFunctions(struct MmcCntlr *cntlr, uint32_t funcs)
     struct SdioDevice *sdioDev = (struct SdioDevice *)cntlr->curDev;
     struct SdioFunction *function = NULL;
     uint32_t i;
-    int32_t ret;
 
     sdioDev->functions = 0;
     for (i = 0; i < funcs; i++) {
@@ -3910,7 +3892,7 @@ static int32_t SdioAddFunctions(struct MmcCntlr *cntlr, uint32_t funcs)
         if (function == NULL) {
             return HDF_ERR_MALLOC_FAIL;
         }
-        ret = SdioReadFbr(cntlr, function);
+        int32_t ret = SdioReadFbr(cntlr, function);
         if (ret != HDF_SUCCESS) {
             SdioDeleteFunction(function);
             return ret;

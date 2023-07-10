@@ -22,7 +22,7 @@ constexpr int32_t MAX = 2;
 constexpr int32_t UART_FUZZ_PORT = 1;
 }
 
-struct AllParameters {
+struct UartAllParameters {
     uint32_t desBaudRate;
     struct UartAttribute paraAttribute;
     uint32_t paraMode;
@@ -33,7 +33,7 @@ static bool UartFuzzTest(const uint8_t *data, size_t size)
 {
     int32_t number;
     DevHandle handle = nullptr;
-    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    const struct UartAllParameters *params = reinterpret_cast<const struct UartAllParameters *>(data);
 
     number = randNum(MIN, MAX);
     handle = UartOpen(UART_FUZZ_PORT);
@@ -68,7 +68,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    if (size < sizeof(struct AllParameters)) {
+    if (size < sizeof(struct UartAllParameters)) {
         HDF_LOGE("LLVMFuzzerTestOneInput: uart fuzz test size is small!");
         return 0;
     }

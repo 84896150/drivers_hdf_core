@@ -272,7 +272,6 @@ bool HdmiScdcSinkSupport(struct HdmiScdc *scdc)
 {
     uint8_t srcVer;
     uint8_t i;
-    int32_t ret;
 
     if (scdc == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -280,7 +279,7 @@ bool HdmiScdcSinkSupport(struct HdmiScdc *scdc)
 
     for (i = 0; i < HDMI_SCDC_READ_SOURCE_VERSION_TIMES; i++) {
         srcVer = HDMI_SCDC_HDMI20_VERSION;
-        ret = HdmiScdcWriteSourceVersion(scdc, &srcVer);
+        int32_t ret = HdmiScdcWriteSourceVersion(scdc, &srcVer);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("scdc write source version fail");
             return false;

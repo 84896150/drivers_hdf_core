@@ -142,7 +142,6 @@ void GpioCntlrIrqCallback(struct GpioCntlr *cntlr, uint16_t local)
 
 static int32_t GpioCntlrIrqThreadHandler(void *data)
 {
-    int32_t ret;
     uint32_t irqSave;
     struct GpioIrqRecord *irqRecord = (struct GpioIrqRecord *)data;
 
@@ -151,7 +150,7 @@ static int32_t GpioCntlrIrqThreadHandler(void *data)
         return HDF_FAILURE;
     }
     while (true) {
-        ret = OsalSemWait(&irqRecord->sem, HDF_WAIT_FOREVER);
+        int32_t ret = OsalSemWait(&irqRecord->sem, HDF_WAIT_FOREVER);
         if (irqRecord->removed) {
             break;
         }
@@ -205,7 +204,6 @@ static int32_t GpioCntlrSetIrqInner(struct GpioInfo *ginfo, struct GpioIrqRecord
 static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIrqFunc func, void *arg,
     struct GpioIrqRecord **new)
 {
-    int32_t ret;
     struct GpioIrqRecord *irqRecord = NULL;
     struct OsalThreadParam cfg;
 
@@ -221,7 +219,7 @@ static int32_t GpioIrqRecordCreate(struct GpioInfo *ginfo, uint16_t mode, GpioIr
     irqRecord->irqData = arg;
     irqRecord->global = GpioInfoToGlobal(ginfo);
     if (irqRecord->btmFunc != NULL) {
-        ret = OsalThreadCreate(&irqRecord->thread, GpioCntlrIrqThreadHandler, irqRecord);
+        int32_t ret = OsalThreadCreate(&irqRecord->thread, GpioCntlrIrqThreadHandler, irqRecord);
         if (ret != HDF_SUCCESS) {
             OsalMemFree(irqRecord);
             HDF_LOGE("GpioIrqRecordCreate: fail to create irq thread, ret: %d!", ret);

@@ -15,7 +15,7 @@ constexpr int32_t BUS_NUM = 6;
 constexpr uint16_t BUF_LEN = 7;
 }
 
-struct AllParameters {
+struct I2cAllParameters {
     uint16_t addr;
     uint16_t flags;
     uint8_t buf[BUF_LEN];
@@ -25,7 +25,7 @@ namespace OHOS {
 static bool I2cFuzzTest(const uint8_t *data, size_t size)
 {
     DevHandle handle = nullptr;
-    const struct AllParameters *params = reinterpret_cast<const struct AllParameters *>(data);
+    const struct I2cAllParameters *params = reinterpret_cast<const struct I2cAllParameters *>(data);
     struct I2cMsg msg;
 
     handle = I2cOpen(BUS_NUM);
@@ -64,7 +64,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
         return 0;
     }
 
-    if (size < sizeof(struct AllParameters)) {
+    if (size < sizeof(struct I2cAllParameters)) {
         HDF_LOGE("LLVMFuzzerTestOneInput: i2c fuzz test size is small!");
         return 0;
     }

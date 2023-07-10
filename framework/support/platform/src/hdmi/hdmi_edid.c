@@ -84,7 +84,6 @@ static int32_t HdmiEdidVendorInfoPhase(struct HdmiEdid *edid)
 {
     uint16_t data;
     uint16_t i;
-    uint16_t tmpData;
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     struct HdmiEdidFirstBlockInfo *block = (struct HdmiEdidFirstBlockInfo *)edid->raw;
 
@@ -93,7 +92,8 @@ static int32_t HdmiEdidVendorInfoPhase(struct HdmiEdid *edid)
             HDMI_EDID_MANUFACRURER_NAME_SHIFT) |
             (block->vendorName[UINT8_ARRAY_TELEMENT_1]);
     for (i = 0; i < HDMI_EDID_MANUFACRURER_NAME_MAX_LEN - 1; i++) {
-        tmpData = (data & (HDMI_EDID_MANUFACRURER_NAME_CHAR_MARK << (HDMI_EDID_MANUFACRURER_NAME_CHAR_SHIFT * i)));
+        uint16_t tmpData = (data & (HDMI_EDID_MANUFACRURER_NAME_CHAR_MARK <<
+            (HDMI_EDID_MANUFACRURER_NAME_CHAR_SHIFT * i)));
         tmpData = (tmpData >> (HDMI_EDID_MANUFACRURER_NAME_CHAR_SHIFT * i));
         if (tmpData > HDMI_EDID_MANUFACRURER_NAME_LOW_INVALID &&
             tmpData < HDMI_EDID_MANUFACRURER_NAME_HIGH_INVALID) {
@@ -510,7 +510,6 @@ static void HdmiEdidExtAdbDepthAndMaxRatePhase(struct HdmiEdidAudioInfo *audio, 
 static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *sinkCap, uint8_t *data, uint8_t len)
 {
     uint8_t i;
-    uint8_t formatCode;
 
     /*
      * Each Short Audio Descriptor is 3-bytes long. There can be up to 31 bytes following any tag,
@@ -528,7 +527,7 @@ static int32_t HdmiEdidExtAudioDataBlockPhase(struct HdmiSinkDeviceCapability *s
         }
         data += (i * HDMI_EDID_EXTENSION_SHORT_AUDIO_DESCRIPTOR_LEN);
         /* byte0: bit[6:3] Audio Format Code; bit[2:0] Max Number of channels - 1 */
-        formatCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_AUDIO_FORMAT_CODE_MARK) >>
+        uint8_t formatCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_AUDIO_FORMAT_CODE_MARK) >>
             HDMI_EDID_EXTENSION_AUDIO_FORMAT_CODE_SHIFT;
         sinkCap->audioInfo[sinkCap->audioInfoCnt].formatCode = (enum HdmiAudioCodingType)formatCode;
         sinkCap->audioInfo[sinkCap->audioInfoCnt].channels =
@@ -550,8 +549,6 @@ static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *s
     uint8_t len)
 {
     uint8_t i;
-    uint32_t vicAll;
-    uint32_t vicLower;
     uint32_t implicitNative = 0;
 
     for (i = 0; i < len; i++) {
@@ -559,8 +556,8 @@ static int32_t HdmiEdidExtVideoDataBlockPhase(struct HdmiSinkDeviceCapability *s
             HDF_LOGD("VDB: vicNum reach the maximum");
             break;
         }
-        vicAll = data[i];
-        vicLower = (vicAll & HDMI_EDID_EXTENSION_VIC_LOWER7_MARK);
+        uint32_t vicAll = data[i];
+        uint32_t vicLower = (vicAll & HDMI_EDID_EXTENSION_VIC_LOWER7_MARK);
         if (vicAll == 0) {
             continue;
         }
@@ -952,14 +949,13 @@ static void HdmiEdidExtUseExtDataBlockY420VdbPhase(struct HdmiSinkDeviceCapabili
     const uint8_t *data, uint8_t len)
 {
     uint8_t i;
-    uint32_t vic;
 
     for (i = 1; i < len; i++) {
         if (sinkCap->y420Cap.onlySupportY420VicNum >= HDMI_EDID_EXTENSION_MAX_VIC_COUNT) {
             HDF_LOGD("Y420Vdb: vic num reach to max.");
             break;
         }
-        vic = data[i];
+        uint32_t vic = data[i];
         if (vic == 0 ||
             (vic >= HDMI_EDID_EXTENSION_VIC_INVALID_LOW && vic <= HDMI_EDID_EXTENSION_VIC_INVALID_HIGH)) {
             continue;
@@ -1199,19 +1195,17 @@ static void HdmiEdidExtSeveralDataBlockPhase(struct HdmiEdid *edid, uint8_t bloc
     struct HdmiSinkDeviceCapability *sinkCap = &(edid->sinkCap);
     uint8_t blkOffset = HDMI_EDID_EXTENSION_BLOCK_OFFSET;
     uint8_t dtdOffset = data[UINT8_ARRAY_TELEMENT_2];
-    uint8_t dbTagCode;
     uint8_t blkLen;
-    int32_t ret;
 
     data += blkOffset;
     /* phase data block */
     for (blkLen = 0; (blkOffset < dtdOffset) && (data != NULL); blkOffset += (blkLen + 1)) {
         data += blkLen;
         blkLen = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_DATA_BLOCK_LEN_MARK);
-        dbTagCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_DATA_BLOCK_TAG_CODE_MARK) >>
+        uint8_t dbTagCode = (data[UINT8_ARRAY_TELEMENT_0] & HDMI_EDID_EXTENSION_DATA_BLOCK_TAG_CODE_MARK) >>
             HDMI_EDID_EXTENSION_DATA_BLOCK_TAG_CODE_SHIFT;
         data++;
-        ret = HdmiEdidExtDataBlockPhase(sinkCap, data, blkLen, dbTagCode);
+        int32_t ret = HdmiEdidExtDataBlockPhase(sinkCap, data, blkLen, dbTagCode);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("data block %hhu phase fail", dbTagCode);
             return;

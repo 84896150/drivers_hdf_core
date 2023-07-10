@@ -114,7 +114,6 @@ static int32_t VirtualPinGetStrength(struct PinCntlr *cntlr, uint32_t index, uin
 
 static int32_t VirtualPinSetFunc(struct PinCntlr *cntlr, uint32_t index, const char *funcName)
 {
-    int ret;
     uint32_t funcNum;
     struct VirtualPinCntlr *virtual = NULL;
 
@@ -131,7 +130,7 @@ static int32_t VirtualPinSetFunc(struct PinCntlr *cntlr, uint32_t index, const c
     virtual = (struct VirtualPinCntlr *)cntlr;
 
     for (funcNum = 0; funcNum < VIRTUAL_PIN_FUNC_MAX; funcNum++) {
-        ret = strcmp(funcName, virtual->desc[index].func[funcNum]);
+        int ret = strcmp(funcName, virtual->desc[index].func[funcNum]);
         if (ret == 0) {
             virtual->desc[index].curFunc = virtual->desc[index].func[funcNum];
             return HDF_SUCCESS;

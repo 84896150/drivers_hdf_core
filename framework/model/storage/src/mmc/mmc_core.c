@@ -129,7 +129,6 @@ static int32_t MmcCntlrUnplug(struct MmcCntlr *cntlr)
 static int32_t MmcCntlrSdioRescanHandle(struct MmcCntlr *cntlr)
 {
     uint8_t val;
-    int32_t error;
 
     if (cntlr == NULL) {
         HDF_LOGE("MmcCntlrSdioRescanHandle: cntlr is null.");
@@ -138,7 +137,7 @@ static int32_t MmcCntlrSdioRescanHandle(struct MmcCntlr *cntlr)
 
     if (cntlr->curDev != NULL && cntlr->curDev->state.bits.present > 0) {
         if (cntlr->curDev->type == MMC_DEV_SDIO || cntlr->curDev->type == MMC_DEV_COMBO) {
-            error = SdioReadCccrIoEnable(cntlr, &val);
+            int32_t error = SdioReadCccrIoEnable(cntlr, &val);
             if (error != HDF_SUCCESS) {
                 HDF_LOGD("re-detect sdio.");
                 MmcCntlrPlug(cntlr);
@@ -843,7 +842,6 @@ static void SdioHandlePendingIrq(struct MmcCntlr *cntlr, struct SdioDevice *dev)
 
 static int32_t SdioIrqThreadWorker(void *data)
 {
-    int32_t ret;
     struct SdioDevice *dev = (struct SdioDevice *)data;
     struct MmcCntlr *cntlr = NULL;
 
@@ -860,7 +858,7 @@ static int32_t SdioIrqThreadWorker(void *data)
 
     while (true) {
         /* wait envent */
-        ret = OsalSemWait(&dev->sem, HDF_WAIT_FOREVER);
+        int32_t ret = OsalSemWait(&dev->sem, HDF_WAIT_FOREVER);
         if (ret != HDF_SUCCESS) {
             continue;
         }
@@ -1307,7 +1305,6 @@ ssize_t MmcDeviceErase(struct MmcDevice *mmc, size_t startSec, size_t nSec)
     size_t curSec = nSec;
     size_t curStartSec = startSec;
     size_t eraseSec;
-    ssize_t ret;
 
     if (mmc == NULL) {
         HDF_LOGE("MmcDeviceErase: mmc is null!");
@@ -1320,7 +1317,7 @@ ssize_t MmcDeviceErase(struct MmcDevice *mmc, size_t startSec, size_t nSec)
         } else {
             eraseSec = curSec;
         }
-        ret = MmcSendErase(mmc->cntlr, curStartSec, eraseSec);
+        ssize_t ret = MmcSendErase(mmc->cntlr, curStartSec, eraseSec);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("MmcDeviceErase: fail!");
             return ret;

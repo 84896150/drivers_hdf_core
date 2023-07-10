@@ -368,7 +368,6 @@ static int32_t VirtualI3cParseAndInit(struct HdfDeviceObject *device, const stru
 
 static int32_t VirtualI3cInit(struct HdfDeviceObject *device)
 {
-    int32_t ret;
     const struct DeviceResourceNode *childNode = NULL;
 
     HDF_LOGD("VirtualI3cInit: enter!");
@@ -378,7 +377,7 @@ static int32_t VirtualI3cInit(struct HdfDeviceObject *device)
     }
 
     DEV_RES_NODE_FOR_EACH_CHILD_NODE(device->property, childNode) {
-        ret = VirtualI3cParseAndInit(device, childNode);
+        int32_t ret = VirtualI3cParseAndInit(device, childNode);
         if (ret != HDF_SUCCESS) {
             break;
         }

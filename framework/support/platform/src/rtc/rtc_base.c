@@ -14,7 +14,6 @@
 uint8_t RtcGetMonthDays(const uint8_t isLeapYear, const uint8_t month)
 {
     uint8_t days;
-    uint8_t oddMonth;
 
     if (IS_INVALID_MONTH(month) || (isLeapYear > RTC_TRUE)) {
         return 0;
@@ -23,7 +22,7 @@ uint8_t RtcGetMonthDays(const uint8_t isLeapYear, const uint8_t month)
     if (month == RTC_FEBRUARY) {
         days = RTC_TWO_MONTH_DAY + isLeapYear;
     } else {
-        oddMonth = (month >= RTC_AUGUST) ? (month - RTC_UNIT_DIFF) : month;
+        uint8_t oddMonth = (month >= RTC_AUGUST) ? (month - RTC_UNIT_DIFF) : month;
         days = (oddMonth & RTC_ODD_MONTH_MASK) ? RTC_GREAT_MONTH_DAY : RTC_SMALL_MONTH_DAY;
     }
     return days;

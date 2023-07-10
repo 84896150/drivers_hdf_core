@@ -653,7 +653,6 @@ static void HdmiFill14Vsif(struct HdmiVsInfoFrame *vs, const struct HdmiVideoAtt
     struct HdmiVideo4kInfo *info = NULL;
     struct HdmiVs14VsifContent *vsif = &(vs->vsifContent.vsif);
     enum HdmiVic vic;
-    uint32_t cnt;
 
     vsif->oui = HDMI_IEEE_OUI_1_4;
     vic = HdmiCommonGetVic(videoAttr->timing, videoAttr->aspect, false);
@@ -661,7 +660,7 @@ static void HdmiFill14Vsif(struct HdmiVsInfoFrame *vs, const struct HdmiVideoAtt
         vic == HDMI_VIC_3840X2160P30_16_9 || vic == HDMI_VIC_4096X2160P24_256_135) &&
         videoAttr->_3dStruct == HDMI_VS_VIDEO_3D_BUTT) {
         vsif->format = HDMI_VS_VIDEO_FORMAT_4K;
-        for (cnt = 0; cnt <= HDMI_VIDEO_4K_CODES_MAX; cnt++) {
+        for (uint32_t cnt = 0; cnt <= HDMI_VIDEO_4K_CODES_MAX; cnt++) {
             info = HdmiCommonGetVideo4kInfo(cnt);
             if (info != NULL && info->timing == videoAttr->timing) {
                 vsif->vic = info->_4kVic;
