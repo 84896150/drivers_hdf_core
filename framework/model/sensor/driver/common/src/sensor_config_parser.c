@@ -145,7 +145,7 @@ int32_t ParseSensorRegGroup(struct DeviceResourceIface *parser, const struct Dev
     }
 
     if (ParseSensorRegItem(parser, regCfgNode, groupName, group) != HDF_SUCCESS) {
-        OsalMemFree(group->regCfgItem);        
+        OsalMemFree(group->regCfgItem);
         OsalMemFree(group);
         HDF_LOGE("%s: malloc sensor reg config item data failed", __func__);
         return HDF_FAILURE;
