@@ -59,15 +59,15 @@ static int32_t ChipDetect(ChipDevice *device)
 #if defined(CONFIG_ARCH_ROCKCHIP)
     HDF_LOGI("%s:IC FW version is %d", __func__, version);
     switch (version) {
-       case GT5688_FIRMWARE_VERSION:
-           HDF_LOGI("%s:TOUCH IC is GT5688", __func__);
-           break;
-       case GT911_FIRMWARE_VERSION:
-           HDF_LOGI("%s:TOUCH IC is GT911", __func__);
-           break;
-       default:
-           HDF_LOGE("%s: ID wrong,IC FW version is %d", __func__, version);
-           return HDF_FAILURE;
+        case GT5688_FIRMWARE_VERSION:
+            HDF_LOGI("%s:TOUCH IC is GT5688", __func__);
+            break;
+        case GT911_FIRMWARE_VERSION:
+            HDF_LOGI("%s:TOUCH IC is GT911", __func__);
+            break;
+        default:
+            HDF_LOGE("%s: ID wrong,IC FW version is %d", __func__, version);
+            return HDF_FAILURE;
     }
 #endif
     if (buf[GT_FW_VER_HIGH] == 0x0) {
