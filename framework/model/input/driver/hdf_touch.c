@@ -237,7 +237,7 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 }
 #endif
 
-static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
+static int32_t SetTiming(ChipDevice *chipDev, bool enable)
 {
 #if defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
@@ -267,8 +267,8 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
     HDF_LOGD("%s: rstPinAddr = 0x%x, rstPinValue = 0x%x, intPinAddr = 0x%x, intPinValue = 0x%x",
         __func__, rstPinAddr, rstPinValue, intPinAddr, intPinValue);
 
-    HDF_LOGE("%s: enableRst = %d", __func__, enableRst);
-    if (enableRst) {
+    HDF_LOGE("%s: enable = %d", __func__, enable);
+    if (enable) {
         ret = memcpy_s(&pwrOnTiming, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOn, sizeof(SeqArray));
         if (ret != EOK) {
             HDF_LOGE("%s: memcpy_s failed", __func__);
@@ -402,9 +402,9 @@ static void ChipReset(ChipDevice *chipDev)
         return;
     }
     if (!SuspendFlag) {
-        (void)SetPowerOnTiming(chipDev, true);
+        (void)SetTiming(chipDev, true);
     } else {
-        (void)SetPowerOnTiming(chipDev, false);
+        (void)SetTiming(chipDev, false);
     }
 }
 
@@ -589,7 +589,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
     ret = Gt1xRequestIo(chipDev);
     CHECK_RETURN_VALUE(ret);
 #endif
-    ret = SetPowerOnTiming(chipDev, false);
+    ret = SetTiming(chipDev, false);
     CHECK_RETURN_VALUE(ret);
 
     if ((chipDev->ops == NULL) || (chipDev->ops->Detect == NULL)) {
