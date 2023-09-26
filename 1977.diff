@@ -1,0 +1,185 @@
+diff --git a/framework/model/input/driver/hdf_touch.c b/framework/model/input/driver/hdf_touch.c
+index 8838ad5c3e53b07b495c36043db3d51d178bb299..5b5fad444a0829bf9b0edc1b2c2ccb9a2c2c187d 100644
+--- a/framework/model/input/driver/hdf_touch.c
++++ b/framework/model/input/driver/hdf_touch.c
+@@ -41,6 +41,7 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
+ 
+ static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
+ static void InputFrameReport(TouchDriver *driver);
++static int SuspendFlag = 0;
+ 
+ static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
+ {
+@@ -236,7 +237,7 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
+ }
+ #endif
+ 
+-static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
++static int32_t SetTiming(ChipDevice *chipDev, bool enable)
+ {
+ #if defined(CONFIG_ARCH_MESON)
+     return HDF_SUCCESS;
+@@ -248,6 +249,7 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
+     uint32_t intPinAddr;
+     uint32_t intPinValue;
+     SeqArray pwrOnTiming = {0};
++    SeqArray pwroffTiming = {0};
+     TouchDriver *driver = chipDev->driver;
+ 
+     rstPinAddr = driver->boardCfg->pins.rstPinReg[0];
+@@ -265,26 +267,39 @@ static int32_t SetPowerOnTiming(ChipDevice *chipDev, bool enableRst)
+     HDF_LOGD("%s: rstPinAddr = 0x%x, rstPinValue = 0x%x, intPinAddr = 0x%x, intPinValue = 0x%x",
+         __func__, rstPinAddr, rstPinValue, intPinAddr, intPinValue);
+ 
+-    ret = memcpy_s(&pwrOnTiming, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOn, sizeof(SeqArray));
+-    if (ret != EOK) {
+-        HDF_LOGE("%s: memcpy_s failed", __func__);
+-        return HDF_FAILURE;
+-    }
+-
+-    if ((pwrOnTiming.buf == NULL) || (pwrOnTiming.count == 0)) {
+-        HDF_LOGE("%s: pwrOnTiming config is invalid", __func__);
+-        return HDF_FAILURE;
+-    }
+-
+-    for (i = 0; i < pwrOnTiming.count / PWR_CELL_LEN; i++) {
+-        if (enableRst) {
++    HDF_LOGE("%s: enable = %d", __func__, enable);
++    if (enable) {
++        ret = memcpy_s(&pwrOnTiming, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOn, sizeof(SeqArray));
++        if (ret != EOK) {
++            HDF_LOGE("%s: memcpy_s failed", __func__);
++            return HDF_FAILURE;
++        }
++        if ((pwrOnTiming.buf == NULL) || (pwrOnTiming.count == 0)) {
++            HDF_LOGE("%s: pwrOnTiming config is invalid", __func__);
++            return HDF_FAILURE;
++        }
++        for (i = 0; i < pwrOnTiming.count / PWR_CELL_LEN; i++) {
+             ret = HandleResetEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
+-        } else {
+-            ret = HandlePowerEvent(chipDev, pwrOnTiming.buf, PWR_CELL_LEN);
++            CHECK_RETURN_VALUE(ret);
++            pwrOnTiming.buf = pwrOnTiming.buf + PWR_CELL_LEN;
++        }
++    } else {
++        ret = memcpy_s(&pwroffTiming, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOff, sizeof(SeqArray));
++        if (ret != EOK) {
++            HDF_LOGE("%s: memcpy_s failed", __func__);
++            return HDF_FAILURE;
++        }
++        if ((pwroffTiming.buf == NULL) || (pwroffTiming.count == 0)) {
++            HDF_LOGE("%s: pwroffTiming config is invalid", __func__);
++            return HDF_FAILURE;
++        }
++        for (i = 0; i < pwroffTiming.count / PWR_CELL_LEN; i++) {
++            ret = HandlePowerEvent(chipDev, pwroffTiming.buf, PWR_CELL_LEN);
++            CHECK_RETURN_VALUE(ret);
++            pwroffTiming.buf = pwroffTiming.buf + PWR_CELL_LEN;
+         }
+-        CHECK_RETURN_VALUE(ret);
+-        pwrOnTiming.buf = pwrOnTiming.buf + PWR_CELL_LEN;
+     }
++
+ #if defined(CONFIG_ARCH_ROCKCHIP)
+     ret = SetResetStatus(driver);
+     if (ret != HDF_SUCCESS) {
+@@ -386,7 +401,11 @@ static void ChipReset(ChipDevice *chipDev)
+         HDF_LOGE("%s: invalid param", __func__);
+         return;
+     }
+-    (void)SetPowerOnTiming(chipDev, true);
++    if (!SuspendFlag) {
++        (void)SetTiming(chipDev, true);
++    } else {
++        (void)SetTiming(chipDev, false);
++    }
+ }
+ 
+ #if GTP_ESD_PROTECT
+@@ -564,11 +583,13 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
+     int32_t count = 20;  // 20: reset time
+     int32_t ret;
+ #if defined(CONFIG_ARCH_ROCKCHIP)
++#if GTP_ESD_PROTECT
+     g_touchDriver = chipDev->driver;
++#endif
+     ret = Gt1xRequestIo(chipDev);
+     CHECK_RETURN_VALUE(ret);
+ #endif
+-    ret = SetPowerOnTiming(chipDev, false);
++    ret = SetTiming(chipDev, false);
+     CHECK_RETURN_VALUE(ret);
+ 
+     if ((chipDev->ops == NULL) || (chipDev->ops->Detect == NULL)) {
+@@ -1053,7 +1074,10 @@ static int HdfTouchDriverDozeResume(struct HdfDeviceObject *device)
+         return HDF_ERR_INVALID_PARAM;
+     }
+     HDF_LOGI("%s:called", __func__);
+-
++#if GTP_ESD_PROTECT
++    Gt1xEsdSwitch(1);
++#endif
++    SuspendFlag = 0;
+     static int32_t isFirstResume = 1;
+     if (isFirstResume == 1) {
+         isFirstResume = 0;
+@@ -1072,7 +1096,10 @@ static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
+         return HDF_ERR_INVALID_PARAM;
+     }
+     HDF_LOGI("%s:called", __func__);
+-
++#if GTP_ESD_PROTECT
++    Gt1xDeinitEsdProtect();
++#endif
++    SuspendFlag = 1;
+     int32_t ret = -1;
+     uint8_t writeBuf[3]; // 3: buffer size
+     uint16_t intGpioNum;
+@@ -1208,4 +1235,4 @@ struct HdfDriverEntry g_hdfTouchEntry = {
+     .Release = HdfTouchDriverRelease,
+ };
+ 
+-HDF_INIT(g_hdfTouchEntry);
+\ No newline at end of file
++HDF_INIT(g_hdfTouchEntry);
+diff --git a/framework/model/input/driver/touchscreen/touch_gt911.c b/framework/model/input/driver/touchscreen/touch_gt911.c
+index f7b8d94326f6bd75d099225387eb4b83eec53c25..0e60cfe85a99841e7a6b823fd7154c94507b9f25 100644
+--- a/framework/model/input/driver/touchscreen/touch_gt911.c
++++ b/framework/model/input/driver/touchscreen/touch_gt911.c
+@@ -15,6 +15,10 @@
+ #include "touch_gt911.h"
+ 
+ #define MAX_POINT 5
++#if defined(CONFIG_ARCH_ROCKCHIP)
++#define GT5688_FIRMWARE_VERSION    256
++#define GT911_FIRMWARE_VERSION     4192
++#endif
+ #define COMPENSATION_VALUE_Y 32
+ #define UNCONTROLLABLE_VALUE_Y 10
+ 
+@@ -55,13 +59,19 @@ static int32_t ChipDetect(ChipDevice *device)
+     xSolution = (buf[GT_SOLU_X_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_X_LOW];
+     ySolution = (buf[GT_SOLU_Y_HIGH] << ONE_BYTE_OFFSET) | buf[GT_SOLU_Y_LOW];
+ #if defined(CONFIG_ARCH_ROCKCHIP)
+-    if (buf[GT_PROD_ID_1ST] != '5' || buf[GT_PROD_ID_2ND] != '6' || \
+-        buf[GT_PROD_ID_3RD] != '8' || buf[GT_PROD_ID_4TH] != '8') {
+-        HDF_LOGE("%s: ID wrong,IC FW version is 0x%x", __func__, version);
+-        return HDF_FAILURE;
++    HDF_LOGI("%s:IC FW version is %d", __func__, version);
++    switch (version) {
++        case GT5688_FIRMWARE_VERSION:
++            HDF_LOGI("%s:TOUCH IC is GT5688", __func__);
++            break;
++        case GT911_FIRMWARE_VERSION:
++            HDF_LOGI("%s:TOUCH IC is GT911", __func__);
++            break;
++        default:
++            HDF_LOGE("%s: ID wrong,IC FW version is %d", __func__, version);
++            return HDF_FAILURE;
+     }
+ #endif
+-    HDF_LOGI("%s: IC FW version is 0x%x", __func__, version);
+     if (buf[GT_FW_VER_HIGH] == 0x0) {
+         HDF_LOGI("Product ID : %c%c%c_%02x%02x, xSol = %d, ySol = %d", buf[GT_PROD_ID_1ST], buf[GT_PROD_ID_2ND],
+             buf[GT_PROD_ID_3RD], buf[GT_FW_VER_HIGH], buf[GT_FW_VER_LOW], xSolution, ySolution);
