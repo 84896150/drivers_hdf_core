@@ -239,10 +239,22 @@ private:
 
     void ModifyInterfaceNamespace(AutoPtr<ASTNamespace> &ns);
 
+    inline void SetIdentifiedVersion(const bool &isIdentifiedVersion)
+    {
+        g_isIdentifiedVersion_ = isIdentifiedVersion;
+    }
+
+    inline bool GetIdentifiedVersion()
+    {
+        return g_isIdentifiedVersion_;
+    }
+
     Lexer lexer_;
     std::vector<std::string> errors_;
     AutoPtr<AST> ast_;
     StrAstMap allAsts_;
+
+    bool g_isIdentifiedVersion_;
 };
 } // namespace HDI
 } // namespace OHOS

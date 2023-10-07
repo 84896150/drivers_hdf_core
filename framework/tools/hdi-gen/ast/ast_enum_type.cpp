@@ -76,7 +76,7 @@ std::string ASTEnumType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTEnumType::EmitCppType(TypeMode mode) const
+std::string ASTEnumType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

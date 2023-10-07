@@ -38,7 +38,7 @@ TypeKind ASTSmqType::GetTypeKind()
     return TypeKind::TYPE_SMQ;
 }
 
-std::string ASTSmqType::EmitCppType(TypeMode mode) const
+std::string ASTSmqType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
@@ -141,7 +141,7 @@ TypeKind ASTAshmemType::GetTypeKind()
     return TypeKind::TYPE_ASHMEM;
 }
 
-std::string ASTAshmemType::EmitCppType(TypeMode mode) const
+std::string ASTAshmemType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

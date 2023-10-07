@@ -29,10 +29,10 @@ public:
         return name_;
     }
 
-    inline void SetAttribute(AutoPtr<ASTAttr> attr)
+    inline void SetAttribute(const AutoPtr<ASTAttr> &attr)
     {
-        if (attr_ != nullptr && attr != nullptr) {
-            attr_->SetValue(attr->GetValue());
+        if (attr != nullptr) {
+            attr_ = attr;
         }
     }
 

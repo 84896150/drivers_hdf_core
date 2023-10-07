@@ -25,7 +25,7 @@ public:
 
     std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE, const bool &isIdentifiedVersion = false) const;
 
     // the 'Pointer' type only support use in 'passthrough' mode
 };

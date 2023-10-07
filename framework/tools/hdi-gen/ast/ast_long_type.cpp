@@ -41,7 +41,7 @@ std::string ASTLongType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTLongType::EmitCppType(TypeMode mode) const
+std::string ASTLongType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

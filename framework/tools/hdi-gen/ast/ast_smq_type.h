@@ -30,7 +30,7 @@ public:
 
     TypeKind GetTypeKind() override;
 
-    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE, const bool &isIdentifiedVersion = false) const;
 
     void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, unsigned int innerLevel = 0) const override;
@@ -58,7 +58,7 @@ public:
 
     TypeKind GetTypeKind() override;
 
-    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE, const bool &isIdentifiedVersion = false) const;
 
     void EmitCppWriteVar(const std::string &parcelName, const std::string &name, StringBuilder &sb,
         const std::string &prefix, unsigned int innerLevel = 0) const override;

@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "C/C++ Runner: Debug Session",
+      "type": "cppdbg",
+      "request": "launch",
+      "args": [],
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "cwd": "z:/ohos_master/drivers/hdf_core/framework/tools/hdi-gen",
+      "program": "z:/ohos_master/drivers/hdf_core/framework/tools/hdi-gen/build/Debug/outDebug",
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:/mingw-w64-gdb-12.2-stable-r38/bin/gcc.exe",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

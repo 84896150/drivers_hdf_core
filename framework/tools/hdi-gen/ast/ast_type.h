@@ -143,7 +143,7 @@ public:
 
     virtual std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const;
 
-    virtual std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const;
+    virtual std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE, const bool &isIdentifiedVersion = false) const;
 
     virtual std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const;
 

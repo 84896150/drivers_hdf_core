@@ -116,7 +116,7 @@ public:
 
     std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE, const bool &isIdentifiedVersion = false) const;
 
     std::string EmitJavaType(TypeMode mode, bool isInnerType = false) const override;
 

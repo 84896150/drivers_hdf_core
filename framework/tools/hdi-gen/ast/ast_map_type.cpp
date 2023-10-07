@@ -56,7 +56,7 @@ std::string ASTMapType::EmitCType(TypeMode mode) const
     return "/";
 }
 
-std::string ASTMapType::EmitCppType(TypeMode mode) const
+std::string ASTMapType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

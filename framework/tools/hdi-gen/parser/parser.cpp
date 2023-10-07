@@ -20,6 +20,7 @@
 #include "ast/ast_union_type.h"
 #include "util/logger.h"
 #include "util/string_builder.h"
+#include "util/string_helper.h"
 
 #define RE_BIN_DIGIT "0[b][0|1]+"      // binary digit
 #define RE_OCT_DIGIT "0[0-7]+"         // octal digit
@@ -684,6 +685,7 @@ void Parser::ParseMethodParamList(const AutoPtr<ASTMethod> &method)
 AutoPtr<ASTParameter> Parser::ParseParam()
 {
     AutoPtr<ASTParamAttr> paramAttr = ParseParamAttr();
+    SetIdentifiedVersion(false);
     AutoPtr<ASTType> paramType = ParseType();
     std::string paramName = "";
 
@@ -709,7 +711,7 @@ AutoPtr<ASTParameter> Parser::ParseParam()
         }
     }
 
-    return new ASTParameter(paramName, paramAttr, paramType);
+    return new ASTParameter(paramName, paramAttr, paramType, GetIdentifiedVersion());
 }
 
 AutoPtr<ASTParamAttr> Parser::ParseParamAttr()
@@ -977,6 +979,9 @@ AutoPtr<ASTType> Parser::ParseUserDefType()
         LogError(token, StringHelper::Format("expected identifier before '%s' token", token.value.c_str()));
         return nullptr;
     } else {
+        if (StringHelper::GetVersionName(token.value) != StringHelper::STRING_HELPER_NULL_STRING) {
+            SetIdentifiedVersion(true);
+        }
         lexer_.GetToken();
     }
 

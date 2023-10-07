@@ -25,7 +25,7 @@ public:
 
     std::string EmitCType(TypeMode mode = TypeMode::NO_MODE) const override;
 
-    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE) const override;
+    std::string EmitCppType(TypeMode mode = TypeMode::NO_MODE, const bool &isIdentifiedVersion = false) const;
 
     void EmitCWriteVar(const std::string &parcelName, const std::string &name, const std::string &ecName,
         const std::string &gotoLabel, StringBuilder &sb, const std::string &prefix) const override;

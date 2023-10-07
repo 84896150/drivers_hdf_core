@@ -58,7 +58,7 @@ std::string ASTArrayType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTArrayType::EmitCppType(TypeMode mode) const
+std::string ASTArrayType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
