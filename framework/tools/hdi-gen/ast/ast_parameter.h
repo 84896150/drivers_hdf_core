@@ -28,6 +28,12 @@ public:
     {
     }
 
+    ASTParameter(const std::string &name, const AutoPtr<ASTParamAttr> &attribute, const AutoPtr<ASTType> &type,
+    const bool &isIdentifiedVersion)
+        : ASTNode(), name_(name), attr_(attribute), type_(type), isIdentifiedVersion_(isIdentifiedVersion)
+    {
+    }
+
     inline std::string GetName()
     {
         return name_;
@@ -75,6 +81,7 @@ private:
     std::string name_;
     AutoPtr<ASTParamAttr> attr_;
     AutoPtr<ASTType> type_;
+    bool isIdentifiedVersion_;
 };
 } // namespace HDI
 } // namespace OHOS

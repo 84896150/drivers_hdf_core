@@ -41,7 +41,7 @@ std::string ASTPointerType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTPointerType::EmitCppType(TypeMode mode) const
+std::string ASTPointerType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

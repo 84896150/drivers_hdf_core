@@ -66,15 +66,15 @@ std::string ASTStructType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTStructType::EmitCppType(TypeMode mode) const
+std::string ASTStructType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
             return StringHelper::Format("%s", name_.c_str());
         case TypeMode::PARAM_IN:
-            return StringHelper::Format("const %s&", name_.c_str());
+            return StringHelper::Format("const %s&", isIdentifiedVersion ? GetNameWithNamespace(namespace_, name_).c_str() : name_.c_str());
         case TypeMode::PARAM_OUT:
-            return StringHelper::Format("%s&", name_.c_str());
+            return StringHelper::Format("%s&", isIdentifiedVersion ? GetNameWithNamespace(namespace_, name_).c_str() : name_.c_str());
         case TypeMode::LOCAL_VAR:
             return StringHelper::Format("%s", name_.c_str());
         default:

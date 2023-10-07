@@ -41,7 +41,7 @@ std::string ASTIntegerType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTIntegerType::EmitCppType(TypeMode mode) const
+std::string ASTIntegerType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

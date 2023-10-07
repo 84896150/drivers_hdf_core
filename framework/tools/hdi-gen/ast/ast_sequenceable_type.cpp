@@ -54,7 +54,7 @@ std::string ASTSequenceableType::EmitCType(TypeMode mode) const
     return "/";
 }
 
-std::string ASTSequenceableType::EmitCppType(TypeMode mode) const
+std::string ASTSequenceableType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:

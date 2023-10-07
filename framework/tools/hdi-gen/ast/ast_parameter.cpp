@@ -87,9 +87,9 @@ std::string ASTParameter::EmitCParameter()
 std::string ASTParameter::EmitCppParameter()
 {
     if (attr_->value_ == ParamAttr::PARAM_IN) {
-        return StringHelper::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_IN).c_str(), name_.c_str());
+        return StringHelper::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_IN, isIdentifiedVersion_).c_str(), name_.c_str());
     } else {
-        return StringHelper::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_OUT).c_str(), name_.c_str());
+        return StringHelper::Format("%s %s", type_->EmitCppType(TypeMode::PARAM_OUT, isIdentifiedVersion_).c_str(), name_.c_str());
     }
 }
 

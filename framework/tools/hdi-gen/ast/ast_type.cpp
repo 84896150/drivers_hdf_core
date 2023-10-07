@@ -185,7 +185,7 @@ std::string ASTType::EmitCType(TypeMode mode) const
     return "unknow";
 }
 
-std::string ASTType::EmitCppType(TypeMode mode) const
+std::string ASTType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     return "unknow";
 }

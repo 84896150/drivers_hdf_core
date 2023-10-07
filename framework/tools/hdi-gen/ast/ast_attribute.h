@@ -34,11 +34,6 @@ public:
         value_ |= value;
     }
 
-    inline Attribute GetValue() const
-    {
-        return value_;
-    }
-
     bool HasValue(Attribute attr) const
     {
         return (value_ & attr) != 0;

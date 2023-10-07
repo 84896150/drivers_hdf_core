@@ -117,7 +117,7 @@ std::string ASTInterfaceType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTInterfaceType::EmitCppType(TypeMode mode) const
+std::string ASTInterfaceType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     std::string pointerName = "sptr";
     if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {

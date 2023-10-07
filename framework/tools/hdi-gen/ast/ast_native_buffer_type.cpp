@@ -41,7 +41,7 @@ std::string ASTNativeBufferType::EmitCType(TypeMode mode) const
     }
 }
 
-std::string ASTNativeBufferType::EmitCppType(TypeMode mode) const
+std::string ASTNativeBufferType::EmitCppType(TypeMode mode, const bool &isIdentifiedVersion) const
 {
     switch (mode) {
         case TypeMode::NO_MODE:
