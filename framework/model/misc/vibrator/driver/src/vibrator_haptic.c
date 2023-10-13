@@ -73,6 +73,7 @@ static int32_t ParserHapticEffect(struct DeviceResourceIface *parser, const stru
         }
 
         count = parser->GetElemNum(childNode, "seq");
+        HDF_LOGE("%s: parser seqlemNum = %d", __func__, count);
         if (count <= 1 || count > VIBRATOR_HAPTIC_SEQ_MAX) {
             HDF_LOGE("%s: haptic [%s] parser seq count fail", __func__, childNode->name);
             continue;
@@ -85,17 +86,20 @@ static int32_t ParserHapticEffect(struct DeviceResourceIface *parser, const stru
         }
         effectNode->num = count;
         ret = parser->GetString(childNode, "effectName", &effectNode->effect, NULL);
+        HDF_LOGE("%s: parser effectName = %s ", __func__, effectNode->effect);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: parser %s effectName failed", __func__, "effectName");
             goto EXIT;
         }
         ret = parser->GetUint32(childNode, "type", &effectNode->type, 0);
+        HDF_LOGE("%s: parser type = %d ", __func__, effectNode->type);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: parser %s type failed", __func__, "type");
             goto EXIT;
         }
 
         ret = parser->GetUint32Array(childNode, "seq", effectNode->seq, count, 0);
+        HDF_LOGE("%s: parser seq [1] = %d", __func__, effectNode->seq[1]);
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("%s: parser %s seq failed", __func__, "seq");
             goto EXIT;
@@ -276,6 +280,7 @@ static int32_t GetHapticSeqByEffect(struct VibratorEffectCfg *effectCfg)
             }
         }
         if ((hapticData->seqCount <= 1) || (hapticData->seqCount > VIBRATOR_MAX_HAPTIC_SEQ)) {
+            HDF_LOGE("%s: hapticData->seqCount = %d", __func__,hapticData->seqCount);
             HDF_LOGE("%s: not find effect type!", __func__);
             (void)OsalMutexUnlock(&hapticData->mutex);
             return HDF_ERR_INVALID_PARAM;
