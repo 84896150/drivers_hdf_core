@@ -165,15 +165,17 @@ static uint32_t ProcessHapticTime(struct VibratorHapticData *hapticData)
 {
     uint32_t duration;
     int32_t num = 2; // Determine whether the number is an even numner or an odd number.
-
+    HDF_LOGE("%s------", __func__);
     CHECK_VIBRATOR_NULL_PTR_RETURN_VALUE(hapticData, HDF_FAILURE);
     if ((hapticData->currentSeqIndex < 0) || (hapticData->currentSeqIndex >= hapticData->seqCount)) {
         return 0;
     }
-
+    HDF_LOGE("%s:num = %d", __func__, hapticData->currentSeqIndex);
     if (hapticData->currentSeqIndex % num == 0) {
+        HDF_LOGE("%s:StartVibrator", __func__);
         StartVibrator();
     } else {
+        HDF_LOGE("%s:StopVibrator", __func__);
         StopVibrator();
     }
 
