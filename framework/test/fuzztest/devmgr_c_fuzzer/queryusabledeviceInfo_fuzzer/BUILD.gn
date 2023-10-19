@@ -7,7 +7,7 @@
 import("//build/config/features.gni")
 import("//build/ohos.gni")
 import("//build/test.gni")
-module_output_path = "hdf_core/devmgr_c"
+module_output_path = "hdf_core/hdf_core/devmgr_c"
 
 hdf_framework_path = "./../../../../../framework"
 hdf_adapter_path = "./../../../../../adapter"
@@ -29,7 +29,7 @@ ohos_fuzztest("QueryUsableDeviceInfoFuzzTest") {
 
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
     "ipc:ipc_single",
   ]
 }

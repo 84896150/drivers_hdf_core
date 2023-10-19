@@ -14,6 +14,7 @@
  */
 
 const { X2DFast } = require('../graphics/X2DFast');
+const HEIGHT = 20;
 
 class XSelect {
   constructor(list, default_) {
@@ -49,12 +50,12 @@ class XSelect {
 
     this.pm2f_.fillRect(x, y, w, h, this.backgroundColor_);
     let name = '...';
-    if (this.default_.indexOf('\\') != -1) {
+    if (this.default_.indexOf('\\') !== -1) {
       let list = this.default_.split('\\');
       if (list.length > model) {
         for (let i = list.length - model; i < list.length; i++) {
           name += list[i];
-          if (i != list.length - 1) {
+          if (i !== list.length - 1) {
             name += '\\';
           }
         }
@@ -66,27 +67,21 @@ class XSelect {
     }
     this.pm2f_.drawText(name, 16, x, y, 1, 1, 0, -1, -1, this.nameColor_);
     if (this.open_) {
-      this.pm2f_.fillRect(
-        x,
-        y + h,
-        w,
-        20 * this.list_.length,
-        this.backgroundColor_
-      );
+      this.pm2f_.fillRect(x, y + h, w, HEIGHT * this.list_.length, this.backgroundColor_);
       for (let i in this.list_) {
-        if (i == this.tmpSelect_) {
-          this.pm2f_.fillRect(x, y + h + i * 20, w, 20, this.backgroundColor_);
+        if (i === this.tmpSelect_) {
+          this.pm2f_.fillRect(x, y + h + i * HEIGHT, w, HEIGHT, this.backgroundColor_);
         }
-        if (this.list_[i] == this.default_) {
-          this.pm2f_.fillRect(x, y + h + i * 20, w, 20, this.backgroundColor_);
+        if (this.list_[i] === this.default_) {
+          this.pm2f_.fillRect(x, y + h + i * HEIGHT, w, HEIGHT, this.backgroundColor_);
         }
         let name1 = '...';
-        if (this.list_[i].indexOf('\\') != -1) {
+        if (this.list_[i].indexOf('\\') !== -1) {
           let list = this.list_[i].split('\\');
           if (list.length > model) {
             for (let k = list.length - model; k < list.length; k++) {
               name1 += list[k];
-              if (k != list.length - 1) {
+              if (k !== list.length - 1) {
                 name1 += '\\';
               }
             }
@@ -112,26 +107,35 @@ class XSelect {
     }
   }
   isTouchIn(x, y) {
-    if (x < this.posX_) return false;
-    if (y < this.posY_) return false;
-    if (x > this.posX_ + this.posW_) return false;
-    if (y > this.posY_ + this.posH_ + (this.open_ ? 20 * this.list_.length : 0))
+    if (x < this.posX_) {
       return false;
+    }
+    if (y < this.posY_) {
+      return false;
+    }
+    if (x > this.posX_ + this.posW_) {
+      return false;
+    }
+    if (y > this.posY_ + this.posH_ + (this.open_ ? HEIGHT * this.list_.length : 0)) {
+      return false;
+    } 
     return true;
   }
   procTouch(msg, x, y) {
     let isIn = this.isTouchIn(x, y);
     switch (msg) {
       case 1:
-        if (!isIn) break;
+        if (!isIn) {
+          break;
+        }
         if (!this.open_) {
           this.open_ = true;
           break;
         }
         if (this.tmpSelect_ >= 0 && this.tmpSelect_ <= this.list_.length) {
-          if (this.default_ != this.list_[this.tmpSelect_]) {
+          if (this.default_ !== this.list_[this.tmpSelect_]) {
             this.default_ = this.list_[this.tmpSelect_];
-            if (this.selectCallback != null) {
+            if (this.selectCallback !== null) {
               this.selectCallback(this.default_);
             }
           }

@@ -112,23 +112,31 @@ function mouseUp(e) {
 function keyDown(e) {
   let ret = '';
   if (e.ctrlKey) {
-    if (ret.length > 0) ret += '+';
+    if (ret.length > 0) {
+      ret += '+';
+    }
     ret += 'ctrl';
   }
   if (e.shiftKey) {
-    if (ret.length > 0) ret += '+';
+    if (ret.length > 0) {
+      ret += '+';
+    }
     ret += 'shift';
   }
   if (e.altKey) {
-    if (ret.length > 0) ret += '+';
+    if (ret.length > 0) {
+      ret += '+';
+    }
     ret += 'alt';
   }
-  if (ret.length > 0) ret += '+';
+  if (ret.length > 0) {
+    ret += '+';
+  }
   ret += e.key;
   GLFrame.pinstance_.callbackKey(1, ret);
   if (!CanvasInput.FOCUS) {
   }
-  if (ret == 'ctrl+z') {
+  if (ret === 'ctrl+z') {
     e.preventDefault();
   }
 }
@@ -168,7 +176,7 @@ export class GLFrame {
     window.requestAnimationFrame(mainLoop);
   }
   callbackKey(type, code) {
-    if (this.pCallbackKey != null) {
+    if (this.pCallbackKey !== null) {
       this.pCallbackKey(type, code);
     }
   }
@@ -176,17 +184,17 @@ export class GLFrame {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    if (this.pCallbackDraw != null) {
+    if (this.pCallbackDraw !== null) {
       this.pCallbackDraw();
     }
   }
   callbackProctouch(msg, x, y) {
     XTools.MOUSE_POS.x = x;
     XTools.MOUSE_POS.y = y;
-    if (msg == 1) {
+    if (msg === 1) {
       CanvasInput.Hide(x, y);
     }
-    if (this.pCallbackTouch != null) {
+    if (this.pCallbackTouch !== null) {
       x = (x * Scr.logicw) / Scr.width;
       y = (y * Scr.logich) / Scr.height;
       this.pCallbackTouch(msg, x, y);

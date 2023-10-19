@@ -25,6 +25,7 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"FileDescriptor", TokenType::FD           },
     {"Ashmem",         TokenType::ASHMEM       },
     {"NativeBuffer",   TokenType::NATIVE_BUFFER},
+    {"Pointer",        TokenType::POINTER      },
     {"List",           TokenType::LIST         },
     {"Map",            TokenType::MAP          },
     {"SharedMemQueue", TokenType::SMQ          },
@@ -247,7 +248,7 @@ void Lexer::ReadId(Token &token)
 
     std::string key = sb.ToString();
     auto it = keyWords_.find(key);
-    token.kind = (it == keyWords_.end()) ? TokenType::ID : it->second;
+    token.kind = (it != keyWords_.end()) ? it->second : TokenType::ID;
     token.value = sb.ToString();
 }
 

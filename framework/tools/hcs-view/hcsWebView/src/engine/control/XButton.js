@@ -37,8 +37,12 @@ class XButton {
   }
 
   draw() {
+    const COLOR_OFF = 0x00202020;
+    const SIZE = 14;
     let coloroff = 0;
-    if (this.touchDown_) coloroff = 0x00202020;
+    if (this.touchDown_) {
+      coloroff = COLOR_OFF;
+    }
     this.pm2f_.fillRect(
       this.posX_,
       this.posY_,
@@ -46,26 +50,33 @@ class XButton {
       this.posH_,
       this.backgroundColor_ - coloroff
     );
-    if (this.name_ != undefined && this.name_.length > 0)
-      this.pm2f_.drawText(
-        this.name_,
-        14,
-        this.posX_ + this.posW_ / 2,
-        this.posY_ + this.posH_ / 2 + 2,
-        1,
-        1,
-        0,
-        -2,
-        -2,
-        this.nameColor_ - coloroff
-      );
+    if (this.name_ !== undefined && this.name_.length > 0)
+    {
+      let middle = 2;
+      let yOffset = 2;
+      let sw = 1;
+      let sh = 1;
+      let ra = 0;
+      let ox = -2;
+      let oy = -2;
+      this.pm2f_.drawText(this.name_, SIZE, this.posX_ + this.posW_ / middle, this.posY_ +
+      this.posH_ / middle + yOffset, sw, sh, ra, ox, oy, this.nameColor_ - coloroff);
+    }
   }
 
   isTouchIn(x, y) {
-    if (x < this.posX_) return false;
-    if (y < this.posY_) return false;
-    if (x > this.posX_ + this.posW_) return false;
-    if (y > this.posY_ + this.posH_) return false;
+    if (x < this.posX_) {
+      return false;
+    }
+    if (y < this.posY_) {
+      return false;
+    }
+    if (x > this.posX_ + this.posW_) {
+      return false;
+    }
+    if (y > this.posY_ + this.posH_) {
+      return false;
+    }
     return true;
   }
   procTouch(msg, x, y) {

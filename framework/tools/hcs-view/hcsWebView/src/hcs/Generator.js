@@ -36,15 +36,15 @@ class Generator {
 
   astToObjConfigNodeType(nodeType, obj, node) {
     if (
-      nodeType == this.DATA_NODES_INHERIT ||
-      nodeType == this.CLASS_NODES_COPY ||
-      nodeType == this.CLASS_NODES_REFERENCE
+      nodeType === this.DATA_NODES_INHERIT ||
+      nodeType === this.CLASS_NODES_COPY ||
+      nodeType === this.CLASS_NODES_REFERENCE
     ) {
       obj.ref_ = node.refNodePath_;
     } else if (
-      nodeType != this.DATA_NODES_NOT_INHERIT &&
-      nodeType != this.CLASS_NODES_DELETION &&
-      nodeType != this.CLASS_NODES_TEMPLETE
+      nodeType !== this.DATA_NODES_NOT_INHERIT &&
+      nodeType !== this.CLASS_NODES_DELETION &&
+      nodeType !== this.CLASS_NODES_TEMPLETE
     ) {
       NapiLog.logError('unknow node type');
     }
@@ -53,7 +53,7 @@ class Generator {
   astToObjConfigNode(ret, child, node) {
     ret.value_ = [];
     child = node.child_;
-    while (child != null) {
+    while (child !== undefined) {
       ret.value_.push(this.astToObj(child, ret));
       child = child.next_;
     }
@@ -91,7 +91,7 @@ class Generator {
       case DataType.ARRAY:
         ret.value_ = [];
         child = node.child_;
-        while (child != null) {
+        while (child !== undefined) {
           ret.value_.push(this.astToObj(child, ret));
           child = child.next_;
         }
@@ -105,8 +105,12 @@ class Generator {
         ret.value_ = null;
         break;
       case DataType.BOOL:
-        if (node.integerValue_ == 0) ret.value_ = false;
-        else ret.value_ = true;
+        if (node.integerValue_ === 0) {
+          ret.value_ = false;
+        }
+        else {
+          ret.value_ = true;
+        }
         break;
       default:
         NapiLog.logError('unknow type');
@@ -168,17 +172,17 @@ class Generator {
 
   objToHcsConfigNode(node, deep) {
     let ret = '';
-    if (node.nodeType_ == this.DATA_NODES_NOT_INHERIT) {
+    if (node.nodeType_ === this.DATA_NODES_NOT_INHERIT) {
       ret = this.makeSpace(deep) + node.name_ + ' {\n';
-    } else if (node.nodeType_ == this.CLASS_NODES_COPY) {
+    } else if (node.nodeType_ === this.CLASS_NODES_COPY) {
       ret = this.makeSpace(deep) + node.name_ + ' : ' + node.ref_ + ' {\n';
-    } else if (node.nodeType_ == this.CLASS_NODES_REFERENCE) {
+    } else if (node.nodeType_ === this.CLASS_NODES_REFERENCE) {
       ret = this.makeSpace(deep) + node.name_ + ' : &' + node.ref_ + ' {\n';
-    } else if (node.nodeType_ == this.CLASS_NODES_DELETION) {
+    } else if (node.nodeType_ === this.CLASS_NODES_DELETION) {
       ret = this.makeSpace(deep) + node.name_ + ' : delete {\n';
-    } else if (node.nodeType_ == this.CLASS_NODES_TEMPLETE) {
+    } else if (node.nodeType_ === this.CLASS_NODES_TEMPLETE) {
       ret = this.makeSpace(deep) + 'template ' + node.name_ + ' {\n';
-    } else if (node.nodeType_ == this.DATA_NODES_INHERIT) {
+    } else if (node.nodeType_ === this.DATA_NODES_INHERIT) {
       ret = this.makeSpace(deep) + node.name_ + ' :: ' + node.ref_ + ' {\n';
     } else {
       NapiLog.logError('unknow node type');
@@ -215,7 +219,9 @@ class Generator {
         ret = '[';
         for (let i in node.value_) {
           let ss = this.objToHcs(node.value_[i], 0);
-          if (i > 0) ret += ', ';
+          if (i > 0) {
+            ret += ', ';
+          }
           ret += ss;
         }
         ret += ']';
@@ -227,8 +233,12 @@ class Generator {
         ret = 'delete';
         break;
       case DataType.BOOL:
-        if (node.value_) ret = 'true';
-        else ret = 'false';
+        if (node.value_) {
+          ret = 'true';
+        }
+        else {
+          ret = 'false';
+        }
         break;
       default:
         NapiLog.logError('unknow' + node.type_);
@@ -240,7 +250,9 @@ class Generator {
 
 Generator.pInstance_ = null;
 Generator.gi = function () {
-  if (Generator.pInstance_ == null) Generator.pInstance_ = new Generator();
+  if (Generator.pInstance_ === null) {
+    Generator.pInstance_ = new Generator();
+  }
   return Generator.pInstance_;
 };
 

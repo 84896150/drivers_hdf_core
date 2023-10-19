@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2021-2022 Huawei Device Co., Ltd.
+# Copyright (c) 2021-2023 Huawei Device Co., Ltd.
 #
 # HDF is dual licensed: you can use it either under the terms of
 # the GPL, or the BSD license, at your option.
@@ -197,6 +197,7 @@ class ModuleInfo(object):
     stub_sources = []
     proxy_deps = []
     stub_deps = []
+    header_deps = []
 
     @staticmethod
     def json_info():
@@ -215,6 +216,7 @@ class ModuleInfo(object):
             "stub_sources": ModuleInfo.stub_sources,
             "proxy_deps": ModuleInfo.proxy_deps,
             "stub_deps": ModuleInfo.stub_deps,
+            "header_deps": ModuleInfo.header_deps,
         }
         return json.dumps(result)
 
@@ -311,6 +313,7 @@ class IdlParser(object):
         all_idl_details = {}
         if Option.language == "c":
             self.parse_c_idl_files(all_idl_details)
+            self.parse_deps(all_idl_details)
             self.parse_module_info(all_idl_details)
             return
 
@@ -371,11 +374,28 @@ class IdlParser(object):
     def merged_idl_details(self, all_idl_details):
         merged_details = {}
         source_idl_detail = self.parse_one(Option.idl_sources[0])
-        for key, value in all_idl_details.items():
-            if value.file_name not in merged_details:
-                value.package = source_idl_detail.package
-                value.version = source_idl_detail.version
-                merged_details[value.file_name] = value
+        for _, idl_detail in all_idl_details.items():
+            idl_detail.package = source_idl_detail.package
+            idl_detail.version = source_idl_detail.version
+        for _, idl_detail in all_idl_details.items():
+            if idl_detail.full_name() not in merged_details:
+                imports = []
+                for import_name in idl_detail.imports:
+                    import_idl = all_idl_details[import_name]
+                    if import_idl.full_name() in imports:
+                        continue
+                    if import_idl.full_name() != idl_detail.full_name():
+                        imports.append(import_idl.full_name())
+                idl_detail.imports = imports
+                merged_details[idl_detail.full_name()] = idl_detail
+            else:
+                for import_name in idl_detail.imports:
+                    import_idl = all_idl_details[import_name]
+                    merged_detail = merged_details[idl_detail.full_name()]
+                    if import_idl.full_name() in merged_detail.imports:
+                        continue
+                    if import_idl.full_name() != idl_detail.full_name():
+                        merged_detail.imports.append(import_idl.full_name())
         all_idl_details.clear()
         for key, value in merged_details.items():
             all_idl_details[key] = value
@@ -449,7 +469,7 @@ class IdlParser(object):
             return
         ModuleInfo.out_dir = Option.gen_dir
         self.parse_sources(all_idl_details, generator)
-        ModuleInfo.proxy_deps, ModuleInfo.stub_deps = CodeGen.get_lib_deps(Option.imports)
+        ModuleInfo.proxy_deps, ModuleInfo.stub_deps, ModuleInfo.header_deps = CodeGen.get_lib_deps(Option.imports)
 
     def parse_sources(self, all_idl_details, generator):
         ModuleInfo.include_dirs.add(Option.gen_dir)
@@ -491,6 +511,10 @@ class CodeGen(object):
             sub_package = package[root_package_len:]
             sub_package_path = sub_package.replace(".", os.sep)
             package_path = "{}{}".format(Option.root_path, sub_package_path)
+        else:
+            raise Exception("find root package '{}' failed in '{}'".format(
+                Option.root_package, package))
+
         return package_path
 
     @staticmethod
@@ -615,17 +639,21 @@ class CodeGen(object):
     def get_lib_deps(imports):
         proxy_deps = []
         stub_deps = []
+        header_deps = []
         for imps in imports:
             package, module_name = CodeGen.get_import(imps)
             package_path = CodeGen.get_package_path(package)
             major_version, minor_version = CodeGen.get_version(package)
             proxy_lib_name = "lib{}_proxy_{}.{}".format(module_name, major_version, minor_version)
             stub_lib_name = "lib{}_stub_{}.{}".format(module_name, major_version, minor_version)
+            header_config = "{}_idl_headers_{}.{}".format(module_name, major_version, minor_version)
             proxy_lib_dep = "{}:{}".format(package_path, proxy_lib_name)
             stub_lib_dep = "{}:{}".format(package_path, stub_lib_name)
+            header_dep = "{}:{}".format(package_path, header_config)
             proxy_deps.append(proxy_lib_dep)
             stub_deps.append(stub_lib_dep)
-        return proxy_deps, stub_deps
+            header_deps.append(header_dep)
+        return proxy_deps, stub_deps, header_deps
 
 
 class LowCCodeGen(CodeGen):

@@ -37,12 +37,14 @@ class Parser {
     this.astList = {};
   }
   parse(fn) {
-    if (this.srcQueue_.indexOf(fn) == -1) this.srcQueue_.push(fn);
+    if (this.srcQueue_.indexOf(fn) === -1) {
+      this.srcQueue_.push(fn);
+    }
 
     while (this.srcQueue_.length > 0) {
       let includeList = [];
       let oneAst = this.parseOne(this.srcQueue_[0], includeList);
-      if (oneAst == null) {
+      if (oneAst === null) {
         return false;
       }
 
@@ -58,7 +60,7 @@ class Parser {
   convertAbsPath(includeBy, includePath) {
     if (navigator.userAgent.toLowerCase().indexOf('win') > -1) {
       //windows
-      if (includePath[1] != ':') {
+      if (includePath[1] !== ':') {
         let currentSrc = includeBy.substring(
           0,
           includeBy.lastIndexOf('\\') + 1
@@ -67,7 +69,7 @@ class Parser {
 
         includePath = includePath.replace(/\\\.\\/g, '\\');
       }
-    } else if (includePath[0] != '/') {
+    } else if (includePath[0] !== '/') {
       let currentSrc = includeBy.substring(0, includeBy.lastIndexOf('/') + 1);
       includePath = currentSrc + includePath;
     }
@@ -77,7 +79,7 @@ class Parser {
     do {
       if (
         !this.lexer_.lex(this.current_) ||
-        this.current_.type != TokenType.STRING
+        this.current_.type !== TokenType.STRING
       ) {
         this.dealWithError(
           this.lexer_ + 'syntax error, expect include path after ’#include‘'
@@ -100,7 +102,7 @@ class Parser {
         return false;
       }
 
-      if (this.current_.type != TokenType.INCLUDE) {
+      if (this.current_.type !== TokenType.INCLUDE) {
         break;
       }
     } while (true);
@@ -117,29 +119,29 @@ class Parser {
     }
 
     if (
-      this.current_.type == TokenType.INCLUDE &&
+      this.current_.type === TokenType.INCLUDE &&
       !this.processInclude(includeList)
     ) {
       return null;
     }
 
     let rootNode = null;
-    if (this.current_.type == TokenType.ROOT) {
+    if (this.current_.type === TokenType.ROOT) {
       let preToken = copy(this.current_);
       preToken.type = TokenType.LITERAL;
       preToken.strval = 'root';
       rootNode = this.parseNode(preToken);
-      if (rootNode == null) {
+      if (rootNode === null) {
         return null;
       }
-    } else if (this.current_.type != TokenType.EOF) {
+    } else if (this.current_.type !== TokenType.EOF) {
       this.dealWithError('syntax error, expect root node of end of file');
       return null;
     }
 
     if (
       !this.lexer_.lex(this.current_) ||
-      this.current_.type != TokenType.EOF
+      this.current_.type !== TokenType.EOF
     ) {
       this.dealWithError('syntax error, expect EOF');
       return null;
@@ -151,7 +153,7 @@ class Parser {
 
   parseNode(name, bracesStart) {
     if (!bracesStart) {
-      if (!this.lexer_.lex(this.current_) || this.current_.type != code('{')) {
+      if (!this.lexer_.lex(this.current_) || this.current_.type !== code('{')) {
         this.dealWithError("syntax error, node miss '{'");
         return null;
       }
@@ -159,7 +161,7 @@ class Parser {
 
     let node = new ConfigNode(name, NodeRefType.NODE_NOREF, '');
     let child;
-    while (this.lexer_.lex(this.current_) && this.current_.type != 125) {
+    while (this.lexer_.lex(this.current_) && this.current_.type !== code('}')) {
       switch (this.current_.type) {
         case TokenType.TEMPLATE:
           child = this.parseTemplate();
@@ -177,14 +179,14 @@ class Parser {
           );
           return null;
       }
-      if (child == null) {
+      if (child === null) {
         return null;
       }
 
       node.addChild(child);
     }
 
-    if (this.current_.type != code('}')) {
+    if (this.current_.type !== code('}')) {
       this.dealWithError(this.lexer_ + "syntax error, node miss '}'");
       return null;
     }
@@ -220,10 +222,10 @@ class Parser {
     let array = new ConfigArray(this.current_);
     let arrayType = 0;
 
-    while (this.lexer_.lex(this.current_) && this.current_.type != code(']')) {
-      if (this.current_.type == TokenType.STRING) {
+    while (this.lexer_.lex(this.current_) && this.current_.type !== code(']')) {
+      if (this.current_.type === TokenType.STRING) {
         array.addChild(new AstObject('', ObjectType.PARSEROP_STRING, this.current_.strval, this.current_));
-      } else if (this.current_.type == TokenType.NUMBER) {
+      } else if (this.current_.type === TokenType.NUMBER) {
         array.addChild(new AstObject('', ObjectType.PARSEROP_UINT64,
             this.current_.numval, this.current_, this.current_.baseSystem));
       } else {
@@ -231,23 +233,23 @@ class Parser {
         return nullptr;
       }
 
-      if (arrayType == 0) {
+      if (arrayType === 0) {
         arrayType = this.current_.type;
-      } else if (arrayType != this.current_.type) {
+      } else if (arrayType !== this.current_.type) {
         this.dealWithError(this.lexer_ + 'syntax error, not allow mix type array');
         return null;
       }
 
       if (this.lexer_.lex(this.current_)) {
-        if (this.current_.type == code(']')) {
+        if (this.current_.type === code(']')) {
           break;
-        } else if (this.current_.type != code(',')) {
+        } else if (this.current_.type !== code(',')) {
           this.dealWithError(this.lexer_ + "syntax error, except ',' or ']'");
           return null;
         }
-      } else return null;
+      } else { return null; }
     }
-    if (this.current_.type != code(']')) {
+    if (this.current_.type !== code(']')) {
       this.dealWithError(this.lexer_ + "syntax error, miss ']' at end of array");
       return null;
     }
@@ -271,7 +273,7 @@ class Parser {
         break;
       case code('['): {
         let list = this.parseArray();
-        if (list == null) {
+        if (list === null) {
           return null;
         } else {
           term.addChild(list);
@@ -279,7 +281,7 @@ class Parser {
         break;
       }
       case code('&'):
-        if (!this.lexer_.lex(this.current_) || (this.current_.type != TokenType.LITERAL && this.current_.type != TokenType.REF_PATH)) {
+        if (!this.lexer_.lex(this.current_) || (this.current_.type !== TokenType.LITERAL && this.current_.type !== TokenType.REF_PATH)) {
           this.dealWithError('syntax error, invalid config term definition');
           return null;
         }
@@ -293,7 +295,7 @@ class Parser {
         return null;
     }
 
-    if (!this.lexer_.lex(this.current_) || this.current_.type != code(';')) {
+    if (!this.lexer_.lex(this.current_) || this.current_.type !== code(';')) {
       this.dealWithError("syntax error, miss ';'");
       return null;
     }
@@ -303,14 +305,14 @@ class Parser {
   parseTemplate() {
     if (
       !this.lexer_.lex(this.current_) ||
-      this.current_.type != TokenType.LITERAL
+      this.current_.type !== TokenType.LITERAL
     ) {
       this.dealWithError('syntax error, template miss name');
       return null;
     }
     let name = copy(this.current_);
     let node = this.parseNode(name, false);
-    if (node == null) {
+    if (node === null) {
       return node;
     }
 
@@ -321,8 +323,8 @@ class Parser {
   parseNodeRef(name) {
     if (
       !this.lexer_.lex(this.current_) ||
-      (this.current_.type != TokenType.LITERAL &&
-        this.current_.type != TokenType.REF_PATH)
+      (this.current_.type !== TokenType.LITERAL &&
+        this.current_.type !== TokenType.REF_PATH)
     ) {
       this.dealWithError(
         this.lexer_ + 'syntax error, miss node reference path'
@@ -331,7 +333,7 @@ class Parser {
     }
     let refPath = this.current_.strval;
     let node = this.parseNode(name);
-    if (node == null) {
+    if (node === null) {
       return null;
     }
 
@@ -342,7 +344,7 @@ class Parser {
   }
   parseNodeDelete(name) {
     let node = this.parseNode(name);
-    if (node == null) {
+    if (node === null) {
       return null;
     }
 
@@ -353,7 +355,7 @@ class Parser {
     let nodePath = this.current_.strval;
 
     let node = this.parseNode(name);
-    if (node == null) {
+    if (node === null) {
       return null;
     }
 
@@ -385,8 +387,8 @@ class Parser {
   parseNodeInherit(name) {
     if (
       !this.lexer_.lex(this.current_) ||
-      (this.current_.type != TokenType.LITERAL &&
-        this.current_.type != TokenType.REF_PATH)
+      (this.current_.type !== TokenType.LITERAL &&
+        this.current_.type !== TokenType.REF_PATH)
     ) {
       this.dealWithError('syntax error, miss node inherit path');
       return null;
@@ -395,7 +397,7 @@ class Parser {
     let inheritPath = this.current_.strval;
 
     let node = this.parseNode(name);
-    if (node == null) {
+    if (node === null) {
       return null;
     }
 

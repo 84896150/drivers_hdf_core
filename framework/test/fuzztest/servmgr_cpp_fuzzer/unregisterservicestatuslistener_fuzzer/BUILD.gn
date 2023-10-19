@@ -6,7 +6,7 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
-module_output_path = "hdf_core/servmgr_cpp"
+module_output_path = "hdf_core/hdf_core"
 
 hdf_framework_path = "./../../../../../framework"
 hdf_adapter_path = "./../../../../../adapter"
@@ -35,7 +35,7 @@ ohos_fuzztest("UnregisterServiceStatusListenerFuzzTest") {
     ]
     external_deps = [
       "c_utils:utils",
-      "hiviewdfx_hilog_native:libhilog",
+      "hilog:libhilog",
       "ipc:ipc_single",
       "samgr:samgr_proxy",
     ]

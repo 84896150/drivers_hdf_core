@@ -19,18 +19,22 @@ export class Scr {
   static ReSize(w, h) {
     Scr.width = w;
     Scr.height = h;
-    if (Scr.keeplogicworh == 'width') Scr.logich = (Scr.logicw * h) / w;
-    else Scr.logicw = (Scr.logich * w) / h;
+    if (Scr.keeplogicworh === 'width') {
+      Scr.logich = (Scr.logicw * h) / w;
+    } else {
+      Scr.logicw = (Scr.logich * w) / h;
+    }
   }
   static setLogicScreenSize(w, h) {
-    if (Scr.logicw == w && Scr.width == w && Scr.logich == h && Scr.height == h)
+    if (Scr.logicw === w && Scr.width === w && Scr.logich === h && Scr.height === h) {
       return;
+    }
     Scr.logicw = w;
     Scr.logich = h;
     Scr.width = w;
     Scr.height = h;
     NapiLog.logError('setLogicScreenSize');
-    if ('undefined' != typeof wx) {
+    if ('undefined' !== typeof wx) {
       var info = wx.getSystemInfoSync();
       Scr.width = info.windowWidth;
       Scr.height = info.windowHeight;

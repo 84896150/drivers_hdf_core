@@ -6,7 +6,7 @@
 
 import("//build/config/features.gni")
 import("//build/test.gni")
-module_output_path = "hdf_core/ioservice"
+module_output_path = "hdf_core/hdf_core"
 
 hdf_framework_path = "./../../../../../framework"
 
@@ -20,7 +20,7 @@ ohos_fuzztest("IoservicePublishFuzzTest") {
   deps = [ "../../../../../adapter/uhdf2/utils:libhdf_utils" ]
   external_deps = [
     "c_utils:utils",
-    "hiviewdfx_hilog_native:libhilog",
+    "hilog:libhilog",
   ]
 }
 

@@ -160,16 +160,17 @@ if (defined(ohos_lite)) {
     if (is_standard_system) {
       external_deps = [
         "c_utils:utils",
-        "hiviewdfx_hilog_native:libhilog",
+        "hilog:libhilog",
       ]
     } else {
       external_deps = [ "hilog:libhilog" ]
     }
 
+    innerapi_tags = [ "chipsetsdk" ]
     subsystem_name = "hdf"
     part_name = "hdf_core"
     install_images = [
-      chipset_base_dir,
+      "system",
       "updater",
     ]
   }
