@@ -130,6 +130,7 @@ public:
 private:
     AutoPtr<ASTAttr> attr_;
     std::vector<std::tuple<std::string, AutoPtr<ASTType>>> members_;
+    AutoPtr<ASTStructType> parentType_;
 };
 } // namespace HDI
 } // namespace OHOS
