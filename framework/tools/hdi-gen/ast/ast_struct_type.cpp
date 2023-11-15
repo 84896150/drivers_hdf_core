@@ -11,6 +11,18 @@
 
 namespace OHOS {
 namespace HDI {
+void ASTStructType::SetParentType(const AutoPtr<ASTStructType> &parentType)
+{
+    if (parentType == nullptr) {
+        return;
+    }
+
+    std::vector<std::tuple<std::string, AutoPtr<ASTType>>> parentMembers = parentType->GetMembers();
+    for (auto member : parentMembers) {
+        AddMember(std::get<1>(member), std::get<0>(member));
+    }
+}
+
 void ASTStructType::AddMember(const AutoPtr<ASTType> &typeName, std::string name)
 {
     for (auto it : members_) {
