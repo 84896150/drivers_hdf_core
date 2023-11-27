@@ -136,6 +136,10 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
         return HDF_FAILURE;
     }
 
+    if (duration == 0) {
+        HDF_LOGI("%{public}s: vibrator duration is 0, but i make it not return!", __func__);
+    }
+
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
         HDF_LOGI("%s: vibrater haptic is busy now, please stop first!", __func__);
         return HDF_ERR_DEVICE_BUSY;
