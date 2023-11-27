@@ -17,6 +17,7 @@
 
 #define VIBRATOR_WORK_QUEUE_NAME    "vibrator_queue"
 #define VIBRATOR_START_TIME    10
+#define HDF_ERR_INVALID_PARAM_TEST    99995
 
 struct VibratorDriverData *g_vibratorDrvData = NULL;
 
@@ -138,7 +139,7 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     if (duration == 0) {
         HDF_LOGE("%s: vibrator duration invalid para!", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        return HDF_ERR_INVALID_PARAM_TEST;
     }
 
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
