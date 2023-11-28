@@ -12,6 +12,7 @@
 #include "hdf_device_desc.h"
 #include "osal_mem.h"
 #include "vibrator_haptic.h"
+#include "hdf_log.h"
 
 #define HDF_LOG_TAG    khdf_vibrator_driver
 
@@ -137,8 +138,7 @@ static int32_t StartOnce(struct HdfSBuf *data, struct HdfSBuf *reply)
     }
 
     if (duration == 0) {
-        HDF_LOGE("%s: vibrator duration invalid para!", __func__);
-        return HDF_ERR_INVALID_PARAM;
+        HDF_LOGI("%{public}s: vibrator duration is 0, but i make it not return!", __func__);
     }
 
     if (drvData->mode != VIBRATOR_MODE_BUTT) {
