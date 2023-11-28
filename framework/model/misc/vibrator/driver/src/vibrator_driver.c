@@ -12,6 +12,7 @@
 #include "hdf_device_desc.h"
 #include "osal_mem.h"
 #include "vibrator_haptic.h"
+#include "hdf_log.h"
 
 #define HDF_LOG_TAG    khdf_vibrator_driver
 
