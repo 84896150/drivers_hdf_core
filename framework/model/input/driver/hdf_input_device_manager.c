@@ -107,13 +107,21 @@ static void HotPlugNotify(const InputDevice *inputDev, uint32_t status)
 
 static int32_t CreateDeviceNode(InputDevice *inputDev)
 {
+    static bool existNonHid = false ;
     if (IsHidDevice(inputDev)) {
+        if (!existNonHid) {
+            CacheHid(inputDev);
+            HDF_LOGI("%s: is first hid dev add cache, devId is %d ", __func__, inputDev->devId);
+            return HDF_SUCCESS;
+        }
         HDF_LOGI("%s: prepare to register hdf device", __func__);
         inputDev->hdfDevObj = HidRegisterHdfDevice(inputDev);
         if (inputDev->hdfDevObj == NULL) {
             return HDF_DEV_ERR_NO_DEVICE;
         }
         inputDev->hdfDevObj->priv = (void *)inputDev;
+    } else {
+        existNonHid = true ;
     }
 
     HDF_LOGI("%s: create node succ, devId is %d ", __func__, inputDev->devId);
