@@ -13,6 +13,7 @@
 #include "ast/ast_node.h"
 #include "ast/ast_type.h"
 #include "util/autoptr.h"
+#include "util/logger.h"
 
 namespace OHOS {
 namespace HDI {
@@ -26,6 +27,12 @@ public:
     ASTParameter(const std::string &name, const AutoPtr<ASTParamAttr> &attribute, const AutoPtr<ASTType> &type)
         : ASTNode(), name_(name), attr_(attribute), type_(type)
     {
+    }
+
+    ASTParameter(const std::string &name, const AutoPtr<ASTParamAttr> &attribute, const AutoPtr<ASTType> &type, const AutoPtr<ASTInterfaceParamAttr> &interfaceParamAttr)
+        : ASTNode(), name_(name), attr_(attribute), type_(type), interfaceAttr_(interfaceParamAttr)
+    {
+        Logger::E("ASTParameter","interfaceAttr_ =%d", interfaceAttr_->value_);
     }
 
     inline std::string GetName()
@@ -75,6 +82,7 @@ private:
     std::string name_;
     AutoPtr<ASTParamAttr> attr_;
     AutoPtr<ASTType> type_;
+    AutoPtr<ASTInterfaceParamAttr> interfaceAttr_;
 };
 } // namespace HDI
 } // namespace OHOS

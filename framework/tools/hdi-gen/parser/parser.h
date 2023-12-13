@@ -107,6 +107,8 @@ private:
 
     AutoPtr<ASTParamAttr> ParseParamAttr();
 
+    AutoPtr<ASTInterfaceParamAttr> ParseInterfaceParamAttr();
+
     // parse type
     AutoPtr<ASTType> ParseType();
 
