@@ -21,7 +21,8 @@ ohos_unittest("hdf_load_vdi_test") {
 
   sources =
       [ "../../../../../framework/core/host/test/unittest/hdf_vdi_test.cpp" ]
-  if (target_cpu == "arm64" || target_cpu == "x86_64") {
+  if (target_cpu == "arm64" || target_cpu == "x86_64" ||
+      target_cpu == "riscv64") {
     resource_config_file = "../../resource/load_vdi/arch64/ohos_test.xml"
   } else {
     resource_config_file = "../../resource/load_vdi/arch32/ohos_test.xml"
