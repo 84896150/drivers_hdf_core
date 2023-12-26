@@ -123,6 +123,9 @@ std::string ASTInterfaceType::EmitCppType(TypeMode mode) const
     if (Options::GetInstance().GetSystemLevel() == SystemLevel::LITE) {
         pointerName = "std::shared_ptr";
     }
+    if (false) {
+        pointerName = "wptr";
+    }
     switch (mode) {
         case TypeMode::NO_MODE:
             return StringHelper::Format("%s<%s>", pointerName.c_str(), GetNameWithNamespace(namespace_, name_).c_str());

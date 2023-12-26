@@ -690,9 +690,15 @@ AutoPtr<ASTParameter> Parser::ParseParam()
 {
     AutoPtr<ASTParamAttr> paramAttr = ParseParamAttr();
     AutoPtr<ASTType> paramType = ParseType();
+    AutoPtr<ASTInterfaceParamAttr> interfaceParamAttr = nullptr;
     std::string paramName = "";
 
     Token token = lexer_.PeekToken();
+    if (paramType->IsInterfaceType() && token.kind == TokenType::ANGLE_BRACKETS_LEFT) {
+        interfaceParamAttr = ParseInterfaceParamAttr();
+        token = lexer_.PeekToken();
+    }
+
     if (token.kind != TokenType::ID) {
         LogError(token, StringHelper::Format("expected param name before '%s' token", token.value.c_str()));
     } else {
@@ -712,6 +718,10 @@ AutoPtr<ASTParameter> Parser::ParseParam()
         if (!ifaceType->IsCallback()) {
             ifaceType->SetSerializable(true);
         }
+    }
+
+    if (interfaceParamAttr != nullptr) {
+        return new ASTParameter(paramName, paramAttr, paramType, interfaceParamAttr);
     }
 
     return new ASTParameter(paramName, paramAttr, paramType);
@@ -742,6 +752,38 @@ AutoPtr<ASTParamAttr> Parser::ParseParamAttr()
     token = lexer_.PeekToken();
     if (token.kind != TokenType::BRACKETS_RIGHT) {
         LogError(token, StringHelper::Format("expected ']' before '%s' token", token.value.c_str()));
+    } else {
+        lexer_.GetToken();
+    }
+
+    return attr;
+}
+
+AutoPtr<ASTInterfaceParamAttr> Parser::ParseInterfaceParamAttr()
+{
+    AutoPtr<ASTInterfaceParamAttr> attr = new ASTInterfaceParamAttr(InterfaceParamAttr::TYPE_SPTR);
+    Token token = lexer_.PeekToken();
+    if (token.kind != TokenType::ANGLE_BRACKETS_LEFT) {
+        return attr;
+    } else {
+        lexer_.GetToken();
+    }
+
+    token = lexer_.PeekToken();
+    if (token.kind == TokenType::SPTR) {
+        attr->value_ = InterfaceParamAttr::TYPE_SPTR;
+        lexer_.GetToken();
+    } else if (token.kind == TokenType::WPTR) {
+        attr->value_ = InterfaceParamAttr::TYPE_WPTR;
+        lexer_.GetToken();
+    } else {
+        LogError(
+            token, StringHelper::Format("expected 'sptr' or 'wptr' attribute before '%s' token", token.value.c_str()));
+    }
+
+    token = lexer_.PeekToken();
+    if (token.kind != TokenType::ANGLE_BRACKETS_RIGHT) {
+        LogError(token, StringHelper::Format("expected '>' before '%s' token", token.value.c_str()));
     } else {
         lexer_.GetToken();
     }

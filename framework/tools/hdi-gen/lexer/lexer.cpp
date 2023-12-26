@@ -31,6 +31,8 @@ Lexer::StrTokenTypeMap Lexer::keyWords_ = {
     {"SharedMemQueue", TokenType::SMQ          },
     {"char",           TokenType::CHAR         },
     {"unsigned",       TokenType::UNSIGNED     },
+    {"sptr",           TokenType::SPTR         },
+    {"wptr",           TokenType::WPTR         },
     {"enum",           TokenType::ENUM         },
     {"struct",         TokenType::STRUCT       },
     {"union",          TokenType::UNION        },

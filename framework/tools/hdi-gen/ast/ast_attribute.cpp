@@ -74,5 +74,15 @@ std::string ASTParamAttr::Dump(const std::string &prefix)
 {
     return prefix + ToString();
 }
+
+std::string ASTInterfaceParamAttr::ToString() const
+{
+    return StringHelper::Format("[%s]", (value_ == InterfaceParamAttr::TYPE_SPTR) ? "sptr" : "wptr");
+}
+
+std::string ASTInterfaceParamAttr::Dump(const std::string &prefix)
+{
+    return prefix + ToString();
+}
 } // namespace HDI
 } // namespace OHOS

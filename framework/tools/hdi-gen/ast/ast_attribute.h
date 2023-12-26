@@ -66,6 +66,23 @@ public:
 public:
     ParamAttr value_;
 };
+
+enum class InterfaceParamAttr {
+    TYPE_SPTR,
+    TYPE_WPTR,
+};
+
+class ASTInterfaceParamAttr : public ASTNode {
+public:
+    explicit ASTInterfaceParamAttr(InterfaceParamAttr value) : ASTNode(), value_(value) {}
+
+    std::string ToString() const override;
+
+    std::string Dump(const std::string &prefix) override;
+
+public:
+    InterfaceParamAttr value_;
+};
 } // namespace HDI
 } // namespace OHOS
 
