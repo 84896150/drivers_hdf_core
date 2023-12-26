@@ -90,6 +90,8 @@ struct SensorBasicInfo {
     int32_t power;        /**< Sensor power */
     int64_t minDelay;     /**< Minimum sample period allowed in nanoseconds */
     int64_t maxDelay;     /**< Maxmum sample period allowed in nanoseconds */
+    uint32_t fifoMaxEventCount;
+    uint32_t reserved;
 };
 
 struct SensorReportEvent {
