@@ -1,0 +1,92 @@
+#ifndef HDF_NET_USB_ADAPTER_H
+#define HDF_NET_USB_ADAPTER_H
+
+#include "osal_mutex.h"
+#include "hdf_log.h"
+#include "hdf_usb_net_manager.h"
+
+#define HARCH_LOG_TAG "[-net-hdf-]"
+#define HARCH_NET_INFO_PRINT(fmt,...)  \
+do{ \
+    if(1){\
+        HDF_LOGI(HARCH_LOG_TAG"[%s][%d]:"fmt"\n",__FUNCTION__,__LINE__,##__VA_ARGS__);}\
+}while(0)
+
+struct rndis_data_hdr {
+	__le32	msg_type;		/* RNDIS_MSG_PACKET */
+	__le32	msg_len;		/* rndis_data_hdr + data_len + pad */
+	__le32	data_offset;		/* 36 -- right after header */
+	__le32	data_len;		/* ... real packet size */
+
+	__le32	oob_data_offset;	/* zero */
+	__le32	oob_data_len;		/* zero */
+	__le32	num_oob;		/* zero */
+	__le32	packet_data_offset;	/* zero */
+
+	__le32	packet_data_len;	/* zero */
+	__le32	vc_handle;		/* zero */
+	__le32	reserved;		/* zero */
+} __attribute__ ((packed));
+
+struct UsbnetAdapter{
+    struct IDeviceIoService service;
+    struct HdfDeviceObject *deviceObject;
+	unsigned		can_dma_sg:1;
+    struct net_device  *net;
+    int32_t msg_enable;
+    struct UsbnetTransInfo usbnetInfo;
+	struct OsalMutex sendSkbClock;
+
+	unsigned char		pkt_cnt, pkt_err;
+
+	/* various kinds of pending driver work */
+	wait_queue_head_t	wait;
+	struct timer_list	delay;
+
+	struct sk_buff_head	rxq;
+	struct sk_buff_head	txq;
+
+	struct sk_buff_head	done;
+	struct sk_buff_head	rxq_pause;
+	struct tasklet_struct	bh;
+
+    struct pcpu_sw_netstats __percpu *stats64;
+	
+	struct work_struct	kevent;
+	struct work_struct	TxCompleteWorkqueue;
+	struct work_struct	RxCompleteWorkqueue;
+	unsigned int		TxLen;
+	unsigned int		RxLen;
+	unsigned long		flags;
+#		define EVENT_TX_HALT	0
+#		define EVENT_RX_HALT	1
+#		define EVENT_RX_MEMORY	2
+#		define EVENT_STS_SPLIT	3
+#		define EVENT_LINK_RESET	4
+#		define EVENT_RX_PAUSED	5
+#		define EVENT_DEV_ASLEEP 6
+#		define EVENT_DEV_OPEN	7
+#		define EVENT_DEVICE_REPORT_IDLE	8
+#		define EVENT_NO_RUNTIME_PM	9
+#		define EVENT_RX_KILL	10
+#		define EVENT_LINK_CHANGE	11
+#		define EVENT_SET_RX_MODE	12
+#		define EVENT_NO_IP_ALIGN	13
+
+};
+
+/* we record the state for each of our queued skbs */
+enum skb_state {
+	illegal = 0,
+	tx_start, tx_done,
+	rx_start, rx_done, rx_cleanup,
+	unlink_start
+};
+
+struct skb_data {	/* skb->cb is one of these */
+	enum skb_state		state;
+	long				length;
+	unsigned long		packets;
+};
+
+#endif
