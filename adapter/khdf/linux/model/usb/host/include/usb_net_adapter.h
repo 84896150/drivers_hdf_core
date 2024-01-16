@@ -1,3 +1,11 @@
+/*
+ * Copyright (c) 2023-2024 ArcherMind Technology (Nanjing) Co., Ltd.
+ *
+ * HDF is dual licensed: you can use it either under the terms of
+ * the GPL, or the BSD license, at your option.
+ * See the LICENSE file in the root of this repository for complete details.
+ */
+
 #ifndef HDF_NET_USB_ADAPTER_H
 #define HDF_NET_USB_ADAPTER_H
 
