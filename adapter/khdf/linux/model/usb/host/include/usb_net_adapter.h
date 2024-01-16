@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 ArcherMind Technology (Nanjing) Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -21,80 +21,80 @@ do{ \
 }while(0)
 
 struct rndis_data_hdr {
-	__le32	msg_type;		/* RNDIS_MSG_PACKET */
-	__le32	msg_len;		/* rndis_data_hdr + data_len + pad */
-	__le32	data_offset;		/* 36 -- right after header */
-	__le32	data_len;		/* ... real packet size */
+    __le32    msg_type;        /* RNDIS_MSG_PACKET */
+    __le32    msg_len;        /* rndis_data_hdr + data_len + pad */
+    __le32    data_offset;        /* 36 -- right after header */
+    __le32    data_len;        /* ... real packet size */
 
-	__le32	oob_data_offset;	/* zero */
-	__le32	oob_data_len;		/* zero */
-	__le32	num_oob;		/* zero */
-	__le32	packet_data_offset;	/* zero */
+    __le32    oob_data_offset;    /* zero */
+    __le32    oob_data_len;        /* zero */
+    __le32    num_oob;        /* zero */
+    __le32    packet_data_offset;    /* zero */
 
-	__le32	packet_data_len;	/* zero */
-	__le32	vc_handle;		/* zero */
-	__le32	reserved;		/* zero */
+    __le32    packet_data_len;    /* zero */
+    __le32    vc_handle;        /* zero */
+    __le32    reserved;        /* zero */
 } __attribute__ ((packed));
 
 struct UsbnetAdapter{
     struct IDeviceIoService service;
     struct HdfDeviceObject *deviceObject;
-	unsigned		can_dma_sg:1;
+    unsigned        can_dma_sg:1;
     struct net_device  *net;
     int32_t msg_enable;
     struct UsbnetTransInfo usbnetInfo;
-	struct OsalMutex sendSkbClock;
+    struct OsalMutex sendSkbClock;
 
-	unsigned char		pkt_cnt, pkt_err;
+    unsigned char        pkt_cnt, pkt_err;
 
-	/* various kinds of pending driver work */
-	wait_queue_head_t	wait;
-	struct timer_list	delay;
+    /* various kinds of pending driver work */
+    wait_queue_head_t    wait;
+    struct timer_list    delay;
 
-	struct sk_buff_head	rxq;
-	struct sk_buff_head	txq;
+    struct sk_buff_head    rxq;
+    struct sk_buff_head    txq;
 
-	struct sk_buff_head	done;
-	struct sk_buff_head	rxq_pause;
-	struct tasklet_struct	bh;
+    struct sk_buff_head    done;
+    struct sk_buff_head    rxq_pause;
+    struct tasklet_struct    bh;
 
     struct pcpu_sw_netstats __percpu *stats64;
-	
-	struct work_struct	kevent;
-	struct work_struct	TxCompleteWorkqueue;
-	struct work_struct	RxCompleteWorkqueue;
-	unsigned int		TxLen;
-	unsigned int		RxLen;
-	unsigned long		flags;
-#		define EVENT_TX_HALT	0
-#		define EVENT_RX_HALT	1
-#		define EVENT_RX_MEMORY	2
-#		define EVENT_STS_SPLIT	3
-#		define EVENT_LINK_RESET	4
-#		define EVENT_RX_PAUSED	5
-#		define EVENT_DEV_ASLEEP 6
-#		define EVENT_DEV_OPEN	7
-#		define EVENT_DEVICE_REPORT_IDLE	8
-#		define EVENT_NO_RUNTIME_PM	9
-#		define EVENT_RX_KILL	10
-#		define EVENT_LINK_CHANGE	11
-#		define EVENT_SET_RX_MODE	12
-#		define EVENT_NO_IP_ALIGN	13
+    
+    struct work_struct    kevent;
+    struct work_struct    TxCompleteWorkqueue;
+    struct work_struct    RxCompleteWorkqueue;
+    unsigned int        TxLen;
+    unsigned int        RxLen;
+    unsigned long        flags;
+#        define EVENT_TX_HALT    0
+#        define EVENT_RX_HALT    1
+#        define EVENT_RX_MEMORY    2
+#        define EVENT_STS_SPLIT    3
+#        define EVENT_LINK_RESET    4
+#        define EVENT_RX_PAUSED    5
+#        define EVENT_DEV_ASLEEP 6
+#        define EVENT_DEV_OPEN    7
+#        define EVENT_DEVICE_REPORT_IDLE    8
+#        define EVENT_NO_RUNTIME_PM    9
+#        define EVENT_RX_KILL    10
+#        define EVENT_LINK_CHANGE    11
+#        define EVENT_SET_RX_MODE    12
+#        define EVENT_NO_IP_ALIGN    13
 
 };
 
 /* we record the state for each of our queued skbs */
 enum skb_state {
-	illegal = 0,
-	tx_start, tx_done,
-	rx_start, rx_done, rx_cleanup,
-	unlink_start
+    illegal = 0,
+    tx_start, tx_done,
+    rx_start, rx_done, rx_cleanup,
+    unlink_start
 };
 
-struct skb_data {	/* skb->cb is one of these */
-	enum skb_state		state;
-	long				length;
-	unsigned long		packets;
+struct skb_data {    /* skb->cb is one of these */
+    enum skb_state        state;
+    long                length;
+    unsigned long        packets;
 };
 
 #endif
