@@ -13,12 +13,25 @@
 #include "hdf_log.h"
 #include "hdf_usb_net_manager.h"
 
+#define ModuleParam module_param
 #define HARCH_LOG_TAG "[-net-hdf-]"
-#define HARCH_NET_INFO_PRINT(fmt,...)  \
+#define HARCH_NET_INFO_PRINT(fmt,...)\
 do{ \
     if(1){\
-        HDF_LOGI(HARCH_LOG_TAG"[%s][%d]:"fmt"\n",__FUNCTION__,__LINE__,##__VA_ARGS__);}\
+        HDF_LOGI(HARCH_LOG_TAG"[%{public}s][%{public}d]:" fmt "\n",__FUNCTION__, __LINE__, ##__VA_ARGS__);}\
 }while(0)
+
+typedef struct pcpu_sw_netstats     PcpuSwNetstats;
+typedef struct net_device           NetDevice; 
+typedef struct timer_list           TimerList;
+typedef struct work_struct          WorkStruct;
+typedef struct tasklet_struct       TaskletStruct;
+typedef struct device_type          DeviceType;
+typedef struct ethtool_ops          EthtoolOps;
+typedef struct rndis_data_hdr       RndisDataHdr;
+typedef struct sk_buff              SkBuff;
+typedef struct sk_buff_head         SkBuff_Head;
+typedef struct net_device_ops       NetDevice_Ops;
 
 struct rndis_data_hdr {
     __le32    msg_type;        /* RNDIS_MSG_PACKET */
@@ -39,32 +52,32 @@ struct rndis_data_hdr {
 struct UsbnetAdapter{
     struct IDeviceIoService service;
     struct HdfDeviceObject *deviceObject;
-    unsigned        can_dma_sg:1;
-    struct net_device  *net;
-    int32_t msg_enable;
+    unsigned        canDmaSg:1;
+    NetDevice       *net;
+    int32_t         msg_enable;
     struct UsbnetTransInfo usbnetInfo;
     struct OsalMutex sendSkbClock;
 
-    unsigned char        pkt_cnt, pkt_err;
+    unsigned char pkt_Cnt, pkt_Err;
 
     /* various kinds of pending driver work */
     wait_queue_head_t    wait;
-    struct timer_list    delay;
+    TimerList           delay;
 
-    struct sk_buff_head    rxq;
-    struct sk_buff_head    txq;
+    SkBuff_Head    rxq;
+    SkBuff_Head    txq;
 
-    struct sk_buff_head    done;
-    struct sk_buff_head    rxq_pause;
-    struct tasklet_struct    bh;
+    SkBuff_Head    done;
+    SkBuff_Head    rxq_pause;
+    TaskletStruct    bh;
 
     struct pcpu_sw_netstats __percpu *stats64;
     
-    struct work_struct    kevent;
-    struct work_struct    TxCompleteWorkqueue;
-    struct work_struct    RxCompleteWorkqueue;
-    unsigned int        TxLen;
-    unsigned int        RxLen;
+    WorkStruct    kevent;
+    WorkStruct    TxCompleteWorkqueue;
+    WorkStruct    RxCompleteWorkqueue;
+    unsigned int        txLen;
+    unsigned int        rxLen;
     unsigned long        flags;
 #        define EVENT_TX_HALT    0
 #        define EVENT_RX_HALT    1
@@ -80,21 +93,23 @@ struct UsbnetAdapter{
 #        define EVENT_LINK_CHANGE    11
 #        define EVENT_SET_RX_MODE    12
 #        define EVENT_NO_IP_ALIGN    13
-
 };
 
 /* we record the state for each of our queued skbs */
-enum skb_state {
-    illegal = 0,
-    tx_start, tx_done,
-    rx_start, rx_done, rx_cleanup,
-    unlink_start
+enum SkbState {
+    ILLEGAL = 0,
+    TX_START,
+    TX_DONE,
+    RX_START,
+    RX_DONE,
+    RX_CLEANUP,
+    UNLINK_START
 };
 
-struct skb_data {    /* skb->cb is one of these */
-    enum skb_state        state;
+struct SkbData {    /* skb->cb is one of these */
+    enum SkbState       state;
     long                length;
-    unsigned long        packets;
+    unsigned long       packets;
 };
 
 #endif
