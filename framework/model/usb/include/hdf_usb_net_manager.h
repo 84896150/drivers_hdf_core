@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Archermind Technology (Nanjing) Co. Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -20,7 +20,7 @@
 #define FLAG_FRAMING_NC    0x0001        /* guard against device dropouts */
 #define FLAG_FRAMING_GL    0x0002        /* genelink batches packets */
 #define FLAG_FRAMING_Z     0x0004        /* zaurus adds a trailer */
-#define HDF_FLAG_FRAMING_RN    0x0008        /* RNDIS batches, plus huge header */
+#define HDF_FLAG_FRAMING_RN    0x0008    /* plus huge header */
 
 #define HDF_FLAG_NO_SETINT    0x0010        /* device can't set_interface() */
 #define HDF_FLAG_ETHER        0x0020        /* maybe use "eth%d" names */
@@ -54,13 +54,13 @@ enum UsbnetServiceCmd {
 };
 
 struct UsbnetTransInfo {
-    uint8_t isBindDevice;           
-    char name[IFNAMSIZ];                      /**< Network device name {@link IFNAMSIZ} */
-    uint8_t isGetmacAddr;           
-    uint8_t macAddr[MAC_ADDR_SIZE];           /**< MAC address {@link MAC_ADDR_SIZE} */
-    uint32_t flags;                           /**< Network port status */
-    uint32_t mtu;                             /**< Maximum transmission unit */
-    uint16_t hardHeaderLen;                   /**< Header length */
+    uint8_t isBindDevice;
+    char name[IFNAMSIZ];                        /**< Network device name {@link IFNAMSIZ} */
+    uint8_t isGetmacAddr;
+    uint8_t macAddr[MAC_ADDR_SIZE];             /**< MAC address {@link MAC_ADDR_SIZE} */
+    uint32_t flags;                             /**< Network port status */
+    uint32_t mtu;                               /**< Maximum transmission unit */
+    uint16_t hardHeaderLen;                     /**< Header length */
     uint8_t link;
     uint8_t needReset;
     uint32_t usbFlags;                        /**< usb device match flags */

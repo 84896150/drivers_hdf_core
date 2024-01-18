@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Archermind Technology (Nanjing) Co. Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -25,7 +25,7 @@
 #include <linux/of_mdio.h>
 #endif
 
-#include <net/ip.h>  
+#include <net/ip.h>
 #include <stddef.h>
 #include "osal_mem.h"
 #include "securec.h"
@@ -39,28 +39,26 @@
 
 // between wakeups
 #define UNLINK_TIMEOUT_MS    3
-#define    TX_QLEN(dev)        ((dev)->usbnetInfo.txQlen)
-
 #define PKT_COUNT_CLEAR     30
 #define PKT_COUNT_RXKILL    20
 #define SHIFT_LINE_NUM      32
 
 /* use ethtool to change the level for any given device */
 static int g_msgLevel = -1;
-module_param (g_msgLevel, int, 0);
-MODULE_PARM_DESC (g_msgLevel, "Override default message level");
+MODULE_PARAM(g_msgLevel, int, 0);
+MODULE_PARM_DESC(g_msgLevel, "Override default message level");
 
-static int printf_char_buffer(char *buff, int size, bool isPrint)
-{
-    if (isPrint)
-    {
+static inline int UsbnetAdapterGetTxQlen(struct UsbnetAdapter *usbNet) {
+    return usbNet->usbnetInfo.txQlen;
+}
+
+static int printf_char_buffer(char *buff, int size, bool isPrint) {
+    if (isPrint) {
         int i = 0;
         printk("===-harch-=== printf_char_buffer begin\n");
-        for (i = 0; i < size; i++)
-        {
+        for (i = 0; i < size; i++) {
             printk(KERN_CONT"%02x ", buff[i]);
-            if ((i + 1) % SHIFT_LINE_NUM == 0)
-            {
+            if ((i + 1) % SHIFT_LINE_NUM == 0) {
                 printk(KERN_CONT"\n");
             }
         }
@@ -69,10 +67,10 @@ static int printf_char_buffer(char *buff, int size, bool isPrint)
     return 0;
 }
 
-int32_t UsbnetAdapterSendBufToUsb(const struct HdfDeviceObject *device, uint32_t id,  
-                                            const void *buf, uint32_t writeSize)
+static int32_t UsbnetAdapterSendBufToUsb(const struct HdfDeviceObject *device, uint32_t id,
+    const void *buf, uint32_t writeSize)
 {
-    HARCH_NET_INFO_PRINT ("writeSize=%d", writeSize);    
+    HARCH_NET_INFO_PRINT("writeSize=%d", writeSize);
     int32_t ret = HDF_SUCCESS;
     if ((device == NULL) || (buf == NULL)) {
         HDF_LOGE("%s param is null", __func__);
@@ -103,8 +101,7 @@ out:
     return ret;
 }
 
-
-static void RxComplete (WorkStruct *work) {
+static void RxComplete(WorkStruct *work) {
     
     unsigned long flags = 0;
     struct UsbnetAdapter *usbNet = container_of(work, struct UsbnetAdapter, RxCompleteWorkqueue);
@@ -114,7 +111,7 @@ static void RxComplete (WorkStruct *work) {
     stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT("rx_complete stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-    stats64->tx_packets,stats64->tx_bytes);
+    stats64->tx_packets, stats64->tx_bytes);
     
     flags = u64_stats_update_begin_irqsave(&stats64->syncp);
     stats64->rx_packets++;
@@ -122,18 +119,18 @@ static void RxComplete (WorkStruct *work) {
     u64_stats_update_end_irqrestore(&stats64->syncp, flags);
 
     HARCH_NET_INFO_PRINT("rx_complete stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
-    stats64->rx_packets, stats64->rx_bytes);
+        stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT("rx_complete stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-    stats64->tx_packets,stats64->tx_bytes);
+        stats64->tx_packets,stats64->tx_bytes);
 }
 
 /* Passes this packet up the stack, updating its accounting.
  * Some link protocols batch packets, so their rx_fixup paths
  * can return clones as well as just modify the original skb.
  */
-static void UsbnetAdapterSkbReturn (struct UsbnetAdapter *usbNet, SkBuff *skb)
-{ 
+static void UsbnetAdapterSkbReturn(struct UsbnetAdapter *usbNet, SkBuff *skb)
+{
     if (test_bit(EVENT_RX_PAUSED, &usbNet->flags)) {
         skb_queue_tail(&usbNet->rxq_pause, skb);
         return;
@@ -176,30 +173,32 @@ static int RndisRxFixup(struct UsbnetAdapter *usbNet, SkBuff *skb)
     }
     /* peripheral may have batched packets to us... */
     while (likely(skb->len)) {
-        RndisDataHdr    *hdr = (void *)skb->data;
-        SkBuff        *skb2;
-        u32            msg_type, msg_len, data_offset, data_len;
+        RndisDataHdr *hdr = (void *)skb->data;
+        SkBuff *skb2 = NULL;
+        u32 msg_type = 0;
+        u32 msg_len  = 0;
+        u32 data_len = 0;
+        u32 data_offset = 0;
 
         msg_type = le32_to_cpu(hdr->msg_type);
         msg_len = le32_to_cpu(hdr->msg_len);
         data_offset = le32_to_cpu(hdr->data_offset);
         data_len = le32_to_cpu(hdr->data_len);
-        unsigned int total_len = data_offset + data_len + 8;
+        unsigned int totalLen = data_offset + data_len + 8;
         
         /* don't choke if we see oob, per-packet data, etc */
         if (unlikely(msg_type != RNDIS_MSG_PACKET || skb->len < msg_len
-                || total_len > msg_len)) {
+                || totalLen > msg_len)) {
             usbNet->net->stats.rx_frame_errors++;
             netdev_dbg(usbNet->net, "bad rndis message %d/%d/%d/%d, len %d\n",
-                   le32_to_cpu(hdr->msg_type),
-                   msg_len, data_offset, data_len, skb->len);
+                le32_to_cpu(hdr->msg_type), msg_len, data_offset, data_len, skb->len);
             return 0;
         }
         unsigned int offset = 8 + data_offset;
         skb_pull(skb, offset);
 
         /* at most one packet left? */
-        if (likely((data_len - skb->len) <= sizeof *hdr)) {
+        if (likely((data_len - skb->len) <= sizeof(RndisDataHdr))) {
             skb_trim(skb, data_len);
             break;
         }
@@ -209,22 +208,23 @@ static int RndisRxFixup(struct UsbnetAdapter *usbNet, SkBuff *skb)
         if (unlikely(!skb2)) {
             break;
         }
-        skb_pull(skb, msg_len - sizeof *hdr);
+        skb_pull(skb, msg_len - sizeof(RndisDataHdr));
         skb_trim(skb2, data_len);
         UsbnetAdapterSkbReturn(usbNet, skb2);
     }
     return 1;
 }
 
-static void UsbnetAdapterRxProcess (struct UsbnetAdapter *usbNet, SkBuff *skb)
+static void UsbnetAdapterRxProcess(struct UsbnetAdapter *usbNet, SkBuff *skb)
 {
     HARCH_NET_INFO_PRINT("-------rx before fix");
     printf_char_buffer(skb->data, skb->len, false);
 
     if (!RndisRxFixup(usbNet, skb)) {
         /* With RX_ASSEMBLE, rx_fixup() must update counters */
-        if (!(usbNet->usbnetInfo.usbFlags & FLAG_RX_ASSEMBLE))
+        if (!(usbNet->usbnetInfo.usbFlags & FLAG_RX_ASSEMBLE)) {
             usbNet->net->stats.rx_errors++;
+        }
         goto done;
     }
     // else network stack removes extra byte if we forced a short packet
@@ -232,8 +232,7 @@ static void UsbnetAdapterRxProcess (struct UsbnetAdapter *usbNet, SkBuff *skb)
     printf_char_buffer(skb->data, skb->len, false);
 
     /* all data was already cloned from skb inside the driver */
-    if (usbNet->usbnetInfo.usbFlags & FLAG_MULTI_PACKET)
-    {
+    if (usbNet->usbnetInfo.usbFlags & FLAG_MULTI_PACKET) {
         HARCH_NET_INFO_PRINT("usbNet->driver_info->flags = %d",usbNet->usbnetInfo.usbFlags);
         goto done;
     }
@@ -252,7 +251,7 @@ done:
     skb_queue_tail(&usbNet->done, skb);
 }
 
-static void UsbnetAdapterBh (TimerList *t)
+static void UsbnetAdapterBh(TimerList *t)
 {
     HARCH_NET_INFO_PRINT("begin");
     struct UsbnetAdapter *usbNet = from_timer(usbNet, t, delay);
@@ -262,10 +261,10 @@ static void UsbnetAdapterBh (TimerList *t)
 
     while ((skb = skb_dequeue (&usbNet->done))) {
         entry = (struct SkbData *) skb->cb;
-        HARCH_NET_INFO_PRINT("entry->state = %d",entry->state);
+        HARCH_NET_INFO_PRINT("entry->state = %d", entry->state);
 
         switch (entry->state) {
-            case RX_DONE: 
+            case RX_DONE:
                 HARCH_NET_INFO_PRINT("rx_done");
                 entry->state = RX_CLEANUP;
                 UsbnetAdapterRxProcess (usbNet, skb);
@@ -299,10 +298,9 @@ static void UsbnetAdapterBh (TimerList *t)
         }
     }
 
-    if (usbNet->txq.qlen < TX_QLEN (usbNet))
-    {
+    if (usbNet->txq.qlen < UsbnetAdapterGetTxQlen(usbNet)) {
         netif_wake_queue (usbNet->net);
-        HARCH_NET_INFO_PRINT("usbNet->txq.qlen = %d, TX_QLEN (usbNet) = %d",usbNet->txq.qlen,TX_QLEN (usbNet));
+        HARCH_NET_INFO_PRINT("usbNet->txq.qlen = %d, TX_QLEN (usbNet) = %d",usbNet->txq.qlen,UsbnetAdapterGetTxQlen(usbNet));
     }
     HARCH_NET_INFO_PRINT("end");
 }
@@ -318,7 +316,7 @@ static void UsbnetAdapterBhTasklet(unsigned long data)
 
 /* The caller must hold list->lock */
 static void UsbnetAdapterQueueSkb(SkBuff_Head *list,
-                        SkBuff *newsk, enum SkbState state)
+    SkBuff *newsk, enum SkbState state)
 {
     struct SkbData *entry = (struct SkbData *) newsk->cb;
 
@@ -327,7 +325,7 @@ static void UsbnetAdapterQueueSkb(SkBuff_Head *list,
 }
 
 static enum SkbState UsbnetAdapterDeferBh(struct UsbnetAdapter *usbNet, SkBuff *skb,
-                                                    SkBuff_Head *list, enum SkbState state)
+        SkBuff_Head *list, enum SkbState state)
 {
     unsigned long flags = 0;
     enum SkbState old_state = ILLEGAL;
@@ -357,14 +355,12 @@ static enum SkbState UsbnetAdapterDeferBh(struct UsbnetAdapter *usbNet, SkBuff *
 static int32_t UsbnetAdapterOpen(NetDevice *net)
 {
     HARCH_NET_INFO_PRINT("begin");
-    if (NULL == net) 
-    {
+    if (NULL == net) {
         HDF_LOGE("net device object is invalid");
         return HDF_FAILURE;
     }
     struct UsbnetAdapter *usbNet = netdev_priv(net);
-    if (NULL == usbNet) 
-    {
+    if (NULL == usbNet) {
         HDF_LOGE("usb net adapter object is invalid");
         return HDF_FAILURE;
     }
@@ -375,15 +371,15 @@ static int32_t UsbnetAdapterOpen(NetDevice *net)
 
     /* set device param, if find usb net host need, then it should send to it */
     /* reset rx error state */
-    usbNet->pkt_Cnt = 0;
-    usbNet->pkt_Err = 0;
-
+    usbNet->pktCnt = 0;
+    usbNet->pktErr = 0;
     clear_bit(EVENT_RX_KILL, &usbNet->flags);
 
     /* send info to usb start usb function */
     /* need transform usb_net_host change about usbNet->driverInfo->flags and set it on usb_net_host */
     OsalMutexLock(&usbNet->sendSkbClock);
-    int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_OPEN_USB, (const void *)&usbNet->flags, sizeof(usbNet->flags));
+    int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_OPEN_USB,
+        (const void *)&usbNet->flags, sizeof(usbNet->flags));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("fail to UsbnetAdapterSendBufToUsb SendEvent!");
         OsalMutexUnlock(&usbNet->sendSkbClock);
@@ -392,7 +388,6 @@ static int32_t UsbnetAdapterOpen(NetDevice *net)
     OsalMutexUnlock(&usbNet->sendSkbClock);
     
     tasklet_schedule (&usbNet->bh);
-
     return HDF_SUCCESS;
 }
 
@@ -445,18 +440,18 @@ static int32_t UsbnetAdapterStop(NetDevice *net)
     PcpuSwNetstats *stats64 = this_cpu_ptr(usbNet->stats64);
 
     HARCH_NET_INFO_PRINT("usbNet stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
-    stats64->rx_packets, stats64->rx_bytes);
+        stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT("usbNet stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-    stats64->tx_packets,stats64->tx_bytes);
+        stats64->tx_packets,stats64->tx_bytes);
 
     /* 1. clear_bit EVENT_DEV_OPEN dev->flags */
     clear_bit(EVENT_DEV_OPEN, &usbNet->flags);
     /* 2. netif_stop_queue net */
     netif_stop_queue (net);
     HARCH_NET_INFO_PRINT("stop stats: rx/tx %lu/%lu, errs %lu/%lu\n",
-           net->stats.rx_packets, net->stats.tx_packets,
-           net->stats.rx_errors, net->stats.tx_errors);
+        net->stats.rx_packets, net->stats.tx_packets,
+        net->stats.rx_errors, net->stats.tx_errors);
     
     /* 3. pm = usb_autopm_get_interface(dev->intf); do nothing */
     /* 4. if (info->stop) { no stop interface impl in rndis driver info */
@@ -472,7 +467,8 @@ static int32_t UsbnetAdapterStop(NetDevice *net)
     /* 9. dev flags */
     usbNet->flags = 0;
     OsalMutexLock(&usbNet->sendSkbClock);
-    int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_CLOSE_USB, (const void *)&usbNet->flags, sizeof(usbNet->flags));
+    int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_CLOSE_USB,
+        (const void *)&usbNet->flags, sizeof(usbNet->flags));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("fail to UsbnetAdapterSendBufToUsb SendEvent!");
         OsalMutexUnlock(&usbNet->sendSkbClock);
@@ -503,7 +499,7 @@ static SkBuff *RndisTxFixup(SkBuff *skb, gfp_t flags)
         }
         /* enough room, but needs to be readjusted? */
         room += skb_tailroom(skb);
-        if (likely((sizeof *hdr) <= room)) {
+        if (likely((sizeof(RndisDataHdr)) <= room)) {
             skb->data = memmove_s(skb->head + sizeof *hdr, len, skb->data, len);
             skb_set_tail_pointer(skb, len);
             goto fill;
@@ -540,10 +536,10 @@ static void TxComplete(WorkStruct *work)
     struct UsbnetAdapter *usbNet = container_of(work, struct UsbnetAdapter, TxCompleteWorkqueue);
     PcpuSwNetstats *stats64 = this_cpu_ptr(usbNet->stats64);
     HARCH_NET_INFO_PRINT ("tx_complete stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
-                                                        stats64->rx_packets, stats64->rx_bytes);
+        stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT ("tx_complete stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-                                                        stats64->tx_packets,stats64->tx_bytes);
+        stats64->tx_packets,stats64->tx_bytes);
 
     flags = u64_stats_update_begin_irqsave(&stats64->syncp);
     stats64->tx_packets++;
@@ -551,54 +547,44 @@ static void TxComplete(WorkStruct *work)
     u64_stats_update_end_irqrestore(&stats64->syncp, flags);
 
     HARCH_NET_INFO_PRINT ("tx_complete stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
-                                                        stats64->rx_packets, stats64->rx_bytes);
+        stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT ("tx_complete stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-                                                        stats64->tx_packets,stats64->tx_bytes);
+        stats64->tx_packets,stats64->tx_bytes);
 }
 
 static netdev_tx_t UsbnetAdapterStartXmit(SkBuff *skb, NetDevice *net)
 {
-    HARCH_NET_INFO_PRINT ("netif_running  = %d, netif_device_present = %d", netif_running (net), netif_device_present (net));
-    HARCH_NET_INFO_PRINT ("netif_carrier_ok  = %d", netif_carrier_ok (net));
-
-    /* print org skb data info */
-    HARCH_NET_INFO_PRINT ("UsbnetAdapterStartXmit skb->data = %x, len = %d", skb->data, skb->len);
+    HARCH_NET_INFO_PRINT ("netif_running=%d, netif_device_present=%d, netif_carrier_ok=%d", netif_running(net),
+        netif_device_present(net), netif_carrier_ok(net));
+    HARCH_NET_INFO_PRINT ("skb->data = %x, len = %d", skb->data, skb->len);
     printf_char_buffer(skb->data, skb->len, false);
-    struct UsbnetAdapter *usbNet = netdev_priv(net);
-    
+    struct UsbnetAdapter *usbNet = netdev_priv(net);    
     //1.time tamp
     if (skb) {
         skb_tx_timestamp(skb);
     }
-    //2.fix up
-    SkBuff* skbFixup = NULL;
-
-    /* rndis fixup sk_buf */
-    skbFixup = RndisTxFixup(skb, GFP_ATOMIC);
-    if (NULL == skbFixup)
-    {
+    //2.fix up   
+    SkBuff* skbFixup = RndisTxFixup(skb, GFP_ATOMIC);
+    if (NULL == skbFixup) {
         if (usbNet->usbnetInfo.usbFlags & FLAG_MULTI_PACKET) {
             goto not_drop;
         }
         HDF_LOGE("fail to tx fixup by rndis host");
         goto drop;
     }
-
-    HARCH_NET_INFO_PRINT("UsbnetAdapterStartXmit skb_fixup->data = %x, len = %d",skbFixup->data, skbFixup->len);
+    HARCH_NET_INFO_PRINT("skb_fixup->data = %x, len = %d", skbFixup->data, skbFixup->len);
     /* print org skb data info */
     printf_char_buffer(skbFixup->data, skbFixup->len, false);
-    //3.send to usb
-    
-    // send msg to usb
+    //3.send msg to usb   
     unsigned long flags = 0;
     spin_lock_irqsave(&usbNet->txq.lock, flags);
-       if (netif_queue_stopped(usbNet->net)) {
+    if (netif_queue_stopped(usbNet->net)) {
         goto drop;
     }
 
-    int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_SEND_DATA_TO_USB,  
-                        (unsigned char *)(skbFixup->data), skbFixup->len);
+    int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_SEND_DATA_TO_USB,
+        (unsigned char *)(skbFixup->data), skbFixup->len);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("fail to UsbnetHost SendEvent!");
 drop:
@@ -612,20 +598,16 @@ not_drop:
         netif_trans_update(usbNet->net);
         UsbnetAdapterQueueSkb(&usbNet->txq, skbFixup, TX_START);
 
-        if (usbNet->txq.qlen >= TX_QLEN (usbNet)) {
-            HARCH_NET_INFO_PRINT("usbNet->txq.qlen = %d, TX_QLEN (usbNet) = %d", usbNet->txq.qlen, TX_QLEN (usbNet));
+        if (usbNet->txq.qlen >= UsbnetAdapterGetTxQlen(usbNet)) {
+            HARCH_NET_INFO_PRINT("usbNet->txq.qlen = %d, TX_QLEN (usbNet) = %d", usbNet->txq.qlen, UsbnetAdapterGetTxQlen(usbNet));
             netif_stop_queue (usbNet->net);
         }
-
         spin_unlock_irqrestore(&usbNet->txq.lock, flags);
-
         usbNet->txLen = skbFixup->len;
         schedule_work_on(0, &usbNet->TxCompleteWorkqueue);
         
         enum SkbState state = UsbnetAdapterDeferBh(usbNet, skbFixup, &usbNet->txq, TX_DONE);
         HARCH_NET_INFO_PRINT("state= %d", state);
-
-        HARCH_NET_INFO_PRINT("========print tosend skb data info========");
     }
     return NETDEV_TX_OK;
 }
@@ -634,12 +616,12 @@ static void UsbnetAdapterTXTimeout(NetDevice *net, unsigned int txqueue)
 {
     //send to device
     HARCH_NET_INFO_PRINT("begin");
-    if ( NULL == net) {
+    if (NULL == net) {
         HDF_LOGE("%s net device object is invalid", __func__);
         return;
     }
     struct UsbnetAdapter  *usbNet = netdev_priv(net);
-    if ( NULL == usbNet) {
+    if (NULL == usbNet) {
         HDF_LOGE("%s UsbnetAdapter object is invalid", __func__);
         return;
     }
@@ -658,10 +640,10 @@ static void UsbnetAdapterTXTimeout(NetDevice *net, unsigned int txqueue)
  * NOTE:  annoying asymmetry:  if it's active, schedule_work() fails,
  * but tasklet_schedule() doesn't.  hope the failure is rare.
  */
-void UsbnetAdapterDeferKevent (struct UsbnetAdapter *usbNet, int work)
+static void UsbnetAdapterDeferKevent(struct UsbnetAdapter *usbNet, int work)
 {
     HARCH_NET_INFO_PRINT("begin");
-    if ( NULL == usbNet) {
+    if (NULL == usbNet) {
         HDF_LOGE("%s UsbnetAdapter object is invalid", __func__);
         return;
     }
@@ -684,15 +666,14 @@ void UsbnetAdapterDeferKevent (struct UsbnetAdapter *usbNet, int work)
     }
 }
 
-void UsbnetAdapterSetRxMode(NetDevice *net)
-{
-   return;
+static void UsbnetAdapterSetRxMode(NetDevice *net) {
+    return;
 }
 
-void UsbnetAdapterPauseRx(struct UsbnetAdapter *usbNet)
+static void UsbnetAdapterPauseRx(struct UsbnetAdapter *usbNet)
 {
     HARCH_NET_INFO_PRINT("begin");
-    if ( NULL == usbNet) {
+    if (NULL == usbNet) {
         HDF_LOGE("%s UsbnetAdapter object is invalid", __func__);
         return;
     }
@@ -714,7 +695,7 @@ void UsbnetAdapterPauseRx(struct UsbnetAdapter *usbNet)
 static void UsbnetAdapterUnlinkRxUrbs(struct UsbnetAdapter *usbNet)
 {
     HARCH_NET_INFO_PRINT("begin");
-    if ( NULL == usbNet) {
+    if (NULL == usbNet) {
         HDF_LOGE("%s UsbnetAdapter object is invalid", __func__);
         return;
     }
@@ -730,7 +711,7 @@ static void UsbnetAdapterResumeRx(struct UsbnetAdapter *usbNet)
     HARCH_NET_INFO_PRINT("begin");
     int num = 0;
     SkBuff *skb = NULL;
-    if ( NULL == usbNet) {
+    if (NULL == usbNet) {
         HDF_LOGE("%s UsbnetAdapter object is invalid", __func__);
         return;
     }
@@ -739,7 +720,7 @@ static void UsbnetAdapterResumeRx(struct UsbnetAdapter *usbNet)
     /* need update flags to usb_net_host */
     OsalMutexLock(&usbNet->sendSkbClock);
     int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_UPDATE_FLAGS,
-                                    (const void *)&usbNet->flags, sizeof(usbNet->flags));
+        (const void *)&usbNet->flags, sizeof(usbNet->flags));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("fail to UsbnetAdapterSendBufToUsb SendEvent!");
         OsalMutexUnlock(&usbNet->sendSkbClock);
@@ -757,29 +738,28 @@ static void UsbnetAdapterResumeRx(struct UsbnetAdapter *usbNet)
 }
 
 
-int32_t UsbnetAdapterChangeMtu(NetDevice *net, int newMtu)
-{
+static int32_t UsbnetAdapterChangeMtu(NetDevice *net, int newMtu) {
     //send to device
     HARCH_NET_INFO_PRINT("begin");
-    if ( NULL == net) {
+    if (NULL == net) {
         HDF_LOGE("%s net device object is invalid", __func__);
         return HDF_FAILURE;
     }
     
     struct UsbnetAdapter  *usbNet = netdev_priv(net);
-    if ( NULL == usbNet) {
+    if (NULL == usbNet) {
         HDF_LOGE("%s UsbnetAdapter object is invalid", __func__);
         return HDF_FAILURE;
     }
 
     /* 1. ll_mtu old_hard_mtu old_rx_urb_size */
     HARCH_NET_INFO_PRINT("newMtu:%d", newMtu);
-    int ll_Mtu = newMtu + net->hard_header_len; 
+    int llMtu = newMtu + net->hard_header_len;
     int oldHardMtu = usbNet->usbnetInfo.hardMtu;
     int oldRxUrbSize = usbNet->usbnetInfo.rxUrbSize;
 
     /* 2. no second zero-length packet read wanted after mtu-sized packets */
-    if ((ll_Mtu % usbNet->usbnetInfo.maxpacket) == 0) {
+    if ((llMtu % usbNet->usbnetInfo.maxpacket) == 0) {
         HARCH_NET_INFO_PRINT("");
         return -EDOM;
     }
@@ -799,15 +779,17 @@ int32_t UsbnetAdapterChangeMtu(NetDevice *net, int newMtu)
     }
 
     /* need transmit hard_mtu to usb net host, UsbnetHostUpdateMaxQlen need this param */
-    HARCH_NET_INFO_PRINT("name = %s, flags = %d, usbFlags = %x mtu = %d, hardHeaderLen = %d, link = %d needReset = %d, hardMtu = %d, rxUrbSize = %d, maxpacket =%d",
-            usbNet->usbnetInfo.name,usbNet->usbnetInfo.flags, usbNet->usbnetInfo.usbFlags,usbNet->usbnetInfo.mtu,
-            usbNet->usbnetInfo.hardHeaderLen, usbNet->usbnetInfo.link,usbNet->usbnetInfo.needReset, 
-            usbNet->usbnetInfo.hardMtu, usbNet->usbnetInfo.rxUrbSize, usbNet->usbnetInfo.maxpacket);
+    HARCH_NET_INFO_PRINT("name = %s, flags = %d, usbFlags = %x mtu = %d, hardHeaderLen = %d,\
+        link = %d needReset = %d, hardMtu = %d, rxUrbSize = %d, maxpacket =%d",
+        usbNet->usbnetInfo.name,usbNet->usbnetInfo.flags, usbNet->usbnetInfo.usbFlags,
+        usbNet->usbnetInfo.mtu,usbNet->usbnetInfo.hardHeaderLen, usbNet->usbnetInfo.link,
+        usbNet->usbnetInfo.needReset,usbNet->usbnetInfo.hardMtu, usbNet->usbnetInfo.rxUrbSize,
+        usbNet->usbnetInfo.maxpacket);
     /* 5. max qlen depend on hard_mtu and rx_urb_size */
     /* need update flags to usb_net_host */
     OsalMutexLock(&usbNet->sendSkbClock);
     int32_t ret = UsbnetAdapterSendBufToUsb(usbNet->deviceObject, USB_NET_UPDATE_MAXQLEN,
-                            (const void *)&usbNet->usbnetInfo, sizeof(usbNet->usbnetInfo));
+        (const void *)&usbNet->usbnetInfo, sizeof(usbNet->usbnetInfo));
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("fail to UsbnetAdapterSendBufToUsb SendEvent!");
         OsalMutexUnlock(&usbNet->sendSkbClock);
@@ -817,7 +799,7 @@ int32_t UsbnetAdapterChangeMtu(NetDevice *net, int newMtu)
     return HDF_SUCCESS;
 }
 
-static void UsbnetAdapterGetStats64 (NetDevice *net,  struct rtnl_link_stats64 *stats)
+static void UsbnetAdapterGetStats64(NetDevice *net, struct rtnl_link_stats64 *stats)
 {
     //send to device
     HARCH_NET_INFO_PRINT("begin");
@@ -829,10 +811,10 @@ static void UsbnetAdapterGetStats64 (NetDevice *net,  struct rtnl_link_stats64 *
     PcpuSwNetstats *stats64 = this_cpu_ptr(usbNet->stats64);
 
     HARCH_NET_INFO_PRINT ("usbNet stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
-                                                    stats64->rx_packets, stats64->rx_bytes);
+        stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT ("usbNet stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-                                                    stats64->tx_packets,stats64->tx_bytes);
+        stats64->tx_packets, stats64->tx_bytes);
 
     HARCH_NET_INFO_PRINT("end");
     return;
@@ -854,7 +836,7 @@ static NetDevice_Ops g_UsbnetAdapterDeviceOps = {
 static const EthtoolOps g_UsbnetAdapterEthtoolOps = {
 };
 
-void UsbnetAdapterLinkChange(struct UsbnetAdapter *usbNet, bool link, bool need_reset)
+static void UsbnetAdapterLinkChange(struct UsbnetAdapter *usbNet, bool link, bool need_reset)
 {
     HARCH_NET_INFO_PRINT("begin");
     /* update link after link is reseted */
@@ -865,33 +847,12 @@ void UsbnetAdapterLinkChange(struct UsbnetAdapter *usbNet, bool link, bool need_
     }
 }
 
-static int32_t UsbnetAdapterRxComplete(struct HdfDeviceObject *device, struct HdfSBuf *data, gfp_t flags)
-{
-    HARCH_NET_INFO_PRINT("begin");
-    unsigned char *buff = NULL;   
-    uint32_t infoSize    = 0;
-    int ret = HDF_SUCCESS;
+static int32_t UsbnetAdapterSetSkb(struct UsbnetAdapter *usbNet, gfp_t flags,
+    uint32_t infoSize, unsigned char *buff, SkBuff **ppSkb) {
+    SkBuff *skb  = NULL;
     
-    bool flag = HdfSbufReadBuffer(data, (const void **)(&(buff)), &infoSize);
-    if ((!flag) || buff == NULL) {
-        HDF_LOGE("%s: fail to read infoTable in event data, flag = %d", __func__, flag);
-        return  HDF_ERR_INVALID_PARAM;
-    }
-    
-    NetDevice *net = (NetDevice *)device->priv;
-    if (net == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
-    printf_char_buffer(buff, infoSize, false);
-    struct UsbnetAdapter *usbNet = netdev_priv(net);
-    if (usbNet == NULL) {
-        return HDF_ERR_INVALID_PARAM;
-    }
-    SkBuff    *skb   = NULL;
-    struct SkbData    *entry = NULL;
-    uint32_t skb_size =  sizeof(struct iphdr) + sizeof(struct udphdr) + infoSize;
+    uint32_t skb_size = sizeof(struct iphdr) + sizeof(struct udphdr) + infoSize;
     size_t size = skb_size > usbNet->usbnetInfo.rxUrbSize ? usbNet->usbnetInfo.rxUrbSize : skb_size;
-    HARCH_NET_INFO_PRINT("infoSize= %d, size = %d", infoSize, size);
 
     if (test_bit(EVENT_NO_IP_ALIGN, &usbNet->flags)) {
         skb = __netdev_alloc_skb(usbNet->net, size, flags);
@@ -905,16 +866,46 @@ static int32_t UsbnetAdapterRxComplete(struct HdfDeviceObject *device, struct Hd
         return HDF_DEV_ERR_NO_MEMORY;
     }
 
-    entry = (struct SkbData *) skb->cb;
-    entry->length = 0;
-    skb_put (skb, infoSize);
+    skb_put(skb, infoSize);
     if (memcpy_s(skb->data, infoSize, buff, infoSize) != EOK) {
         HARCH_NET_INFO_PRINT("memcpy_s error ");
-        return  HDF_ERR_INVALID_PARAM;
+        return HDF_ERR_INVALID_PARAM;
     }
-
-    HARCH_NET_INFO_PRINT("skb->len = %d", skb->len);
+    HARCH_NET_INFO_PRINT("infoSize= %d, size = %d, skb->len = %d", infoSize, size, skb->len);
     printf_char_buffer(skb->data, skb->len, false);
+
+    *ppSkb = skb;
+    return HDF_SUCCESS;
+}
+static int32_t UsbnetAdapterRxComplete(struct HdfDeviceObject *device, struct HdfSBuf *data, gfp_t flags)
+{
+    HARCH_NET_INFO_PRINT("begin");
+    unsigned char *buff = NULL;
+    uint32_t infoSize   = 0;    
+    bool flag = HdfSbufReadBuffer(data, (const void **)(&(buff)), &infoSize);
+    if ((!flag) || buff == NULL) {
+        HDF_LOGE("%s: fail to read infoTable in event data, flag = %d", __func__, flag);
+        return HDF_ERR_INVALID_PARAM;
+    }
+    
+    NetDevice *net = (NetDevice *)device->priv;
+    if (net == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+    printf_char_buffer(buff, infoSize, false);
+    struct UsbnetAdapter *usbNet = netdev_priv(net);
+    if (usbNet == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
+   
+    SkBuff *skb   = NULL;
+    flag = UsbnetAdapterSetSkb(usbNet, flags, infoSize, buff, &skb);
+    if ((!flag) || skb == NULL) {
+        HDF_LOGE("%s: fail to set skb, flag = %d", __func__, flag);
+        return flag;
+    }
+    struct SkbData *entry = (struct SkbData *)skb->cb;
+    entry->length = 0;
     //success recv
     unsigned long lockflags = 0;
     spin_lock_irqsave (&usbNet->rxq.lock, lockflags);
@@ -923,26 +914,26 @@ static int32_t UsbnetAdapterRxComplete(struct HdfDeviceObject *device, struct Hd
 
     PcpuSwNetstats *stats64 = this_cpu_ptr(usbNet->stats64);
     HARCH_NET_INFO_PRINT("usbNet stats64->rx_packets = %lu,usbNet stats64->rx_bytes = %lu",
-                                                   stats64->rx_packets, stats64->rx_bytes);
+        stats64->rx_packets, stats64->rx_bytes);
     
     enum SkbState state = RX_DONE;
-    if (++usbNet->pkt_Cnt > PKT_COUNT_CLEAR) {
-        HARCH_NET_INFO_PRINT("usbNet->pkt_Cnt = %d, pkt_Err = %d", usbNet->pkt_Cnt, usbNet->pkt_Err);
-        usbNet->pkt_Cnt = 0;
-        usbNet->pkt_Err = 0;
+    if (++usbNet->pktCnt > PKT_COUNT_CLEAR) {
+        HARCH_NET_INFO_PRINT("usbNet->pktCnt = %d, pktErr = %d", usbNet->pktCnt, usbNet->pktErr);
+        usbNet->pktCnt = 0;
+        usbNet->pktErr = 0;
     } else {
-        HARCH_NET_INFO_PRINT("usbNet->pkt_Cnt = %d,pkt_Err = %d", usbNet->pkt_Cnt, usbNet->pkt_Err);
+        HARCH_NET_INFO_PRINT("usbNet->pktCnt = %d,pktErr = %d", usbNet->pktCnt, usbNet->pktErr);
         if (state == RX_CLEANUP) {
-            usbNet->pkt_Err++; 
+            usbNet->pktErr++;
         }
 
-        if (usbNet->pkt_Err > PKT_COUNT_RXKILL) {
+        if (usbNet->pktErr > PKT_COUNT_RXKILL) {
             set_bit(EVENT_RX_KILL, &usbNet->flags);
         }
     }
     
     state = UsbnetAdapterDeferBh(usbNet, skb, &usbNet->rxq, state);
-    HARCH_NET_INFO_PRINT("usbNet->pkt_Cnt = %d, pkt_Err = %d, state = %d",usbNet->pkt_Cnt, usbNet->pkt_Err, state);
+    HARCH_NET_INFO_PRINT("usbNet->pktCnt = %d, pktErr = %d, state = %d",usbNet->pktCnt, usbNet->pktErr, state);
     return HDF_SUCCESS;
 }
 
@@ -955,18 +946,16 @@ static DeviceType wwanType = {
     .name    = "wwan",
 };
 
-static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf *data)
-{
-    HARCH_NET_INFO_PRINT("begin");
+static void UsbnetAdapterGetObject(struct HdfDeviceObject *device, struct HdfSBuf *data,
+    struct UsbnetAdapter **ppusbNet) {
     int    ret = HDF_SUCCESS;
     uint32_t infoSize = 0;
-    struct UsbnetTransInfo *uNetTransInfo = NULL;   
+    struct UsbnetTransInfo *uNetTransInfo = NULL;
     
     bool flag = HdfSbufReadBuffer(data, (const void **)(&(uNetTransInfo)), &infoSize);
     if ((!flag) || uNetTransInfo == NULL) {
-        ret = HDF_ERR_INVALID_PARAM;
         HDF_LOGE("%s: fail to read infoTable in event data, flag = %d", __func__, flag);
-        return ret;
+        return;
     }
 
     NetDevice *net = alloc_etherdev(sizeof(struct UsbnetAdapter));
@@ -981,28 +970,27 @@ static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf
     usbNet->deviceObject = device;
 
     //info from usb
-    if (memcpy_s(&(usbNet->usbnetInfo), sizeof(struct UsbnetTransInfo), 
+    if (memcpy_s(&(usbNet->usbnetInfo), sizeof(struct UsbnetTransInfo),
         uNetTransInfo, sizeof(struct UsbnetTransInfo)) != EOK) {
         HARCH_NET_INFO_PRINT("memcpy_s error ");
         goto out0;
     }
 
     HARCH_NET_INFO_PRINT("name = %s, flags = %d, usbFlags = %x, mtu = %d, \
-                           hardHeaderLen = %d, link = %d, needReset = %d, \
-                            hardMtu = %d, rxUrbSize = %d, maxpacket = %d",
-                        usbNet->usbnetInfo.name, usbNet->usbnetInfo.flags,
-                        usbNet->usbnetInfo.usbFlags, usbNet->usbnetInfo.mtu, 
-                        usbNet->usbnetInfo.hardHeaderLen, usbNet->usbnetInfo.link,
-                        usbNet->usbnetInfo.needReset, usbNet->usbnetInfo.hardMtu,
-                        usbNet->usbnetInfo.rxUrbSize, usbNet->usbnetInfo.maxpacket);
+        hardHeaderLen = %d, link = %d, needReset = %d, \
+        hardMtu = %d, rxUrbSize = %d, maxpacket = %d",
+        usbNet->usbnetInfo.name, usbNet->usbnetInfo.flags,
+        usbNet->usbnetInfo.usbFlags, usbNet->usbnetInfo.mtu, 
+        usbNet->usbnetInfo.hardHeaderLen, usbNet->usbnetInfo.link,
+        usbNet->usbnetInfo.needReset, usbNet->usbnetInfo.hardMtu,
+        usbNet->usbnetInfo.rxUrbSize, usbNet->usbnetInfo.maxpacket);
     
     usbNet->stats64 = netdev_alloc_pcpu_stats(PcpuSwNetstats);
-    if (!usbNet->stats64)
+    if (!usbNet->stats64) {
         goto out0;
-
+    }
     usbNet->msg_enable = netif_msg_init (g_msgLevel, NETIF_MSG_DRV
            | NETIF_MSG_PROBE | NETIF_MSG_LINK| NETIF_MSG_RX_ERR|NETIF_MSG_TX_ERR);
-    
     OsalMutexInit(&usbNet->sendSkbClock);
 
     init_waitqueue_head(&usbNet->wait);
@@ -1021,6 +1009,25 @@ static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf
     timer_setup(&usbNet->delay, UsbnetAdapterBh, 0);
 
     usbNet->net = net;
+    *ppusbNet = usbNet;
+out0:
+    cancel_work_sync(&usbNet->TxCompleteWorkqueue);
+    cancel_work_sync(&usbNet->RxCompleteWorkqueue);
+    free_netdev(net);
+out:
+    return;
+}
+static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf *data)
+{
+    HARCH_NET_INFO_PRINT("begin");
+    struct UsbnetAdapter *usbNet = NULL;
+    int ret = HDF_SUCCESS;
+    UsbnetAdapterGetObject(device, data, &usbNet);
+    if (NULL == usbNet || NULL == usbNet->net) {
+        HDF_LOGE("%s: get object fail", __func__);
+        return HDF_FAILURE;
+    }
+    NetDevice *net = usbNet->net;
     // 1.addr
     static u8 node_id[ETH_ALEN];
     if (usbNet->usbnetInfo.isGetmacAddr) {
@@ -1043,36 +1050,31 @@ static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf
 
     //3. name and mtu
     strcpy_s (net->name, sizeof(net->name)/sizeof(net->name[0]), "usb%d");
-    if (usbNet->usbnetInfo.isBindDevice)
-    {
+    if (usbNet->usbnetInfo.isBindDevice) {
         /* heuristic:  "usb%d" for links we know are two-host,
            else "eth%d" when there's reasonable doubt.  userspace
            can rename the link if it knows better.
         */
         if ((usbNet->usbnetInfo.usbFlags & HDF_FLAG_ETHER) != 0 &&
             ((usbNet->usbnetInfo.usbFlags & HDF_FLAG_POINTTOPOINT) == 0 ||
-            (net->dev_addr[0] & 0x02) == 0))
-        {
+            (net->dev_addr[0] & 0x02) == 0)) {
             HARCH_NET_INFO_PRINT();
             strcpy_s (net->name, sizeof(net->name)/sizeof(net->name[0]), "eth%d");
         }
         
         /* WLAN devices should always be named "wlan%d" */
-        if ((usbNet->usbnetInfo.usbFlags & FLAG_WLAN) != 0)
-        {
+        if ((usbNet->usbnetInfo.usbFlags & FLAG_WLAN) != 0) {
             HARCH_NET_INFO_PRINT();
             strcpy_s(net->name, sizeof(net->name)/sizeof(net->name[0]), "wlan%d");
         }
         /* WWAN devices should always be named "wwan%d" */
-        if ((usbNet->usbnetInfo.usbFlags & FLAG_WWAN) != 0)
-        {
+        if ((usbNet->usbnetInfo.usbFlags & FLAG_WWAN) != 0) {
             HARCH_NET_INFO_PRINT();
             strcpy_s(net->name, sizeof(net->name)/sizeof(net->name[0]), "wwan%d");
         }
 
         /* devices that cannot do ARP */
-        if ((usbNet->usbnetInfo.usbFlags & FLAG_NOARP) != 0)
-        {
+        if ((usbNet->usbnetInfo.usbFlags & FLAG_NOARP) != 0) {
             net->flags |= IFF_NOARP;
         }
 
@@ -1080,11 +1082,10 @@ static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf
         /* maybe the remote can't receive an Ethernet MTU */
         net->mtu = usbNet->usbnetInfo.mtu;
         net->hard_header_len = usbNet->usbnetInfo.hardHeaderLen;
-
-        HARCH_NET_INFO_PRINT("net->mtu= %d",net->mtu);
+        HARCH_NET_INFO_PRINT("net->mtu= %d", net->mtu);
     }
     
-    HARCH_NET_INFO_PRINT("net->name= %s",net->name);   
+    HARCH_NET_INFO_PRINT("net->name= %s", net->name);   
     /* let userspace know we have a random address */
     if (ether_addr_equal(net->dev_addr, node_id))
         net->addr_assign_type = NET_ADDR_RANDOM;
@@ -1099,9 +1100,9 @@ static int32_t UsbnetAdapterProbe(struct HdfDeviceObject *device, struct HdfSBuf
     if (ret) {
         goto out0;
     }
-    HARCH_NET_INFO_PRINT( "register net %pM\n",  net->dev_addr);
+    HARCH_NET_INFO_PRINT("register net %pM\n", net->dev_addr);
     netif_device_attach(net);
-    HARCH_NET_INFO_PRINT( "netif_device_attach net %pM\n",  net->dev_addr);
+    HARCH_NET_INFO_PRINT("netif_device_attach net %pM\n", net->dev_addr);
 
     if (usbNet->usbnetInfo.usbFlags & FLAG_LINK_INTR) {
         HARCH_NET_INFO_PRINT();
@@ -1130,8 +1131,7 @@ static int32_t UsbnetAdapterDisconnect(struct HdfDeviceObject *device)
     unregister_netdev (net);
 
     struct UsbnetAdapter *usbNet = netdev_priv(net);
-    if (usbNet->stats64)
-    {
+    if (usbNet->stats64) {
         free_percpu(usbNet->stats64);
     }
     

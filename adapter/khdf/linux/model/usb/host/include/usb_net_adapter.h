@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
+ * Copyright (c) 2024 Archermind Technology (Nanjing) Co. Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -13,13 +13,13 @@
 #include "hdf_log.h"
 #include "hdf_usb_net_manager.h"
 
-#define ModuleParam module_param
+#define MODULE_PARAM module_param
 #define HARCH_LOG_TAG "[-net-hdf-]"
-#define HARCH_NET_INFO_PRINT(fmt,...)\
-do{ \
-    if(1){\
-        HDF_LOGI(HARCH_LOG_TAG"[%{public}s][%{public}d]:" fmt "\n",__FUNCTION__, __LINE__, ##__VA_ARGS__);}\
-}while(0)
+#define HARCH_NET_INFO_PRINT(fmt, ...) \
+do { \
+    if(1){ \
+        HDF_LOGI(HARCH_LOG_TAG"[%{public}s][%{public}d]:" fmt "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);} \
+} while(0)
 
 typedef struct pcpu_sw_netstats     PcpuSwNetstats;
 typedef struct net_device           NetDevice; 
@@ -49,16 +49,16 @@ struct rndis_data_hdr {
     __le32    reserved;        /* zero */
 } __attribute__ ((packed));
 
-struct UsbnetAdapter{
+struct UsbnetAdapter {
     struct IDeviceIoService service;
     struct HdfDeviceObject *deviceObject;
-    unsigned        canDmaSg:1;
+    unsigned        canDmaSg: 1;
     NetDevice       *net;
     int32_t         msg_enable;
     struct UsbnetTransInfo usbnetInfo;
     struct OsalMutex sendSkbClock;
 
-    unsigned char pkt_Cnt, pkt_Err;
+    unsigned char pktCnt, pktErr;
 
     /* various kinds of pending driver work */
     wait_queue_head_t    wait;
