@@ -104,13 +104,13 @@ static void HdfSetProcPriority(char **argv)
     }
 
     if (setpriority(PRIO_PROCESS, 0, procPriority) != 0) {
-        HDF_LOGE("host setpriority failed: %{public}d", errno);
+        HDF_LOGE("host setpriority failed: errno: %{public}d, errno desc: %{public}s", errno, strerror(errno));
     }
 
     struct sched_param param = {0};
     param.sched_priority = schedPriority;
     if (sched_setscheduler(0, SCHED_FIFO, &param) != 0) {
-        HDF_LOGE("host sched_setscheduler failed: %{public}d", errno);
+        HDF_LOGE("host sched_setscheduler failed: errno: %{public}d, errno desc: %{public}s", errno, strerror(errno));
     } else {
         HDF_LOGI("host sched_setscheduler succeed:%{public}d %{public}d", procPriority, schedPriority);
     }

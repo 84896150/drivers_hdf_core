@@ -52,7 +52,7 @@ struct HdfDriver *HdfDriverLoaderGetDriver(const char *moduleName)
     }
 
     if (realpath(driverPath, realPath) == NULL) {
-        HDF_LOGE("%{public}s no valid, errno:%{public}d", driverPath, errno);
+        HDF_LOGE("%{public}s no valid, errno: %{public}d, errno desc: %{public}s", driverPath, errno, strerror(errno));
         return NULL;
     }
 

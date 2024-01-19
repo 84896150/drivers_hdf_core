@@ -303,7 +303,7 @@ std::set<std::string> File::FindFiles(const std::string &rootDir)
         dirs.pop();
         DIR *dir = opendir(dirPath.c_str());
         if (dir == nullptr) {
-            Logger::E(TAG, "failed to open '%s', errno:%d", dirPath.c_str(), errno);
+            Logger::E(TAG, "failed to open '%s', errno:%d, desc:%s", dirPath.c_str(), errno, strerror(errno));
             continue;
         }
 

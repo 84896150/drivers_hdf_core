@@ -172,7 +172,7 @@ static int32_t HdfDevEventReadAndDispatch(struct HdfDevListenerThread *thread, i
         if (ret == -HDF_DEV_ERR_NODATA) {
             ret = HDF_SUCCESS;
         } else {
-            HDF_LOGE("%s:ioctl failed, errno=%d", __func__, ret);
+            HDF_LOGE("%s:ioctl failed, errno=%d, desc=%s", __func__, ret, strerror(errno));
         }
 
         goto FINISH;
@@ -228,7 +228,7 @@ static void SetThreadName(void)
     if (ret > 0) {
         ret = prctl(PR_SET_NAME, newTitle);
         if (ret < 0) {
-            HDF_LOGE("%s: failed to set thread name, errno is %d", __func__, errno);
+            HDF_LOGE("%s: failed to set thread name, errno is %d, desc is %s", __func__, errno, strerror(errno));
         }
     }
 
@@ -694,7 +694,7 @@ static int32_t HdfSyscallAdapterDispatch(
     wrBuf.cmdCode = code;
     int32_t ret = ioctl(ioService->fd, HDF_WRITE_READ, &wrBuf);
     if (ret < 0) {
-        HDF_LOGE("Failed to dispatch serv call ioctl %{public}d", -errno);
+        HDF_LOGE("Failed to dispatch serv call ioctl %{public}d, %{public}s", -errno, strerror(errno));
         ret = -errno;
     }
     if (reply != NULL) {

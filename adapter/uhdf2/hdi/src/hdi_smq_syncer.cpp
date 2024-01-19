@@ -91,7 +91,7 @@ int SharedMemQueueSyncer::Wake(uint32_t bitset)
 
     int ret = syscall(__NR_futex, syncAddr_, FUTEX_WAKE_BITSET, INT_MAX, 0, 0, bitset);
     if (ret < 0) {
-        HDF_LOGE("failed to wakeup smq futex, %{public}d", errno);
+        HDF_LOGE("failed to wakeup smq futex, errno: %{public}d, errno desc: %{public}s", errno, strerror(errno));
         return -errno;
     }
 

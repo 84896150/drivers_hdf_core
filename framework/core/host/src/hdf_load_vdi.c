@@ -37,8 +37,8 @@ struct HdfVdiObject *HdfLoadVdi(const char *libName)
     }
 
     if (realpath(path, resolvedPath) == NULL || strncmp(resolvedPath, VDI_PATH, strlen(VDI_PATH)) != 0) {
-        HDF_LOGE("%{public}s %{public}s %{public}s realpath file name failed %{public}d",
-            __func__, path, resolvedPath, errno);
+        HDF_LOGE("%{public}s %{public}s %{public}s realpath file name failed %{public}d, %{public}s",
+            __func__, path, resolvedPath, errno, strerror(errno));
         return NULL;
     }
 

@@ -158,7 +158,7 @@ static int32_t HdfUpdateSecurityId(const char *id, uint64_t perms, int32_t isSet
     }
     int32_t fd = open(path, O_WRONLY);
     if (fd < 0) {
-        HDF_LOGE("open %{public}s failed, errno is %{public}d", HDF_SECURE_PATH, errno);
+        HDF_LOGE("open %{public}s failed, errno is %{public}d, desc is %{public}s", HDF_SECURE_PATH, errno, strerror(errno));
         return HDF_FAILURE;
     }
 
