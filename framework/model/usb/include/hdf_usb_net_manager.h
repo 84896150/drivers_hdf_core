@@ -20,7 +20,6 @@
 #define FLAG_FRAMING_NC     0x0001          /* guard against device dropouts */
 #define FLAG_FRAMING_GL     0x0002          /* genelink batches packets */
 #define FLAG_FRAMING_Z      0x0004          /* zaurus adds a trailer */
-#define FLAG_FRAMING_RN     0x0008          /* huge header */
 
 #define HDF_FLAG_NO_SETINT    0x0010        /* device can't set_interface() */
 #define HDF_FLAG_ETHER        0x0020        /* maybe use "eth%d" names */

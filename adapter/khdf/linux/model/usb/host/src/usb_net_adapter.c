@@ -302,7 +302,7 @@ static void UsbnetAdapterBh(TimerList *t)
     if (usbNet->txq.qlen < UsbnetAdapterGetTxQlen(usbNet)) {
         netif_wake_queue (usbNet->net);
         HARCH_NET_INFO_PRINT("usbNet->txq.qlen = %d, TX_QLEN (usbNet) = %d",
-            usbNet->txq.qlen,UsbnetAdapterGetTxQlen(usbNet));
+            usbNet->txq.qlen, UsbnetAdapterGetTxQlen(usbNet));
     }
     HARCH_NET_INFO_PRINT("end");
 }
@@ -502,7 +502,7 @@ static SkBuff *RndisTxFixup(SkBuff *skb, gfp_t flags)
         /* enough room, but needs to be readjusted? */
         room += skb_tailroom(skb);
         if (likely((sizeof(RndisDataHdr)) <= room)) {
-            skb->data = memmove_s(skb->head + sizeof *hdr, len, skb->data, len);
+            skb->data = memmove_s(skb->head + sizeof(RndisDataHdr), len, skb->data, len);
             skb_set_tail_pointer(skb, len);
             goto fill;
         }
@@ -541,7 +541,7 @@ static void TxComplete(WorkStruct *work)
         stats64->rx_packets, stats64->rx_bytes);
 
     HARCH_NET_INFO_PRINT ("tx_complete stats64->tx_packets = %lu,usbNet stats64->tx_bytes = %lu",
-        stats64->tx_packets,stats64->tx_bytes);
+        stats64->tx_packets, stats64->tx_bytes);
 
     flags = u64_stats_update_begin_irqsave(&stats64->syncp);
     stats64->tx_packets++;
@@ -560,7 +560,6 @@ static netdev_tx_t UsbnetAdapterStartXmit(SkBuff *skb, NetDevice *net)
     HARCH_NET_INFO_PRINT ("netif_running=%d, netif_device_present=%d, netif_carrier_ok=%d", netif_running(net),
         netif_device_present(net), netif_carrier_ok(net));
     HARCH_NET_INFO_PRINT ("skb->data = %x, len = %d", skb->data, skb->len);
-    printf_char_buffer(skb->data, skb->len, false);
     struct UsbnetAdapter *usbNet = netdev_priv(net);
     //1.time tamp
     if (skb) {
