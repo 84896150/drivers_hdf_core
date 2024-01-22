@@ -19,10 +19,10 @@
 do { \
     if (1) { \
         HDF_LOGI(HARCH_LOG_TAG"[%{public}s][%{public}d]:" fmt "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);} \
-} while(0)
+} while (0)
 
 typedef struct pcpu_sw_netstats     PcpuSwNetstats;
-typedef struct net_device           NetDevice; 
+typedef struct net_device           NetDevice;
 typedef struct timer_list           TimerList;
 typedef struct work_struct          WorkStruct;
 typedef struct tasklet_struct       TaskletStruct;
