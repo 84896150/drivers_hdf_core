@@ -17,7 +17,7 @@
 #define HARCH_LOG_TAG "[-net-hdf-]"
 #define HARCH_NET_INFO_PRINT(fmt, ...) \
 do { \
-    if(1){ \
+    if (1) { \
         HDF_LOGI(HARCH_LOG_TAG"[%{public}s][%{public}d]:" fmt "\n", __FUNCTION__, __LINE__, ##__VA_ARGS__);} \
 } while(0)
 
@@ -52,7 +52,7 @@ struct rndis_data_hdr {
 struct UsbnetAdapter {
     struct IDeviceIoService service;
     struct HdfDeviceObject *deviceObject;
-    unsigned        canDmaSg: 1;
+    unsigned        canDmaSg : 1;
     NetDevice       *net;
     int32_t         msg_enable;
     struct UsbnetTransInfo usbnetInfo;
