@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2021 Huawei Device Co., Ltd.
+ * Copyright (c) 2023-2024 Huawei Device Co., Ltd.
  *
  * HDF is dual licensed: you can use it either under the terms of
  * the GPL, or the BSD license, at your option.
@@ -54,6 +54,7 @@ enum {
 };
 
 struct UsbPnpNotifyServiceInfo {
+    uint8_t curInterfaceNumber;
     uint32_t length;
 
     int32_t devNum;
