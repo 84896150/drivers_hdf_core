@@ -301,7 +301,8 @@ static int32_t DevMgrUeventParseConfig(void)
 
     char resolvedPath[PATH_MAX] = {0};
     if (realpath(path, resolvedPath) == NULL) {
-        HDF_LOGE("realpath file: %{public}s failed, errno: %{public}d, errno desc: %{public}s", path, errno, strerror(errno));
+        HDF_LOGE("realpath file: %{public}s failed, errno: %{public}d, errno desc: %{public}s",
+            path, errno, strerror(errno));
         return HDF_FAILURE;
     }
     if (strncmp(resolvedPath, HDF_CONFIG_DIR, strlen(HDF_CONFIG_DIR)) != 0) {
