@@ -24,6 +24,7 @@
         "deps": {
             "components": [
                 "hilog",
+                "hilog_lite",
                 "c_utils",
                 "init",
                 "ipc",
