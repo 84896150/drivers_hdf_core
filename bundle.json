@@ -11,7 +11,7 @@
     "scripts": {},
     "component": {
         "name": "hdf_core",
-        "subsystem": "drivers",
+        "subsystem": "hdf",
         "features": [
             "hdf_core_khdf_test_support",
             "hdf_core_platform_test_support",
