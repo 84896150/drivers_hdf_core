@@ -40,9 +40,7 @@ hdf_driver(module_name) {
     "$PERIPHERAL_USB_DDK_HOST/src/usb_raw_api.c",
     "$PERIPHERAL_USB_DDK_HOST/src/usb_raw_api_library.c",
   ]
-  include_dirs = [
-    "$HDF_PERIPHERAL_PATH/usb/utils/include",
-  ]
+  include_dirs = [ "$HDF_PERIPHERAL_PATH/usb/utils/include" ]
   if (defined(LOSCFG_DRIVERS_HDF_USB_PNP_NOTIFY)) {
     USB_PNP_NOTIFY_SHARED_ROOT = "$HDF_FRAMEWORKS_PATH/core/shared"
     FRAMEWORKS_USB_DDK_HOST = "$HDF_FRAMEWORKS_PATH/model/usb"
