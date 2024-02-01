@@ -35,6 +35,10 @@ int32_t HdfDeviceSubscribeService(
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("failed to subscribe service, devNode is null");
+        return HDF_FAILURE;
+    }
     hostService = devNode->hostService;
     if (hostService == NULL) {
         HDF_LOGE("failed to subscribe service, hostService is null");
@@ -53,6 +57,10 @@ const char *HdfDeviceGetServiceName(const struct HdfDeviceObject *deviceObject)
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("failed to get service name, devNode is null");
+        return NULL;
+    }
     return devNode->servName;
 }
 
@@ -88,6 +96,10 @@ void HdfPmAcquireDevice(struct HdfDeviceObject *deviceObject)
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("devNode is null");
+        return;
+    }
     tokenIf = (struct IPowerStateToken *)devNode->powerToken;
     if ((tokenIf != NULL) && (tokenIf->AcquireWakeLock != NULL)) {
         tokenIf->AcquireWakeLock(tokenIf);
@@ -104,6 +116,10 @@ void HdfPmReleaseDevice(struct HdfDeviceObject *deviceObject)
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("devNode is null");
+        return;
+    }
     tokenIf = (struct IPowerStateToken *)devNode->powerToken;
     if ((tokenIf != NULL) && (tokenIf->ReleaseWakeLock != NULL)) {
         tokenIf->ReleaseWakeLock(tokenIf);
@@ -122,6 +138,10 @@ void HdfPmAcquireDeviceAsync(struct HdfDeviceObject *deviceObject)
 
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("devNode is null");
+        return;
+    }
     HdfPmTaskPut(devNode->powerToken, HDF_PM_REQUEST_ACQUIRE);
 }
 
@@ -136,6 +156,10 @@ void HdfPmReleaseDeviceAsync(struct HdfDeviceObject *deviceObject)
 
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("devNode is null");
+        return;
+    }
     HdfPmTaskPut(devNode->powerToken, HDF_PM_REQUEST_RELEASE);
 }
 #endif
@@ -150,6 +174,10 @@ void HdfPmSetMode(struct HdfDeviceObject *deviceObject, uint32_t mode)
     }
     devNode = (struct HdfDeviceNode *)HDF_SLIST_CONTAINER_OF(
         struct HdfDeviceObject, deviceObject, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        HDF_LOGE("devNode is null");
+        return;
+    }
     token = devNode->powerToken;
     if (token != NULL) {
         token->mode = mode;
@@ -183,8 +211,8 @@ struct HdfDeviceObject *HdfDeviceObjectAlloc(struct HdfDeviceObject *parent, con
     struct HdfDeviceNode *newNode = NULL;
     struct HdfDeviceNode *parentDevNode = CONTAINER_OF(parent, struct HdfDeviceNode, deviceObject);
 
-    if (parent == NULL) {
-        HDF_LOGE("failed to alloc device, parent invalid");
+    if (parent == NULL || parentDevNode == NULL) {
+        HDF_LOGE("failed to alloc device, parent or parentDevNode invalid");
         return NULL;
     }
 
@@ -212,7 +240,7 @@ struct HdfDeviceObject *HdfDeviceObjectAlloc(struct HdfDeviceObject *parent, con
 void HdfDeviceObjectRelease(struct HdfDeviceObject *dev)
 {
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (dev == NULL) {
+    if (dev == NULL || devNode == NULL) {
         return;
     }
 
@@ -228,7 +256,7 @@ int HdfDeviceObjectRegister(struct HdfDeviceObject *dev)
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     struct IDriverLoader *driverLoader = HdfDriverLoaderGetInstance();
 
-    if (dev == NULL || devNode->driverName == NULL || devNode->device == NULL || driverLoader == NULL ||
+    if (dev == NULL || devNode == NULL || devNode->driverName == NULL || devNode->device == NULL || driverLoader == NULL ||
         driverLoader->GetDriver == NULL) {
         HDF_LOGE("failed to add device, param invalid");
         return HDF_ERR_INVALID_PARAM;
@@ -263,7 +291,7 @@ int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servN
 {
     int ret;
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (dev == NULL || servName == NULL) {
+    if (dev == NULL || servName == NULL || devNode == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -295,7 +323,7 @@ int HdfDeviceObjectPublishService(struct HdfDeviceObject *dev, const char *servN
 int HdfDeviceObjectRemoveService(struct HdfDeviceObject *dev)
 {
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (dev == NULL) {
+    if (dev == NULL || devNode == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -308,6 +336,9 @@ int HdfDeviceObjectSetServInfo(struct HdfDeviceObject *dev, const char *info)
     }
 
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
+    if (devNode == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (devNode->servInfo != NULL) {
         OsalMemFree((char *)devNode->servInfo);
     }
@@ -321,7 +352,7 @@ int HdfDeviceObjectSetServInfo(struct HdfDeviceObject *dev, const char *info)
 int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev)
 {
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (dev == NULL) {
+    if (dev == NULL || devNode == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
     struct HdfServiceInfo servInfo;
@@ -332,7 +363,7 @@ int HdfDeviceObjectUpdate(struct HdfDeviceObject *dev)
 int HdfDeviceObjectSetInterfaceDesc(struct HdfDeviceObject *dev, const char *interfaceDesc)
 {
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
-    if (dev == NULL || interfaceDesc == NULL) {
+    if (dev == NULL || interfaceDesc == NULL || devNode == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
     devNode->interfaceDesc = HdfStringCopy(interfaceDesc);

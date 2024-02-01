@@ -55,6 +55,10 @@ static int32_t SampleServiceCallback(struct HdfDeviceObject *device, struct HdfR
     (void)device;
     struct HdfSBuf *dataSbuf = HdfSbufTypedObtain(SBUF_IPC);
     HdfSbufWriteInt32(dataSbuf, code);
+    if (callback == nullptr || callback->dispatcher == nullptr) {
+        HDF_LOGE("callback or callback->dispatcher is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int ret = callback->dispatcher->Dispatch(callback, 0, dataSbuf, nullptr);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("failed to do callback, ret = %{public}d", ret);
@@ -146,6 +150,10 @@ static int32_t SampleServiceTansSmq(
     (void)device;
     static std::shared_ptr<SharedMemQueue<SampleSmqElement>> smq = nullptr;
     smq = std::make_shared<SharedMemQueue<SampleSmqElement>>(*smqMeta);
+    if (smq == nullptr) {
+        HDF_LOGE("failed to create fmq from meta");
+        return HDF_FAILURE;
+    }
     if (!smq->IsGood()) {
         HDF_LOGE("failed to create fmq from meta");
         return HDF_FAILURE;
@@ -154,6 +162,9 @@ static int32_t SampleServiceTansSmq(
     std::thread t([]() {
         HDF_LOGI("SampleServiceTansSmq:smq read thread start, elem=%{public}zu", elem);
         std::shared_ptr<SharedMemQueue<SampleSmqElement>> smqLocal = smq;
+        if (smqLocal == nullptr || smqLocal->GetMeta() == nullptr) {
+            HDF_LOGE("failed to read message from smq, smqLocal or smqLocal->GetMeta() is null");
+        }
         size_t elemLocal = elem;
         smq = nullptr;
 

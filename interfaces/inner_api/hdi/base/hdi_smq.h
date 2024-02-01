@@ -477,6 +477,11 @@ int SharedMemQueue<T>::Write(const T *data, size_t count, int64_t waitTimeNanoSe
 template <typename T>
 int SharedMemQueue<T>::Read(T *data, size_t count, int64_t waitTimeNanoSec)
 {
+    if (meta_ == nullptr || syncer_ == nullptr) {
+        HDF_LOGE("meta_ or syncer_ is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     if (meta_->GetType() != SmqType::SYNCED_SMQ) {
         HDF_LOGE("unsynecd smq not support blocking read");
         return HDF_ERR_NOT_SUPPORT;
@@ -489,6 +494,9 @@ int SharedMemQueue<T>::Read(T *data, size_t count, int64_t waitTimeNanoSec)
     int ret = -ENODATA;
     auto startTime = GetNanoTime();
     int64_t currentTime;
+    if (waitTimeNanoSec < LONG_MAX) {
+        return HDF_FAILURE;
+    }
     while (true) {
         if (waitTimeNanoSec != 0) {
             currentTime = GetNanoTime();
@@ -580,8 +588,16 @@ int SharedMemQueue<T>::ReadNonBlocking(T *data, size_t count)
         return -ENODATA;
     }
 
+    if (meta_ == nullptr) {
+        HDF_LOGE("meta_ is null");
+        return HDF_FAILURE;
+    }
     auto qCount = meta_->GetElementCount();
     auto rOffset = readOffset_->load(std::memory_order_acquire);
+    if (rOffset > (ULONG_MAX - count)) {
+	    HDF_LOGE("rOffset check the upper limit");
+        return HDF_FAILURE;
+    }
     if (rOffset + count <= qCount) {
         if (memcpy_s(data, count * sizeof(T), queueBuffer_ + (rOffset * sizeof(T)), count * sizeof(T)) != EOK) {
             return HDF_FAILURE;
@@ -614,6 +630,9 @@ size_t SharedMemQueue<T>::GetAvalidWriteSize()
 template <typename T>
 size_t SharedMemQueue<T>::GetAvalidReadSize()
 {
+    if (meta_ == nullptr) {
+        HDF_LOGE("GetAvalidReadSize:meta_ is null");
+    }
     auto wOffset = writeOffset_->load(std::memory_order_acquire);
     auto rOffset = readOffset_->load(std::memory_order_acquire);
     auto size = wOffset >= rOffset ? (wOffset - rOffset) : (wOffset + meta_->GetElementCount() - rOffset);

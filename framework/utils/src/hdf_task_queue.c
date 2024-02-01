@@ -166,6 +166,10 @@ static int32_t HdfThreadTasker(void *data)
     int32_t ret;
     struct HdfTaskType *task = NULL;
     struct HdfTaskQueue *queue = (struct HdfTaskQueue *)data;
+    if (queue == NULL) {
+        HDF_LOGE("HdfThreadTasker: queue is null");
+        return HDF_FAILURE;
+    }
 
     while (queue->threadRunFlag) {
         ret = OsalSemWait(&queue->sem, HDF_WAIT_FOREVER);

@@ -38,6 +38,9 @@ bool HcsIsByteAlign(void);
 #define HCS_ALIGN_SIZE 4
 static inline size_t HcsAlignSize(size_t size)
 {
+    if (size > (ULONG_MAX - HCS_ALIGN_SIZE)) {
+        return HDF_FAILURE;
+    }
     return (size + HCS_ALIGN_SIZE - 1) & (~(HCS_ALIGN_SIZE - 1));
 }
 

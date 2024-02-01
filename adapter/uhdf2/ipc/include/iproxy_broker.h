@@ -62,6 +62,9 @@ template <typename INTERFACE>
 inline sptr<IRemoteObject> hdi_objcast(const sptr<INTERFACE> &iface)
 {
     IProxyBroker<INTERFACE> *brokerObject = static_cast<IProxyBroker<INTERFACE> *>(iface.GetRefPtr());
+    if (brokerObject == nullptr) {
+        return nullptr;
+    }
     return brokerObject->AsObject();
 }
 } // namespace HDI

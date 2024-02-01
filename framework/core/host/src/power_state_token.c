@@ -21,6 +21,10 @@ static void PowerStateTokenOnFirstAcquire(struct HdfSRef *sref)
     stateToken = (struct PowerStateToken *)HDF_SLIST_CONTAINER_OF(
         struct HdfSRef, sref, struct PowerStateToken, wakeRef);
 
+    if (stateToken == NULL) {
+        return;
+    }
+    
     if (stateToken->psmState == PSM_STATE_ACTIVE) {
         return;
     }

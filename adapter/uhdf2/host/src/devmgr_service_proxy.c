@@ -34,12 +34,16 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
     struct HdfRemoteService *remoteService = NULL;
     struct DevmgrServiceProxy *serviceProxy = (struct DevmgrServiceProxy *)inst;
     struct DevHostServiceStub *hostStub = (struct DevHostServiceStub *)service;
-    if ((serviceProxy->remote == NULL) || (data == NULL) || (reply == NULL) || (hostStub == NULL)) {
+    if ((serviceProxy == NULL) || (serviceProxy->remote == NULL) || (data == NULL) || (reply == NULL) || (hostStub == NULL)) {
         HDF_LOGE("DevmgrServiceProxyAttachDeviceHost failed, host id is %{public}u", hostId);
         goto FINISHED;
     }
     remoteService = serviceProxy->remote;
     dipatcher = remoteService->dispatcher;
+    if (dipatcher == NULL) {
+         HDF_LOGE("dipatcher is null");
+        goto FINISHED;
+    }
     if (!HdfRemoteServiceWriteInterfaceToken(remoteService, data) || !HdfSbufWriteInt32(data, hostId) ||
         HdfSbufWriteRemoteService(data, hostStub->remote) != HDF_SUCCESS) {
         HDF_LOGE("failed to attach host, write sbuf error");
@@ -71,6 +75,10 @@ int DevmgrServiceProxyAttachDevice(struct IDevmgrService *inst, struct IHdfDevic
         goto FINISHED;
     }
 
+    if (remoteService->dispatcher == NULL) {
+        HDF_LOGE("remoteService->dispatcher is null");
+        goto FINISHED;
+    }
     status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE, data, reply);
 FINISHED:
     HdfSbufRecycle(reply);
@@ -93,6 +101,10 @@ int DevmgrServiceProxyDetachDevice(struct IDevmgrService *inst, devid_t devid)
         goto FINISHED;
     }
 
+    if (remoteService->dispatcher == NULL) {
+        HDF_LOGE("remoteService->dispatcher is null");
+        goto FINISHED;
+    }
     status = remoteService->dispatcher->Dispatch(remoteService, DEVMGR_SERVICE_DETACH_DEVICE, data, reply);
 FINISHED:
     HdfSbufRecycle(reply);
@@ -115,6 +127,11 @@ static int DevmgrServiceProxyProcessLoad(struct IDevmgrService *inst, const char
         return HDF_FAILURE;
     }
 
+    if (remoteService->dispatcher == NULL) {
+        HDF_LOGE("remoteService->dispatcher is null");
+        return HDF_FAILURE;
+    }
+	
     int status = remoteService->dispatcher->Dispatch(remoteService, code, data, NULL);
     HdfSbufRecycle(data);
     return status;

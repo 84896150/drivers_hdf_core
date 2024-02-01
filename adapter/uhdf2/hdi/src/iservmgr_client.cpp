@@ -63,7 +63,8 @@ sptr<IServiceManager> IServiceManager::Get()
     std::unique_lock<std::mutex> lock(g_remoteMutex);
     sptr<IRemoteObject> remote = saManager->GetSystemAbility(DEVICE_SERVICE_MANAGER_SA_ID);
     if (remote != nullptr) {
-        return new ServiceManagerProxy(remote);
+	    sptr<IServiceManager> manager (new ServiceManagerProxy(remote));
+        return manager;
     }
 
     HDF_LOGE("failed to get sa hdf service manager");
@@ -77,7 +78,7 @@ int32_t ServiceManagerProxy::RegisterServiceStatusListener(
     MessageParcel reply;
     MessageOption option;
 
-    if (!data.WriteInterfaceToken(GetDescriptor()) || !data.WriteUint16(deviceClass) ||
+    if (listener == nullptr || !data.WriteInterfaceToken(GetDescriptor()) || !data.WriteUint16(deviceClass) ||
         !data.WriteRemoteObject(listener->AsObject())) {
         return HDF_FAILURE;
     }
@@ -98,7 +99,7 @@ int32_t ServiceManagerProxy::UnregisterServiceStatusListener(::OHOS::sptr<IServS
     MessageParcel reply;
     MessageOption option;
 
-    if (!data.WriteInterfaceToken(GetDescriptor()) || !data.WriteRemoteObject(listener->AsObject())) {
+    if (listener == nullptr || !data.WriteInterfaceToken(GetDescriptor()) || !data.WriteRemoteObject(listener->AsObject())) {
         return HDF_FAILURE;
     }
 
@@ -167,7 +168,9 @@ int32_t ServiceManagerProxy::ListAllService(std::vector<HdiServiceInfo> &service
         HDF_LOGE("list all service info failed, %{public}d", status);
         return status;
     } else {
+        std::unique_lock<std::mutex> vectorLock(g_remoteMutex);
         HdfDevMgrDbgFillServiceInfo(serviceInfos, reply);
+        vectorLock.unlock();
     }
     HDF_LOGD("get all service info success");
     return status;

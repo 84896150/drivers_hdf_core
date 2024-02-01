@@ -29,7 +29,7 @@ static int32_t ProcessListenClass(struct SvcMgrIoservice *svcmgrInst, uint16_t d
     }
 
     (void)HdfSbufWriteUint16(data, devClass);
-    if (svcmgrInst->iosvc == NULL || svcmgrInst->iosvc->dispatcher == NULL ||
+    if (svcmgrInst == NULL || svcmgrInst->iosvc == NULL || svcmgrInst->iosvc->dispatcher == NULL ||
         svcmgrInst->iosvc->dispatcher->Dispatch == NULL) {
         HdfSbufRecycle(data);
         return HDF_ERR_INVALID_OBJECT;
@@ -61,6 +61,11 @@ int32_t SvcMgrIoserviceRegSvcStatListener(
     struct IoServiceStatusListener *listenerInst
         = CONTAINER_OF(listener, struct IoServiceStatusListener, svcstatListener);
 
+    if (listenerInst == NULL || svcmgrInst == NULL) {
+        HDF_LOGE("SvcMgrIoserviceRegSvcStatListener : listenerInst or svcmgrInst is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     listenerInst->deviceClass = deviceClass;
     int ret = SetListenClass(svcmgrInst, deviceClass);
     if (ret != HDF_SUCCESS) {
@@ -80,6 +85,11 @@ int32_t SvcMgrIoserviceUnRegSvcStatListener(struct ISvcMgrIoservice *self, struc
     struct SvcMgrIoservice *svcmgrInst = CONTAINER_OF(self, struct SvcMgrIoservice, svcmgr);
     struct IoServiceStatusListener *listenerInst
         = CONTAINER_OF(listener, struct IoServiceStatusListener, svcstatListener);
+
+    if (listenerInst == NULL || svcmgrInst == NULL) {
+        HDF_LOGE("SvcMgrIoserviceUnRegSvcStatListener : listenerInst or svcmgrInst is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     int ret = HdfDeviceUnregisterEventListener(svcmgrInst->iosvc, &listenerInst->ioservListener);
     if (ret != HDF_SUCCESS) {
@@ -122,6 +132,10 @@ void SvcMgrIoserviceRelease(struct ISvcMgrIoservice *svcmgr)
         return;
     }
     struct SvcMgrIoservice *svcmgrInst = CONTAINER_OF(svcmgr, struct SvcMgrIoservice, svcmgr);
+    if (svcmgrInst == NULL) {
+        HDF_LOGE("SvcMgrIoserviceRelease : svcmgrInst is null");
+        return;
+    }
     HdfIoServiceRecycle(svcmgrInst->iosvc);
     OsalMemFree(svcmgrInst);
 }

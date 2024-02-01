@@ -97,6 +97,12 @@ static inline struct DataBlock *DataBlockBlockUnmarshalling(struct HdfSBuf *data
     if (dataBlock == nullptr) {
         return nullptr;
     }
+	
+    if (block == nullptr) {
+        HDF_LOGE("block is null");
+        return nullptr;
+    }
+	
     HDF_LOGD("%{public}s: DataBlock mem: %{public}d %{public}d %{public}d", __func__, block->a, block->b, block->c);
     if (memcpy_s(dataBlock, sizeof(*dataBlock), block, sizeof(*dataBlock)) != EOK) {
         return nullptr;

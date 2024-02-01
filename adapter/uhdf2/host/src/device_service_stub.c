@@ -24,6 +24,11 @@ int DeviceServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct DeviceServiceStub *service = (struct DeviceServiceStub *)stub;
+	
+    if (service == NULL) {
+        return HDF_FAILURE;
+    }
+	
     struct IDeviceIoService *ioService = service->super.deviceObject.service;
     int ret = HDF_FAILURE;
 
@@ -51,12 +56,12 @@ int DeviceServiceStubPublishService(struct HdfDeviceNode *service)
     int status = HDF_FAILURE;
     struct DeviceServiceStub *fullService = (struct DeviceServiceStub *)service;
 
-    if (service->servName == NULL) {
+    if (service == NULL || service->servName == NULL) {
         HDF_LOGE("device %x miss service name", service->devId);
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    if (fullService->remote != NULL) {
+    if (fullService == NULL || fullService->remote != NULL) {
         HDF_LOGE("%{public}s:service %{public}s already published", __func__, service->servName);
         return HDF_ERR_INVALID_OBJECT;
     }
@@ -150,5 +155,8 @@ bool HdfDeviceObjectCheckInterfaceDesc(struct HdfDeviceObject *dev, struct HdfSB
     }
     struct HdfDeviceNode *devNode = CONTAINER_OF(dev, struct HdfDeviceNode, deviceObject);
     struct DeviceServiceStub *instance = (struct DeviceServiceStub *)devNode;
+    if (instance == NULL) {
+        return false;
+    }
     return HdfRemoteServiceCheckInterfaceToken(instance->remote, data);
 }

@@ -206,6 +206,10 @@ public:
     size_t AlignToWord(size_t num)
     {
         constexpr uint32_t alignByteSize = 8;
+        if (num > (ULONG_MAX - alignByteSize)) {
+		    HDF_LOGE("num check the upper limit error");
+            return HDF_FAILURE;
+        }
         return (num + alignByteSize - 1) & (~(alignByteSize - 1));
     }
 

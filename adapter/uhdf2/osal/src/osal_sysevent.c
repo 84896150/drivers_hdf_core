@@ -70,6 +70,11 @@ static int FinishEvent(struct HdfIoService *service, const struct HdfSysEvent *e
         HdfSbufRecycle(sbuf);
         return HDF_FAILURE;
     }
+    
+    if (service == NULL || service->dispatcher == NULL) {
+        HDF_LOGE("failed to finish sysevent, service or service->dispatcher is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     int ret = service->dispatcher->Dispatch(&service->object, KEVENT_COMPLETE_EVENT, sbuf, NULL);
     if (ret != HDF_SUCCESS) {
@@ -83,6 +88,12 @@ static int FinishEvent(struct HdfIoService *service, const struct HdfSysEvent *e
 static int OnKEventReceived(
     struct HdfDevEventlistener *listener, struct HdfIoService *service, uint32_t id, struct HdfSBuf *data)
 {
+
+    if (listener == NULL) {
+        HDF_LOGE("failed to read kevent object, listener is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+	
     struct HdfSysEventNotifier *notifier = (struct HdfSysEventNotifier *)listener->priv;
     if (notifier == NULL) {
         return HDF_ERR_INVALID_PARAM;
@@ -107,6 +118,12 @@ static int OnKEventReceived(
 
     struct HdfSysEventNotifyNode *notifyNode = NULL;
     DLIST_FOR_EACH_ENTRY(notifyNode, &notifier->notifyNodeList, struct HdfSysEventNotifyNode, listNode) {
+        
+		if (receivedEvent == NULL) {
+            HDF_LOGE("failed to read kevent object, receivedEvent is null");
+            return HDF_FAILURE;
+        }
+		
         if (receivedEvent->eventClass & notifyNode->classFilter) {
             (void)notifyNode->callback(
                 notifyNode, receivedEvent->eventClass, receivedEvent->eventid, eventContent);

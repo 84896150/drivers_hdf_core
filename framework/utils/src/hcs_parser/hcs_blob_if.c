@@ -66,6 +66,10 @@ static int32_t HcsGetArrayLength(const char *start)
 
 int32_t HcsGetAttrLength(const char *start)
 {
+    if (strlen(start) > CHAR_MAX) {
+	    HDF_LOGE("start check the upper limit error");
+        return HDF_FAILURE;
+    }
     int32_t length = HCS_PREFIX_LENGTH + HCS_STRING_LENGTH(start + HCS_PREFIX_LENGTH);
     int32_t dataLen;
     switch (HcsGetPrefix(start + length)) {
