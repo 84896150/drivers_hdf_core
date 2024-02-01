@@ -105,6 +105,11 @@ void SharedMemQueueSyncer::TimeoutToRealtime(int64_t timeout, struct timespec &r
     clock_gettime(CLOCK_MONOTONIC, &realtime);
     int64_t timeoutNanoSec = timeout % nano;
     int64_t timeoutSec = timeout / nano;
+	
+    if (realtime.tv_nsec > (LONG_MAX - timeoutNanoSec)) {
+	    HDF_LOGE("realtime.tv_nsec check the upper limit error");
+        return;
+    }
 
     if (timeoutNanoSec + realtime.tv_nsec >= nano) {
         realtime.tv_nsec = (timeoutNanoSec + realtime.tv_nsec) - nano;

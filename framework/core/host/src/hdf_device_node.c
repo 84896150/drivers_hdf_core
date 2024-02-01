@@ -63,7 +63,7 @@ int DeviceDriverBind(struct HdfDeviceNode *devNode)
 {
     int ret;
     const struct HdfDriverEntry *driverEntry = NULL;
-    if (devNode == NULL) {
+    if (devNode == NULL || devNode->driver == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -88,7 +88,7 @@ int HdfDeviceLaunchNode(struct HdfDeviceNode *devNode)
 {
     const struct HdfDriverEntry *driverEntry = NULL;
     int ret;
-    if (devNode == NULL) {
+    if (devNode == NULL || devNode->driver == NULL) {
         HDF_LOGE("failed to launch service, device or service is null");
         return HDF_ERR_INVALID_PARAM;
     }
@@ -126,6 +126,11 @@ int HdfDeviceLaunchNode(struct HdfDeviceNode *devNode)
 int HdfDeviceNodeAddPowerStateListener(
     struct HdfDeviceNode *devNode, const struct IPowerEventListener *listener)
 {
+    if (devNode == NULL) {
+        HDF_LOGE("devNode is null");
+		return HDF_FAILURE;
+    }
+
     if (devNode->powerToken != NULL) {
         return HDF_FAILURE;
     }
@@ -252,7 +257,7 @@ struct HdfDeviceNode *HdfDeviceNodeNewInstance(const struct HdfDeviceInfo *devic
         return NULL;
     }
     devNode = (struct HdfDeviceNode *)HdfObjectManagerGetObject(HDF_OBJECT_ID_DEVICE_SERVICE);
-    if (devNode == NULL) {
+    if (devNode == NULL || devNode->token == NULL) {
         return NULL;
     }
 

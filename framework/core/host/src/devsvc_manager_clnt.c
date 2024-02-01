@@ -16,8 +16,8 @@ int DevSvcManagerClntAddService(struct HdfDeviceObject *service, const struct Hd
 {
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;
-    if (devSvcMgrClnt == NULL) {
-        HDF_LOGE("failed to add service, client is null");
+    if (devSvcMgrClnt == NULL || servinfo == NULL) {
+        HDF_LOGE("failed to add service, client or servinfo is null");
         return HDF_FAILURE;
     }
     if (servinfo->devClass >= DEVICE_CLASS_MAX) {
@@ -37,8 +37,8 @@ int DevSvcManagerClntUpdateService(struct HdfDeviceObject *service, const struct
 {
     struct DevSvcManagerClnt *devSvcMgrClnt = DevSvcManagerClntGetInstance();
     struct IDevSvcManager *serviceManager = NULL;
-    if (devSvcMgrClnt == NULL) {
-        HDF_LOGE("failed to update service, client is null");
+    if (devSvcMgrClnt == NULL || servinfo == NULL) {
+        HDF_LOGE("failed to update service, client or servinfo is null");
         return HDF_FAILURE;
     }
     if (servinfo->devClass >= DEVICE_CLASS_MAX) {
@@ -140,6 +140,10 @@ void DevSvcManagerClntRemoveService(const char *svcName)
 
 static void DevSvcManagerClntConstruct(struct DevSvcManagerClnt *inst)
 {
+    if (inst == NULL) {
+	    HDF_LOGE("inst is null");
+        return;
+    }
     inst->devSvcMgrIf = (struct IDevSvcManager *)HdfObjectManagerGetObject(HDF_OBJECT_ID_DEVSVC_MANAGER);
 }
 

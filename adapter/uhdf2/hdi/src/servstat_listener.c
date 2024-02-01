@@ -32,6 +32,12 @@ int ServstatListenerStubRemoteDispatch(
 {
     (void)reply;
     struct ServstatListenerStub *stub = (struct ServstatListenerStub *)remote;
+	
+    if (stub == NULL) {
+        HDF_LOGE("stub is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+	
     struct ServiceStatus status;
 
     if (cmdid != SERVIE_STATUS_LISTENER_NOTIFY) {
@@ -97,6 +103,11 @@ void HdiServiceStatusListenerFree(struct ServiceStatusListener *listener)
     }
 
     struct ServstatListenerStub *stub = CONTAINER_OF(listener, struct ServstatListenerStub, listener);
+   
+    if (stub == NULL) {
+        return;
+    }
+	
     HdfRemoteServiceRecycle(stub->remote);
     OsalMemFree(stub);
 }

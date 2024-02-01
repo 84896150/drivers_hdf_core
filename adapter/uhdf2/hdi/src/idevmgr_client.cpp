@@ -163,11 +163,13 @@ int32_t DeviceManagerProxy::ListAllDevice(std::vector<HdiDevHostInfo> &deviceInf
         HDF_LOGE("list all device info failed, %{public}d", status);
         return status;
     }
-
+    std::unique_lock<std::mutex> vectorLock(g_remoteMutex);
     if (!HdfDevMgrDbgFillDeviceInfo(deviceInfos, reply)) {
         HDF_LOGE("failed to read all device info");
+        vectorLock.unlock();
         return HDF_ERR_INVALID_PARAM;
     }
+    vectorLock.unlock();
     return status;
 }
 

@@ -30,6 +30,10 @@ static int32_t DevHostServiceFullDispatchMessage(struct HdfMessageTask *task, st
         HDF_SLIST_CONTAINER_OF(struct HdfMessageTask, task, struct DevHostServiceFull, task);
 
     int status = HDF_SUCCESS;
+    if (msg == NULL || hostService == NULL) {
+        HDF_LOGE("DevHostServiceFullDispatchMessage : msg or hostService is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     switch (msg->messageId) {
         case DEVHOST_MESSAGE_ADD_DEVICE: {
             struct HdfDeviceInfo *attribute = (struct HdfDeviceInfo *)msg->data[0];
@@ -96,6 +100,10 @@ static int DevHostServiceFullDispatchPowerState(struct HdfDevice *device, uint32
             if (deviceNode->powerToken != NULL) {
                 ret = PowerStateChange(deviceNode->powerToken, state);
                 if (ret != HDF_SUCCESS) {
+                    if (deviceNode->driver == NULL && deviceNode->driver->entry ==NULL) {
+					    HDF_LOGE("deviceNode->driver or deviceNode->driver->entry is null");
+					    result = HDF_FAILURE;
+					}
                     HDF_LOGE("device %{public}s failed to resume(%{public}d) %{public}d",
                         deviceNode->driver->entry->moduleName, state, ret);
                     result = HDF_FAILURE;
@@ -107,8 +115,12 @@ static int DevHostServiceFullDispatchPowerState(struct HdfDevice *device, uint32
             if (deviceNode->powerToken != NULL) {
                 ret = PowerStateChange(deviceNode->powerToken, state);
                 if (ret != HDF_SUCCESS) {
+                    if (deviceNode->driver == NULL && deviceNode->driver->entry ==NULL) {
+					    HDF_LOGE("deviceNode->driver or deviceNode->driver->entry is null");
+					    result = HDF_FAILURE;
+					}
                     HDF_LOGE("device %{public}s failed to suspend(%{public}d) %{public}d",
-                        deviceNode->driver->entry->moduleName, state, ret);
+                    deviceNode->driver->entry->moduleName, state, ret);
                     result = HDF_FAILURE;
                 }
             }
@@ -143,6 +155,12 @@ static int OnSysEventReceived(
     }
 
     struct DevHostService *hostService = CONTAINER_OF(self, struct DevHostService, sysEventNotifyNode);
+    
+	if (hostService == NULL) {
+        HDF_LOGE("hostService is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+	
     HDF_LOGI("host receive eventClass=%{public}llu, event=%{public}u", (unsigned long long)eventClass, event);
     return hostService->super.PmNotify(&hostService->super, SysEventToPowerState(event));
 }
@@ -201,6 +219,9 @@ int DevHostServiceFullPmNotify(struct IDevHostService *service, uint32_t state)
 
 void DevHostServiceFullConstruct(struct DevHostServiceFull *inst)
 {
+    if (inst == NULL) {
+        return;
+    }
     struct IDevHostService *hostServiceIf = &inst->super.super;
     static struct IHdfMessageHandler handler = {.Dispatch = DevHostServiceFullDispatchMessage};
     DevHostServiceConstruct(&inst->super);

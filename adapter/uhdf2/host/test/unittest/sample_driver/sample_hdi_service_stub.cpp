@@ -32,6 +32,10 @@ static int32_t SampleServiceStubPing(struct HdfDeviceIoClient *client, struct Hd
     char *outInfo = nullptr;
     const char *info = HdfSbufReadString(data);
 
+    if (SampleHdiImplInstance() == nullptr) {
+        HDF_LOGE("SampleHdiImplInstance() is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int32_t ret = SampleHdiImplInstance()->ping(client->device, info, &outInfo);
 
     HdfSbufWriteString(reply, outInfo);
@@ -57,6 +61,10 @@ static int32_t SampleServiceStubSum(struct HdfDeviceIoClient *client, struct Hdf
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (SampleHdiImplInstance() == nullptr) {
+        HDF_LOGE("SampleHdiImplInstance() is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     int32_t ret = SampleHdiImplInstance()->sum(client->device, parm0, parm1, &result);
     if (ret == HDF_SUCCESS) {
         if (!HdfSbufWriteInt32(reply, result)) {
@@ -83,6 +91,10 @@ static int32_t SampleServiceStubCallback(struct HdfDeviceIoClient *client, struc
     struct HdfRemoteService *callback = HdfSbufReadRemoteService(data);
     if (callback == nullptr) {
         HDF_LOGE("SampleHdi.callback: miss parameter callback");
+        return HDF_ERR_INVALID_PARAM;
+    }
+    if (SampleHdiImplInstance() == nullptr) {
+        HDF_LOGE("SampleHdiImplInstance() is null");
         return HDF_ERR_INVALID_PARAM;
     }
     return SampleHdiImplInstance()->callback(client->device, callback, code);
@@ -144,7 +156,7 @@ static int32_t SampleServiceRegisterDevice(
     }
     (void)reply;
     const char *deviceName = HdfSbufReadString(data);
-    if (deviceName == nullptr) {
+    if (deviceName == nullptr || SampleHdiImplInstance() == nullptr) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -159,7 +171,7 @@ static int32_t SampleServiceUnregisterDevice(
         return HDF_ERR_INVALID_PARAM;
     }
     const char *deviceName = HdfSbufReadString(data);
-    if (deviceName == nullptr) {
+    if (deviceName == nullptr || SampleHdiImplInstance() == nullptr) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -172,7 +184,7 @@ static int32_t SampleServiceUpdateDevice(struct HdfDeviceIoClient *client, struc
         return HDF_ERR_INVALID_PARAM;
     }
     const char *servInfo = HdfSbufReadString(data);
-    if (servInfo == nullptr) {
+    if (servInfo == nullptr || SampleHdiImplInstance() == nullptr) {
         return HDF_ERR_INVALID_PARAM;
     }
 
@@ -197,6 +209,10 @@ static int32_t SampleServiceSmqTrans(struct HdfDeviceIoClient *client, struct Hd
 
     uint32_t element = parcel->ReadUint32();
 
+    if (SampleHdiImplInstance() == nullptr) {
+        HDF_LOGE("SampleHdiImplInstance() is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     return SampleHdiImplInstance()->tansSmq(client->device, smqMeta.get(), element);
 }
 
@@ -206,6 +222,10 @@ static int32_t SampleServiceEndHost(struct HdfDeviceIoClient *client, struct Hdf
         return HDF_ERR_INVALID_PARAM;
     }
 
+    if (SampleHdiImplInstance() == nullptr) {
+        HDF_LOGE("SampleHdiImplInstance() is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     return SampleHdiImplInstance()->endHost(client->device);
 }
 
@@ -214,12 +234,20 @@ static int32_t SampleServiceInjectPm(struct HdfDeviceIoClient *client, struct Hd
     if (!HdfDeviceObjectCheckInterfaceDesc(client->device, data)) {
         return HDF_ERR_INVALID_PARAM;
     }
+    if (SampleHdiImplInstance() == nullptr) {
+        HDF_LOGE("SampleHdiImplInstance() is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     return SampleHdiImplInstance()->injectPmState(client->device);
 }
 
 int32_t SampleServiceOnRemoteRequest(
     struct HdfDeviceIoClient *client, int cmdId, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    if (client == nullptr) {
+        HDF_LOGE("SampleServiceOnRemoteRequest: client is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
     HDF_LOGI("SampleServiceDispatch: cmd %{public}d", cmdId);
     switch (cmdId) {
         case SAMPLE_SERVICE_PING:

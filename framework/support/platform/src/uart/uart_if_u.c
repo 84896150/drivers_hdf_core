@@ -133,6 +133,10 @@ int32_t UartRead(DevHandle handle, uint8_t *data, uint32_t size)
         return HDF_ERR_IO;
     }
 
+    if (size > UINT_MAX) {
+	    HDF_LOGE("size check the upper limit error");
+        return HDF_FAILURE;
+    }
     reply = HdfSbufObtain(size + sizeof(uint64_t));
     if (reply == NULL) {
         HDF_LOGE("UartRead: fail to obtain reply buf!");

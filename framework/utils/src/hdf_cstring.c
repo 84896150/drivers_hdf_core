@@ -17,6 +17,10 @@ uint32_t HdfStringMakeHashKey(const char *key, uint32_t mask)
 {
     uint32_t hashValue = 0;
     const uint32_t seed = 131; // 31 131 1313 13131 131313 etc..
+    if (strlen(key) > CHAR_MAX) {
+	    HDF_LOGE("key check the upper limit error");
+        return 0;
+    }
     while ((key != NULL) && *key) {
         hashValue = hashValue * seed + (*key++);
     }

@@ -23,6 +23,9 @@ static int OnIoServiceEventReceive(
     }
 
     struct IoServiceStatusListener *statusListener = listener->priv;
+    if (statusListener == NULL) {
+        return HDF_ERR_INVALID_PARAM;
+    }
     if (statusListener->svcstatListener.callback != NULL &&
         (statusListener->deviceClass & status.deviceClass)) {
         statusListener->svcstatListener.callback(&statusListener->svcstatListener, &status);

@@ -27,6 +27,10 @@ int DeviceTokenStubDispatch(
     (void)data;
     (void)reply;
     struct DeviceTokenStub *tokenStub = (struct DeviceTokenStub *)stub;
+    if (tokenStub == NULL) {
+        HDF_LOGE("Dispatch failed, tokenStub is null");
+        return HDF_FAILURE; 
+    }
     struct IDevHostService *super = (struct IDevHostService *)&tokenStub->super;
     if (super == NULL) {
         HDF_LOGE("Dispatch failed, super is null");

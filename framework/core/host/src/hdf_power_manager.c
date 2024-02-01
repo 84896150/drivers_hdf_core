@@ -55,6 +55,12 @@ static int32_t PmTaskFunc(struct HdfTaskType *para)
     }
 
     pmRequest = CONTAINER_OF(para, struct HdfPmRequest, task);
+	
+    if (pmRequest == NULL) {
+        HDF_LOGE("PmTaskFunc : pmRequest is null");
+        return HDF_FAILURE;
+    }
+	
     tokenIf = (struct IPowerStateToken *)pmRequest->token;
     if (pmRequest->pmType == HDF_PM_REQUEST_ACQUIRE) {
         if ((tokenIf != NULL) && (tokenIf->AcquireWakeLock != NULL)) {
@@ -82,6 +88,11 @@ void HdfPmTaskPut(struct PowerStateToken *powerToken, HDF_PM_REQUEST_TYPE type)
     pmRequest = (struct HdfPmRequest *)OsalMemCalloc(sizeof(*pmRequest));
     if (pmRequest == NULL) {
         HDF_LOGI("%{public}s OsalMemCalloc fail", __func__);
+        return;
+    }
+
+    if (pmTaskQueue == NULL) {
+        HDF_LOGE("PmTaskFunc : pmRequest is null");
         return;
     }
 

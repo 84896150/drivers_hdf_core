@@ -18,6 +18,9 @@ int32_t HdfMessageTaskSendMessageLater(
         if (msg->target == NULL) {
             msg->target = task;
         }
+        if (task == NULL) {
+            return HDF_ERR_INVALID_PARAM;
+        }
         if (sync) {
             if (task->messageHandler != NULL && task->messageHandler->Dispatch != NULL) {
                 int ret = task->messageHandler->Dispatch(task, msg);
@@ -40,6 +43,9 @@ int32_t HdfMessageTaskSendMessage(struct HdfMessageTask *task, struct HdfMessage
 
 void HdfMessageTaskDispatchMessage(struct HdfMessageTask *task, struct HdfMessage *msg)
 {
+    if (task == NULL) {
+        return;
+    }
     struct IHdfMessageHandler *handler = task->messageHandler;
     if ((handler != NULL) && (handler->Dispatch != NULL)) {
         handler->Dispatch(task, msg);

@@ -67,6 +67,10 @@ void HdfServiceObserverRecordNotifySubscribers(
     while (HdfSListIteratorHasNext(&it)) {
         struct HdfServiceSubscriber *subscriber =
             (struct HdfServiceSubscriber *)HdfSListIteratorNext(&it);
+        if (subscriber == NULL) {
+		    HDF_LOGE("subscriber is null");
+			break;
+		}
         if (deviceId == subscriber->devId || policy != SERVICE_POLICY_PRIVATE) {
             subscriber->state = HDF_SUBSCRIBER_STATE_READY;
             if (subscriber->callback.OnServiceConnected != NULL) {

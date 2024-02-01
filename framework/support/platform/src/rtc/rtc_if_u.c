@@ -290,6 +290,11 @@ static int32_t RtcRegListener(struct HdfIoService *service, enum RtcAlarmIndex a
     param->index = alarmIndex;
     param->func = cb;
 
+    if (service == NULL) {
+        HDF_LOGE("RtcRegListener: service is null!");
+        return HDF_ERR_INVALID_PARAM;
+    }
+
     if (PlatformUserListenerReg((struct PlatformUserListenerManager *)service->priv, 0, (void *)param,
         RtcOnDevEventReceive) != HDF_SUCCESS) {
         HDF_LOGE("RtcRegListener: PlatformUserListenerReg fail!");
@@ -321,6 +326,11 @@ int32_t RtcRegisterAlarmCallback(DevHandle handle, enum RtcAlarmIndex alarmIndex
         HDF_LOGE("RtcRegisterAlarmCallback: write alarmIndex fail!");
         HdfSbufRecycle(data);
         return HDF_ERR_IO;
+    }
+
+    if (service == NULL) {
+        HDF_LOGE("RtcRegListener: service is null!");
+        return HDF_ERR_INVALID_PARAM;
     }
 
     if (service->dispatcher == NULL || service->dispatcher->Dispatch == NULL) {

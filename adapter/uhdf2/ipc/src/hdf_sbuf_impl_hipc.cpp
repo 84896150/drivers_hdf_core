@@ -398,6 +398,10 @@ public:
 extern "C" struct HdfSBufImpl *SbufBindIpc(uintptr_t base, size_t size)
 {
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(new MessageParcel(new SbufAllocator()));
+    if (sbuf->realParcel_ == nullptr) {
+        HDF_LOGE("sbuf->realParcel is null");
+        return nullptr;
+    }
     sbuf->realParcel_->ParseFrom(base, size);
     return &sbuf->infImpl;
 }

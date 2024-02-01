@@ -23,6 +23,12 @@
 int32_t DeviceThreadMessageHandler(struct HdfMessageTask *task, struct HdfMessage *msg)
 {
     (void)task;
+	
+    if (msg == NULL) {
+        HDF_LOGE("msg is null");
+        return HDF_ERR_INVALID_PARAM;
+    }
+	
     struct HdfDevice *device = (struct HdfDevice *)msg->data[0];
     switch (msg->messageId) {
         case DEVICE_SERVICE_MESSAGE_LAUNCH: {

@@ -21,6 +21,9 @@ static int32_t GetHcsTreeSize(const char *blob, int32_t nodeLength)
 
 bool HcsDecompile(const char *hcsBlob, uint32_t offset, struct DeviceResourceNode **root)
 {
+    if (strlen(hcsBlob) > CHAR_MAX || offset > UINT32_MAX) {
+        return false;
+    }
     int32_t nodeLength = HcsGetNodeLength(hcsBlob + offset);
     int32_t treeMemLength;
     char *treeMem = NULL;

@@ -36,8 +36,8 @@ DevHandle AdcOpen(uint32_t number)
     uint32_t handle;
 
     service = (struct HdfIoService *)AdcManagerGetService();
-    if (service == NULL) {
-        HDF_LOGE("AdcOpen: service is null!");
+    if (service == NULL || service->dispatcher == NULL) {
+        HDF_LOGE("AdcOpen: service or service->dispatcher is null!");
         return NULL;
     }
     data = HdfSbufObtainDefaultSize();
@@ -83,8 +83,8 @@ void AdcClose(DevHandle handle)
     struct HdfSBuf *data = NULL;
 
     service = (struct HdfIoService *)AdcManagerGetService();
-    if (service == NULL) {
-        HDF_LOGE("AdcClose: service is null!");
+    if (service == NULL || service->dispatcher == NULL) {
+        HDF_LOGE("AdcClose: service or service->dispatcher is null!");
         return;
     }
 
@@ -115,8 +115,8 @@ int32_t AdcRead(DevHandle handle, uint32_t channel, uint32_t *val)
     struct HdfIoService *service = NULL;
 	
     service = (struct HdfIoService *)AdcManagerGetService();
-    if (service == NULL) {
-        HDF_LOGE("AdcRead: service is null!");
+    if (service == NULL || service->dispatcher == NULL) {
+        HDF_LOGE("AdcRead: service  or service->dispatcher is null!");
         return HDF_PAL_ERR_DEV_CREATE;
     }
 

@@ -42,6 +42,10 @@ static bool GetConfigFilePath(const char *productName, char *configPath, size_t 
         HOST_CONFIG_PATH,
         HOST_CHIP_PROD_CONFIG_PATH,
     };
+    if (configPathLen < ULONG_MAX) {
+	    HDF_LOGE("configPathLen check the lower limit error");
+        return false;
+    }
 
     size_t pathNum = sizeof(adapterConfigPath) / sizeof(adapterConfigPath[0]);
     for (size_t i = 0; i < pathNum; ++i) {
