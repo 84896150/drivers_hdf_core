@@ -110,7 +110,7 @@ template("hdi") {
   }
 
   action("hdi_gen") {
-    deps = [ "//build/zh_extral_dir/hdf_core:build_hdi_gen" ]
+    deps = [ "//build/templates/bpf:build_hdi_gen" ]
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
       script = "//build/lite/run_shell_cmd.py"
