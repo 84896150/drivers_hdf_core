@@ -26,7 +26,7 @@ template("hc_gen") {
                   "list lines")
 
   target(target_type, target_name) {
-    deps = [ "//drivers/hdf_core/framework/tools/hc-gen:build_hc_gen" ]
+    deps = [ "//build/zh_extral_dir/hdf_core:build_hc_gen" ]
     script = "/usr/bin/env"
     if (defined(ohos_lite)) {
       script = "//build/lite/run_shell_cmd.py"
