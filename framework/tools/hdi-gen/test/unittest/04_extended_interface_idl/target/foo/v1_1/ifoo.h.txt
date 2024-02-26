@@ -12,8 +12,8 @@ using namespace OHOS::HDI;
 using namespace OHOS::HDI::Foo::V1_0;
 
 enum {
-    CMD_FOO_TEST_PING_V1_1_4 = 4,
-    CMD_FOO_TEST_GET_DATA_5 = 5,
+    CMD_FOO_TEST_PING_V1_1 = 4,
+    CMD_FOO_TEST_GET_DATA = 5,
 };
 
 class IFoo : public OHOS::HDI::Foo::V1_0::IFoo {

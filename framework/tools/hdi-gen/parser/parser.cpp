@@ -554,6 +554,7 @@ AutoPtr<ASTMethod> Parser::ParseMethod(const AutoPtr<ASTInterfaceType> &interfac
         extInterface = extInterface->GetExtendsInterface();
     }
     method->SetCmdId(methodsCount);
+    method->CheckOverload(interface);
 
     return method;
 }

@@ -7,10 +7,10 @@
 int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     switch (code) {
-        case CMD_FOO_CALLBACK_GET_VERSION_0:
-            return FooCallbackStubGetVersion_0(data, reply, option);
-        case CMD_FOO_CALLBACK_PUSH_DATA_1:
-            return FooCallbackStubPushData_1(data, reply, option);
+        case CMD_FOO_CALLBACK_GET_VERSION:
+            return FooCallbackStubGetVersion(data, reply, option);
+        case CMD_FOO_CALLBACK_PUSH_DATA:
+            return FooCallbackStubPushData(data, reply, option);
         default: {
             HDF_LOGE("%{public}s: cmd %{public}d is not supported", __func__, code);
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -18,11 +18,11 @@ int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::OnRemoteRequest(uint32_t code, Me
     }
 }
 
-int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubPushData_1(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption)
+int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubPushData(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption)
 
-int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubGetVersion_0(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption)
+int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubGetVersion(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption)
 
-int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubPushData_1_(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption, sptr<OHOS::HDI::Foo::V1_0::IFooCallback> impl)
+int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubPushData_(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption, sptr<OHOS::HDI::Foo::V1_0::IFooCallback> impl)
 {
     if (fooCallbackData.ReadInterfaceToken() != OHOS::HDI::Foo::V1_0::IFooCallback::GetDescriptor()) {
         HDF_LOGE("%{public}s: interface token check failed!", __func__);
@@ -50,4 +50,4 @@ int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubPushData_1_(Messag
     return fooCallbackRet;
 }
 
-int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubGetVersion_0_(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption, sptr<OHOS::HDI::Foo::V1_0::IFooCallback> impl)
+int32_t OHOS::HDI::Foo::V1_0::FooCallbackStub::FooCallbackStubGetVersion_(MessageParcel& fooCallbackData, MessageParcel& fooCallbackReply, MessageOption& fooCallbackOption, sptr<OHOS::HDI::Foo::V1_0::IFooCallback> impl)

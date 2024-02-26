@@ -196,7 +196,7 @@ void CppInterfaceCodeEmitter::EmitInterfaceMethodsDecl(StringBuilder &sb, const 
 void CppInterfaceCodeEmitter::EmitInterfaceMethodDecl(
     const AutoPtr<ASTMethod> &method, StringBuilder &sb, const std::string &prefix) const
 {
-    if (interface_->GetExtendsInterface() != nullptr && method->IsOverload(interface_)) {
+    if (interface_->GetExtendsInterface() != nullptr && method->IsOverload()) {
         sb.Append(prefix).AppendFormat("using %s::%s;\n",
             EmitDefinitionByInterface(interface_->GetExtendsInterface(), interfaceName_).c_str(),
             method->GetName().c_str());

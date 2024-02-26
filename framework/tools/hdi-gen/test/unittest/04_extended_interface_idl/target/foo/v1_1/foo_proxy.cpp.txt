@@ -143,7 +143,7 @@ int32_t OHOS::HDI::Foo::V1_1::FooProxy::TestPingV1_1_(const std::string& sendMsg
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    int32_t fooRet = remote->SendRequest(CMD_FOO_TEST_PING_V1_1_4, fooData, fooReply, fooOption);
+    int32_t fooRet = remote->SendRequest(CMD_FOO_TEST_PING_V1_1, fooData, fooReply, fooOption);
     if (fooRet != HDF_SUCCESS) {
         HDF_LOGE("%{public}s failed, error code is %{public}d", __func__, fooRet);
         return fooRet;

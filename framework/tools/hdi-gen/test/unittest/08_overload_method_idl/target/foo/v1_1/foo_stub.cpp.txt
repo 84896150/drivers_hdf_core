@@ -10,18 +10,18 @@
 int32_t OHOS::HDI::Foo::V1_1::FooStub::OnRemoteRequest(uint32_t code, MessageParcel& data, MessageParcel& reply, MessageOption& option)
 {
     switch (code) {
-        case CMD_FOO_GET_VERSION_0:
-            return FooStubGetVersion_0(data, reply, option);
-        case CMD_FOO_PING_4:
+        case CMD_FOO_GET_VERSION:
+            return FooStubGetVersion(data, reply, option);
+        case CMD_FOO_PING:
             return FooStubPing_4(data, reply, option);
-        case CMD_FOO_GET_DATA_5:
+        case CMD_FOO_GET_DATA:
             return FooStubGetData_5(data, reply, option);
-        case CMD_FOO_PING_1:
-            return FooStubPing_1(data, reply, option);
-        case CMD_FOO_GET_DATA_2:
-            return FooStubGetData_2(data, reply, option);
-        case CMD_FOO_INFO_TEST_3:
-            return FooStubInfoTest_3(data, reply, option);
+        case CMD_FOO_PING:
+            return FooStubPing(data, reply, option);
+        case CMD_FOO_GET_DATA:
+            return FooStubGetData(data, reply, option);
+        case CMD_FOO_INFO_TEST:
+            return FooStubInfoTest(data, reply, option);
         default: {
             HDF_LOGE("%{public}s: cmd %{public}d is not supported", __func__, code);
             return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
@@ -33,13 +33,13 @@ int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubPing_4(MessageParcel& fooData, Mes
 
 int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubGetData_5(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
 
-int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubPing_1(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
+int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubPing(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
 
-int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubGetData_2(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
+int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubGetData(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
 
-int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubInfoTest_3(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
+int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubInfoTest(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
 
-int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubGetVersion_0(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
+int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubGetVersion(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption)
 
 int32_t OHOS::HDI::Foo::V1_1::FooStub::FooStubPing_4_(MessageParcel& fooData, MessageParcel& fooReply, MessageOption& fooOption, sptr<OHOS::HDI::Foo::V1_1::IFoo> impl)
 {

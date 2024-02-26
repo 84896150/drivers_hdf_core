@@ -2,8 +2,8 @@ using namespace OHOS;
 using namespace OHOS::HDI;
 
 enum {
-    CMD_FOO_CALLBACK_GET_VERSION_0 = 0,
-    CMD_FOO_CALLBACK_PUSH_DATA_1 = 1,
+    CMD_FOO_CALLBACK_GET_VERSION = 0,
+    CMD_FOO_CALLBACK_PUSH_DATA = 1,
 };
 
 class IFooCallback : public HdiBase {

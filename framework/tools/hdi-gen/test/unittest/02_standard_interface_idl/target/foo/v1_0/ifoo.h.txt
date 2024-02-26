@@ -27,10 +27,10 @@ using namespace OHOS;
 using namespace OHOS::HDI;
 
 enum {
-    CMD_FOO_GET_VERSION_0 = 0,
-    CMD_FOO_PING_1 = 1,
-    CMD_FOO_GET_DATA_2 = 2,
-    CMD_FOO_INFO_TEST_3 = 3,
+    CMD_FOO_GET_VERSION = 0,
+    CMD_FOO_PING = 1,
+    CMD_FOO_GET_DATA = 2,
+    CMD_FOO_INFO_TEST = 3,
 };
 
 class IFoo : public HdiBase {

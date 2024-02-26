@@ -13,21 +13,22 @@
 
 namespace OHOS {
 namespace HDI {
-bool ASTMethod::IsOverload(AutoPtr<ASTInterfaceType> interface)
+void ASTMethod::CheckOverload(AutoPtr<ASTInterfaceType> interface)
 {
     if (interface == nullptr) {
-        return false;
+        return;
     }
     interface = interface->GetExtendsInterface();
     while (interface != nullptr) {
         for (const auto &method : interface->GetMethodsBySystem(Options::GetInstance().GetSystemLevel())) {
             if (name_ == method->GetName()) {
-                return true;
+                isOverload_ = true;
+                return;
             }
         }
         interface = interface->GetExtendsInterface();
     }
-    return false;
+    isOverload_ = false;
 }
 
 void ASTMethod::AddParameter(const AutoPtr<ASTParameter> &parameter)

@@ -29,7 +29,7 @@ def is_subsequence(first_file, second_file):
     second_info = second_file.readline()
     while second_info:
         if first_info.find(second_info) == -1:
-            print("line\n", second_info, "is not in output file", first_file_path)
+            print("line\n", second_info, "is not in output file")
             return False
         second_info = second_file.readline()
     return True
