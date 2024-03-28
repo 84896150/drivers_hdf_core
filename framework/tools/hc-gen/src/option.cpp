@@ -122,8 +122,8 @@ void Option::SetOptionData(char op)
 
 void Option::ShowUsage()
 {
-    Logger() << "Usage: hc-gen [Options] [File]\n"
-             << "options:";
+    Logger() << "Usage: hc-gen [Options] [File]\n";
+    Logger() << "options:";
     ShowOption("-o <file>", "output file name, default same as input");
     ShowOption("-a", "hcb align with four bytes");
     ShowOption("-b", "output binary output, default enable");

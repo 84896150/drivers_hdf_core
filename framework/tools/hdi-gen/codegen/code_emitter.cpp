@@ -142,7 +142,9 @@ std::string CodeEmitter::InterfaceToFilePath(const std::string &interfaceName) c
 {
     std::string fullName = interfaceName;
     if (StringHelper::EndWith(fullName, "]")) {
-        fullName = fullName.substr(0, fullName.find("["));
+        if (interfaceName.find("[") != std::string::npos) {
+            fullName = interfaceName.substr(0, interfaceName.find("["));
+        }
     }
     size_t index = fullName.rfind(".");
     std::string prefix = fullName.substr(0, index + 1);

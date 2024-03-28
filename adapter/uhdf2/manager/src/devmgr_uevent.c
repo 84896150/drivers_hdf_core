@@ -301,7 +301,8 @@ static int32_t DevMgrUeventParseConfig(void)
 
     char resolvedPath[PATH_MAX] = {0};
     if (realpath(path, resolvedPath) == NULL) {
-        HDF_LOGE("realpath file: %{public}s failed, errno:%{public}d", path, errno);
+        HDF_LOGE("realpath file: %{public}s failed, errno: %{public}d, errno desc: %{public}s",
+            path, errno, strerror(errno));
         return HDF_FAILURE;
     }
     if (strncmp(resolvedPath, HDF_CONFIG_DIR, strlen(HDF_CONFIG_DIR)) != 0) {
@@ -310,7 +311,8 @@ static int32_t DevMgrUeventParseConfig(void)
     }
     FILE *file = fopen(resolvedPath, "r");
     if (file == NULL) {
-        HDF_LOGE("%{public}s fopen %{public}s failed:%{public}d", __func__, resolvedPath, errno);
+        HDF_LOGE("%{public}s fopen %{public}s failed: errno: %{public}d, errno desc: %{public}s",
+            __func__, resolvedPath, errno, strerror(errno));
         return HDF_FAILURE;
     }
 
@@ -337,26 +339,26 @@ static int32_t DevMgrUeventSocketInit(void)
 
     int32_t sockfd = socket(PF_NETLINK, SOCK_DGRAM | SOCK_CLOEXEC | SOCK_NONBLOCK, NETLINK_KOBJECT_UEVENT);
     if (sockfd < 0) {
-        HDF_LOGE("create socket failed, err = %{public}d", errno);
+        HDF_LOGE("create socket failed, err = %{public}d, desc = %{public}s", errno, strerror(errno));
         return HDF_FAILURE;
     }
 
     int32_t buffSize = UEVENT_SOCKET_BUFF_SIZE;
     if (setsockopt(sockfd, SOL_SOCKET, SO_RCVBUF, &buffSize, sizeof(buffSize)) != 0) {
-        HDF_LOGE("setsockopt: SO_RCVBUF failed err = %{public}d", errno);
+        HDF_LOGE("setsockopt: SO_RCVBUF failed err = %{public}d, desc = %{public}s", errno, strerror(errno));
         close(sockfd);
         return HDF_FAILURE;
     }
 
     const int32_t on = 1;
     if (setsockopt(sockfd, SOL_SOCKET, SO_PASSCRED, &on, sizeof(on)) != 0) {
-        HDF_LOGE("setsockopt: SO_PASSCRED failed, err = %{public}d", errno);
+        HDF_LOGE("setsockopt: SO_PASSCRED failed, err = %{public}d, desc = %{public}s", errno, strerror(errno));
         close(sockfd);
         return HDF_FAILURE;
     }
 
     if (bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-        HDF_LOGE("bind socket failed, err = %{public}d", errno);
+        HDF_LOGE("bind socket failed, err = %{public}d, desc = %{public}s", errno, strerror(errno));
         close(sockfd);
         return HDF_FAILURE;
     }
@@ -523,7 +525,7 @@ static int32_t DevMgrUeventThread(void *arg)
     fd.events = POLLIN | POLLERR;
     while (true) {
         if (poll(&fd, 1, -1) <= 0) {
-            HDF_LOGE("%{public}s poll fail %{public}d", __func__, errno);
+            HDF_LOGE("%{public}s poll fail %{public}d %{public}s", __func__, errno, strerror(errno));
             OsalMSleep(DEVMGR_UEVENT_WAIT_TIME);
             continue;
         }
