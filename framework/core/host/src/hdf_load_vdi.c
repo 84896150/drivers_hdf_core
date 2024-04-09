@@ -31,7 +31,7 @@ struct HdfVdiObject *HdfLoadVdi(const char *libName)
         return NULL;
     }
 
-    if (snprintf_s(path, sizeof(path), sizeof(path) - 1, "%s/%s", VDI_PATH, libName) < 0) {
+    if (snprintf_s(path, sizeof(path), sizeof(path) - 1, "%s%s", VDI_PATH, libName) < 0) {
         HDF_LOGE("%{public}s %{public}s snprintf_s failed", __func__, libName);
         return NULL;
     }
