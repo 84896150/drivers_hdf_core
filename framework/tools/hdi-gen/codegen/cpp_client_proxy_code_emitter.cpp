@@ -262,7 +262,7 @@ void CppClientProxyCodeEmitter::EmitProxyPublicMembers(StringBuilder &sb, const 
 {
     sb.Append(prefix).Append("bool isReconnected_;\n");
     sb.Append(prefix).Append("std::string serviceName_;\n");
-    sb.Append(prefix).AppendFormat("sptr<%s::IServiceManager> servMgr_;\n", devmgrVersionName_.c_str());
+    sb.Append(prefix).AppendFormat("sptr<IRemoteObject> servMgr_;\n", devmgrVersionName_.c_str());
     sb.Append(prefix).Append("sptr<IRemoteObject> reconnectRemote_;\n");
 }
 
@@ -538,7 +538,8 @@ void CppClientProxyCodeEmitter::EmitProxyCppReconnectMethodImpl(StringBuilder &s
     sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
     sb.Append(doubleTab).Append("}\n");
     sb.Append(doubleTab).Append("proxy->reconnectRemote_ = \n");
-    sb.Append(doubleTab + TAB).Append("proxy->servMgr_->GetService(proxy->serviceName_.c_str());\n");
+    sb.Append(doubleTab + TAB).Append(
+        "OHOS::HDI::hdi_facecast<IServiceManager>(proxy->servMgr_)->GetService(proxy->serviceName_.c_str());\n");
     sb.Append(doubleTab).Append("if (proxy->reconnectRemote_ == nullptr) {\n");
     sb.Append(doubleTab + TAB).Append("HDF_LOGE(\"%{public}s:get remote object failed!\", __func__);\n");
     sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
