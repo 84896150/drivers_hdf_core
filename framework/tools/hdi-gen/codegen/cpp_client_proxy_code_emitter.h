@@ -110,6 +110,8 @@ private:
     void EmitProxyGetRemoteMethodDecl(StringBuilder &sb, const std::string &prefix) const;
 
     void EmitGetInstanceMethodInitProxyImpl(StringBuilder &sb, const std::string &prefix) const;
+
+    void EmitProxyCppReconnectMethodImpl(StringBuilder &sb, const std::string &prefix) const;
 };
 } // namespace HDI
 } // namespace OHOS
