@@ -123,7 +123,7 @@ void CppClientProxyCodeEmitter::EmitProxyDevmgrDeathRecipient(StringBuilder &sb,
 {
     std::string doubleTab = prefix + TAB;
     sb.Append(prefix).AppendFormat("class %s : public IRemoteObject::DeathRecipient {\n",
-       devmgrDeathRecipientName_.c_str());
+        devmgrDeathRecipientName_.c_str());
     sb.Append(prefix).Append("public:\n");
     sb.Append(doubleTab).AppendFormat("%s(wptr<%s> proxy) : proxy_(proxy) {} \n", devmgrDeathRecipientName_.c_str(),
         EmitDefinitionByInterface(interface_, proxyName_).c_str());
@@ -247,7 +247,7 @@ void CppClientProxyCodeEmitter::EmitProxyStaticMethodDecl(
 void CppClientProxyCodeEmitter::EmitProxyReconnectMethodDecl(StringBuilder &sb, const std::string &prefix) const
 {
     std::string doubleTab = prefix + TAB;
-    sb.Append(prefix).AppendFormat("static int32_t Reconnect(sptr<%s> proxy);\n", 
+    sb.Append(prefix).AppendFormat("static int32_t Reconnect(sptr<%s> proxy);\n",
         EmitDefinitionByInterface(interface_, proxyName_).c_str());
 }
 
@@ -522,7 +522,7 @@ void CppClientProxyCodeEmitter::EmitProxyCppReconnectMethodImpl(StringBuilder &s
     std::string doubleTab = prefix + TAB;
     sb.Append(prefix).AppendFormat("int32_t %s::Reconnect(\n",
         EmitDefinitionByInterface(interface_, proxyName_).c_str());
-    sb.Append(doubleTab).AppendFormat("sptr<%s> proxy) \n", 
+    sb.Append(doubleTab).AppendFormat("sptr<%s> proxy) \n",
         EmitDefinitionByInterface(interface_, proxyName_).c_str());
     sb.Append(prefix).Append("{\n");
     sb.Append(doubleTab).Append("if (proxy == nullptr) {\n");
@@ -545,7 +545,7 @@ void CppClientProxyCodeEmitter::EmitProxyCppReconnectMethodImpl(StringBuilder &s
     sb.Append(doubleTab + TAB).Append("return HDF_FAILURE;\n");
     sb.Append(doubleTab).Append("}\n");
     sb.Append(doubleTab).Append("proxy->servMgr_->AddDeathRecipient(\n");
-    sb.Append(doubleTab + TAB).AppendFormat("new %s::%s(proxy));\n", 
+    sb.Append(doubleTab + TAB).AppendFormat("new %s::%s(proxy));\n",
         EmitDefinitionByInterface(interface_, proxyName_).c_str(), devmgrDeathRecipientName_.c_str());
     sb.Append(doubleTab).Append("proxy->isReconnected_ = true;\n");
     sb.Append(doubleTab).Append("return HDF_SUCCESS;\n");
