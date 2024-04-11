@@ -15,7 +15,8 @@ namespace OHOS {
 namespace HDI {
 class CppClientProxyCodeEmitter : public CppCodeEmitter {
 public:
-    CppClientProxyCodeEmitter() : CppCodeEmitter() {
+    CppClientProxyCodeEmitter() : CppCodeEmitter()
+    {
         devmgrDeathRecipientName_ = "IServiceManagerDeathRecipient";
         devmgrVersionName_ = "OHOS::HDI::ServiceManager::V1_0";
     }
