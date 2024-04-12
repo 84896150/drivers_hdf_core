@@ -73,6 +73,6 @@ hdf_driver(module_name) {
     "$FRAMEWORKS_WIFI_ROOT/bus",
     "$FRAMEWORKS_WIFI_ROOT/platform/include/message",
     "$FRAMEWORKS_WIFI_ROOT/platform/include",
-    "$FRAMEWORKS_WIFI_ROOT/platform/src/message",
+    "$FRAMEWORKS_WIFI_ROOT/platform/src",
   ]
 }
