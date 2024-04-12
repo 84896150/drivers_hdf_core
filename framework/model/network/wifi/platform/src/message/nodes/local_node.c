@@ -8,9 +8,10 @@
 
 #include "securec.h"
 #include "hdf_log.h"
+#include "message/message_router_inner.h"
+#include "message_router_inner.h"
 #include "hdf_wlan_priority_queue.h"
 #include "message/message_types.h"
-#include "../message_router_inner.h"
 #include "sidecar.h"
 
 #ifdef USERSPACE_CLIENT_SUPPORT

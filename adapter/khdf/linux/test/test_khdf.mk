@@ -61,6 +61,8 @@ ccflags-$(CONFIG_DRIVERS_HDF_TEST) += -I$(srctree)/drivers/hdf/framework/include
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/network/wifi/core/components/softap \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/network/wifi/core/components/sta \
     -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/network/wifi/platform/include \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/network/wifi/platform/src \
+    -I$(srctree)/$(HDF_FRAMEWORK_ROOT)/model/network/wifi/platform/src/message \
     -I$(srctree)/bounds_checking_function/include \
     -I$(srctree)/$(HDF_FRAMEWORK_TEST_ROOT)/platform \
     -I$(srctree)/$(HDF_FRAMEWORK_TEST_ROOT)/platform/entry \
