@@ -79,6 +79,7 @@ ndk_lib("driver_wlan_notes") {
     "$HDF_FRAMEWORK_PATH/include/wifi",
     "$HDF_FRAMEWORK_PATH/include/net",
     "$HDF_FRAMEWORK_PATH/model/network/wifi/platform/include",
+    "$HDF_FRAMEWORK_PATH/model/network/wifi/platform/src/message",
   ]
 }
 

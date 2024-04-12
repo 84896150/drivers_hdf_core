@@ -343,6 +343,7 @@ config("test_lite") {
       "$HDF_FRAMEWORKS_PATH/model/network/wifi/platform/include",
       "$HDF_FRAMEWORKS_PATH/model/network/wifi/platform/include/message",
       "$HDF_FRAMEWORKS_PATH/model/network/wifi/platform/src",
+      "$HDF_FRAMEWORKS_PATH/model/network/wifi/platform/src/message",
       "$HDF_FRAMEWORKS_PATH/model/network/wifi/core/components/softap",
       "$HDF_FRAMEWORKS_PATH/model/network/wifi/core/components/sta",
       "$HDF_FRAMEWORKS_PATH/include/wifi",
