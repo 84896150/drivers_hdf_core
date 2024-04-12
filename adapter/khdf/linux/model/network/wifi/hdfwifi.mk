@@ -48,6 +48,7 @@ HDF_WIFI_FRAMEWORKS_INC := \
    -I$(srctree)/drivers/hdf/framework/model/network/common/netdevice \
    -I$(srctree)/drivers/hdf/framework/model/network/wifi/platform/include \
    -I$(srctree)/drivers/hdf/framework/model/network/wifi/platform/include/message \
+   -I$(srctree)/drivers/hdf/framework/model/network/wifi/platform/src/message \
    -I$(srctree)/drivers/hdf/framework/model/network/wifi/client/include \
    -I$(srctree)/drivers/hdf/framework/include/wifi \
    -I$(srctree)/drivers/hdf/framework/include/net \

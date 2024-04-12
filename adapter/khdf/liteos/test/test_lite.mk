@@ -80,6 +80,7 @@ HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wif
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wifi/platform/include
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wifi/platform/include/message
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wifi/platform/src
+HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wifi/platform/src/message
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wifi/core/components/softap
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/model/network/wifi/core/components/sta
 HDF_TEST_INCLUDE += -I $(HDF_ROOT_TEST_DIR)/hdf_core/framework/include/wifi
