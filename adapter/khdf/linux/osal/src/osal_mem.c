@@ -56,7 +56,7 @@ static void *osal_mem_alloc(size_t size, uint32_t *type)
 		base = (char *)vmalloc(size + mng_size);
 		*type = TYPE_VMALLOC;
 	} else {
-		base = (char *)kmalloc(size + mng_size, GFP_KERNEL);
+		base = (char *)kmalloc(size + mng_size, GFP_ATOMIC);
 		*type = TYPE_KMALLOC;
 	}
 
