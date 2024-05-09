@@ -98,15 +98,18 @@ BufferHandle *CloneNativeBufferHandle(const BufferHandle *other)
 
 void FreeNativeBufferHandle(BufferHandle *handle)
 {
+    HDF_LOGD("%{public}s: handle: %{public}x", __func__, handle);
     if (handle == NULL) {
         return;
     }
 
+    HDF_LOGI("%{public}s: fd: %{public}d", __func__, handle->fd);
     if (handle->fd != -1) {
         close(handle->fd);
         handle->fd = -1;
     }
 
+    HDF_LOGD("%{public}s: reserveFds: %{public}d", __func__, handle->reserveFds);
     for (uint32_t i = 0; i < handle->reserveFds; i++) {
         if (handle->reserve[i] != -1) {
             close(handle->reserve[i]);
