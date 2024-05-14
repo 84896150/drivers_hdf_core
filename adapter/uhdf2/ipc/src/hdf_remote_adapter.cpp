@@ -42,6 +42,7 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 {
     (void)option;
     if (service_ == nullptr) {
+        HDF_LOGE("service_ is null, flags is: %{public}d", option.GetFlags());
         return HDF_ERR_INVALID_OBJECT;
     }
 
@@ -63,6 +64,8 @@ int HdfRemoteServiceStub::OnRemoteRequest(uint32_t code,
 
 HdfRemoteServiceStub::~HdfRemoteServiceStub()
 {
+    HDF_LOGI("~HdfRemoteServiceStub enter");
+    service_ = nullptr;
 }
 
 int32_t HdfRemoteServiceStub::Dump(int32_t fd, const std::vector<std::u16string> &args)
