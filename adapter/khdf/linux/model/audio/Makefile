@@ -94,7 +94,7 @@ obj-$(CONFIG_DRIVERS_HDF_AUDIO_IMX8MM) += \
           $(KHDF_AUDIO_IMX8MM_DIR)/codec/src/wm8904.o \
           $(KHDF_AUDIO_IMX8MM_DIR)/codec/src/wm8904_impl.o
 
-ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -lm -lc -lgcc -std=gnu99 -Werror\
+ccflags-$(CONFIG_DRIVERS_HDF_AUDIO) += -std=gnu99 -Werror\
              -I$(srctree)/$(KHDF_AUDIO_KHDF_ROOT_DIR)/osal/include \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/core \
              -I$(srctree)/$(KHDF_FRAMEWORK_ROOT_DIR)/include/utils \

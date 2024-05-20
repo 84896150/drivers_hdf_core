@@ -6,12 +6,17 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <linux/version.h>
 #include "platform_device.h"
 #include "hdf_log.h"
 #include "osal_mem.h"
 #include "platform_core.h"
 #include "securec.h"
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
 #include "stdarg.h"
+#else
+#include "linux/stdarg.h"
+#endif
 
 #define PLATFORM_DEV_NAME_DEFAULT "platform_device"
 

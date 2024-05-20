@@ -46,7 +46,7 @@ obj-$(CONFIG_DRIVERS_HDF_LCD_ST7789) += \
 obj-$(CONFIG_ARCH_ROCKCHIP) += \
         $(DISPLAY_ROOT_DIR)/panel/ili9881_st_5p5.o
 
-ccflags-y += -lm -lc -lgcc \
+ccflags-y +=  \
             -I$(srctree)/drivers/hdf/framework/model/display/driver \
             -I$(srctree)/drivers/hdf/framework/model/display/driver/adapter_soc \
             -I$(srctree)/drivers/hdf/framework/include/utils \

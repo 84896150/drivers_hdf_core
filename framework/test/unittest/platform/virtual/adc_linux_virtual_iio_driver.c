@@ -14,6 +14,7 @@
 #include <linux/module.h>
 #include <linux/of.h>
 #include <linux/platform_device.h>
+#include <linux/version.h>
 #include "hdf_log.h"
 #include "hdf_base.h"
 
@@ -144,6 +145,9 @@ static struct platform_device g_virtualAdcPlatformDevice = {
 
 static int VirtualAdcPlatformProbe(struct platform_device *pdev)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+    static const unsigned long scanMasks[] = { SCAN_MASKS, 0x00 };
+#endif
     struct VirtualAdcDev *adcInfo = NULL;
     struct iio_dev *indioDev = NULL;
     int ret;
@@ -156,11 +160,15 @@ static int VirtualAdcPlatformProbe(struct platform_device *pdev)
     adcInfo = iio_priv(indioDev);
     adcInfo->name = "virtual-adc-3516";
     adcInfo->busNum = BUS_NUM;
-    
+
     indioDev->name = KBUILD_MODNAME;
     indioDev->channels = AdcChannels;
     indioDev->num_channels = ARRAY_SIZE(AdcChannels);
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     indioDev->available_scan_masks = SCAN_MASKS;
+#else
+    indioDev->available_scan_masks = scanMasks;
+#endif
     indioDev->info = &AdcIioInfo;
     indioDev->modes = INDIO_DIRECT_MODE;
 
