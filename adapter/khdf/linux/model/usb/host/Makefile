@@ -16,7 +16,8 @@ obj-$(CONFIG_DRIVERS_HDF_USB_PNP_NOTIFY) += \
 obj-$(CONFIG_DRIVERS_HDF_USB_NET_ADAPTER) += \
          $(USB_PNP_NOTIFY_ROOT_DIR)/src/usb_net_adapter.o
 
-ccflags-y += -lm -lc -lgcc \
+ccflags-y += -Wno-incompatible-pointer-types-discards-qualifiers
+ccflags-y += \
             -I$(srctree)/drivers/hdf/khdf/model/usb/host/include \
             -I$(srctree)/drivers/hdf/framework/include/utils \
             -I$(srctree)/drivers/hdf/framework/utils/include \

@@ -6,6 +6,7 @@
  * See the LICENSE file in the root of this repository for complete details.
  */
 
+#include <linux/version.h>
 #include "ili9881_st_5p5.h"
 #include "gpio_if.h"
 #include "hdf_bl.h"
@@ -566,6 +567,11 @@ static int32_t PanelInit(struct PanelData *panel)
 #define MIN_LEVEL                 0
 #define MAX_LEVEL                 255
 #define DEFAULT_LEVEL             127
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+#ifndef MIPI_DSI_MODE_EOT_PACKET
+#define MIPI_DSI_MODE_EOT_PACKET  MIPI_DSI_MODE_NO_EOT_PACKET
+#endif
+#endif
 
 static struct PanelInfo g_panelInfo = {
     .width = 720,          /* width */
