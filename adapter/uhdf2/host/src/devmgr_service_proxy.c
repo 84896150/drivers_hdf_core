@@ -51,6 +51,7 @@ int DevmgrServiceProxyAttachDeviceHost(struct IDevmgrService *inst, uint16_t hos
             goto FINISHED;
         }
         status = dipatcher->Dispatch(remoteService, DEVMGR_SERVICE_ATTACH_DEVICE_HOST, data, reply);
+        HDF_LOGD("current status is %{public}d", status);
         HdfSbufFlush(data);
         HdfSbufFlush(reply);
         timeout--;
