@@ -155,6 +155,8 @@ template("hdi") {
 
         external_deps = [
           "c_utils:utils",
+          "hdf_core:libhdf_ipc_adapter",
+          "hdf_core:libhdf_utils",
           "hdf_core:libhdi",
           "hdf_core:libpub_utils",
           "hilog:libhilog",
@@ -162,9 +164,7 @@ template("hdi") {
         if (defined(invoker.sequenceable_ext_deps)) {
           external_deps += invoker.sequenceable_ext_deps
         }
-        if (invoker.language == "c") {
-          external_deps += [ "hdf_core:libhdf_ipc_adapter" ]
-        } else if (invoker.language == "cpp") {
+        if (invoker.language == "cpp") {
           external_deps += [ "ipc:ipc_single" ]
         }
       } else {
@@ -225,18 +225,15 @@ template("hdi") {
 
           external_deps = [
             "c_utils:utils",
+            "hdf_core:libhdf_ipc_adapter",
+            "hdf_core:libhdf_utils",
             "hdf_core:libhdi",
             "hilog:libhilog",
           ]
           if (defined(invoker.sequenceable_ext_deps)) {
             external_deps += invoker.sequenceable_ext_deps
           }
-          if (invoker.language == "c") {
-            external_deps += [
-              "hdf_core:libhdf_ipc_adapter",
-              "hdf_core:libhdf_utils",
-            ]
-          } else if (invoker.language == "cpp") {
+          if (invoker.language == "cpp") {
             external_deps += [ "ipc:ipc_single" ]
           }
         } else {
