@@ -33,6 +33,8 @@ obj-$(CONFIG_DRIVERS_HDF_INPUT_INFRARED) += \
               $(INPUT_ROOT_DIR)/hdf_infrared.o
 obj-$(CONFIG_DRIVERS_HDF_TP_5P43_FT5406) += \
               $(INPUT_ROOT_DIR)/touchscreen/touch_ft5406.o
+obj-$(CONFIG_DRIVERS_HDF_TP_GSL377X) += \
+              $(INPUT_ROOT_DIR)/touchscreen/touch_gsl377x.o
 
 ccflags-y +=-I$(srctree)/drivers/hdf/framework/model/input/driver \
             -I$(srctree)/drivers/hdf/framework/model/input/driver/input_bus_ops \
