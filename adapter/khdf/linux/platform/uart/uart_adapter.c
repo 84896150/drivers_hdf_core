@@ -34,10 +34,11 @@
 #define UART_NAME_LEN 20
 #define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
 
-struct UartPriv{
+typedef struct {
     struct file *fp;
     char   g_driverName[UART_NAME_LEN];
-};
+} UartPriv;
+
 static int32_t UartAdapterInit(struct UartHost *host)
 {
     char name[UART_PATHNAME_LEN] = {0};
@@ -541,7 +542,7 @@ static int32_t HdfUartInit(struct HdfDeviceObject *obj)
         return HDF_FAILURE;
     }
     
-    if(memcpy_s(uartpriv->g_driverName, UART_NAME_LEN, drName, strlen(drName)) < 0) {
+    if (memcpy_s(uartpriv->g_driverName, UART_NAME_LEN, drName, strlen(drName)) < 0) {
         HDF_LOGE("HdfUartInit: memcpy_s drName fail!");
         return HDF_FAILURE;
     }
