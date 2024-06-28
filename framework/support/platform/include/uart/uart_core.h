@@ -27,7 +27,7 @@ extern "C" {
  * @brief UartPriv.
  */
 typedef struct {
-    struct file *fileFp;
+    struct file *fiLp;
     char   driverName[UART_NAME_LEN];
 } UartPriv;
 /**
