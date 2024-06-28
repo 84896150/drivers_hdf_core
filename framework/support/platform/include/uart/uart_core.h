@@ -19,6 +19,17 @@
 extern "C" {
 #endif /* __cplusplus */
 
+
+#define HDF_LOG_TAG hdf_uart_adapter
+#define UART_NAME_LEN 20
+#define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
+/**
+ * @brief UartPriv.
+ */
+typedef struct {
+    struct file *fileFp;
+    char   driverName[UART_NAME_LEN];
+} UartPriv;
 /**
  * @brief uart device operations.
  */
