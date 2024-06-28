@@ -51,7 +51,7 @@ private:
 
 struct HdfRemoteServiceHolder {
     HdfRemoteServiceHolder();
-    ~HdfRemoteServiceHolder();
+    ~HdfRemoteServiceHolder() = default;
 
     bool SetInterfaceDescriptor(const char *desc);
     struct HdfRemoteService service_;
