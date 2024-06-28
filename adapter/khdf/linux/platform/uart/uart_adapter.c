@@ -36,7 +36,7 @@
 
 typedef struct {
     struct file *fp;
-    char   g_driverName[UART_NAME_LEN];
+    char   driverName[UART_NAME_LEN];
 } UartPriv;
 
 static int32_t UartAdapterInit(struct UartHost *host)
@@ -51,7 +51,7 @@ static int32_t UartAdapterInit(struct UartHost *host)
         return HDF_ERR_INVALID_OBJECT;
     }
     uartpriv = (struct UartPriv *)host->priv;
-    if (sprintf_s(name, UART_PATHNAME_LEN - 1, "/dev/%s%d", uartpriv->g_driverName, host->num) < 0) {
+    if (sprintf_s(name, UART_PATHNAME_LEN - 1, "/dev/%s%d", uartpriv->driverName, host->num) < 0) {
         return HDF_FAILURE;
     }
     oldfs = get_fs();
@@ -542,7 +542,7 @@ static int32_t HdfUartInit(struct HdfDeviceObject *obj)
         return HDF_FAILURE;
     }
     
-    if (memcpy_s(uartpriv->g_driverName, UART_NAME_LEN, drName, strlen(drName)) < 0) {
+    if (memcpy_s(uartpriv->driverName, UART_NAME_LEN, drName, strlen(drName)) < 0) {
         HDF_LOGE("HdfUartInit: memcpy_s drName fail!");
         return HDF_FAILURE;
     }
