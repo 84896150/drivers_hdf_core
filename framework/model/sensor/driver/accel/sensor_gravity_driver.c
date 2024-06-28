@@ -18,6 +18,10 @@
 #include "sensor_platform_if.h"
 
 #define HDF_LOG_TAG    khdf_sensor_gravity_driver
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 #define HDF_GRAVITY_WORK_QUEUE_NAME    "hdf_gravity_work_queue"
 
@@ -31,6 +35,7 @@ static struct GravityDrvData *GravityGetDrvData(void)
 
 static int32_t GravitySubscribeAccelData(int32_t *accelData, int32_t size)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(accelData, HDF_ERR_INVALID_PARAM);
 
     if (size > GRAVITY_AXIS_NUM * sizeof(int32_t)) {
@@ -47,6 +52,7 @@ static int32_t GravitySubscribeAccelData(int32_t *accelData, int32_t size)
 
 static void GravityDataWorkEntry(void *arg)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct GravityDrvData *drvData = NULL;
     static int32_t GravityRawData[GRAVITY_AXIS_NUM];
     struct SensorReportEvent event;
@@ -79,6 +85,7 @@ static void GravityDataWorkEntry(void *arg)
 
 static void GravityTimerEntry(uintptr_t arg)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct GravityDrvData *drvData = (struct GravityDrvData *)arg;
     CHECK_NULL_PTR_RETURN(drvData);
@@ -95,6 +102,7 @@ static void GravityTimerEntry(uintptr_t arg)
 
 static int32_t InitGravityData(struct GravityDrvData *drvData)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (HdfWorkQueueInit(&drvData->gravityWorkQueue, HDF_GRAVITY_WORK_QUEUE_NAME) != HDF_SUCCESS) {
         HDF_LOGE("%s: Gravity init work queue failed", __func__);
         return HDF_FAILURE;
@@ -113,6 +121,7 @@ static int32_t InitGravityData(struct GravityDrvData *drvData)
 
 static int32_t SetGravityEnable(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct GravityDrvData *drvData = GravityGetDrvData();
 
@@ -142,6 +151,7 @@ static int32_t SetGravityEnable(void)
 
 static int32_t SetGravityDisable(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct GravityDrvData *drvData = GravityGetDrvData();
 
@@ -165,6 +175,7 @@ static int32_t SetGravityDisable(void)
 
 static int32_t SetGravityBatch(int64_t samplingInterval, int64_t interval)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)interval;
 
     int64_t ms;
@@ -182,6 +193,7 @@ static int32_t SetGravityBatch(int64_t samplingInterval, int64_t interval)
 
 static int32_t SetGravityMode(int32_t mode)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (mode <= SENSOR_WORK_MODE_DEFAULT || mode >= SENSOR_WORK_MODE_MAX) {
         HDF_LOGE("%s: The current mode is not supported", __func__);
         return HDF_FAILURE;
@@ -192,6 +204,7 @@ static int32_t SetGravityMode(int32_t mode)
 
 static int32_t SetGravityOption(uint32_t option)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)option;
     return HDF_SUCCESS;
 }
@@ -199,6 +212,7 @@ static int32_t SetGravityOption(uint32_t option)
 static int32_t DispatchGravity(struct HdfDeviceIoClient *client,
     int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)client;
     (void)cmd;
     (void)data;
@@ -209,6 +223,7 @@ static int32_t DispatchGravity(struct HdfDeviceIoClient *client,
 
 int32_t GravityBindDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
 
     struct GravityDrvData *drvData = (struct GravityDrvData *)OsalMemCalloc(sizeof(*drvData));
@@ -226,6 +241,7 @@ int32_t GravityBindDriver(struct HdfDeviceObject *device)
 
 static int32_t InitGravityOps(struct SensorCfgData *config, struct SensorDeviceInfo *deviceInfo)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(config, HDF_ERR_INVALID_PARAM);
 
     deviceInfo->ops.Enable = SetGravityEnable;
@@ -250,6 +266,7 @@ static int32_t InitGravityOps(struct SensorCfgData *config, struct SensorDeviceI
 
 static int32_t InitGravityAfterBase(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDeviceInfo deviceInfo;
     CHECK_NULL_PTR_RETURN_VALUE(config, HDF_ERR_INVALID_PARAM);
 
@@ -267,6 +284,7 @@ static int32_t InitGravityAfterBase(struct SensorCfgData *config)
 
 static int32_t GravityCreateCfgData(const struct DeviceResourceNode *node)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct GravityDrvData *drvData = GravityGetDrvData();
 
     CHECK_NULL_PTR_RETURN_VALUE(node, HDF_ERR_INVALID_PARAM);
@@ -287,6 +305,7 @@ static int32_t GravityCreateCfgData(const struct DeviceResourceNode *node)
 
 int32_t GravityInitDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
     struct GravityDrvData *drvData = (struct GravityDrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
@@ -313,6 +332,7 @@ int32_t GravityInitDriver(struct HdfDeviceObject *device)
 
 void GravityReleaseDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN(device);
 
     struct GravityDrvData *drvData = (struct GravityDrvData *)device->service;

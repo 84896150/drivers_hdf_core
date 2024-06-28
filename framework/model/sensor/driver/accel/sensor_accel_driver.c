@@ -17,6 +17,10 @@
 #include "sensor_platform_if.h"
 
 #define HDF_LOG_TAG    khdf_sensor_accel_driver
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 #define HDF_ACCEL_WORK_QUEUE_NAME    "hdf_accel_work_queue"
 
@@ -31,6 +35,7 @@ static struct SensorRegCfgGroupNode *g_regCfgGroup[SENSOR_GROUP_MAX] = { NULL };
 
 int32_t SubscribeAccelDataCallbackFunc(GravitySubscribeAccelCallback cb)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(cb, HDF_ERR_INVALID_PARAM);
 
     struct AccelDrvData *drvData = AccelGetDrvData();
@@ -44,6 +49,7 @@ int32_t SubscribeAccelDataCallbackFunc(GravitySubscribeAccelCallback cb)
 
 int32_t AccelRegisterChipOps(const struct AccelOpsCall *ops)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct AccelDrvData *drvData = AccelGetDrvData();
 
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
@@ -56,6 +62,7 @@ int32_t AccelRegisterChipOps(const struct AccelOpsCall *ops)
 
 static void AccelDataWorkEntry(void *arg)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct AccelDrvData *drvData = NULL;
     struct SensorReportEvent event;
 
@@ -84,6 +91,7 @@ static void AccelDataWorkEntry(void *arg)
 
 static void AccelTimerEntry(uintptr_t arg)
 {
+    HDF_LOGI("%{public}s", __func__);
     int64_t interval;
     int32_t ret;
     struct AccelDrvData *drvData = (struct AccelDrvData *)arg;
@@ -103,6 +111,7 @@ static void AccelTimerEntry(uintptr_t arg)
 
 static int32_t InitAccelData(struct AccelDrvData *drvData)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (HdfWorkQueueInit(&drvData->accelWorkQueue, HDF_ACCEL_WORK_QUEUE_NAME) != HDF_SUCCESS) {
         HDF_LOGE("%s: Accel init work queue failed", __func__);
         return HDF_FAILURE;
@@ -122,6 +131,7 @@ static int32_t InitAccelData(struct AccelDrvData *drvData)
 
 static int32_t SetAccelEnable(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct AccelDrvData *drvData = AccelGetDrvData();
 
@@ -157,6 +167,7 @@ static int32_t SetAccelEnable(void)
 
 static int32_t SetAccelDisable(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct AccelDrvData *drvData = AccelGetDrvData();
 
@@ -186,6 +197,7 @@ static int32_t SetAccelDisable(void)
 
 static int32_t SetAccelBatch(int64_t samplingInterval, int64_t interval)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)interval;
 
     struct AccelDrvData *drvData = NULL;
@@ -200,6 +212,7 @@ static int32_t SetAccelBatch(int64_t samplingInterval, int64_t interval)
 
 static int32_t SetAccelMode(int32_t mode)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (mode <= SENSOR_WORK_MODE_DEFAULT || mode >= SENSOR_WORK_MODE_MAX) {
         HDF_LOGE("%s: The current mode is not supported", __func__);
         return HDF_FAILURE;
@@ -210,6 +223,7 @@ static int32_t SetAccelMode(int32_t mode)
 
 static int32_t SetAccelOption(uint32_t option)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)option;
     return HDF_SUCCESS;
 }
@@ -217,6 +231,7 @@ static int32_t SetAccelOption(uint32_t option)
 static int32_t DispatchAccel(struct HdfDeviceIoClient *client,
     int cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)client;
     (void)cmd;
     (void)data;
@@ -227,6 +242,7 @@ static int32_t DispatchAccel(struct HdfDeviceIoClient *client,
 
 int32_t AccelBindDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
 
     struct AccelDrvData *drvData = (struct AccelDrvData *)OsalMemCalloc(sizeof(*drvData));
@@ -244,6 +260,7 @@ int32_t AccelBindDriver(struct HdfDeviceObject *device)
 
 static int32_t InitAccelOps(struct SensorCfgData *config, struct SensorDeviceInfo *deviceInfo)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(config, HDF_ERR_INVALID_PARAM);
 
     deviceInfo->ops.Enable = SetAccelEnable;
@@ -263,6 +280,7 @@ static int32_t InitAccelOps(struct SensorCfgData *config, struct SensorDeviceInf
 
 static int32_t InitAccelAfterDetected(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDeviceInfo deviceInfo;
     CHECK_NULL_PTR_RETURN_VALUE(config, HDF_ERR_INVALID_PARAM);
 
@@ -294,6 +312,7 @@ static int32_t InitAccelAfterDetected(struct SensorCfgData *config)
 
 struct SensorCfgData *AccelCreateCfgData(const struct DeviceResourceNode *node)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct AccelDrvData *drvData = AccelGetDrvData();
 
     if (drvData == NULL || node == NULL) {
@@ -341,6 +360,7 @@ BASE_CONFIG_EXIT:
 
 void AccelReleaseCfgData(struct SensorCfgData *accelCfg)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN(accelCfg);
 
     (void)DeleteSensorDevice(&accelCfg->sensorInfo);
@@ -356,6 +376,7 @@ void AccelReleaseCfgData(struct SensorCfgData *accelCfg)
 
 int32_t AccelInitDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
     struct AccelDrvData *drvData = (struct AccelDrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
@@ -380,6 +401,7 @@ int32_t AccelInitDriver(struct HdfDeviceObject *device)
 
 void AccelReleaseDriver(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN(device);
 
     struct AccelDrvData *drvData = (struct AccelDrvData *)device->service;
