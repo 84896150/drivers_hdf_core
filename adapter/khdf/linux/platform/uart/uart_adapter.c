@@ -34,7 +34,7 @@
 #define UART_NAME_LEN 20
 #define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
 
-typedef struct {
+extern typedef struct {
     struct file *fileFp;
     char   driverName[UART_NAME_LEN];
 } UartPriv;
