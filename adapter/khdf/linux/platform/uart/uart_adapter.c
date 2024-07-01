@@ -34,19 +34,24 @@
 #define UART_NAME_LEN 20
 #define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
 
-static char g_driverName[UART_NAME_LEN];
+struct UartPriv{
+    void   *fileFp;
+    char   driverName[UART_NAME_LEN];
+} ;
 
 static int32_t UartAdapterInit(struct UartHost *host)
 {
     char name[UART_PATHNAME_LEN] = {0};
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     mm_segment_t oldfs;
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterInit: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
-    if (sprintf_s(name, UART_PATHNAME_LEN - 1, "/dev/%s%d", g_driverName, host->num) < 0) {
+    uartpriv = (struct UartPriv *)host->priv;
+    if (sprintf_s(name, UART_PATHNAME_LEN - 1, "/dev/%s%d", uartpriv->driverName, host->num) < 0) {
         return HDF_FAILURE;
     }
     oldfs = get_fs();
@@ -58,27 +63,29 @@ static int32_t UartAdapterInit(struct UartHost *host)
         return HDF_FAILURE;
     }
     set_fs(oldfs);
-    host->priv = fp;
+    uartpriv->fileFp = fp;
     return HDF_SUCCESS;
 }
 
 static int32_t UartAdapterDeInit(struct UartHost *host)
 {
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     mm_segment_t oldfs;
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterDeInit: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
     oldfs = get_fs();
     set_fs(KERNEL_DS);
     if (!IS_ERR(fp) && fp) {
         filp_close(fp, NULL);
     }
     set_fs(oldfs);
-    host->priv = NULL;
+    uartpriv->fileFp = NULL;
     return HDF_SUCCESS;
 }
 
@@ -87,6 +94,7 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
     loff_t pos = 0;
     int ret;
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     char *p = (char *)data;
     mm_segment_t oldfs;
     uint32_t tmp = 0;
@@ -96,7 +104,8 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
     oldfs = get_fs();
     set_fs(KERNEL_DS);
     while (size >= tmp) {
@@ -116,6 +125,7 @@ static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t s
     loff_t pos = 0;
     int ret;
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     char *p = (char *)data;
     mm_segment_t oldfs;
 
@@ -124,7 +134,8 @@ static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t s
         return HDF_ERR_INVALID_OBJECT;
     }
 
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
     oldfs = get_fs();
     set_fs(KERNEL_DS);
     ret = vfs_write(fp, p, size, &pos);
@@ -210,12 +221,14 @@ static int32_t UartAdapterGetBaud(struct UartHost *host, uint32_t *baudRate)
 {
     struct termios termios;
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterGetBaud: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
     if (baudRate == NULL) {
         HDF_LOGE("UartAdapterGetBaud: baudRate is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -283,13 +296,15 @@ static int32_t UartAdapterSetBaud(struct UartHost *host, uint32_t baudRate)
     struct termios termios;
     struct serial_struct serial;
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     int ret;
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterSetBaud: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
 
     if (UartAdapterIoctlInner(fp, TCGETS, (unsigned long)&termios) < 0) {
         HDF_LOGE("UartAdapterSetBaud: tcgets fail!");
@@ -381,13 +396,15 @@ static int32_t UartAdapterGetAttribute(struct UartHost *host, struct UartAttribu
 {
     struct termios termios;
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     int ret;
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterGetAttribute: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
     if (attribute == NULL) {
         HDF_LOGE("UartAdapterGetAttribute: attribute is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -409,13 +426,15 @@ static int32_t UartAdapterSetAttribute(struct UartHost *host, struct UartAttribu
 {
     struct termios termios;
     struct file *fp = NULL;
+    struct UartPriv *uartpriv = NULL;
     int ret;
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterSetAttribute: host is null!");
         return HDF_ERR_INVALID_OBJECT;
     }
-    fp = (struct file *)host->priv;
+    uartpriv = (struct UartPriv *)host->priv;
+    fp = (struct file *)uartpriv->fileFp;
     if (attribute == NULL) {
         HDF_LOGE("UartAdapterSetAttribute: attribute is null!");
         return HDF_ERR_INVALID_PARAM;
@@ -484,6 +503,7 @@ static int32_t HdfUartInit(struct HdfDeviceObject *obj)
     int32_t ret;
     struct DeviceResourceIface *iface = NULL;
     struct UartHost *host = NULL;
+    struct UartPriv *uartpriv = NULL;
     const char *drName = NULL;
 
     HDF_LOGI("HdfUartInit: entry!");
@@ -510,17 +530,21 @@ static int32_t HdfUartInit(struct HdfDeviceObject *obj)
         HDF_LOGE("HdfUartInit: read driver_name fail!");
         return HDF_FAILURE;
     }
-    g_driverName[UART_NAME_LEN - 1] = 0;
     if (strlen(drName) > (UART_NAME_LEN - 1)) {
         HDF_LOGE("HdfUartInit: illegal length of drName!");
         return HDF_FAILURE;
     }
-    ret = memcpy_s(g_driverName, UART_NAME_LEN, drName, strlen(drName));
-    if (ret != EOK) {
-        HDF_LOGE("HdfUartInit: memcpy_s fail!");
+    uartpriv = OsalMemCalloc(sizeof(struct UartPriv));
+    if (uartpriv == NULL) {
+        HDF_LOGE("HdfUartInit: malloc UartPriv fail!");
+        return HDF_FAILURE;
+    }
+    if (memcpy_s(uartpriv->driverName, UART_NAME_LEN, drName, strlen(drName)) < 0) {
+        HDF_LOGE("HdfUartInit: memcpy_s drName fail!");
         return HDF_FAILURE;
     }
     host->method = &g_uartHostMethod;
+    OsalMemFree(host->priv);
     return HDF_SUCCESS;
 }
 
@@ -534,6 +558,7 @@ static void HdfUartRelease(struct HdfDeviceObject *obj)
         return;
     }
     host = UartHostFromDevice(obj);
+    host->priv = uartpriv;
     UartHostDestroy(host);
 }
 
