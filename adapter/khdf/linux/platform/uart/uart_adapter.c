@@ -34,7 +34,8 @@
 #define UART_NAME_LEN 20
 #define UART_PATHNAME_LEN (UART_NAME_LEN + 20)
 
-struct UartPriv{
+struct UartPriv
+{
     void   *fileFp;
     char   driverName[UART_NAME_LEN];
 } ;
