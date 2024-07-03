@@ -52,20 +52,26 @@ static int32_t UartAdapterInit(struct UartHost *host)
     if (sprintf_s(name, UART_PATHNAME_LEN - 1, "/dev/%s%d", g_driverName, host->num) < 0) {
         return HDF_FAILURE;
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
 #endif
     fp = filp_open(name, O_RDWR | O_NOCTTY | O_NDELAY, 0600); /* 0600 : file mode */
     if (IS_ERR(fp)) {
         HDF_LOGE("UartAdapterInit: filp_open %s fail!", name);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
         set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+        force_uaccess_end(oldfs);
 #endif
         return HDF_FAILURE;
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
 #endif
     host->priv = fp;
     return HDF_SUCCESS;
@@ -84,15 +90,19 @@ static int32_t UartAdapterDeInit(struct UartHost *host)
     }
 
     fp = (struct file *)host->priv;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
 #endif
     if (!IS_ERR(fp) && fp) {
         filp_close(fp, NULL);
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
 #endif
     host->priv = NULL;
     return HDF_SUCCESS;
@@ -115,9 +125,11 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
     }
 
     fp = (struct file *)host->priv;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
 #endif
     while (size >= tmp) {
         ret = vfs_read(fp, p + tmp, 1, &pos);
@@ -127,8 +139,10 @@ static int32_t UartAdapterRead(struct UartHost *host, uint8_t *data, uint32_t si
         }
         tmp++;
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
 #endif
     return tmp;
 }
@@ -149,20 +163,26 @@ static int32_t UartAdapterWrite(struct UartHost *host, uint8_t *data, uint32_t s
     }
 
     fp = (struct file *)host->priv;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
 #endif
     ret = vfs_write(fp, p, size, &pos);
     if (ret < 0) {
         HDF_LOGE("UartAdapterWrite: vfs_write fail, ret: %d!", ret);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
         set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+        force_uaccess_end(oldfs);
 #endif
         return HDF_FAILURE;
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
 #endif
     return HDF_SUCCESS;
 }
@@ -178,15 +198,19 @@ static int UartAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long ar
         HDF_LOGE("UartAdapterIoctlInner: fp is null!");
         return HDF_FAILURE;
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
 #endif
     if (fp->f_op->unlocked_ioctl != NULL) {
         ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
     }
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
 #endif
     return ret;
 }
