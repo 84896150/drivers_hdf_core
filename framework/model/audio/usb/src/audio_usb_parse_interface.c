@@ -325,11 +325,12 @@ static void AudioUsbPcmFormatSub(
 static uint64_t ParseAudioFormatType(
     struct AudioUsbDriver *audioUsbDriver, struct AudioUsbFormat *audioUsbFormat, uint64_t format, void *pFmt)
 {
+    int32_t ret;
     uint64_t pcmFormats = 0;
 
     struct AudioFmtInfo audioFmtInfo;
     (void)memset_s(&audioFmtInfo, sizeof(struct AudioFmtInfo), 0, sizeof(struct AudioFmtInfo));
-    int32_t ret = AudioUsbFormatTypeInit(audioUsbFormat, &audioFmtInfo, pFmt, &format);
+    ret = AudioUsbFormatTypeInit(audioUsbFormat, &audioFmtInfo, pFmt, &format);
     if (ret == HDF_ERR_INVALID_PARAM) {
         return 0; /* invalid format, return 0 */
     }

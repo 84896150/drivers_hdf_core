@@ -216,7 +216,8 @@ OUT:
 static void UsbPnpNotifyAddInterfaceInitInfo(struct UsbPnpDeviceInfo *deviceInfo, union UsbPnpDeviceInfoData infoData,
     struct UsbPnpNotifyMatchInfoTable *infoTable)
 {
-    for (uint8_t i = 0; i < deviceInfo->info.numInfos; i++) {
+    uint8_t i;
+    for (i = 0; i < deviceInfo->info.numInfos; i++) {
         if ((infoData.infoData->interfaceClass == deviceInfo->info.interfaceInfo[i].interfaceClass) &&
             (infoData.infoData->interfaceSubClass == deviceInfo->info.interfaceInfo[i].interfaceSubClass) &&
             (infoData.infoData->interfaceProtocol == deviceInfo->info.interfaceInfo[i].interfaceProtocol) &&
@@ -465,8 +466,9 @@ static void TestPnpNotifyFillInfoTable(struct UsbPnpNotifyMatchInfoTable *infoTa
     infoTable->removeType = g_usbPnpNotifyRemoveType;
 
     if (g_usbPnpNotifyCmdType != USB_PNP_NOTIFY_REMOVE_TEST) {
+        int8_t i;
         infoTable->numInfos = g_testUsbPnpInfo->numInfos;
-        for (int8_t i = 0; i < infoTable->numInfos; i++) {
+        for (i = 0; i < infoTable->numInfos; i++) {
             infoTable->interfaceInfo[i].interfaceClass = g_testUsbPnpInfo->interfaceInfo[i].interfaceClass;
             infoTable->interfaceInfo[i].interfaceSubClass = g_testUsbPnpInfo->interfaceInfo[i].interfaceSubClass;
             infoTable->interfaceInfo[i].interfaceProtocol = g_testUsbPnpInfo->interfaceInfo[i].interfaceProtocol;

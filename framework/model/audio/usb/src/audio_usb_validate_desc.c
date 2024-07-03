@@ -489,8 +489,8 @@ static bool ValidateSelectorUnit(const void *ptr, const struct UsbDescValidator 
 
 static bool ValidateUac1FeatureUnit(const void *ptr, const struct UsbDescValidator *usbDesc)
 {
-    (void)usbDesc;
     const struct uac_feature_unit_descriptor *featureDesc = ptr;
+    (void)usbDesc;
 
     if (featureDesc->bLength < sizeof(*featureDesc) || !featureDesc->bControlSize) {
         return false;
@@ -501,8 +501,8 @@ static bool ValidateUac1FeatureUnit(const void *ptr, const struct UsbDescValidat
 
 static bool ValidateUac2FeatureUnit(const void *ptr, const struct UsbDescValidator *usbDesc)
 {
-    (void)usbDesc;
     const struct uac2_feature_unit_descriptor *featureDesc = ptr;
+    (void)usbDesc;
 
     if (featureDesc->bLength < sizeof(*featureDesc)) {
         return false;
@@ -536,12 +536,13 @@ static const struct UsbDescValidator audioValidators[] = {
 
 bool AudioUsbValidateAudioDesc(void *ptr, int32_t protocol)
 {
+    bool valid = false;
     if (ptr == NULL) {
         AUDIO_DRIVER_LOG_ERR("input para is NULL.");
         return false;
     }
 
-    bool valid = ValidateDesc(ptr, protocol, audioValidators);
+    valid = ValidateDesc(ptr, protocol, audioValidators);
 
     return valid;
 }
