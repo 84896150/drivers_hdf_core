@@ -28,6 +28,10 @@
 #include "osal_time.h"
 
 #define HDF_LOG_TAG                 hdf_syscall_adapter
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 #define EPOLL_MAX_EVENT_SIZE        4
 #define HDF_DEFAULT_BWR_READ_SIZE   1024
 #define EVENT_READ_BUFF_GROWTH_RATE 2
@@ -41,6 +45,7 @@
 
 static bool HaveOnlyOneElement(const struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (head->next != head && head->next->next == head) {
         return true;
     }
@@ -50,6 +55,7 @@ static bool HaveOnlyOneElement(const struct DListHead *head)
 
 static int32_t HdfDevEventGrowReadBuffer(struct HdfWriteReadBuf *buffer)
 {
+    HDF_LOGI("%{public}s", __func__);
     size_t newSize = buffer->readSize;
 
     if (newSize > EVENT_READ_BUFF_MAX) {
@@ -70,6 +76,7 @@ static int32_t HdfDevEventGrowReadBuffer(struct HdfWriteReadBuf *buffer)
 
 static struct HdfSyscallAdapter *HdfFdToAdapterLocked(const struct HdfDevListenerThread *thread, int32_t fd)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (thread->adapter != NULL && thread->adapter->fd == fd) {
         return thread->adapter;
     }
@@ -91,6 +98,7 @@ static struct HdfSyscallAdapter *HdfFdToAdapterLocked(const struct HdfDevListene
 static int32_t HdfDevEventDispatchLocked(
     const struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter, const struct HdfWriteReadBuf *bwr)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfDevEventlistener *listener = NULL;
     struct HdfSBuf *sbuf = NULL;
 
@@ -135,6 +143,7 @@ static int32_t HdfDevEventDispatchLocked(
 
 static int32_t HdfDevEventReadAndDispatch(struct HdfDevListenerThread *thread, int32_t fd)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfWriteReadBuf bwr = {0};
     int32_t ret = HDF_SUCCESS;
 
@@ -188,6 +197,7 @@ FINISH:
 
 static int32_t AssignPfds(struct HdfDevListenerThread *thread, struct pollfd **pfds, uint16_t *pfdSize)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct pollfd *pfdPtr = *pfds;
     uint16_t pfdCount = 0;
 
@@ -221,6 +231,7 @@ static int32_t AssignPfds(struct HdfDevListenerThread *thread, struct pollfd **p
 
 static void SetThreadName(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     char newTitle[THREAD_NAME_LEN_MAX] = {0};
 
     int32_t tid = syscall(SYS_gettid);
@@ -238,6 +249,7 @@ static void SetThreadName(void)
 #define POLL_WAIT_TIME_MS 100
 static int32_t HdfDevEventListenTask(void *para)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfDevListenerThread *thread = (struct HdfDevListenerThread *)para;
     struct pollfd *pfds = NULL;
     uint16_t pfdSize = 0;
@@ -293,6 +305,7 @@ EXIT:
 
 static int32_t HdfAdapterStartListenIoctl(int fd)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret = ioctl(fd, HDF_LISTEN_EVENT_START, 0);
     if (ret) {
         HDF_LOGE("%{public}s: failed to notify drv(%{public}d) of start %{public}d %{public}s",
@@ -305,6 +318,7 @@ static int32_t HdfAdapterStartListenIoctl(int fd)
 
 static int32_t HdfAdapterStopListenIoctl(int fd)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret = ioctl(fd, HDF_LISTEN_EVENT_STOP, 0);
     if (ret) {
         HDF_LOGE("%{public}s: failed to notify drv(%{public}d) of stop %{public}d %{public}s",
@@ -317,6 +331,7 @@ static int32_t HdfAdapterStopListenIoctl(int fd)
 
 static int32_t HdfAdapterExitListenIoctl(int fd)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret = ioctl(fd, HDF_LISTEN_EVENT_EXIT, 0);
     if (ret) {
         HDF_LOGE("%{public}s: failed to notify drv(%{public}d) of exit %{public}d %{public}s",
@@ -329,6 +344,7 @@ static int32_t HdfAdapterExitListenIoctl(int fd)
 
 static int32_t HdfDevListenerThreadDoInit(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (OsalMutexInit(&thread->mutex) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: failed to create thread lock", __func__);
         return HDF_FAILURE;
@@ -352,6 +368,7 @@ static int32_t HdfDevListenerThreadDoInit(struct HdfDevListenerThread *thread)
 
 static int32_t HdfDevListenerThreadInit(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     switch (thread->status) {
         case LISTENER_STARTED: // fall-through
         case LISTENER_RUNNING: // fall-through
@@ -373,6 +390,7 @@ static int32_t HdfDevListenerThreadInit(struct HdfDevListenerThread *thread)
 
 static int32_t GetValidPfdIndexLocked(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t index = 0;
     struct pollfd *pfds = thread->pfds;
     for (; index < thread->pfdSize; index++) {
@@ -410,6 +428,7 @@ static int32_t GetValidPfdIndexLocked(struct HdfDevListenerThread *thread, struc
 
 static int32_t HdfAddAdapterToPfds(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t index = GetValidPfdIndexLocked(thread, adapter);
     if (index < 0) {
         return HDF_ERR_MALLOC_FAIL;
@@ -424,6 +443,7 @@ static int32_t HdfAddAdapterToPfds(struct HdfDevListenerThread *thread, struct H
 
 static int32_t HdfListenThreadInitPollFds(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfSyscallAdapter *adapter = NULL;
     if (thread->adapterListPtr != NULL) {
         DLIST_FOR_EACH_ENTRY(adapter, thread->adapterListPtr, struct HdfSyscallAdapter, listNode) {
@@ -442,6 +462,7 @@ static int32_t HdfListenThreadInitPollFds(struct HdfDevListenerThread *thread)
 
 static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (thread->status >= LISTENER_STARTED) {
         return HDF_SUCCESS;
     }
@@ -487,6 +508,7 @@ static int32_t HdfDevListenerThreadStart(struct HdfDevListenerThread *thread)
 
 static struct HdfDevListenerThread *HdfDevListenerThreadObtain(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfDevListenerThread *thread = OsalMemCalloc(sizeof(struct HdfDevListenerThread));
     if (thread == NULL) {
         return NULL;
@@ -501,6 +523,7 @@ static struct HdfDevListenerThread *HdfDevListenerThreadObtain(void)
 
 static int32_t HdfIoServiceGroupThreadInit(struct HdfSyscallAdapterGroup *group)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group->thread == NULL) {
         struct HdfDevListenerThread *listenerThread = HdfDevListenerThreadObtain();
         if (listenerThread == NULL) {
@@ -515,6 +538,7 @@ static int32_t HdfIoServiceGroupThreadInit(struct HdfSyscallAdapterGroup *group)
 
 static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group, int policy)
 {
+    HDF_LOGI("%{public}s", __func__);
     OsalMutexLock(&group->mutex);
     if (HdfIoServiceGroupThreadInit(group) != HDF_SUCCESS) {
         OsalMutexUnlock(&group->mutex);
@@ -528,6 +552,7 @@ static int32_t HdfIoServiceGroupThreadStart(struct HdfSyscallAdapterGroup *group
 
 static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
+    HDF_LOGI("%{public}s", __func__);
     /* If thread is not bound to a service group, you do not need to add a poll. */
     if (thread->adapterListPtr == NULL) {
         return HDF_SUCCESS;
@@ -584,6 +609,7 @@ static int32_t HdfListenThreadPollAdd(struct HdfDevListenerThread *thread, struc
 
 static void HdfListenThreadPollDel(struct HdfDevListenerThread *thread, struct HdfSyscallAdapter *adapter)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (thread == NULL) {
         DListRemove(&adapter->listNode);
         adapter->group = NULL;
@@ -611,6 +637,7 @@ static void HdfListenThreadPollDel(struct HdfDevListenerThread *thread, struct H
 
 static void HdfDevListenerThreadFree(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     OsalMutexDestroy(&thread->mutex);
     OsalMemFree(thread->pfds);
     OsalThreadDestroy(&thread->thread);
@@ -619,6 +646,7 @@ static void HdfDevListenerThreadFree(struct HdfDevListenerThread *thread)
 
 static void HdfDevListenerThreadDestroy(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (thread == NULL) {
         return;
     }
@@ -673,6 +701,7 @@ static void HdfDevListenerThreadDestroy(struct HdfDevListenerThread *thread)
 static int32_t HdfSyscallAdapterDispatch(
     struct HdfObject *object, int32_t code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (object == NULL) {
         HDF_LOGE("Input object is null");
         return HDF_FAILURE;
@@ -710,6 +739,7 @@ static int32_t HdfSyscallAdapterDispatch(
 
 static int TrytoLoadIoService(const char *serviceName, char *devNodePath, char *realPath)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (HdfLoadDriverByServiceName(serviceName) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: load %{public}s driver failed", __func__, serviceName);
         return HDF_DEV_ERR_NO_DEVICE;
@@ -730,6 +760,7 @@ static int TrytoLoadIoService(const char *serviceName, char *devNodePath, char *
 
 struct HdfIoService *HdfIoServiceAdapterObtain(const char *serviceName)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfSyscallAdapter *adapter = NULL;
     struct HdfIoService *ioService = NULL;
     char *nodePath = NULL;
@@ -789,6 +820,7 @@ OUT:
 
 void HdfIoServiceAdapterRecycle(struct HdfIoService *service)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfSyscallAdapter *adapter = (struct HdfSyscallAdapter *)service;
     if (adapter != NULL) {
         HdfDevListenerThreadDestroy(adapter->thread);
@@ -804,6 +836,7 @@ void HdfIoServiceAdapterRecycle(struct HdfIoService *service)
 
 static int32_t HdfIoServiceThreadBindLocked(struct HdfSyscallAdapter *adapter)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (adapter->thread == NULL) {
         struct HdfDevListenerThread *listenerthread = HdfDevListenerThreadObtain();
         if (listenerthread == NULL) {
@@ -817,6 +850,7 @@ static int32_t HdfIoServiceThreadBindLocked(struct HdfSyscallAdapter *adapter)
 
 static int32_t HdfIoServiceStartListen(struct HdfSyscallAdapter *adapter, int policy)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (HdfIoServiceThreadBindLocked(adapter) != HDF_SUCCESS) {
         HDF_LOGE("%{public}s: Failed to bind a thread to SyscallAdapter", __func__);
         return HDF_FAILURE;
@@ -828,6 +862,7 @@ static int32_t HdfIoServiceStartListen(struct HdfSyscallAdapter *adapter, int po
 
 static bool AddListenerToAdapterLocked(struct HdfSyscallAdapter *adapter, struct HdfDevEventlistener *listener)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfDevEventlistener *it = NULL;
     DLIST_FOR_EACH_ENTRY(it, &adapter->listenerList, struct HdfDevEventlistener, listNode) {
         if (it == listener) {
@@ -842,6 +877,7 @@ static bool AddListenerToAdapterLocked(struct HdfSyscallAdapter *adapter, struct
 int32_t HdfDeviceRegisterEventListenerWithSchedPolicy(
     struct HdfIoService *target, struct HdfDevEventlistener *listener, int policy)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (target == NULL || listener == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -883,11 +919,13 @@ int32_t HdfDeviceRegisterEventListenerWithSchedPolicy(
 
 int32_t HdfDeviceRegisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener)
 {
+    HDF_LOGI("%{public}s", __func__);
     return HdfDeviceRegisterEventListenerWithSchedPolicy(target, listener, SCHED_OTHER);
 }
 
 int32_t HdfDeviceUnregisterEventListener(struct HdfIoService *target, struct HdfDevEventlistener *listener)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (target == NULL || listener == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -913,6 +951,7 @@ int32_t HdfDeviceUnregisterEventListener(struct HdfIoService *target, struct Hdf
 
 struct HdfIoServiceGroup *HdfIoServiceGroupObtain(void)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfSyscallAdapterGroup *adapterGroup = OsalMemCalloc(sizeof(struct HdfSyscallAdapterGroup));
     if (adapterGroup == NULL) {
         return NULL;
@@ -929,6 +968,7 @@ struct HdfIoServiceGroup *HdfIoServiceGroupObtain(void)
 
 void HdfIoServiceGroupRecycle(struct HdfIoServiceGroup *group)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL) {
         return;
     }
@@ -955,6 +995,7 @@ void HdfIoServiceGroupRecycle(struct HdfIoServiceGroup *group)
 int32_t HdfIoServiceGroupRegisterListenerWithSchedPolicy(
     struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener, int policy)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL || listener == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -1006,11 +1047,13 @@ FINISH:
 
 int32_t HdfIoServiceGroupRegisterListener(struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener)
 {
+    HDF_LOGI("%{public}s", __func__);
     return HdfIoServiceGroupRegisterListenerWithSchedPolicy(group, listener, SCHED_OTHER);
 }
 
 static int32_t GetListenerCount(struct HdfDevListenerThread *thread)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct HdfDevEventlistener *listener = NULL;
     int32_t count = 0;
 
@@ -1036,6 +1079,7 @@ static int32_t GetListenerCount(struct HdfDevListenerThread *thread)
 
 int32_t HdfIoServiceGroupUnregisterListener(struct HdfIoServiceGroup *group, struct HdfDevEventlistener *listener)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL || listener == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -1063,6 +1107,7 @@ int32_t HdfIoServiceGroupUnregisterListener(struct HdfIoServiceGroup *group, str
 
 int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfIoService *service)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL || service == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
@@ -1115,6 +1160,7 @@ int32_t HdfIoServiceGroupAddService(struct HdfIoServiceGroup *group, struct HdfI
 
 void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfIoService *service)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL || service == NULL) {
         return;
     }
@@ -1139,6 +1185,7 @@ void HdfIoServiceGroupRemoveService(struct HdfIoServiceGroup *group, struct HdfI
 
 int HdfIoserviceGetListenerCount(const struct HdfIoService *service)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (service == NULL) {
         return 0;
     }
@@ -1153,6 +1200,7 @@ int HdfIoserviceGetListenerCount(const struct HdfIoService *service)
 
 int HdfIoserviceGroupGetListenerCount(const struct HdfIoServiceGroup *group)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL) {
         return 0;
     }
@@ -1170,6 +1218,7 @@ int HdfIoserviceGroupGetListenerCount(const struct HdfIoServiceGroup *group)
 
 int HdfIoserviceGroupGetServiceCount(const struct HdfIoServiceGroup *group)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (group == NULL) {
         return 0;
     }

@@ -33,6 +33,12 @@
 #define HDF_LIST_H
 
 #include "hdf_base.h"
+#include "hdf_log.h"
+
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,6 +61,7 @@ struct DListHead {
  */
 static inline void DListHeadInit(struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     head->next = head;
     head->prev = head;
 }
@@ -68,6 +75,7 @@ static inline void DListHeadInit(struct DListHead *head)
  */
 static inline bool DListIsEmpty(const struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     return (head->next == head) ? true : false;
 }
 /**
@@ -80,6 +88,7 @@ static inline bool DListIsEmpty(const struct DListHead *head)
  */
 static inline void DListRemove(struct DListHead *entry)
 {
+    HDF_LOGI("%{public}s", __func__);
     entry->prev->next = entry->next;
     entry->next->prev = entry->prev;
 
@@ -98,6 +107,7 @@ static inline void DListRemove(struct DListHead *entry)
  */
 static inline void DListInsertHead(struct DListHead *entry, struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     entry->next = head->next;
     entry->prev = head;
 
@@ -116,6 +126,7 @@ static inline void DListInsertHead(struct DListHead *entry, struct DListHead *he
  */
 static inline void DListInsertTail(struct DListHead *entry, struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     entry->next = head;
     entry->prev = head->prev;
 
@@ -134,6 +145,7 @@ static inline void DListInsertTail(struct DListHead *entry, struct DListHead *he
  */
 static inline void DListMerge(struct DListHead *list, struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     list->next->prev = head;
     list->prev->next = head->next;
 
@@ -152,6 +164,7 @@ static inline void DListMerge(struct DListHead *list, struct DListHead *head)
  */
 static inline int DListGetCount(const struct DListHead *head)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct DListHead *next = head->next;
     int count = 0;
     while (next != head) {
