@@ -81,7 +81,7 @@ static int32_t UartAdapterDeInit(struct UartHost *host)
     struct UartPriv *uartpriv = NULL;
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
     mm_segment_t oldfs;
-#endi
+#endif
 
     if (host == NULL) {
         HDF_LOGE("UartAdapterDeInit: host is null!");
