@@ -15,6 +15,7 @@ group("hdf_framework_fuzztest") {
     "devmgrservicestub_fuzzer:DevmgrServiceStubFuzzTest",
     "devsvcmanagerstub_fuzzer:DevSvcManagerStubFuzzTest",
     "framework_fuzzer/hcs_fuzzer:HdfHcsFuzzTest",
+    "framework_fuzzer/support/posix_fuzzer:HdfPosixFuzzTest",
     "ioservice_fuzzer/ioserviceadapterobtain_fuzzer:IoserviceAdapterObtainFuzzTest",
     "ioservice_fuzzer/ioservicebind_fuzzer:IoserviceBindFuzzTest",
     "ioservice_fuzzer/ioservicegrouplisten_fuzzer:IoserviceGroupListenFuzzTest",
