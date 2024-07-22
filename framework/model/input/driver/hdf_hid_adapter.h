@@ -11,10 +11,17 @@
 
 #include "hdf_input_device_manager.h"
 
+#ifdef __LITEOS__
 #ifdef DIV_ROUND_UP
 #undef DIV_ROUND_UP
 #endif
 #define DIV_ROUND_UP(nr, d) (((nr) + (d) - 1) / (d))
+#else
+#ifdef DIV_ROUND_UP_TO_INTEGER
+#undef DIV_ROUND_UP_TO_INTEGER
+#endif
+#define DIV_ROUND_UP_TO_INTEGER(nr, d) (((nr) + (d) - 1) / (d))
+#endif
 
 #ifdef BYTE_HAS_BITS
 #undef BYTE_HAS_BITS
@@ -24,7 +31,12 @@
 #ifdef BITS_TO_LONG
 #undef BITS_TO_LONG
 #endif
+
+#ifdef __LITEOS__
 #define BITS_TO_LONG(count) DIV_ROUND_UP(count, BYTE_HAS_BITS * sizeof(unsigned long))
+#else
+#define BITS_TO_LONG(count) DIV_ROUND_UP_TO_INTEGER(count, BYTE_HAS_BITS * sizeof(unsigned long))
+#endif
 
 #define INPUT_PROP_MAX    0x1f
 #define HDF_INPUT_PROP_CNT    (INPUT_PROP_MAX + 1)
@@ -42,7 +54,6 @@
 #define HDF_LED_CNT           (LED_MAX + 1)
 #define MSC_MAX           0x07
 #define HDF_MSC_CNT           (MSC_MAX + 1)
-#define SW_MAX            0x0f
 #define HDF_SW_CNT            (SW_MAX + 1)
 #define FF_MAX            0x7f
 #define HDF_FF_CNT            (FF_MAX + 1)

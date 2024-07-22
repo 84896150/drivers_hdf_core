@@ -9,7 +9,11 @@
 #ifndef EVENT_HUB_H
 #define EVENT_HUB_H
 
+#ifdef __LITEOS__
 #include "input-event-codes.h"
+#else
+#include <uapi/linux/input-event-codes.h>
+#endif
 #include "hdf_input_device_manager.h"
 #include "osal_time.h"
 

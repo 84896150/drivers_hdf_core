@@ -27,8 +27,9 @@
 
 static int DevmgrPmSuspend(void)
 {
+    struct IDevmgrService *devmgrService = NULL;
     HDF_LOGD("%s enter", __func__);
-    struct IDevmgrService *devmgrService = DevmgrServiceGetInstance();
+    devmgrService = DevmgrServiceGetInstance();
     if (devmgrService == NULL) {
         return HDF_FAILURE;
     }
@@ -44,8 +45,9 @@ static int DevmgrPmSuspend(void)
 
 static int DevmgrPmResume(void)
 {
+    struct IDevmgrService *devmgrService = NULL;
     HDF_LOGD("%s enter", __func__);
-    struct IDevmgrService *devmgrService = DevmgrServiceGetInstance();
+    devmgrService = DevmgrServiceGetInstance();
     if (devmgrService == NULL) {
         return HDF_FAILURE;
     }

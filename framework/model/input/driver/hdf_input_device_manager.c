@@ -180,6 +180,8 @@ static int32_t CheckInputDevice(InputDevice *inputDev)
 
 static int32_t DeleteInputDevice(InputDevice *inputDev)
 {
+    InputDevice *preNode = g_inputManager->inputDevList;
+    InputDevice *tmpDev = preNode->next;
     if (g_inputManager->inputDevList == NULL) {
         return HDF_FAILURE;
     } else {
@@ -188,8 +190,6 @@ static int32_t DeleteInputDevice(InputDevice *inputDev)
             goto EXIT;
         }
 
-        InputDevice *preNode = g_inputManager->inputDevList;
-        InputDevice *tmpDev = preNode->next;
         while (tmpDev != NULL) {
             if (tmpDev->devId == inputDev->devId) {
                 preNode->next = tmpDev->next;
@@ -438,8 +438,8 @@ static int32_t ScanAllDev(struct HdfSBuf *reply)
 static int32_t ScanDevice(struct HdfDeviceIoClient *client, int32_t cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    (void)cmd;
     int32_t ret;
+    (void)cmd;
     if ((client == NULL) || (data == NULL) || (reply == NULL)) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_FAILURE;
@@ -453,15 +453,15 @@ static int32_t ScanDevice(struct HdfDeviceIoClient *client, int32_t cmd,
 
 static int32_t HdfInputManagerBind(struct HdfDeviceObject *device)
 {
-    if (device == NULL) {
-        HDF_LOGE("%s: device is null", __func__);
-        return HDF_ERR_INVALID_PARAM;
-    }
-
     static IInputManagerService managerService = {
         .getDeviceCount = GetDeviceCount,
         .ioService.Dispatch = ScanDevice,
     };
+
+    if (device == NULL) {
+        HDF_LOGE("%s: device is null", __func__);
+        return HDF_ERR_INVALID_PARAM;
+    }
 
     device->service = &managerService.ioService;
     return HDF_SUCCESS;

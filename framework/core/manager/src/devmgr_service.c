@@ -365,6 +365,7 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
     struct HdfSListIterator iterator;
     struct HdfSListNode *node = NULL;
     const char *name = NULL;
+    struct DeviceTokenClnt *tokenClnt = NULL;
 
     if (devMgrSvc == NULL || reply == NULL) {
         HDF_LOGE("%{public}s failed, parameter is null", __func__);
@@ -379,7 +380,7 @@ static int32_t DevmgrServiceListAllDevice(struct IDevmgrService *inst, struct Hd
         HdfSListIteratorInit(&iterator, &hostClnt->devices);
         while (HdfSListIteratorHasNext(&iterator)) {
             node = HdfSListIteratorNext(&iterator);
-            struct DeviceTokenClnt *tokenClnt = (struct DeviceTokenClnt *)node;
+            tokenClnt = (struct DeviceTokenClnt *)node;
             if (tokenClnt != NULL && tokenClnt->tokenIf != NULL) {
                 name = (tokenClnt->tokenIf->deviceName == NULL) ? "" : tokenClnt->tokenIf->deviceName;
                 HdfSbufWriteString(reply, name);

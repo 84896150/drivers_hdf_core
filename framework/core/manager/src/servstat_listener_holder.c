@@ -39,16 +39,18 @@ void ServStatListenerHolderinit(void)
 int32_t KServStatListenerHolderNotifyStatus(struct ServStatListenerHolder *holder,
     struct ServiceStatus *status)
 {
+    struct KServStatListenerHolder *holderInst = NULL;
+    struct HdfSBuf *data = NULL;
     if (holder == NULL || status == NULL) {
         return HDF_ERR_INVALID_PARAM;
     }
-    struct KServStatListenerHolder *holderInst = CONTAINER_OF(holder, struct KServStatListenerHolder, holder);
+    holderInst = CONTAINER_OF(holder, struct KServStatListenerHolder, holder);
     if (holderInst->listenerClient == NULL) {
         HDF_LOGE("failed to notify service status, invalid holder");
         return HDF_ERR_INVALID_PARAM;
     }
 
-    struct HdfSBuf *data = HdfSbufObtainDefaultSize();
+    data = HdfSbufObtainDefaultSize();
     if (data == NULL) {
         HDF_LOGE("failed to notify service status, oom");
         return HDF_ERR_MALLOC_FAIL;

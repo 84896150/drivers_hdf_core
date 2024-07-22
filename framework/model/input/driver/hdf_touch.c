@@ -37,6 +37,8 @@
 #define GTP_REG_CMD_1 0x8041
 unsigned long g_timeout;
 static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
+#else
+#define GTP_ESD_PROTECT 0
 #endif
 
 static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
@@ -87,15 +89,16 @@ static int32_t HandleResetEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
 {
     int32_t ret = 0;
     uint16_t gpio;
+    uint32_t type = timing[PWR_TYPE_INDEX];
+    uint32_t status = timing[PWR_STATUS_INDEX];
+    uint32_t dir = timing[PWR_DIR_INDEX];
+    uint32_t delay = timing[PWR_DELAY_INDEX];
 
     if (length <= PWR_DELAY_INDEX) {
         HDF_LOGE("%s: invalid param", __func__);
         return HDF_FAILURE;
     }
-    uint32_t type = timing[PWR_TYPE_INDEX];
-    uint32_t status = timing[PWR_STATUS_INDEX];
-    uint32_t dir = timing[PWR_DIR_INDEX];
-    uint32_t delay = timing[PWR_DELAY_INDEX];
+
     HDF_LOGD("%s: type = %u, status = %u, dir = %u, delay = %u", __func__, type, status, dir, delay);
 
     switch (type) {
@@ -124,15 +127,16 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
 {
     int32_t ret = 0;
     uint16_t gpio;
+    uint32_t type = timing[PWR_TYPE_INDEX];
+    uint32_t status = timing[PWR_STATUS_INDEX];
+    uint32_t dir = timing[PWR_DIR_INDEX];
+    uint32_t delay = timing[PWR_DELAY_INDEX];
 
     if (length <= PWR_DELAY_INDEX) {
         HDF_LOGE("%s: invalid param", __func__);
         return HDF_FAILURE;
     }
-    uint32_t type = timing[PWR_TYPE_INDEX];
-    uint32_t status = timing[PWR_STATUS_INDEX];
-    uint32_t dir = timing[PWR_DIR_INDEX];
-    uint32_t delay = timing[PWR_DELAY_INDEX];
+
     HDF_LOGD("%s: type = %u, status = %u, dir = %u, delay = %u", __func__, type, status, dir, delay);
 
     switch (type) {
@@ -162,11 +166,11 @@ static int32_t HandlePowerEvent(ChipDevice *chipDev, uint32_t *timing, uint32_t 
 
 static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regValue)
 {
+    uint8_t *base = NULL;
 #if defined(CONFIG_ARCH_SPRD) || defined(CONFIG_ARCH_ROCKCHIP) || defined(LOSCFG_PLATFORM_STM32MP157) || \
     defined(CONFIG_ARCH_MESON) || defined(CONFIG_ARCH_NXP_TOUCH)
     return HDF_SUCCESS;
 #endif
-    uint8_t *base = NULL;
     if (regAddr == 0) {
         HDF_LOGE("%s: regAddr invalid", __func__);
         return HDF_FAILURE;
@@ -741,8 +745,8 @@ EXIT:
 static int32_t TouchGetDevType(TouchDriver *driver, struct HdfSBuf *reply)
 {
     uint32_t devType = driver->devType;
-    HDF_LOGI("%s: enter, devType is %u", __func__, devType);
     bool ret = HdfSbufWriteUint32(reply, devType);
+    HDF_LOGI("%s: enter, devType is %u", __func__, devType);
     if (!ret) {
         HDF_LOGE("%s: HdfSbufWriteUint32 failed", __func__);
         return HDF_FAILURE;
@@ -778,6 +782,7 @@ static int32_t TouchGetPowerStatus(TouchDriver *driver, struct HdfSBuf *reply)
 static int32_t TouchGetDeviceStrInfo(TouchDriver *driver, int32_t cmd, struct HdfSBuf *reply)
 {
     const char *info = NULL;
+    bool ret;
     if ((driver->device == NULL) || (driver->device->chipCfg == NULL)) {
         HDF_LOGE("%s: parameter invalid", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -798,7 +803,7 @@ static int32_t TouchGetDeviceStrInfo(TouchDriver *driver, int32_t cmd, struct Hd
             break;
     }
 
-    bool ret = HdfSbufWriteString(reply, info);
+    ret = HdfSbufWriteString(reply, info);
     if (!ret) {
         HDF_LOGE("%s: HdfSbufWriteUint32 failed", __func__);
         return HDF_FAILURE;
@@ -1054,14 +1059,13 @@ static void AddTouchDriver(TouchDriver *driver)
 
 static int32_t HdfTouchDriverBind(struct HdfDeviceObject *device)
 {
+    static struct IDeviceIoService touchService = {
+        .Dispatch = HdfTouchDispatch,
+    };
     if (device == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-
-    static struct IDeviceIoService touchService = {
-        .Dispatch = HdfTouchDispatch,
-    };
 
     device->service = &touchService;
     return HDF_SUCCESS;
