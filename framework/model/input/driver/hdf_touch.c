@@ -237,10 +237,10 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 }
 #endif
 
-static int32_t HandleSeqArray(SeqArray obj, ChipDevice *chipDev)
+static int32_t HandleSeqArray(SeqArray obj, SeqArray src, PowerEventHandler eventHandler)
 {
     int32_t i;
-    int32_t ret = memcpy_s(&obj, sizeof(SeqArray), &chipDev->chipCfg->pwrSeq.pwrOn, sizeof(SeqArray));
+    int32_t ret = memcpy_s(&obj, sizeof(SeqArray), src, sizeof(SeqArray));
     if (ret != EOK) {
         HDF_LOGE("%s: memcpy_s failed", __func__);
         return HDF_FAILURE;
@@ -250,7 +250,7 @@ static int32_t HandleSeqArray(SeqArray obj, ChipDevice *chipDev)
         return HDF_FAILURE;
     }
     for (i = 0; i < obj.count / PWR_CELL_LEN; i++) {
-        ret = HandleResetEvent(chipDev, obj.buf, PWR_CELL_LEN);
+        ret = eventHandler(chipDev, obj.buf, PWR_CELL_LEN);
         CHECK_RETURN_VALUE(ret);
         obj.buf = obj.buf + PWR_CELL_LEN;
     }
@@ -267,8 +267,9 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
     uint32_t rstPinValue;
     uint32_t intPinAddr;
     uint32_t intPinValue;
+    PowerEventHandler eventHandler;
     SeqArray pwrOnTiming = {0};
-    SeqArray pwroffTiming = {0};
+    SeqArray pwrOffTiming = {0};
     TouchDriver *driver = chipDev->driver;
 
     rstPinAddr = driver->boardCfg->pins.rstPinReg[0];
@@ -287,8 +288,10 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
         __func__, rstPinAddr, rstPinValue, intPinAddr, intPinValue);
 
     HDF_LOGE("%s: enable = %d", __func__, enable);
-    SeqArray obj = enable ? pwrOnTiming : pwroffTiming;
-    ret = HandleSeqArray(obj, chipDev);
+    SeqArray obj = enable ? pwrOnTiming : pwrOffTiming;
+    SeqArray src = enable ? &chipDev->chipCfg->pwrSeq.pwrOn : &chipDev->chipCfg->pwrSeq.pwrOff;
+    eventHandler = enable ? HandleResetEvent : HandlePowerEvent;
+    ret = HandleSeqArray(obj, src, eventHandler);
     CHECK_RETURN_VALUE(ret);
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
