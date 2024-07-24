@@ -237,10 +237,10 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 }
 #endif
 
-static int32_t HandleSeqArray(SeqArray obj, SeqArray src, PowerEventHandler eventHandler)
+static int32_t HandleSeqArray(SeqArray *obj, SeqArray *src, PowerEventHandler eventHandler)
 {
     int32_t i;
-    int32_t ret = memcpy_s(&obj, sizeof(SeqArray), src, sizeof(SeqArray));
+    int32_t ret = memcpy_s(obj, sizeof(SeqArray), src, sizeof(SeqArray));
     if (ret != EOK) {
         HDF_LOGE("%s: memcpy_s failed", __func__);
         return HDF_FAILURE;
@@ -288,8 +288,8 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
         __func__, rstPinAddr, rstPinValue, intPinAddr, intPinValue);
 
     HDF_LOGE("%s: enable = %d", __func__, enable);
-    SeqArray obj = enable ? pwrOnTiming : pwrOffTiming;
-    SeqArray src = enable ? &chipDev->chipCfg->pwrSeq.pwrOn : &chipDev->chipCfg->pwrSeq.pwrOff;
+    SeqArray *obj = enable ? &pwrOnTiming : &pwrOffTiming;
+    SeqArray *src = enable ? &chipDev->chipCfg->pwrSeq.pwrOn : &chipDev->chipCfg->pwrSeq.pwrOff;
     eventHandler = enable ? HandleResetEvent : HandlePowerEvent;
     ret = HandleSeqArray(obj, src, eventHandler);
     CHECK_RETURN_VALUE(ret);
