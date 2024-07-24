@@ -245,14 +245,14 @@ static int32_t HandleSeqArray(SeqArray *obj, SeqArray *src, PowerEventHandler ev
         HDF_LOGE("%s: memcpy_s failed", __func__);
         return HDF_FAILURE;
     }
-    if ((obj.buf == NULL) || (obj.count == 0)) {
+    if ((obj->buf == NULL) || (obj->count == 0)) {
         HDF_LOGE("%s: obj config is invalid", __func__);
         return HDF_FAILURE;
     }
-    for (i = 0; i < obj.count / PWR_CELL_LEN; i++) {
-        ret = eventHandler(chipDev, obj.buf, PWR_CELL_LEN);
+    for (i = 0; i < obj->count / PWR_CELL_LEN; i++) {
+        ret = eventHandler(chipDev, obj->buf, PWR_CELL_LEN);
         CHECK_RETURN_VALUE(ret);
-        obj.buf = obj.buf + PWR_CELL_LEN;
+        obj->buf = obj->buf + PWR_CELL_LEN;
     }
     return HDF_SUCCESS;
 }
