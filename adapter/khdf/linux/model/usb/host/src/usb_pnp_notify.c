@@ -48,6 +48,7 @@ static uint8_t g_gadgetPnpNotifyType = 0;
 static uint64_t g_preAcion = 0;
 struct OsalMutex g_usbSendEventLock;
 struct OsalMutex g_gadgetSendEventLock;
+struct OsalMutex g_usbPnpInfoListHeadLock;
 struct usb_device *g_usbDevice = NULL;
 struct UsbPnpAddRemoveInfo g_usbPnpInfo;
 struct DListHead g_usbPnpInfoListHead;
@@ -74,7 +75,9 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
     OsalMutexInit(&infoTemp->lock);
     infoTemp->status = USB_PNP_DEVICE_INIT_STATUS;
     DListHeadInit(&infoTemp->list);
+    OsalMutexLock(&g_usbPnpInfoListHeadLock);
     DListInsertTail(&infoTemp->list, &g_usbPnpInfoListHead);
+    OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
     idNum++;
 
     return infoTemp;
@@ -82,7 +85,9 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyCreateInfo(void)
 
 static struct UsbPnpDeviceInfo *UsbPnpNotifyFindInfo(struct UsbInfoQueryPara queryPara)
 {
+    OsalMutexLock(&g_usbPnpInfoListHeadLock);
     if (DListIsEmpty(&g_usbPnpInfoListHead) == true) {
+        OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
         HDF_LOGE("%s:%d usb pnp list head is empty.", __func__, __LINE__);
         return NULL;
     }
@@ -115,6 +120,7 @@ static struct UsbPnpDeviceInfo *UsbPnpNotifyFindInfo(struct UsbInfoQueryPara que
             break;
         }
     }
+    OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
 
     if (!findFlag) {
         HDF_LOGE("%s:%d the usb pnp info to be find does not exist.", __func__, __LINE__);
@@ -135,12 +141,12 @@ static HDF_STATUS UsbPnpNotifyDestroyInfo(struct UsbPnpDeviceInfo *deviceInfo)
         HDF_LOGE("%s:%d the deviceInfo is NULL, ret=%d ", __func__, __LINE__, ret);
         return ret;
     }
-
+    OsalMutexLock(&g_usbPnpInfoListHeadLock);
     if (DListIsEmpty(&g_usbPnpInfoListHead) == true) {
+        OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
         HDF_LOGI("%s:%d the g_usbPnpInfoListHead is empty.", __func__, __LINE__);
         return HDF_SUCCESS;
     }
-
     DLIST_FOR_EACH_ENTRY_SAFE(infoPos, infoTemp, &g_usbPnpInfoListHead, struct UsbPnpDeviceInfo, list) {
         if (infoPos->id == deviceInfo->id) {
             findFlag = true;
@@ -150,6 +156,7 @@ static HDF_STATUS UsbPnpNotifyDestroyInfo(struct UsbPnpDeviceInfo *deviceInfo)
             break;
         }
     }
+    OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
 
     if (!findFlag) {
         ret = HDF_FAILURE;
@@ -761,20 +768,25 @@ static int32_t UsbPnpGetDevices(struct HdfSBuf *reply)
 {
     struct UsbPnpDeviceInfo *infoPos = NULL;
     struct UsbPnpDeviceInfo *infoTemp = NULL;
+    OsalMutexLock(&g_usbPnpInfoListHeadLock);
     if (!HdfSbufWriteInt32(reply, DListGetCount(&g_usbPnpInfoListHead))) {
+        OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
         HDF_LOGE("%s write list count failed", __func__);
         return HDF_ERR_IO;
     }
 
     if (DListIsEmpty(&g_usbPnpInfoListHead) == true) {
+        OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
         return HDF_SUCCESS;
     }
     DLIST_FOR_EACH_ENTRY_SAFE(infoPos, infoTemp, &g_usbPnpInfoListHead, struct UsbPnpDeviceInfo, list) {
         if (!HdfSbufWriteBuffer(reply, &infoPos->info, sizeof(struct UsbPnpNotifyMatchInfoTable))) {
             HDF_LOGE("%s write buffer failed", __func__);
+            OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
             return HDF_ERR_IO;
         }
     }
+    OsalMutexUnlock(&g_usbPnpInfoListHeadLock);
     return HDF_SUCCESS;
 }
 
@@ -877,6 +889,7 @@ static int32_t UsbPnpNotifyInit(struct HdfDeviceObject *device)
 
     OsalMutexInit(&g_usbSendEventLock);
     OsalMutexInit(&g_gadgetSendEventLock);
+    OsalMutexInit(&g_usbPnpInfoListHeadLock);
 
     /* Add a new notify for usb pnp notify module. */
     usb_register_notify(&g_usbPnpNotifyNb);
@@ -928,6 +941,7 @@ static void UsbPnpNotifyRelease(struct HdfDeviceObject *device)
 
     OsalMutexDestroy(&g_usbSendEventLock);
     OsalMutexDestroy(&g_gadgetSendEventLock);
+    OsalMutexDestroy(&g_usbPnpInfoListHeadLock);
 
     HDF_LOGI("%s: release done!", __func__);
 
