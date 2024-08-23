@@ -151,7 +151,7 @@
                     }
                 }
                 {
-                    "name": "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_usb",
+                    "name": "//drivers/hdf_core/adapter/uhdf2/model:libhdf_usb",
                     "header": {
                         "header_files": [
                             "hdf_usb_net_manager.h",
