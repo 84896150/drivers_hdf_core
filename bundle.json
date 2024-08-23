@@ -150,6 +150,19 @@
                         "header_base": "//drivers/hdf_core/framework/include/platform"
                     }
                 }
+                {
+                    "name": "//drivers/hdf_core/adapter/uhdf2/platform:libhdf_usb",
+                    "header": {
+                        "header_files": [
+                            "hdf_usb_net_manager.h",
+                            "hdf_usb_pnp_manage.h",
+                            "hdf_usb_pnp_manage_if.h",
+                            "usb_pnp_manager.h",
+                            "usb_wrapper.h"
+                        ],
+                        "header_base": "//drivers/hdf_core/framework/model/usb/include"
+                    }
+                }
             ],
             "test": [
                 "//drivers/hdf_core/adapter:uhdf_test_entry"
