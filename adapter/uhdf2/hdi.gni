@@ -171,6 +171,16 @@ template("hdi") {
     ]
   }
 
+  declare_args() {
+    security_compiler_args = [
+      "-fstack-protector-all",
+      "-D_FORTIFY_SOURCE=2",
+      "-O2",
+      "-ftrapv",
+      "-fPIC"
+    ]
+  }
+
   lib_client = "lib" + target_name + "_proxy" + "_" + hdi_build_info.version
   ohos_shared_library(lib_client) {
     if (defined(invoker.sources)) {
@@ -234,13 +244,16 @@ template("hdi") {
         sanitize = invoker.sanitize
       }
 
+      branch_protector_ret = "pac_ret"
       if (defined(invoker.cflags)) {
         cflags = invoker.cflags
       }
 
+      cflags_cc = security_compiler_args
       if (defined(invoker.cflags_cc)) {
-        cflags_cc = invoker.cflags_cc
+        cflags_cc += invoker.cflags_cc
       }
+      ldflags = [ "-s" ]
     }
   }
 
@@ -299,13 +312,16 @@ template("hdi") {
           sanitize = invoker.sanitize
         }
 
+        branch_protector_ret = "pac_ret"
         if (defined(invoker.cflags)) {
           cflags = invoker.cflags
         }
 
+        cflags_cc = security_compiler_args
         if (defined(invoker.cflags_cc)) {
-          cflags_cc = invoker.cflags_cc
+          cflags_cc += invoker.cflags_cc
         }
+        ldflags = [ "-s" ]
       }
     }
   }
