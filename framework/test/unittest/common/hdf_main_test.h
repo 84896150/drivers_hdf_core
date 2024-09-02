@@ -68,7 +68,8 @@ typedef enum {
     TEST_PAL_EVENT_TYPE     = 197,
     TEST_PAL_DUMPER_TYPE    = 198,
     TEST_PAL_TRACE_TYPE     = 199,
-    TEST_PAL_END            = 200,
+    TEST_PAL_EDP_TYPE       = 200,
+    TEST_PAL_END            = 201,
     TEST_OSAL_BEGIN         = TEST_PAL_END,
 #define HDF_OSAL_TEST_ITEM(v) (TEST_OSAL_BEGIN + (v))
     TEST_OSAL_ITEM = HDF_OSAL_TEST_ITEM(1),

@@ -26,6 +26,7 @@ ccflags-$(CONFIG_DRIVERS_HDF_PLATFORM) +=-I$(srctree)/drivers/hdf/framework/incl
    -I$(srctree)/drivers/hdf/framework/support/platform/include/i3c \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/mipi \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/pwm \
+   -I$(srctree)/drivers/hdf/framework/support/platform/include/edp \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/rtc \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/spi \
    -I$(srctree)/drivers/hdf/framework/support/platform/include/uart \

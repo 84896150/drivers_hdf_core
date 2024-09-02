@@ -170,3 +170,9 @@ config DRIVERS_HDF_PLATFORM_IMX8MM_MIPI_DSI
     help
       Answer Y to enable HDF platform imx8mm mipi_dsi driver.
 
+config DRIVERS_HDF_PLATFORM_EDP
+    bool "Enable HDF platform display edp driver"
+    default y
+    depends on DRIVERS_HDF_PLATFORM
+    help
+      Answer Y to enable HDF platform display edp driver.
