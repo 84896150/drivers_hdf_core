@@ -304,9 +304,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for samgr... %{public}d", cnt);
             if (access("/data/getSaFreeze", F_OK) == 0) {
+                HDF_LOGI("/data/getSaFreeze exist");
                 remove("/data/getSaFreeze");
                 sleep(310);
-            } else if (access("/mnt/getSaFail", F_OK) == 0) {
+            } else if (access("/data/getSaFail", F_OK) == 0) {
+                HDF_LOGI("/data/getSaFail exist");
                 saManager = nullptr;
             } else {
                 saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -319,8 +321,9 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
             usleep(sleepInterval);
         }
         if (saManager == nullptr) {
-            if (access("/mnt/getSaFail", F_OK) == 0) {
-                remove("/mnt/getSaFail");
+            if (access("/data/getSaFail", F_OK) == 0) {
+                HDF_LOGI("/data/getSaFail exist a");
+                remove("/data/getSaFail");
             }
             HDF_LOGE("failed to get sa manager, waiting timeout");
             return HDF_FAILURE;
@@ -337,9 +340,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for addSa... %{public}d", cnt);
             if (access("/data/addSaFreeze", F_OK) == 0) {
+                HDF_LOGI("/data/addSaFreeze exist");
                 remove("/data/addSaFreeze");
                 sleep(310);
-            } else if (access("/mnt/addSaFail", F_OK) == 0) {
+            } else if (access("/data/addSaFail", F_OK) == 0) {
+                HDF_LOGI("/data/addSaFail exist");
                 ret = HDF_FAILURE;
             } else {
                 ret = saManager->AddSystemAbility(saId, holder->remote_);
@@ -352,8 +357,9 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
             usleep(sleepInterval);
         }
         if (ret != HDF_SUCCESS) {
-            if (access("/mnt/addSaFail", F_OK) == 0) {
-                remove("/mnt/addSaFail");
+            if (access("/data/addSaFail", F_OK) == 0) {
+                HDF_LOGI("/data/addSaFail exist a");
+                remove("/data/addSaFail");
             }
             HDF_LOGE("failed to addSa, waiting timeout");
             return ret;
