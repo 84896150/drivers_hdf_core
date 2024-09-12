@@ -297,16 +297,34 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         return HDF_ERR_INVALID_PARAM;
     }
 
+    static int addSaEnterCnt = 0;
+    addSaEnterCnt++;
+    int remove_ret = 0;
     const int32_t waitTimes = 50;
     const int32_t sleepInterval = 20000;
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for samgr... %{public}d", cnt);
-            saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            if (access("/data/getSaFreeze", F_OK) == 0) {
+                HDF_LOGI("/data/getSaFreeze exist access %{public}d", errno);
+                remove_ret = remove("/data/getSaFreeze");
+                HDF_LOGI("/data/getSaFreeze remove %{public}d %{public}d sleep 310s", remove_ret, errno);
+                sleep(310);
+                return HDF_FAILURE;
+            } else if (access("/data/getSaFail", F_OK) == 0) {
+                HDF_LOGI("/data/getSaFail exist access %{public}d", errno);
+                saManager = nullptr;
+            } else {
+                saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+            }
             if (saManager != nullptr) {
                 HDF_LOGI("GetSystemAbilityManager success");
                 break;
+            }
+            if ((cnt == 49) && (addSaEnterCnt == 2)) {
+                remove_ret = remove("/data/getSaFail");
+                HDF_LOGI("/data/getSaFail remove %{public}d %{public}d", remove_ret, errno);
             }
             HDF_LOGI("GetSystemAbilityManager failed, retry");
             usleep(sleepInterval);
@@ -326,10 +344,25 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         int ret = HDF_FAILURE;
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for addSa... %{public}d", cnt);
-            ret = saManager->AddSystemAbility(saId, holder->remote_);
+            if (access("/data/addSaFreeze", F_OK) == 0) {
+                HDF_LOGI("/data/addSaFreeze exist access %{public}d", errno);
+                remove_ret = remove("/data/addSaFreeze");
+                HDF_LOGI("/data/addSaFreeze remove %{public}d %{public}d sleep 310s", remove_ret, errno);
+                sleep(310);
+                return HDF_FAILURE;
+            } else if (access("/data/addSaFail", F_OK) == 0) {
+                HDF_LOGI("/data/addSaFail exist access %{public}d", errno);
+                ret = HDF_FAILURE;
+            } else {
+                ret = saManager->AddSystemAbility(saId, holder->remote_);
+            }
             if (ret == HDF_SUCCESS) {
                 HDF_LOGI("addsa %{public}d, success", saId);
                 break;
+            }
+            if ((cnt == 49) && (addSaEnterCnt == 2)) {
+                remove_ret = remove("/data/addSaFail");
+                HDF_LOGI("/data/addSaFail remove %{public}d %{public}d", remove_ret, errno);
             }
             HDF_LOGI("AddSystemAbility failed, retry");
             usleep(sleepInterval);
