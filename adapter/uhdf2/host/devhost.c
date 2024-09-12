@@ -157,6 +157,7 @@ static void SetHostProperties(int argc, char **argv, const char *hostName)
     }
 }
 
+struct IDevHostService *g_instance = NULL;
 int main(int argc, char **argv)
 {
     if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
@@ -173,6 +174,7 @@ int main(int argc, char **argv)
     HDF_LOGI("hdf device host %{public}s %{public}d start", hostName, hostId);
     SetHostProperties(argc, argv, hostName);
     struct IDevHostService *instance = DevHostServiceNewInstance(hostId, hostName);
+    g_instance = instance;
     if (instance == NULL || instance->StartService == NULL) {
         HDF_LOGE("DevHostServiceGetInstance fail");
         return HDF_ERR_INVALID_OBJECT;
@@ -201,4 +203,11 @@ int main(int argc, char **argv)
         _exit(status);
     }
     return status;
+}
+
+__attribute__((destructor)) void ReleaseInstance()
+{
+    if (g_instance != NULL) {
+        DevHostServiceFreeInstance(g_instance);
+    }
 }
