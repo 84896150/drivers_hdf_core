@@ -768,6 +768,17 @@ HWTEST_F(HdfServiceMangerHdiTest, ListAllDeviceTest, TestSize.Level1)
     ASSERT_TRUE(deviceInfos.size() != 0);
 }
 
+HWTEST_F(HdfServiceMangerHdiTest, ListAllHostTest, TestSize.Level1)
+{
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+   std::vector<int> pidList;
+    int ret = devmgr->ListAllHost(pidList);
+    ASSERT_TRUE(ret == HDF_SUCCESS);
+    ASSERT_TRUE(pidList.size() != 0);
+}
+
 #ifdef SAMPLE_DRIVER
 HWTEST_F(HdfServiceMangerHdiTest, EndSampleHostTest, TestSize.Level1)
 {
