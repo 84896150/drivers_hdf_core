@@ -13,6 +13,10 @@
 #include "sensor_platform_if.h"
 
 #define HDF_LOG_TAG    khdf_sensor_common_driver
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 static char *g_sensorRegGroupName[SENSOR_GROUP_MAX] = {
     "initSeqConfig",
@@ -22,6 +26,7 @@ static char *g_sensorRegGroupName[SENSOR_GROUP_MAX] = {
 
 static uint32_t GetSensorRegGroupNameIndex(const char *name)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t index;
 
     if (name == NULL) {
@@ -39,6 +44,7 @@ static uint32_t GetSensorRegGroupNameIndex(const char *name)
 
 void ReleaseSensorAllRegConfig(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t index;
 
     if (config == NULL || config->regCfgGroup == NULL) {
@@ -60,6 +66,7 @@ void ReleaseSensorAllRegConfig(struct SensorCfgData *config)
 static int32_t ParseSensorRegItem(struct DeviceResourceIface *parser, const struct DeviceResourceNode *regNode,
     const char *groupName, struct SensorRegCfgGroupNode *group)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     int32_t step;
     uint32_t index;
@@ -110,6 +117,7 @@ static int32_t ParseSensorRegItem(struct DeviceResourceIface *parser, const stru
 int32_t ParseSensorRegGroup(struct DeviceResourceIface *parser, const struct DeviceResourceNode *regCfgNode,
     const char *groupName, struct SensorRegCfgGroupNode **groupNode)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t num;
     struct SensorRegCfgGroupNode *group = NULL;
 
@@ -157,6 +165,7 @@ int32_t ParseSensorRegGroup(struct DeviceResourceIface *parser, const struct Dev
 
 int32_t ParseSensorRegConfig(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t index;
     const struct DeviceResourceNode *regCfgNode = NULL;
     struct DeviceResourceIface *parser = NULL;
@@ -196,6 +205,7 @@ error:
 
 static int32_t GetSensorI2cHandle(struct SensorBusCfg *busCfg)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_ERR_INVALID_PARAM);
     int16_t busNum = busCfg->i2cCfg.busNum;
     busCfg->i2cCfg.handle = I2cOpen(busNum);
@@ -210,6 +220,7 @@ static int32_t GetSensorI2cHandle(struct SensorBusCfg *busCfg)
 #if defined(LOSCFG_DRIVERS_HDF_PLATFORM_SPI) || defined(CONFIG_DRIVERS_HDF_PLATFORM_SPI)
 static int32_t GetSensorSpiHandle(struct SensorBusCfg *busCfg)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct SpiDevInfo spiDevinfo;
     CHECK_NULL_PTR_RETURN_VALUE	(busCfg, HDF_ERR_INVALID_PARAM);
@@ -231,6 +242,7 @@ static int32_t GetSensorSpiHandle(struct SensorBusCfg *busCfg)
 
 int32_t GetSensorBusHandle(struct SensorBusCfg *busCfg)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_ERR_INVALID_PARAM);
 
     if (busCfg->busType == SENSOR_BUS_I2C) {
@@ -246,6 +258,7 @@ int32_t GetSensorBusHandle(struct SensorBusCfg *busCfg)
 
 int32_t ReleaseSensorBusHandle(struct SensorBusCfg *busCfg)
 {
+    HDF_LOGI("%{public}s", __func__);
     if (busCfg == NULL) {
         return HDF_SUCCESS;
     }
@@ -266,6 +279,7 @@ int32_t ReleaseSensorBusHandle(struct SensorBusCfg *busCfg)
 
 int32_t DetectSensorDevice(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint8_t value = 0;
     uint16_t chipIdReg;
     uint16_t chipIdValue;
@@ -303,6 +317,7 @@ int32_t DetectSensorDevice(struct SensorCfgData *config)
 static int32_t ParseSensorString(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     const char *name = NULL;
 
     int32_t ret = parser->GetString(infoNode, "sensorName", &name, NULL);
@@ -339,6 +354,7 @@ static int32_t ParseSensorString(struct DeviceResourceIface *parser, const struc
 static int32_t ParseSensorValue(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint16_t id;
     int32_t value;
     int32_t ret = parser->GetUint16(infoNode, "sensorTypeId", &id, 0);
@@ -370,6 +386,7 @@ static int32_t ParseSensorValue(struct DeviceResourceIface *parser, const struct
 static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct DeviceResourceNode *infoNode,
     struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret = ParseSensorString(parser, infoNode, config);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "ParseSensorString");
 
@@ -381,6 +398,7 @@ static int32_t ParseSensorInfo(struct DeviceResourceIface *parser, const struct 
 static int32_t ParseSensorSpiBus(struct DeviceResourceIface *parser, const struct DeviceResourceNode *spiBusNode,
     struct SensorBusCfg *busConfig)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
 
     ret = parser->GetUint32(spiBusNode, "maxSpeedHz", &busConfig->spiCfg.spi.maxSpeedHz, 0);
@@ -398,6 +416,7 @@ static int32_t ParseSensorSpiBus(struct DeviceResourceIface *parser, const struc
 static int32_t ParseSensorBus(struct DeviceResourceIface *parser, const struct DeviceResourceNode *busNode,
     struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     const struct DeviceResourceNode *spiBusNode = NULL;
 
@@ -436,6 +455,7 @@ static int32_t ParseSensorBus(struct DeviceResourceIface *parser, const struct D
 static int32_t ParseSensorAttr(struct DeviceResourceIface *parser, const struct DeviceResourceNode *attrNode,
     struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     ret = parser->GetString(attrNode, "chipName", &config->sensorAttr.chipName, NULL);
     CHECK_PARSER_RESULT_RETURN_VALUE(ret, "chipName");
@@ -449,6 +469,7 @@ static int32_t ParseSensorAttr(struct DeviceResourceIface *parser, const struct 
 
 void ReleaseSensorDirectionConfig(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     CHECK_NULL_PTR_RETURN(config);
 
     if (config->direction != NULL) {
@@ -459,6 +480,7 @@ void ReleaseSensorDirectionConfig(struct SensorCfgData *config)
 
 int32_t ParseSensorDirection(struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t num;
     int32_t ret;
     uint32_t index;
@@ -512,6 +534,7 @@ int32_t ParseSensorDirection(struct SensorCfgData *config)
 
 int32_t SensorRawDataToRemapData(struct SensorDirection *direction, int32_t *remapData, uint32_t num)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t axis;
     int32_t directionSign[MAX_SENSOR_AXIS_NUM];
     int32_t newData[MAX_SENSOR_AXIS_NUM];
@@ -544,6 +567,7 @@ int32_t SensorRawDataToRemapData(struct SensorDirection *direction, int32_t *rem
 
 int32_t GetSensorBaseConfigData(const struct DeviceResourceNode *node, struct SensorCfgData *config)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct DeviceResourceIface *parser = NULL;
     const struct DeviceResourceNode *infoNode = NULL;

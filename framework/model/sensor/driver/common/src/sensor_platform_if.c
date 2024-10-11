@@ -12,6 +12,10 @@
 #include "osal_time.h"
 
 #define HDF_LOG_TAG    khdf_sensor_common_driver
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 #define I2C_READ_MSG_NUM           2
 #define I2C_READ_MSG_ADDR_IDX      0
@@ -26,6 +30,7 @@
 
 int32_t ReadSensor(struct SensorBusCfg *busCfg, uint16_t regAddr, uint8_t *data, uint16_t dataLen)
 {
+    HDF_LOGI("%{public}s", __func__);
     int index = 0;
     unsigned char regBuf[I2C_REG_BUF_LEN] = {0};
     struct I2cMsg msg[I2C_READ_MSG_NUM];
@@ -75,6 +80,7 @@ int32_t ReadSensor(struct SensorBusCfg *busCfg, uint16_t regAddr, uint8_t *data,
 
 int32_t WriteSensor(struct SensorBusCfg *busCfg, uint8_t *writeData, uint16_t dataLen)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct I2cMsg msg[I2C_WRITE_MSG_NUM];
 
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
@@ -107,6 +113,7 @@ int32_t WriteSensor(struct SensorBusCfg *busCfg, uint8_t *writeData, uint16_t da
 
 int32_t SetSensorPinMux(uint32_t regAddr, int32_t regSize, uint32_t regValue)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint8_t *base = NULL;
     if (regAddr == 0) {
         HDF_LOGE("%s: regAddr invalid", __func__);

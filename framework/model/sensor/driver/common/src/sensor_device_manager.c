@@ -13,6 +13,10 @@
 #include "sensor_platform_if.h"
 
 #define HDF_LOG_TAG    khdf_sensor_common_driver
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 #define HDF_SENSOR_INFO_MAX_BUF (4 * 1024) // 4kB for all sensor info
 #define HDF_SENSOR_EVENT_MAX_BUF (4 * 1024) // 4kB
@@ -26,6 +30,7 @@ static struct SensorDevMgrData *GetSensorDeviceManager(void)
 
 int32_t AddSensorDevice(const struct SensorDeviceInfo *deviceInfo)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDevInfoNode *pos = NULL;
     struct SensorDevInfoNode *devInfoNode = NULL;
     struct SensorDevMgrData *manager = GetSensorDeviceManager();
@@ -63,6 +68,7 @@ int32_t AddSensorDevice(const struct SensorDeviceInfo *deviceInfo)
 
 int32_t DeleteSensorDevice(const struct SensorBasicInfo *sensorBaseInfo)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDevInfoNode *pos = NULL;
     struct SensorDevInfoNode *tmp = NULL;
     struct SensorDevMgrData *manager = GetSensorDeviceManager();
@@ -87,6 +93,7 @@ int32_t DeleteSensorDevice(const struct SensorBasicInfo *sensorBaseInfo)
 
 int32_t ReportSensorEvent(const struct SensorReportEvent *events)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct SensorDevMgrData *manager = NULL;
     struct HdfSBuf *msg = NULL;
@@ -130,6 +137,7 @@ EXIT:
 
 static int32_t GetAllSensorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t count = 0;
     struct SensorDevInfoNode *pos = NULL;
     struct SensorBasicInfo *sensorInfo = NULL;
@@ -161,6 +169,7 @@ static int32_t GetAllSensorInfo(struct HdfSBuf *data, struct HdfSBuf *reply)
 
 static int32_t Enable(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)data;
     (void)reply;
     CHECK_NULL_PTR_RETURN_VALUE(deviceInfo, HDF_ERR_INVALID_PARAM);
@@ -170,6 +179,7 @@ static int32_t Enable(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data,
 
 static int32_t Disable(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)data;
     (void)reply;
     CHECK_NULL_PTR_RETURN_VALUE(deviceInfo, HDF_ERR_INVALID_PARAM);
@@ -180,6 +190,7 @@ static int32_t Disable(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data
 
 static int32_t SetBatch(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     int64_t samplingInterval;
     int64_t reportInterval;
     (void)reply;
@@ -198,6 +209,7 @@ static int32_t SetBatch(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *dat
 
 static int32_t SetMode(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t mode;
     (void)reply;
 
@@ -215,6 +227,7 @@ static int32_t SetMode(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data
 
 static int32_t SetOption(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t option;
     (void)reply;
 
@@ -232,6 +245,7 @@ static int32_t SetOption(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *da
 
 static int32_t ReadData(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorReportEvent events;
 
     CHECK_NULL_PTR_RETURN_VALUE(deviceInfo, HDF_ERR_INVALID_PARAM);
@@ -268,6 +282,7 @@ static struct SensorCmdHandleList g_sensorCmdHandle[] = {
 
 static int32_t DispatchCmdHandle(struct SensorDeviceInfo *deviceInfo, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t opsCmd;
     int32_t loop;
     int32_t count;
@@ -297,6 +312,7 @@ static int32_t DispatchCmdHandle(struct SensorDeviceInfo *deviceInfo, struct Hdf
 static int32_t DispatchSensor(struct HdfDeviceIoClient *client,
     int32_t cmd, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDevMgrData *manager = GetSensorDeviceManager();
     struct SensorDevInfoNode *pos = NULL;
     int32_t sensorId;
@@ -336,6 +352,7 @@ static int32_t DispatchSensor(struct HdfDeviceIoClient *client,
 
 int32_t BindSensorDevManager(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDevMgrData *manager = NULL;
 
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
@@ -356,6 +373,7 @@ int32_t BindSensorDevManager(struct HdfDeviceObject *device)
 
 int32_t InitSensorDevManager(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDevMgrData *manager = NULL;
 
     CHECK_NULL_PTR_RETURN_VALUE(device, HDF_ERR_INVALID_PARAM);
@@ -384,6 +402,7 @@ int32_t InitSensorDevManager(struct HdfDeviceObject *device)
 
 void ReleaseSensorDevManager(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorDevInfoNode *pos = NULL;
     struct SensorDevInfoNode *tmp = NULL;
     struct SensorDevMgrData *manager = NULL;

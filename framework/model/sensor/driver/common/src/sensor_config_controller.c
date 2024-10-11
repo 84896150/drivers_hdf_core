@@ -13,9 +13,14 @@
 #include "sensor_platform_if.h"
 
 #define HDF_LOG_TAG    khdf_sensor_common_driver
+#ifdef LOG_DOMAIN
+#undef LOG_DOMAIN
+#endif
+#define LOG_DOMAIN 0xD002516
 
 static int32_t SensorOpsNop(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     (void)busCfg;
     (void)cfgItem;
     return HDF_SUCCESS;
@@ -23,6 +28,7 @@ static int32_t SensorOpsNop(struct SensorBusCfg *busCfg, struct SensorRegCfg *cf
 
 static int32_t SensorOpsRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint16_t value = 0;
     int32_t ret;
 
@@ -34,6 +40,7 @@ static int32_t SensorOpsRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *c
 
 static uint32_t GetSensorRegRealValueMask(struct SensorRegCfg *cfgItem, uint32_t *value, uint32_t busMask)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t mask = cfgItem->mask & busMask;
     *value = cfgItem->value & busMask;
 
@@ -52,6 +59,7 @@ static uint32_t GetSensorRegRealValueMask(struct SensorRegCfg *cfgItem, uint32_t
 
 static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint8_t value[SENSOR_SHORT_VALUE_BUTT];
     int32_t ret;
     uint32_t originValue;
@@ -91,6 +99,7 @@ static int32_t SensorOpsWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *
 
 static int32_t SensorOpsReadCheck(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t value = 0;
     uint32_t originValue;
     uint32_t mask;
@@ -115,6 +124,7 @@ static int32_t SensorOpsReadCheck(struct SensorBusCfg *busCfg, struct SensorRegC
 
 static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *value, uint32_t valueMask)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t originValue;
     uint32_t mask;
     uint32_t tmp;
@@ -149,6 +159,7 @@ static int32_t SensorBitwiseCalculate(struct SensorRegCfg *cfgItem, uint32_t *va
 
 static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     uint32_t value = 0;
     uint32_t busMask = 0x000000ff;
     int32_t ret;
@@ -176,6 +187,7 @@ static int32_t SensorOpsUpdateBitwise(struct SensorBusCfg *busCfg, struct Sensor
 
 static int32_t SensorOpsExtBuffRead(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
 
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
@@ -192,6 +204,7 @@ static int32_t SensorOpsExtBuffRead(struct SensorBusCfg *busCfg, struct SensorRe
 
 static int32_t SensorOpsExtBuffWrite(struct SensorBusCfg *busCfg, struct SensorRegCfg *cfgItem)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     uint8_t *value = NULL;
 
@@ -235,6 +248,7 @@ static struct SensorOpsCall g_doOpsCall[] = {
 
 int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t num = 0;
     uint32_t count;
     struct SensorRegCfg *cfgItem = NULL;
@@ -274,6 +288,7 @@ int32_t SetSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorReg
 int32_t SetSensorRegCfgArrayByBuff(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group,
     uint8_t *buff, int16_t len)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t num = 0;
     uint32_t count;
     uint8_t buffOffset = 0;
@@ -319,6 +334,7 @@ int32_t SetSensorRegCfgArrayByBuff(struct SensorBusCfg *busCfg, const struct Sen
 int32_t ReadSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group,
     int32_t index, uint8_t *buf, int32_t len)
 {
+    HDF_LOGI("%{public}s", __func__);
     int32_t ret;
     struct SensorRegCfg *cfgItem = NULL;
 
@@ -343,6 +359,7 @@ int32_t ReadSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRe
 int32_t WriteSensorRegCfgArray(struct SensorBusCfg *busCfg, const struct SensorRegCfgGroupNode *group,
     int32_t index, int32_t len)
 {
+    HDF_LOGI("%{public}s", __func__);
     struct SensorRegCfg *cfgItem = NULL;
 
     CHECK_NULL_PTR_RETURN_VALUE(busCfg, HDF_FAILURE);
