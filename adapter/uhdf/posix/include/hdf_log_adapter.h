@@ -23,7 +23,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 #undef LOG_DOMAIN
-#define LOG_DOMAIN 0xD002510
+#define LOG_DOMAIN 0xD000105
 
 #define HDF_LOGV_WRAPPER(fmt, arg...) HILOG_DEBUG(LOG_DOMAIN, fmt, ##arg)
 
