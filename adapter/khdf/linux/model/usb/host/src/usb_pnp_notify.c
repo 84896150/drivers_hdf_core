@@ -22,7 +22,7 @@
 #include <linux/usb.h>
 
 #include "hdf_device_desc.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "securec.h"
 #include "usb_pnp_notify.h"
@@ -389,7 +389,7 @@ static int32_t UsbPnpNotifyHdfSendEvent(const struct HdfDeviceObject *deviceObje
     OsalMutexUnlock(&deviceInfo->lock);
 
 OUT:
-    if ((ret != HDF_SUCCESS) || (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_DEVICE)) {
+    if (g_usbPnpNotifyCmdType == USB_PNP_NOTIFY_REMOVE_DEVICE) {
         if (UsbPnpNotifyDestroyInfo(deviceInfo) != HDF_SUCCESS) {
             HDF_LOGE("%s:%d UsbPnpNotifyDestroyInfo fail", __func__, __LINE__);
         }

@@ -17,9 +17,12 @@
 #include "hdf_device_object.h"
 #include "hdf_device_token.h"
 #include "hdf_driver_loader.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "osal_mem.h"
+#ifdef __USER__
+#include <pthread.h>
+#endif
 #include "power_state_token.h"
 
 #define HDF_LOG_TAG device_node
@@ -186,7 +189,16 @@ static void HdfDeviceUnlaunchNode(struct HdfDeviceNode *devNode)
     }
 
     if (driverEntry != NULL && driverEntry->Release != NULL) {
+#ifdef __USER__
+        pthread_rwlock_wrlock(&devNode->deviceObject.mutex);
+#endif
+
         driverEntry->Release(&devNode->deviceObject);
+
+#ifdef __USER__
+        devNode->deviceObject.service = NULL;
+        pthread_rwlock_unlock(&devNode->deviceObject.mutex);
+#endif
     }
 
     if (devNode->servStatus) {

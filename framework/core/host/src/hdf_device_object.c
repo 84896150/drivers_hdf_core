@@ -13,11 +13,14 @@
 #include "hdf_cstring.h"
 #include "hdf_device_node.h"
 #include "hdf_driver_loader.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_object_manager.h"
 #include "hdf_power_manager.h"
 #include "hdf_service_observer.h"
 #include "osal_mem.h"
+#ifdef __USER__
+#include <pthread.h>
+#endif
 #include "power_state_token.h"
 
 #define HDF_LOG_TAG device_object
@@ -168,6 +171,9 @@ bool HdfDeviceSetClass(struct HdfDeviceObject *deviceObject, DeviceClass deviceC
 void HdfDeviceObjectConstruct(struct HdfDeviceObject *deviceObject)
 {
     if (deviceObject != NULL) {
+#ifdef __USER__
+        pthread_rwlock_init(&deviceObject->mutex, NULL);
+#endif
 #ifdef LOSCFG_DRIVERS_HDF_CONFIG_MACRO
         deviceObject->deviceMatchAttr = NULL;
 #else

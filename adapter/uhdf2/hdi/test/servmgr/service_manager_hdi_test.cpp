@@ -17,7 +17,7 @@
 #include <functional>
 #include <gtest/gtest.h>
 #include <hdf_io_service_if.h>
-#include <hdf_log.h>
+#include <hdf_core_log.h>
 #include <hdf_service_status_inner.h>
 #include <idevmgr_hdi.h>
 #include <iostream>
@@ -766,6 +766,22 @@ HWTEST_F(HdfServiceMangerHdiTest, ListAllDeviceTest, TestSize.Level1)
     int ret = devmgr->ListAllDevice(deviceInfos);
     ASSERT_TRUE(ret == HDF_SUCCESS);
     ASSERT_TRUE(deviceInfos.size() != 0);
+}
+
+HWTEST_F(HdfServiceMangerHdiTest, ListAllHostTest, TestSize.Level1)
+{
+    auto devmgr = IDeviceManager::Get();
+    ASSERT_TRUE(devmgr != nullptr);
+
+    int32_t ret;
+    constexpr int loop = 100;
+    for (int i = 0; i < loop; i++) {
+        std::vector<int> pidList;
+        ret = devmgr->ListAllHost(pidList);
+        ASSERT_TRUE(ret == HDF_SUCCESS);
+        ASSERT_TRUE(pidList.size() != 0);
+        pidList.clear();
+    }
 }
 
 #ifdef SAMPLE_DRIVER

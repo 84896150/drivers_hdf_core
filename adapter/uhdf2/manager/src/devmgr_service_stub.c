@@ -25,7 +25,7 @@
 #include "devmgr_query_device.h"
 #include "devsvc_manager.h"
 #include "hdf_cstring.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "hdf_sbuf.h"
 #include "osal_mem.h"
 #include "osal_sysevent.h"
@@ -132,14 +132,21 @@ static int32_t DevmgrServiceStubDispatchListAllDevice(struct IDevmgrService *dev
 static int32_t DevmgrServiceStubListAllHost(struct IDevmgrService *devmgrSvc, struct HdfSBuf *reply)
 {
     if (reply == NULL) {
-        HDF_LOGE("%{public}s:service name is null", __func__);
+        HDF_LOGE("%{public}s:reply is null", __func__);
         return HDF_ERR_INVALID_PARAM;
     }
-    HDF_LOGD("%{public}s:get all device info", __func__);
 
     int32_t ret = devmgrSvc->ListAllHost(devmgrSvc, reply);
-    HdfSbufWriteInt32(reply, getpid());
-    return ret;
+    if (ret != HDF_SUCCESS) {
+        HDF_LOGE("%{public}s ListAllHost failed ret = %{public}d", __func__, ret);
+        return ret;
+    }
+
+    if (!HdfSbufWriteInt32(reply, getpid())) {
+        HDF_LOGE("%{public}s: Sbuf Write devmgr pid failed", __func__);
+        return HDF_FAILURE;
+    }
+    return HDF_SUCCESS;
 }
 
 int32_t DevmgrServiceStubDispatch(struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
