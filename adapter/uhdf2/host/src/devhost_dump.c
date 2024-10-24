@@ -131,11 +131,13 @@ static void DevHostDumpIpc(struct HdfSBuf *data)
 
     const char *dumpCmd = HdfSbufReadString(data);
     if (dumpCmd == NULL) {
+        close(fd);
         HDF_LOGE("ipc dumpCmd is NULL");
         return;
     }
 
     HdfDumpIpcStat(fd, dumpCmd);
+    close(fd);
     return;
 }
 

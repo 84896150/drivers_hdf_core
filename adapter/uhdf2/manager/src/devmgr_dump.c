@@ -237,17 +237,20 @@ static int32_t DevMgrDumpIpcAllHosts(int32_t fd, const char *cmd, struct HdfSBuf
 {
     struct HdfSBuf *ipcData = HdfSbufTypedObtain(SBUF_IPC);
     if (ipcData == NULL) {
+        close(fd);
         return HDF_FAILURE;
     }
 
     int32_t ret = DevMgrDumpIpcFillHostCmd(ipcData, fd, cmd);
     if (ret != HDF_SUCCESS) {
         HdfSbufRecycle(ipcData);
+        close(fd);
         return HDF_FAILURE;
     }
 
     ret = DevMgrDumpAllHostsIpcStats(ipcData, reply);
     HdfSbufRecycle(ipcData);
+    close(fd);
     return ret;
 }
 
@@ -280,17 +283,20 @@ static int32_t DevMgrDumpIpcSingleHost(int32_t pid, int32_t fd, const char *cmd,
 {
     struct HdfSBuf *ipcData = HdfSbufTypedObtain(SBUF_IPC);
     if (ipcData == NULL) {
+        close(fd);
         return HDF_FAILURE;
     }
 
     int32_t ret = DevMgrDumpIpcFillHostCmd(ipcData, fd, cmd);
     if (ret != HDF_SUCCESS) {
         HdfSbufRecycle(ipcData);
+        close(fd);
         return HDF_FAILURE;
     }
 
     ret = DevMgrDumpSingleHostIpcStats(pid, ipcData, reply);
     HdfSbufRecycle(ipcData);
+    close(fd);
     return ret;
 }
 
@@ -298,12 +304,14 @@ static int32_t DevMgrDumpIpc(int32_t fd, struct HdfSBuf *data, struct HdfSBuf *r
 {
     const char *value = HdfSbufReadString(data);
     if (value == NULL) {
+        close(fd);
         HDF_LOGE("%{public}s value is null", __func__);
         return HDF_FAILURE;
     }
 
     const char *dumpCmd = HdfSbufReadString(data);
     if (dumpCmd == NULL) {
+        close(fd);
         HDF_LOGE("%{public}s dumpCmd is null", __func__);
         return HDF_FAILURE;
     }
@@ -321,6 +329,7 @@ static int32_t DevMgrDumpIpc(int32_t fd, struct HdfSBuf *data, struct HdfSBuf *r
         }
     }
 
+    close(fd);
     return HDF_SUCCESS;
 }
 
@@ -613,17 +622,20 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
 
     if (argv == 0) {
         (void)HdfSbufWriteString(reply, HELP_COMMENT);
+        close(fd);
         return HDF_SUCCESS;
     }
 
     const char *value = HdfSbufReadString(data);
     if (value == NULL) {
         HDF_LOGE("%{public}s arg is invalid", __func__);
+        close(fd);
         return HDF_FAILURE;
     }
 
     HDF_LOGI("%{public}s argv:%{public}d", value, argv);
     if (argv == 1) {
+        close(fd);
         if (strcmp(value, "-help") == 0) {
             (void)HdfSbufWriteString(reply, HELP_COMMENT);
             return HDF_SUCCESS;
@@ -636,17 +648,21 @@ static int32_t DevMgrDump(struct HdfSBuf *data, struct HdfSBuf *reply)
         }
     } else {
         if (strcmp(value, "-host") == 0) {
+            close(fd);
             return DevMgrDumpHost(argv - 1, data, reply);
         } else if (strcmp(value, "-service") == 0) {
+            close(fd);
             return DevMgrDumpService(argv - 1, data, reply);
         } else if (strcmp(value, "--ipc") == 0) {
             return DevMgrDumpIpc(fd, data, reply);
         } else {
             (void)HdfSbufWriteString(reply, HELP_COMMENT);
+            close(fd);
             return HDF_SUCCESS;
         }
     }
 
+    close(fd);
     return HDF_SUCCESS;
 }
 
