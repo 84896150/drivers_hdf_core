@@ -279,7 +279,7 @@ class IDLGeneratorTestCase(unittest.TestCase):
         generator._key_list["InputController"] = "struct"
         generator._key_list["InputControllerDesc"] = "struct"
         generator._install_interface(parser._header_dict.get("interface")[0])
-        self.assertEqual("".join(generator._idl),  "interface InputController {\n"
+        self.assertEqual("".join(generator._idl), "interface InputController {\n"
                                          "    RunExtraCommand([in] unsigned int devIndex,[out] unsigned int cmd);\n"
                                          "    RunExtra([in] struct InputControllerDesc desc);\n"
                                          "}\n")
