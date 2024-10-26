@@ -45,6 +45,8 @@ obj-$(CONFIG_DRIVERS_HDF_LCD_ST7789) += \
          $(DISPLAY_ROOT_DIR)/panel/ssp_st7789.o
 obj-$(CONFIG_ARCH_ROCKCHIP) += \
         $(DISPLAY_ROOT_DIR)/panel/ili9881_st_5p5.o
+obj-$(CONFIG_DRIVERS_HDF_PLATFORM_EDP) += \
+	$(DISPLAY_ROOT_DIR)/panel/lcd_edp.o
 
 ccflags-y += -lm -lc -lgcc \
             -I$(srctree)/drivers/hdf/framework/model/display/driver \
