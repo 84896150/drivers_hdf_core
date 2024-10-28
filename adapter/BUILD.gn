@@ -69,6 +69,7 @@ if (defined(ohos_lite)) {
       "$hdf_adapter_path/uhdf2/osal/test:unittest",
       "$hdf_adapter_path/uhdf2/shared/test:unittest",
       "$hdf_adapter_path/uhdf2/test:hdf_test_uhdf",
+      "$hdf_adapter_path/uhdf2/utils/test:test",
     ]
   }
 }
