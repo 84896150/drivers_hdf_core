@@ -25,7 +25,7 @@
 #include "hdf_object_manager.h"
 #include "hdf_sbuf_ipc.h"
 #include "hdf_remote_adapter.h"
-#include "hdf_xcollie.h"
+// #include "xcollie/xcollie.h"
 
 #define HDF_LOG_TAG hdf_remote_adapter
 
@@ -303,8 +303,13 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
 
     const int32_t waitTimes = 50;
     const int32_t sleepInterval = 20000;
+    // const unsigned int timeout = 0x7FFFFFFF; //unit: second
     OHOS::sptr<OHOS::ISystemAbilityManager> saManager;
     {
+        // // required nothrow loop
+        // int id = OHOS::HiviewDFX::XCollie::GetInstance().SetTimer(std::string(__func__) +
+        //     "_" + OHOS::ToString(saId), timeout, nullptr, nullptr, OHOS::HiviewDFX::XCOLLIE_FLAG_NOOP);
+
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for samgr... %{public}d", cnt);
             saManager = OHOS::SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -315,6 +320,8 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
             HDF_LOGI("GetSystemAbilityManager failed, retry");
             usleep(sleepInterval);
         }
+        // OHOS::HiviewDFX::XCollie::GetInstance().CancelTimer(id);
+
         if (saManager == nullptr) {
             HDF_LOGE("failed to get sa manager, waiting timeout");
             return HDF_FAILURE;
@@ -328,6 +335,11 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
         stub->SetRequestSidFlag(true);
 #endif
         int ret = HDF_FAILURE;
+
+        // // required nothrow loop
+        // int id = OHOS::HiviewDFX::XCollie::GetInstance().SetTimer(std::string(__func__) +
+        //     "_" + OHOS::ToString(saId), timeout, nullptr, nullptr, OHOS::HiviewDFX::XCOLLIE_FLAG_NOOP);
+
         for (uint32_t cnt = 0; cnt < waitTimes; ++cnt) {
             HDF_LOGI("waiting for addSa... %{public}d", cnt);
             ret = saManager->AddSystemAbility(saId, holder->remote_);
@@ -338,6 +350,8 @@ int HdfRemoteAdapterAddSa(int32_t saId, struct HdfRemoteService *service)
             HDF_LOGI("AddSystemAbility failed, retry");
             usleep(sleepInterval);
         }
+        // OHOS::HiviewDFX::XCollie::GetInstance().CancelTimer(id);
+
         if (ret != HDF_SUCCESS) {
             HDF_LOGE("failed to addSa, waiting timeout");
             return ret;
