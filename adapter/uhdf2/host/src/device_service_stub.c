@@ -27,12 +27,12 @@ int DeviceServiceStubDispatch(
     struct HdfRemoteService *stub, int code, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
     struct DeviceServiceStub *service = (struct DeviceServiceStub *)stub;
-    struct IDeviceIoService *ioService = service->super.deviceObject.service;
     int ret = HDF_FAILURE;
 
 #ifdef __USER__
     pthread_rwlock_rdlock(&service->super.deviceObject.mutex);
 #endif
+    struct IDeviceIoService *ioService = service->super.deviceObject.service;
 
     if (ioService == NULL) {
 #ifdef __USER__
