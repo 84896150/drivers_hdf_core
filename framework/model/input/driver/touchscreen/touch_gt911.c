@@ -123,6 +123,7 @@ static void ChipVersionDefault(ChipDevice *device, FrameData *frame, const uint8
                               ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         frame->fingers[i].y = resY - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
                               ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
+        HDF_LOGI("%s: SL ---126, x = %{public}d, y = %{public}d;", __func__, frame->fingers[i].x, frame->fingers[i].y);
         if (frame->fingers[i].y < GT_Y_OFFSET_A) {
             frame->fingers[i].y += CORRECTION_VALUE_A;
         } else if (frame->fingers[i].y < GT_Y_OFFSET_B) {
@@ -130,6 +131,7 @@ static void ChipVersionDefault(ChipDevice *device, FrameData *frame, const uint8
         } else if (frame->fingers[i].y < GT_Y_OFFSET_C) {
             frame->fingers[i].y += CORRECTION_VALUE_C;
         }
+        HDF_LOGI("%s: SL ---134, x = %{public}d, y = %{public}d;", __func__, frame->fingers[i].x, frame->fingers[i].y);
 #elif defined(LOSCFG_PLATFORM_STM32MP157)
         frame->fingers[i].x = (buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
                               ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET);
