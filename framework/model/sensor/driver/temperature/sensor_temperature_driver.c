@@ -345,6 +345,11 @@ int32_t TemperatureInitDriver(struct HdfDeviceObject *device)
     struct TemperatureDrvData *drvData = (struct TemperatureDrvData *)device->service;
     CHECK_NULL_PTR_RETURN_VALUE(drvData, HDF_ERR_INVALID_PARAM);
 
+    if (drvData->temperatureCfg != NULL) {
+        HDF_LOGE("%s: Driver is already initialized", __func__);
+        return HDF_ERR_ALREADY_INITIALIZED;
+    }
+
     if (InitTemperatureData(drvData) != HDF_SUCCESS) {
         HDF_LOGE("%s: Init Temperature config failed", __func__);
         return HDF_FAILURE;
