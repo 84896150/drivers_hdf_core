@@ -22,7 +22,7 @@
 
 #include "devmgr_service.h"
 #include "hdf_dlist.h"
-#include "hdf_log.h"
+#include "hdf_core_log.h"
 #include "osal_mem.h"
 #include "osal_thread.h"
 #include "osal_time.h"
@@ -132,7 +132,7 @@ static int32_t DevMgrUeventParseKeyValue(char *str, struct DevMgrMatchKey *match
     char *subPtr = strstr(str, sep);
     if (subPtr == NULL) {
         if (strstr(str, "@/") == NULL) {
-            HDF_LOGE("parse Key value failed:[%{public}s]", str);
+            HDF_LOGD("parse Key value failed:[%{public}s]", str);
         }
         return HDF_FAILURE;
     }
