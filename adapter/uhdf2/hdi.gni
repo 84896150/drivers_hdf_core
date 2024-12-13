@@ -329,7 +329,7 @@ template("hdi") {
   # only generate code and provide header file path
   # usage example: external_deps = [ "drivers_interface_xxx:xxx_idl_headers" ]
   # this target has been replaced by 'idl_headers_target', please use 'idl_headers_target'
-  group("$target_name" + "_idl_headers") {
+  ohos_shared_libary("$target_name" + "_idl_headers") {
     public_configs = [ ":$idl_headers_config" ]
     deps = [ ":idl_gen" ]
     public_external_deps = [
