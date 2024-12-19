@@ -379,7 +379,7 @@ static int32_t HdfGetBlDevList(struct HdfDeviceObject *device,
         }
         tmp = tmp + strlen(tmp) + 1;
     }
-    if (!HdfSbufWriteBuffer(rspData, buffer, strlen(buffer) + 1) != 0) {
+    if (!HdfSbufWriteBuffer(rspData, buffer, tmp - buffer) != 0) {
         HDF_LOGE("%s: copy info failed", __func__);
         return HDF_FAILURE;
     }
