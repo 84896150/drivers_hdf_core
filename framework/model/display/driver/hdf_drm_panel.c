@@ -33,7 +33,7 @@ static int HdfDrmPanelUnprepare(struct drm_panel *panel)
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
     struct PanelData *panelData;
 
-    HDF_LOGD("HdfDrmPanelUnprepare");
+    HDF_LOGE("yktest HdfDrmPanelUnprepare");
     if (hdfDrmPanel->index >= PANEL_MAX) {
         HDF_LOGE("panel num out of PANEL_MAX");
         return HDF_FAILURE;
@@ -42,6 +42,7 @@ static int HdfDrmPanelUnprepare(struct drm_panel *panel)
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->unprepare(panelData);
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
+    HDF_LOGE("yktest HdfDrmPanelUnprepare end");
     return HDF_SUCCESS;
 }
 
@@ -50,7 +51,7 @@ static int HdfDrmPanelPrepare(struct drm_panel *panel)
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
     struct PanelData *panelData;
 
-    HDF_LOGD("HdfDrmPanelPrepare");
+    HDF_LOGE("yktest HdfDrmPanelPrepare");
     if (hdfDrmPanel->index >= PANEL_MAX) {
         HDF_LOGE("panel num out of PANEL_MAX");
         return HDF_FAILURE;
@@ -59,6 +60,7 @@ static int HdfDrmPanelPrepare(struct drm_panel *panel)
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->prepare(panelData);
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
+    HDF_LOGE("yktest HdfDrmPanelPrepare end");
     return HDF_SUCCESS;
 }
 
@@ -67,7 +69,7 @@ static int HdfDrmPanelDisable(struct drm_panel *panel)
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
     struct PanelData *panelData;
 
-    HDF_LOGD("HdfDrmPanelDisable");
+    HDF_LOGE("yktest HdfDrmPanelDisable");
     if (hdfDrmPanel->index >= PANEL_MAX) {
         HDF_LOGE("panel num out of PANEL_MAX");
         return HDF_FAILURE;
@@ -76,6 +78,7 @@ static int HdfDrmPanelDisable(struct drm_panel *panel)
     panelData = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index];
     panelData->off(panelData);
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
+    HDF_LOGE("yktest HdfDrmPanelDisable end");
     return HDF_SUCCESS;
 }
 
@@ -84,7 +87,7 @@ static int HdfDrmPanelEnable(struct drm_panel *panel)
     struct HdfDrmPanel *hdfDrmPanel = ToHdfDrmPanel(panel);
     struct PanelData *panelData;
     
-    HDF_LOGD("HdfDrmPanelEnable");
+    HDF_LOGE("yktest HdfDrmPanelEnable");
     if (hdfDrmPanel->index >= PANEL_MAX) {
         HDF_LOGE("panel num out of PANEL_MAX");
         return HDF_FAILURE;
@@ -93,6 +96,7 @@ static int HdfDrmPanelEnable(struct drm_panel *panel)
     OsalMutexLock(&hdfDrmPanel->manager->dispMutex);
     panelData->on(panelData);
     OsalMutexUnlock(&hdfDrmPanel->manager->dispMutex);
+    HDF_LOGE("yktest HdfDrmPanelEnable end");
     return HDF_SUCCESS;
 }
 
@@ -110,7 +114,7 @@ static int HdfDrmPanelGetModes(struct drm_panel *panel, struct drm_connector *co
         HDF_LOGE("connector is NULL");
         return 0;
     }
-    HDF_LOGD("HdfDrmPanelGetModes");
+    HDF_LOGE("yktest HdfDrmPanelGetModes");
     hdfDrmPanel = ToHdfDrmPanel(panel);
     panelInfo = hdfDrmPanel->manager->panelManager->panel[hdfDrmPanel->index]->info;
     mode = drm_mode_duplicate(connector->dev, &hdfDrmPanel->mode);
@@ -125,6 +129,7 @@ static int HdfDrmPanelGetModes(struct drm_panel *panel, struct drm_connector *co
     connector->display_info.width_mm = panelInfo->pWidth;
     connector->display_info.height_mm = panelInfo->pHeight;
     drm_mode_probed_add(connector, mode);
+    HDF_LOGE("yktest HdfDrmPanelGetModes end");
     return 1;
 }
 
@@ -142,6 +147,7 @@ static ssize_t SuspendStore(struct device *dev,
     int32_t ret;
     struct HdfDrmPanel *hdfDrmPanel = dev_get_drvdata(dev);
 
+    HDF_LOGE("yktest SuspendStore");
     ret = HdfDrmPanelDisable(&hdfDrmPanel->panel);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s HdfDrmPanelDisable fail", __func__);
@@ -152,6 +158,7 @@ static ssize_t SuspendStore(struct device *dev,
         HDF_LOGE("%s HdfDrmPanelUnprepare fail", __func__);
         return count;
     }
+    HDF_LOGE("yktest SuspendStore end");
     return count;
 }
 static DEVICE_ATTR(suspend, S_IWUSR, NULL, SuspendStore);
@@ -162,6 +169,7 @@ static ssize_t ResumeStore(struct device *dev,
     int32_t ret;
     struct HdfDrmPanel *hdfDrmPanel = dev_get_drvdata(dev);
 
+    HDF_LOGE("yktest ResumeStore");
     ret = HdfDrmPanelPrepare(&hdfDrmPanel->panel);
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s HdfDrmPanelPrepare fail", __func__);
@@ -172,6 +180,7 @@ static ssize_t ResumeStore(struct device *dev,
         HDF_LOGE("%s HdfDrmPanelEnable fail", __func__);
         return count;
     }
+    HDF_LOGE("yktest ResumeStore end");
     return count;
 }
 static DEVICE_ATTR(resume, S_IWUSR, NULL, ResumeStore);
@@ -179,6 +188,7 @@ static DEVICE_ATTR(resume, S_IWUSR, NULL, ResumeStore);
 static ssize_t BacklightStore(struct device *dev,
     struct device_attribute *attr, const char *buf, size_t count)
 {
+    HDF_LOGE("yktest BacklightStore");
     int32_t ret;
     unsigned long level;
     struct PanelData *panel = NULL;
@@ -196,7 +206,7 @@ static ssize_t BacklightStore(struct device *dev,
     if (ret != HDF_SUCCESS) {
         HDF_LOGE("%s UpdateBrightness fail", __func__);
     }
-
+    HDF_LOGE("yktest BacklightStore end");
     return count;
 }
 static DEVICE_ATTR(backlight, S_IWUSR, NULL, BacklightStore);
@@ -211,6 +221,7 @@ static struct device_attribute *g_panelAttrs[] = {
 
 static void CreateDrmMode(struct HdfDrmPanel *hdfDrmPanel)
 {
+    HDF_LOGE("yktest CreateDrmMode");
     uint32_t panelIndex;
     struct PanelInfo *panelInfo = NULL;
 
@@ -226,6 +237,7 @@ static void CreateDrmMode(struct HdfDrmPanel *hdfDrmPanel)
     hdfDrmPanel->mode.vsync_end = panelInfo->height + panelInfo->vfp + panelInfo->vsw;
     hdfDrmPanel->mode.vtotal = panelInfo->height + panelInfo->vfp + panelInfo->vsw + panelInfo->vbp;
     hdfDrmPanel->mode.flags = 10; /* 10: Sync and timing flags, detial at include/drm/drm_modes.h */
+    HDF_LOGE("yktest CreateDrmMode end");
 }
 
 static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int32_t index)
@@ -245,6 +257,7 @@ static struct HdfDrmPanel *InstanceHdfDrmPanel(struct DispManager *manager, int3
 
 static int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
 {
+    HDF_LOGE("yktest HdfDrmPanelEntryInit");
     (void)object;
     uint32_t ret;
     uint32_t i;
@@ -285,7 +298,7 @@ static int32_t HdfDrmPanelEntryInit(struct HdfDeviceObject *object)
         }
         HDF_LOGI("%s panel[%d] registered success", __func__, i);
     }
-    HDF_LOGI("%s success", __func__);
+    HDF_LOGE("yktest %s success", __func__);
     return HDF_SUCCESS;
 }
 
