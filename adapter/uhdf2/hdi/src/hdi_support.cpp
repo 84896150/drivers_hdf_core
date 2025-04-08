@@ -99,7 +99,12 @@ static int32_t ParseInterface(
     const std::string &desc, std::string &interface, std::string &libName, const char *serviceName)
 {
     std::smatch result;
-    if (!std::regex_match(desc, result, REINFDESC)) {
+    try {
+        if (!std::regex_match(desc, result, REINFDESC)) {
+            return HDF_FAILURE;
+        }
+    } catch (const std::regex_error &e) {
+        HDF_LOGE("%{public}s regex_match has exception", __func__);
         return HDF_FAILURE;
     }
 
