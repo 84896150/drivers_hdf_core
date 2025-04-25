@@ -45,6 +45,7 @@ static bool IsHidDevice(InputDevice *inputDev)
 
 static struct HdfDeviceObject *HidRegisterHdfDevice(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     char svcName[SERVICE_NAME_LEN] = {0};
     const char *moduleName = "HDF_HID";
     struct HdfDeviceObject *hdfDev = NULL;
@@ -81,6 +82,7 @@ static struct HdfDeviceObject *HidRegisterHdfDevice(InputDevice *inputDev)
 
 static void HotPlugNotify(const InputDevice *inputDev, uint32_t status)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     HotPlugEvent event = {0};
     int32_t ret;
 
@@ -107,6 +109,7 @@ static void HotPlugNotify(const InputDevice *inputDev, uint32_t status)
 
 static int32_t CreateDeviceNode(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (IsHidDevice(inputDev)) {
         HDF_LOGI("%s: prepare to register hdf device", __func__);
         inputDev->hdfDevObj = HidRegisterHdfDevice(inputDev);
@@ -122,6 +125,7 @@ static int32_t CreateDeviceNode(InputDevice *inputDev)
 
 static void DeleteDeviceNode(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (IsHidDevice(inputDev)) {
         HDF_LOGI("remove input device: hdf_input_event%u", inputDev->devId);
         HdfDeviceObjectRelease(inputDev->hdfDevObj);
@@ -132,6 +136,7 @@ static void DeleteDeviceNode(InputDevice *inputDev)
 
 static void AddInputDevice(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputDevice *tmpDev = NULL;
     if (g_inputManager->inputDevList == NULL) {
         g_inputManager->inputDevList = inputDev;
@@ -153,6 +158,7 @@ static void AddInputDevice(InputDevice *inputDev)
 
 static int32_t CheckInputDevice(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputDevice *tmpDev = NULL;
     if (g_inputManager->inputDevList == NULL) {
         return HDF_SUCCESS;
@@ -210,6 +216,7 @@ EXIT:
 
 static int32_t AllocPackageBuffer(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     uint16_t pkgNum;
     switch (inputDev->devType) {
         case INDEV_TYPE_TOUCH:
@@ -256,6 +263,7 @@ static int32_t AllocPackageBuffer(InputDevice *inputDev)
 
 static int32_t AllocDeviceID(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputDevice *tmpDev = g_inputManager->inputDevList;
     uint32_t idList[MAX_INPUT_DEV_NUM + 1];
     uint32_t id;
@@ -313,6 +321,7 @@ static int32_t InitEventWorkQueue(InputDevice *inputDev)
 
 int32_t RegisterInputDevice(InputDevice *inputDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
 
     HDF_LOGI("%s: enter", __func__);
@@ -362,7 +371,7 @@ EXIT:
 void UnregisterInputDevice(InputDevice *inputDev)
 {
     int32_t ret;
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("%s: AAA start", __func__);
     if (inputDev == NULL) {
         HDF_LOGE("%s: inputdev is null", __func__);
         return;
@@ -405,12 +414,14 @@ EXIT:
 
 static uint32_t GetDeviceCount(void)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     HDF_LOGI("%s: devCount = %d", __func__, g_inputManager->devCount);
     return g_inputManager->devCount;
 }
 
 static int32_t ScanAllDev(struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     DevDesc sta;
     InputDevice *tmpDev = g_inputManager->inputDevList;
     while (tmpDev != NULL) {
@@ -430,6 +441,7 @@ static int32_t ScanAllDev(struct HdfSBuf *reply)
 static int32_t ScanDevice(struct HdfDeviceIoClient *client, int32_t cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     (void)cmd;
     int32_t ret;
     if ((client == NULL) || (data == NULL) || (reply == NULL)) {
@@ -445,6 +457,7 @@ static int32_t ScanDevice(struct HdfDeviceIoClient *client, int32_t cmd,
 
 static int32_t HdfInputManagerBind(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (device == NULL) {
         HDF_LOGE("%s: device is null", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -461,6 +474,7 @@ static int32_t HdfInputManagerBind(struct HdfDeviceObject *device)
 
 static InputManager *InputManagerInstance(void)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputManager *manager = (InputManager *)OsalMemAlloc(sizeof(InputManager));
     if (manager == NULL) {
         HDF_LOGE("%s: instance input manager failed", __func__);
@@ -472,7 +486,7 @@ static InputManager *InputManagerInstance(void)
 
 static int32_t HdfInputManagerInit(struct HdfDeviceObject *device)
 {
-    HDF_LOGI("%s: enter", __func__);
+    HDF_LOGI("%s: AAA start", __func__);
     if (device == NULL) {
         HDF_LOGE("%s: device is null", __func__);
         return HDF_ERR_INVALID_PARAM;
