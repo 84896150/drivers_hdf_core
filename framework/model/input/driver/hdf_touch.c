@@ -361,8 +361,10 @@ static void InputFrameReport(TouchDriver *driver)
     }
 
     if ((frame->definedEvent == TOUCH_DOWN) || (frame->definedEvent == TOUCH_CONTACT)) {
+        HDF_LOGI("%s: BTN_TOUCH DOWN");
         input_report_key(dev, BTN_TOUCH, 1); // BTN_TOUCH DOWN
     } else {
+        HDF_LOGI("%s: BTN_TOUCH UP");
         input_report_key(dev, BTN_TOUCH, 0); // BTN_TOUCH UP
     }
     OsalMutexUnlock(&driver->mutex);
