@@ -123,6 +123,7 @@ static void FreeCachedInfo(void)
 
 static int32_t SetInputDevAbsAttr(InputDevice *inputDev, const HidInfo *info)
 {
+    HDF_LOGI("%s: Cache hid device", __func__);
     int32_t ret;
     int i;
     for (i = 0; i < BITS_TO_LONG(ABS_CNT); i++) {
@@ -298,6 +299,7 @@ static void RepateEvent(const InputDevice *device)
 
 void HidReportEvent(const void *inputDev, uint32_t type, uint32_t code, int32_t value)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     bool loaded = InputDriverLoaded();
     if (!loaded) {
         HDF_LOGD("%s: device not loaded", __func__);
