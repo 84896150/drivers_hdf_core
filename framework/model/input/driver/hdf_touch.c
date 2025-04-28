@@ -45,6 +45,7 @@ static int SuspendFlag = 0;
 
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     if ((dir == GPIO_DIR_IN) || (dir == GPIO_DIR_OUT)) {
         ret = GpioSetDir(gpio, dir);
@@ -186,6 +187,7 @@ static int32_t InputPinMuxCfg(uint32_t regAddr, int32_t regSize, uint32_t regVal
 #if defined(CONFIG_ARCH_ROCKCHIP)
 static int32_t SetResetStatus(TouchDriver *driver)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     uint8_t writeBuf[5]; // 5: buffer size
 
@@ -215,6 +217,7 @@ static int32_t SetResetStatus(TouchDriver *driver)
 
 static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     ret = SetGpio(chipDev->boardCfg->pins.rstGpio, 1, 0);
     if (ret != HDF_SUCCESS) {
@@ -239,6 +242,7 @@ static int32_t Gt1xRequestIo(ChipDevice *chipDev)
 
 static int32_t HandleSeqArray(SeqArray *src, PowerEventHandler eventHandler, ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t i;
     SeqArray pwrTiming = {0};
     int32_t ret = memcpy_s(&pwrTiming, sizeof(SeqArray), src, sizeof(SeqArray));
@@ -260,6 +264,7 @@ static int32_t HandleSeqArray(SeqArray *src, PowerEventHandler eventHandler, Chi
 
 static int32_t SetTiming(ChipDevice *chipDev, bool enable)
 {
+    HDF_LOGI("%s: AAA start", __func__);
 #if defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
 #endif
@@ -304,6 +309,7 @@ static int32_t SetTiming(ChipDevice *chipDev, bool enable)
 
 static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     if ((chipDev->ops == NULL) || (chipDev->ops->DataHandle == NULL)) {
         return;
@@ -317,6 +323,7 @@ static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
 
 static int32_t IrqHandle(uint16_t intGpioNum, void *data)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     TouchDriver *driver = (TouchDriver *)data;
     int ret = GpioDisableIrq(intGpioNum);
     if (ret != HDF_SUCCESS) {
@@ -336,6 +343,7 @@ static int32_t IrqHandle(uint16_t intGpioNum, void *data)
 
 static void InputFrameReport(TouchDriver *driver)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputDevice *dev = driver->inputDev;
     FrameData *frame = &driver->frameData;
     int32_t i;
@@ -343,6 +351,8 @@ static void InputFrameReport(TouchDriver *driver)
     OsalMutexLock(&driver->mutex);
     for (i = 0; i < MAX_FINGERS_NUM; i++) {
         if (frame->fingers[i].valid) {
+            HDF_LOGI("%s: ABS_MT_POSITION_X = %{public}d", frame->fingers[i].x);
+            HDF_LOGI("%s: ABS_MT_POSITION_Y = %{public}d", frame->fingers[i].y);
             input_report_abs(dev, ABS_MT_POSITION_X, frame->fingers[i].x);
             input_report_abs(dev, ABS_MT_POSITION_Y, frame->fingers[i].y);
             input_report_abs(dev, ABS_MT_TRACKING_ID, frame->fingers[i].trackId);
@@ -361,6 +371,7 @@ static void InputFrameReport(TouchDriver *driver)
 
 static int32_t SetupChipIrq(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
 #if defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
 #endif
@@ -390,6 +401,7 @@ static int32_t SetupChipIrq(ChipDevice *chipDev)
 
 static void ChipReset(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (chipDev == NULL) {
         HDF_LOGE("%s: invalid param", __func__);
         return;
@@ -488,6 +500,7 @@ static void Gt1xDeinitEsdProtect(void)
 
 static int32_t ChipEsdResetRetry(TouchDriver *driver)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     ChipDevice *chipDev = driver->device;
     uint16_t intGpioNum = driver->device->boardCfg->pins.intGpio;
@@ -519,6 +532,7 @@ static int32_t ChipEsdResetRetry(TouchDriver *driver)
 
 static void Gt1xEsdCheckFunc(struct work_struct *work)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t i = 0;
     int32_t ret = -1;
     if (time_after(jiffies, g_timeout)) {
@@ -551,6 +565,7 @@ static void Gt1xEsdCheckFunc(struct work_struct *work)
 
 static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t count = 20;   // 20 : reset time
     int32_t ret;
 
@@ -573,6 +588,7 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
 
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t count = 20;  // 20: reset time
     int32_t ret;
 #if defined(CONFIG_ARCH_ROCKCHIP)
@@ -628,6 +644,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 
 static InputDevice *InputDeviceInstance(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputDevice *inputDev = (InputDevice *)OsalMemAlloc(sizeof(InputDevice));
     if (inputDev == NULL) {
         HDF_LOGE("%s: instance input device failed", __func__);
@@ -645,6 +662,7 @@ static InputDevice *InputDeviceInstance(ChipDevice *chipDev)
 
 static int32_t ChipMatchCheck(const ChipDevice *chipDev, const TouchDriver *driver)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     const struct DeviceResourceNode *boardNode = driver->boardCfg->boardNode;
     const struct DeviceResourceNode *chipNode = chipDev->chipCfg->chipNode;
 
@@ -668,6 +686,7 @@ static int32_t ChipMatchCheck(const ChipDevice *chipDev, const TouchDriver *driv
 
 static int32_t DeviceBindDriver(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     TouchDriver *driver = NULL;
     int32_t ret = HDF_FAILURE;
     int32_t i;
@@ -694,6 +713,7 @@ static int32_t DeviceBindDriver(ChipDevice *chipDev)
 
 int32_t RegisterTouchChipDevice(ChipDevice *chipDev)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     InputDevice *inputDev = NULL;
     if ((chipDev == NULL) || (chipDev->chipCfg == NULL)) {
@@ -733,6 +753,7 @@ EXIT:
 
 static int32_t TouchGetDevType(TouchDriver *driver, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     uint32_t devType = driver->devType;
     HDF_LOGI("%s: enter, devType is %u", __func__, devType);
     bool ret = HdfSbufWriteUint32(reply, devType);
@@ -745,6 +766,7 @@ static int32_t TouchGetDevType(TouchDriver *driver, struct HdfSBuf *reply)
 
 static int32_t TouchSetPowerStatus(TouchDriver *driver, struct HdfSBuf *data)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     uint32_t pwrStatus = 0;
     bool ret = HdfSbufReadUint32(data, &pwrStatus);
     if (!ret) {
@@ -758,6 +780,7 @@ static int32_t TouchSetPowerStatus(TouchDriver *driver, struct HdfSBuf *data)
 
 static int32_t TouchGetPowerStatus(TouchDriver *driver, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     uint32_t pwrStatus = driver->pwrStatus;
     bool ret = HdfSbufWriteUint32(reply, pwrStatus);
     if (!ret) {
@@ -770,6 +793,7 @@ static int32_t TouchGetPowerStatus(TouchDriver *driver, struct HdfSBuf *reply)
 
 static int32_t TouchGetDeviceStrInfo(TouchDriver *driver, int32_t cmd, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     const char *info = NULL;
     if ((driver->device == NULL) || (driver->device->chipCfg == NULL)) {
         HDF_LOGE("%s: parameter invalid", __func__);
@@ -802,6 +826,7 @@ static int32_t TouchGetDeviceStrInfo(TouchDriver *driver, int32_t cmd, struct Hd
 
 static int32_t TouchGetDeviceAttr(TouchDriver *driver, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     char *tempStr = "main_touch";
     int32_t ret;
     if (driver->inputDev == NULL) {
@@ -825,6 +850,7 @@ static int32_t TouchGetDeviceAttr(TouchDriver *driver, struct HdfSBuf *reply)
 
 static int32_t TouchGetDeviceAbility(TouchDriver *driver, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (driver->inputDev == NULL) {
         return HDF_FAILURE;
     }
@@ -840,6 +866,7 @@ static int32_t TouchGetDeviceAbility(TouchDriver *driver, struct HdfSBuf *reply)
 
 static int32_t TouchSetGestureMode(TouchDriver *driver, struct HdfSBuf *data)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     uint32_t gestureMode = 0;
     bool ret = HdfSbufReadUint32(data, &gestureMode);
     if (!ret) {
@@ -853,6 +880,7 @@ static int32_t TouchSetGestureMode(TouchDriver *driver, struct HdfSBuf *data)
 
 static int32_t TouchSelfCapacitance(TouchDriver *driver, struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     CapacitanceTestInfo capacTest = {0};
     bool ret = HdfSbufReadUint32(data, &capacTest.testType);
     if (!ret) {
@@ -876,6 +904,7 @@ static int32_t TouchSelfCapacitance(TouchDriver *driver, struct HdfSBuf *data, s
 
 static int32_t TouchRunExtraCmd(TouchDriver *driver, struct HdfSBuf *data)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     InputExtraCmd cmd = {0};
     cmd.cmdCode = HdfSbufReadString(data);
     if (cmd.cmdCode == NULL) {
@@ -895,6 +924,7 @@ static int32_t TouchRunExtraCmd(TouchDriver *driver, struct HdfSBuf *data)
 static int32_t HdfTouchDispatch(struct HdfDeviceIoClient *client, int32_t cmd,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     TouchDriver *touchDriver = NULL;
     if ((client == NULL) || (client->device == NULL) || (data == NULL) || (reply == NULL)) {
@@ -949,6 +979,7 @@ static int32_t HdfTouchDispatch(struct HdfDeviceIoClient *client, int32_t cmd,
 
 static int32_t TouchSetupBus(TouchDriver *driver, TouchBoardCfg *config)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     uint8_t busType = config->bus.busType;
     uint8_t busNum = config->bus.i2c.busNum;
     if (busType == I2C_TYPE) {
@@ -983,6 +1014,7 @@ static int32_t TouchSetupBus(TouchDriver *driver, TouchBoardCfg *config)
 
 static int32_t TouchInitData(TouchDriver *driver, TouchBoardCfg *config)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     driver->devType = config->attr.devType;
     driver->devName = config->attr.devName;
     driver->i2cClient.i2cCfg.busNum = config->bus.i2c.busNum;
@@ -993,6 +1025,7 @@ static int32_t TouchInitData(TouchDriver *driver, TouchBoardCfg *config)
 
 static int32_t TouchDriverInit(TouchDriver *driver, TouchBoardCfg *config)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret = TouchInitData(driver, config);
     CHECK_RETURN_VALUE(ret);
 
@@ -1008,6 +1041,7 @@ static int32_t TouchDriverInit(TouchDriver *driver, TouchBoardCfg *config)
 
 static TouchBoardCfg *BoardConfigInstance(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     TouchBoardCfg *boardCfg = (TouchBoardCfg *)OsalMemAlloc(sizeof(TouchBoardCfg));
     if (boardCfg == NULL) {
         HDF_LOGE("%s: instance board config failed", __func__);
@@ -1025,6 +1059,7 @@ static TouchBoardCfg *BoardConfigInstance(struct HdfDeviceObject *device)
 
 static TouchDriver *TouchDriverInstance(void)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     TouchDriver *touchDrv = (TouchDriver *)OsalMemAlloc(sizeof(TouchDriver));
     if (touchDrv == NULL) {
         HDF_LOGE("%s: instance touch driver failed", __func__);
@@ -1047,6 +1082,7 @@ static void AddTouchDriver(TouchDriver *driver)
 
 static int32_t HdfTouchDriverBind(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (device == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -1086,6 +1122,7 @@ static int HdfTouchDriverDozeResume(struct HdfDeviceObject *device)
 
 static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     if (device == NULL) {
         HDF_LOGE("%s: param is null", __func__);
         return HDF_ERR_INVALID_PARAM;
@@ -1121,6 +1158,7 @@ static int HdfTouchDriverDozeSuspend(struct HdfDeviceObject *device)
 
 static void HdfTouchDriverRegisterPowerListener(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int ret;
     static struct IPowerEventListener powerListener = {0};
     HDF_LOGI("%s::enter!", __func__);
@@ -1135,6 +1173,7 @@ static void HdfTouchDriverRegisterPowerListener(struct HdfDeviceObject *device)
 
 static void HdfTouchDriverUnregisterPowerListener(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     static struct IPowerEventListener powerListener = {0};
     HDF_LOGI("%s::enter!", __func__);
     powerListener.DozeResume = NULL;
@@ -1148,6 +1187,7 @@ static void HdfTouchDriverUnregisterPowerListener(struct HdfDeviceObject *device
 
 static int32_t HdfTouchDriverProbe(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     TouchBoardCfg *boardCfg = NULL;
     TouchDriver *touchDriver = NULL;
@@ -1191,6 +1231,7 @@ EXIT:
 
 static void HdfTouchDriverRelease(struct HdfDeviceObject *device)
 {
+    HDF_LOGI("%s: AAA start", __func__);
     TouchDriver *driver = NULL;
     InputDevice *inputDev = NULL;
     int32_t i;
