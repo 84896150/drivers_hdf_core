@@ -16,7 +16,7 @@
 #include "event_hub.h"
 #include "input_i2c_ops.h"
 #include <linux/ktime.h>
-#include <linux/spinlock.h>
+#include <linux/mutex.h>
 #include <linux/kthread.h>
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
@@ -46,7 +46,7 @@ static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
 static void InputFrameReport(TouchDriver *driver);
 static int SuspendFlag = 0;
 static uint64_t timeArray[100];
-spinlock_t my_spinlock = SPIN_LOCK_UNLOCKED;
+static DEFINE_MUTEX(my_mutex);
 int32_t i = 0;
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
@@ -328,13 +328,14 @@ static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
 
 static void SaveTime(uint64_t ms)
 {
-    unsigned long flags;
-    spin_lock_irqsave(&my_spinlock, flags);
+    // 获取锁
+    mutex_lock(&my_mutex);
     if (i < 99) {
         timeArray[i] = ms;
         i++;
     }
-    spin_unlock_irqrestore(&my_spinlock, flags);
+    // 释放锁
+    mutex_unlock(&my_mutex);
 }
 
 static int32_t IrqHandle(uint16_t intGpioNum, void *data)
@@ -605,12 +606,12 @@ static int low_priority_thread(void *data)
 {
     printk(KERN_INFO "Low priority thread started\n");
     while (!kthread_should_stop()) {
-        unsigned long flags;
-        spin_lock_irqsave(&my_spinlock, flags);
+        mutex_lock(&my_mutex);
         for (int k = 0; k < i; k++) {
             HDF_LOGI("%s: time[%d] = %lu", __func__, k, timeArray[i]);
         }
-        spin_unlock_irqrestore(&my_spinlock, flags);
+        // 释放锁
+        mutex_unlock(&my_mutex);
     }
     printk(KERN_INFO "Low priority thread stopped\n");
     return 0;
