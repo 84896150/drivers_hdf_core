@@ -17,6 +17,7 @@
 #include "input_i2c_ops.h"
 #include <linux/ktime.h>
 #include <linux/spinlock.h>
+#include <linux/kthread.h>
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
 #include <linux/hrtimer.h>
