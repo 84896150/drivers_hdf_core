@@ -15,6 +15,8 @@
 #include "osal_io.h"
 #include "event_hub.h"
 #include "input_i2c_ops.h"
+#include <linux/ktime.h>
+#include <linux/spinlock.h>
 
 #if defined(CONFIG_ARCH_ROCKCHIP)
 #include <linux/hrtimer.h>
@@ -42,7 +44,9 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev);
 static TouchDriver *g_touchDriverList[MAX_TOUCH_DEVICE];
 static void InputFrameReport(TouchDriver *driver);
 static int SuspendFlag = 0;
-
+static uint64_t timeArray[100];
+spinlock_t my_spinlock = SPIN_LOCK_UNLOCKED;
+int32_t i = 0;
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
     HDF_LOGI("%s: AAA start", __func__);
@@ -321,9 +325,25 @@ static void EventHandle(TouchDriver *driver, ChipDevice *chipDev)
     }
 }
 
+static void SaveTime(uint64_t ms)
+{
+    unsigned long flags;
+    spin_lock_irqsave(&my_spinlock, flags);
+    if (i < 99) {
+        timeArray[i] = ms;
+        i++;
+    }
+    spin_unlock_irqrestore(&my_spinlock, flags);
+}
+
 static int32_t IrqHandle(uint16_t intGpioNum, void *data)
 {
-    HDF_LOGI("%s: AAA start", __func__);
+    uint64_t ns; // 纳秒
+    uint64_t ms; // 毫秒
+    ns = ktime_to_ns(ktime_get()); // 获取当前时间（纳秒）
+    ms = ns / 1000000; // 转换为毫秒
+    SaveTime(ms);
+
     TouchDriver *driver = (TouchDriver *)data;
     int ret = GpioDisableIrq(intGpioNum);
     if (ret != HDF_SUCCESS) {
@@ -343,7 +363,6 @@ static int32_t IrqHandle(uint16_t intGpioNum, void *data)
 
 static void InputFrameReport(TouchDriver *driver)
 {
-    HDF_LOGI("%s: AAA start", __func__);
     InputDevice *dev = driver->inputDev;
     FrameData *frame = &driver->frameData;
     int32_t i;
@@ -351,8 +370,6 @@ static void InputFrameReport(TouchDriver *driver)
     OsalMutexLock(&driver->mutex);
     for (i = 0; i < MAX_FINGERS_NUM; i++) {
         if (frame->fingers[i].valid) {
-            HDF_LOGI("%s: ABS_MT_POSITION_X = %{public}d", __func__, frame->fingers[i].x);
-            HDF_LOGI("%s: ABS_MT_POSITION_Y = %{public}d", __func__, frame->fingers[i].y);
             input_report_abs(dev, ABS_MT_POSITION_X, frame->fingers[i].x);
             input_report_abs(dev, ABS_MT_POSITION_Y, frame->fingers[i].y);
             input_report_abs(dev, ABS_MT_TRACKING_ID, frame->fingers[i].trackId);
@@ -361,10 +378,8 @@ static void InputFrameReport(TouchDriver *driver)
     }
 
     if ((frame->definedEvent == TOUCH_DOWN) || (frame->definedEvent == TOUCH_CONTACT)) {
-        HDF_LOGI("%s: BTN_TOUCH DOWN", __func__);
         input_report_key(dev, BTN_TOUCH, 1); // BTN_TOUCH DOWN
     } else {
-        HDF_LOGI("%s: BTN_TOUCH UP", __func__);
         input_report_key(dev, BTN_TOUCH, 0); // BTN_TOUCH UP
     }
     OsalMutexUnlock(&driver->mutex);
@@ -373,7 +388,6 @@ static void InputFrameReport(TouchDriver *driver)
 
 static int32_t SetupChipIrq(ChipDevice *chipDev)
 {
-    HDF_LOGI("%s: AAA start", __func__);
 #if defined(CONFIG_ARCH_MESON)
     return HDF_SUCCESS;
 #endif
@@ -502,7 +516,6 @@ static void Gt1xDeinitEsdProtect(void)
 
 static int32_t ChipEsdResetRetry(TouchDriver *driver)
 {
-    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     ChipDevice *chipDev = driver->device;
     uint16_t intGpioNum = driver->device->boardCfg->pins.intGpio;
@@ -534,7 +547,6 @@ static int32_t ChipEsdResetRetry(TouchDriver *driver)
 
 static void Gt1xEsdCheckFunc(struct work_struct *work)
 {
-    HDF_LOGI("%s: AAA start", __func__);
     int32_t i = 0;
     int32_t ret = -1;
     if (time_after(jiffies, g_timeout)) {
@@ -567,7 +579,6 @@ static void Gt1xEsdCheckFunc(struct work_struct *work)
 
 static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
 {
-    HDF_LOGI("%s: AAA start", __func__);
     int32_t count = 20;   // 20 : reset time
     int32_t ret;
 
@@ -587,6 +598,61 @@ static int32_t ChipCheckResetRetry(ChipDevice *chipDev)
     return HDF_FAILURE;
 }
 #endif
+
+// 线程函数
+static int low_priority_thread(void *data)
+{
+    printk(KERN_INFO "Low priority thread started\n");
+    while (!kthread_should_stop()) {
+        unsigned long flags;
+        spin_lock_irqsave(&my_spinlock, flags);
+        for (int k = 0; k < i; k++) {
+            HDF_LOGI("%s: time[%d] = %lu", __func__, k, timeArray[i]);
+        }
+        spin_unlock_irqrestore(&my_spinlock, flags);
+    }
+    printk(KERN_INFO "Low priority thread stopped\n");
+    return 0;
+}
+
+// 设置线程优先级
+static void set_thread_priority(struct task_struct *thread, int nice_value)
+{
+    if (nice_value >= -20 && nice_value <= 19) {
+        set_user_nice(thread, nice_value);
+        printk(KERN_INFO "Thread priority set to nice value: %d\n", nice_value);
+    } else {
+        printk(KERN_INFO "Invalid nice value: %d\n", nice_value);
+    }
+}
+
+// 模块加载函数
+static int __init low_priority_thread_init(void)
+{
+    struct task_struct *thread;
+
+    // 创建内核线程
+    thread = kthread_create(low_priority_thread, NULL, "low_priority_thread");
+    if (IS_ERR(thread)) {
+        printk(KERN_INFO "Failed to create low priority thread\n");
+        return PTR_ERR(thread);
+    }
+
+    // 设置线程优先级（低优先级，nice value = 19）
+    set_thread_priority(thread, 19);
+
+    // 启动线程
+    wake_up_process(thread);
+
+    return 0;
+}
+
+// 模块卸载函数
+static void __exit low_priority_thread_exit(void)
+{
+    printk(KERN_INFO "Low priority thread module unloaded\n");
+}
+
 
 static int32_t ChipDriverInit(ChipDevice *chipDev)
 {
@@ -640,6 +706,7 @@ static int32_t ChipDriverInit(ChipDevice *chipDev)
 #endif
 
     ret = SetupChipIrq(chipDev);
+    low_priority_thread_init();
     CHECK_RETURN_VALUE(ret);
     return HDF_SUCCESS;
 }
@@ -1027,7 +1094,6 @@ static int32_t TouchInitData(TouchDriver *driver, TouchBoardCfg *config)
 
 static int32_t TouchDriverInit(TouchDriver *driver, TouchBoardCfg *config)
 {
-    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret = TouchInitData(driver, config);
     CHECK_RETURN_VALUE(ret);
 
@@ -1189,7 +1255,6 @@ static void HdfTouchDriverUnregisterPowerListener(struct HdfDeviceObject *device
 
 static int32_t HdfTouchDriverProbe(struct HdfDeviceObject *device)
 {
-    HDF_LOGI("%s: AAA start", __func__);
     int32_t ret;
     TouchBoardCfg *boardCfg = NULL;
     TouchDriver *touchDriver = NULL;
