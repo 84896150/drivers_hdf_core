@@ -351,8 +351,8 @@ static void InputFrameReport(TouchDriver *driver)
     OsalMutexLock(&driver->mutex);
     for (i = 0; i < MAX_FINGERS_NUM; i++) {
         if (frame->fingers[i].valid) {
-            HDF_LOGI("%s: ABS_MT_POSITION_X = %{public}d", frame->fingers[i].x);
-            HDF_LOGI("%s: ABS_MT_POSITION_Y = %{public}d", frame->fingers[i].y);
+            HDF_LOGI("%s: ABS_MT_POSITION_X = %{public}d", __func__, frame->fingers[i].x);
+            HDF_LOGI("%s: ABS_MT_POSITION_Y = %{public}d", __func__, frame->fingers[i].y);
             input_report_abs(dev, ABS_MT_POSITION_X, frame->fingers[i].x);
             input_report_abs(dev, ABS_MT_POSITION_Y, frame->fingers[i].y);
             input_report_abs(dev, ABS_MT_TRACKING_ID, frame->fingers[i].trackId);
@@ -361,10 +361,10 @@ static void InputFrameReport(TouchDriver *driver)
     }
 
     if ((frame->definedEvent == TOUCH_DOWN) || (frame->definedEvent == TOUCH_CONTACT)) {
-        HDF_LOGI("%s: BTN_TOUCH DOWN");
+        HDF_LOGI("%s: BTN_TOUCH DOWN", __func__);
         input_report_key(dev, BTN_TOUCH, 1); // BTN_TOUCH DOWN
     } else {
-        HDF_LOGI("%s: BTN_TOUCH UP");
+        HDF_LOGI("%s: BTN_TOUCH UP", __func__);
         input_report_key(dev, BTN_TOUCH, 0); // BTN_TOUCH UP
     }
     OsalMutexUnlock(&driver->mutex);
