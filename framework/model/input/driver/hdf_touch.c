@@ -47,7 +47,7 @@ static void InputFrameReport(TouchDriver *driver);
 static int SuspendFlag = 0;
 static uint64_t timeArray[100];
 static DEFINE_MUTEX(my_mutex);
-int32_t i = 0;
+static int32_t i = 0;
 static int32_t SetGpioDirAndLevel(int gpio, int dir, int level)
 {
     HDF_LOGI("%s: AAA start", __func__);
@@ -330,7 +330,7 @@ static void SaveTime(uint64_t ms)
 {
     // 获取锁
     mutex_lock(&my_mutex);
-    if (i < 99) {
+    if (i < 100) {
         timeArray[i] = ms;
         i++;
     }
@@ -608,11 +608,17 @@ static int low_priority_thread(void *data)
     while (!kthread_should_stop()) {
         mutex_lock(&my_mutex);
         for (int k = 0; k < i; k++) {
-            HDF_LOGI("%s: time[%d] = %lu", __func__, k, timeArray[i]);
+            if (timeArray[0] != 0) {
+               HDF_LOGI("%s: irq time[%d] = %lu", __func__, k, timeArray[i]);
+            }
+        }
+        if ( i == 99) {
+            break;
         }
         // 释放锁
         mutex_unlock(&my_mutex);
     }
+    
     printk(KERN_INFO "Low priority thread stopped\n");
     return 0;
 }
