@@ -159,6 +159,9 @@ static void SetHostProperties(int argc, char **argv, const char *hostName)
 
 int main(int argc, char **argv)
 {
+    for (int i = 0; i < argc; i++) {
+        HDF_LOGI("argv[%d]: %{public}s", i, argv[i]);
+    }
     if (argc < DEVHOST_MIN_INPUT_PARAM_NUM) {
         HDF_LOGE("Devhost main parameter error, argc: %{public}d", argc);
         return HDF_ERR_INVALID_PARAM;
