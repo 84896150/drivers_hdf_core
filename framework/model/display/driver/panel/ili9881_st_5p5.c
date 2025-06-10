@@ -415,6 +415,7 @@ static struct panel_ili9881_dev *ToPanelSimpleDev(const struct PanelData *panel)
 
 static int32_t panel_simple_regulator_enable(void)
 {
+    HDF_LOGE("yktest panel_simple_regulator_enable");
     int32_t err;
     if (g_panel_dev == NULL) {
         return -1;
@@ -424,19 +425,23 @@ static int32_t panel_simple_regulator_enable(void)
         HDF_LOGE("regulator_enable failed");
         return err;
     }
+    HDF_LOGE("yktest panel_simple_regulator_enable end");
     return 0;
 }
 static int32_t panel_simple_regulator_disable(void)
 {
+    HDF_LOGE("yktest panel_simple_regulator_disable");
     if (g_panel_dev == NULL) {
         return -1;
     }
     regulator_disable(g_panel_dev->supply);
+    HDF_LOGE("yktest panel_simple_regulator_disable end");
     return 0;
 }
 
 int panel_simple_loader_protect(struct drm_panel *panel)
 {
+    HDF_LOGE("yktest panel_simple_loader_protect");
     int err;
     (void)panel;
     err = panel_simple_regulator_enable();
@@ -444,6 +449,7 @@ int panel_simple_loader_protect(struct drm_panel *panel)
         HDF_LOGE("failed to enable supply: %d\n", err);
         return err;
     }
+    HDF_LOGE("yktest panel_simple_loader_protect end");
     return 0;
 }
 EXPORT_SYMBOL(panel_simple_loader_protect);
@@ -453,7 +459,7 @@ static int32_t PanelSendCmds(struct mipi_dsi_device *dsi,
 {
     int32_t i = 0;
 
-    HDF_LOGI("%s enter", __func__);
+    HDF_LOGE("yktest %s enter", __func__);
     if (dsi == NULL) {
         HDF_LOGE("dsi is NULL");
         return -EINVAL;
@@ -464,28 +470,31 @@ static int32_t PanelSendCmds(struct mipi_dsi_device *dsi,
             OsalMSleep(cmds[i].delay);
         }
     }
+    HDF_LOGE("yktest PanelSendCmds end");
     return HDF_SUCCESS;
 }
 
 static int32_t PanelOn(struct PanelData *panel)
 {
     struct panel_ili9881_dev *panel_dev = NULL;
-
+    HDF_LOGE("yktest PanelOn");
     panel_dev = ToPanelSimpleDev(panel);
     if (panel_dev->hw_delay.enable_delay) {
         OsalMSleep(panel_dev->hw_delay.enable_delay);
     }
+    HDF_LOGE("yktest PanelOn end");
     return HDF_SUCCESS;
 }
 
 static int32_t PanelOff(struct PanelData *panel)
 {
     struct panel_ili9881_dev *panel_dev = NULL;
-
+    HDF_LOGE("yktest PanelOff");
     panel_dev = ToPanelSimpleDev(panel);
     if (panel_dev->hw_delay.disable_delay) {
         OsalMSleep(panel_dev->hw_delay.disable_delay);
     }
+    HDF_LOGE("yktest PanelOff end");
     return HDF_SUCCESS;
 }
 
@@ -493,7 +502,7 @@ static int32_t PanelPrepare(struct PanelData *panel)
 {
     int32_t ret;
     struct panel_ili9881_dev *panel_dev = NULL;
-
+    HDF_LOGE("yktest PanelPrepare");
     panel_dev = ToPanelSimpleDev(panel);
     ret = regulator_enable(panel_dev->supply);
     if (ret < 0) {
@@ -527,7 +536,7 @@ static int32_t PanelPrepare(struct PanelData *panel)
     if (panel_dev->hw_delay.init_delay > 0) {
         OsalMSleep(panel_dev->hw_delay.init_delay);
     }
-
+    HDF_LOGE("yktest PanelPrepare end");
     return HDF_SUCCESS;
 }
 
@@ -535,7 +544,7 @@ static int32_t PanelUnprepare(struct PanelData *panel)
 {
     int32_t ret;
     struct panel_ili9881_dev *panel_dev = NULL;
-
+    HDF_LOGE("yktest PanelUnprepare");
     panel_dev = ToPanelSimpleDev(panel);
 
     ret = PanelSendCmds(panel_dev->dsiDev, g_panelOffCode, \
@@ -551,12 +560,13 @@ static int32_t PanelUnprepare(struct PanelData *panel)
     if (panel_dev->hw_delay.unprepare_delay) {
         OsalMSleep(panel_dev->hw_delay.unprepare_delay);
     }
-
+    HDF_LOGE("yktest PanelUnprepare end");
     return HDF_SUCCESS;
 }
 
 static int32_t PanelInit(struct PanelData *panel)
 {
+    HDF_LOGE("yktest PanelInit");
     return 0;
 }
 
@@ -602,10 +612,12 @@ static void PanelResInit(struct panel_ili9881_dev *panel_dev)
     panel_dev->hw_delay.prepare_delay = 2; /* 2:prepare_delay */
     panel_dev->hw_delay.reset_delay = 100;  /* 100:reset_delay */
     panel_dev->hw_delay.unprepare_delay = 20;  /* 20:unprepare_delay */
+    HDF_LOGE("yktest PanelResInit end");
 }
 
 static int32_t PanelRequestGpio(struct panel_ili9881_dev *panel_dev)
 {
+    HDF_LOGE("yktest PanelRequestGpio");
     struct panel_ili9881_dev *pdev = panel_dev;
     pdev->enable_gpio = devm_gpiod_get_optional(&pdev->dsiDev->dev, "enable", GPIOD_ASIS);
     if (IS_ERR(pdev->enable_gpio)) {
@@ -622,6 +634,7 @@ static int32_t PanelRequestGpio(struct panel_ili9881_dev *panel_dev)
         HDF_LOGE("get reset_gpio fail");
         return HDF_FAILURE;
     }
+    HDF_LOGE("yktest PanelRequestGpio end");
     return HDF_SUCCESS;
 }
 
@@ -629,7 +642,7 @@ static int32_t PanelEntryInit(struct HdfDeviceObject *object)
 {
     struct device_node *panelNode = NULL;
     struct panel_ili9881_dev *panel_dev = NULL;
-
+    HDF_LOGE("yktest PanelEntryInit");
     panel_dev = (struct panel_ili9881_dev *)OsalMemCalloc(sizeof(struct panel_ili9881_dev));
     if (panel_dev == NULL) {
         HDF_LOGE("%s panel_dev malloc fail", __func__);
@@ -665,6 +678,7 @@ static int32_t PanelEntryInit(struct HdfDeviceObject *object)
         goto FAIL;
     }
     HDF_LOGI("%s success", __func__);
+    HDF_LOGE("yktest PanelEntryInit end");
     return HDF_SUCCESS;
 FAIL:
     OsalMemFree(panel_dev);
