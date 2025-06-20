@@ -47,6 +47,43 @@ const BGPIC_WIDTH = 156;
 const BGPIC_HEIGHT = 112;
 const DRAWTEXT_OFFSETX = -3;
 const DRAWTEXT_OFFSETY = -3;
+const CONSTRUCTOR_OFFX = 100;
+const CONSTRUCTOR_OFFY = 100;
+
+const MAKECUT_X = 124;
+const MAKECUT_WIDTH = 8;
+const MAKECUT_HEIGHT = 32;
+const MAKECUT_DEFAULT_WIDTH = 132;
+const MAKECUT_DEFAULT_HEIGHT = 32;
+const MAKECUT_CENTERSEARCHATTRCUT_X = 8;
+const MAKECUT_CENTERSEARCHATTRCUT_WIDTH = 116;
+const MAKECUT_CLOSE_SEARCH_CUT_WIDTH = 16;
+const MAKECUT_CLOSE_SEARCH_CUT_HEIGHT = 16;
+const MAKECUT_CLOSE_SEARCH_CUT_DEFAULT_WIDTH = 16;
+const MAKECUT_CLOSE_SEARCH_CUT_DEFAULT_HEIGHT = 16;
+const MAKECUT_CENTERSEARCHCUT_X = 8;
+const MAKECUT_CENTERSEARCHCUT_WIDTH = 116;
+const MAKECUT_POPITEMFOCUSCUT_WIDTH = 148;
+const MAKECUT_POPITEMFOCUSCUT_DEFAULT_WIDTH = 148;
+const MAKECUT_SEARCHBGCUT_WIDTH = 494;
+const MAKECUT_SEARCHBGCUT_HEIGHT = 56;
+const MAKECUT_SEARCHBGCUT_DEFAULT_WIDTH = 494;
+const MAKECUT_SEARCHBGCUT_DEFAULT_HEIGHT = 56;
+const MAKECUT_CENTERRECTCUT_X = 8;
+const MAKECUT_CENTERRECTCUT_WIDTH = 116;
+const MAKECUT_CENTERFOCUSCUT_X = 8;
+const MAKECUT_CENTERFOCUSCUT_WIDTH = 116;
+const MAKECUT_ROOTICONCUT_WIDTH = 132;
+const MAKECUT_ROOTICONFOCUSCUT_WIDTH = 132;
+const MAKECUT_RECTANGLEFOCUSCUT_WIDTH = 132;
+const MAKECUT_NODE_ATTR_ICONCUT_HEIGHT = 8;
+const MAKECUT_NODE_ATTR_ICONCUT_DEFAULT_WIDTH = 8;
+const MAKECUT_NODE_ATTR_ICONCUT_DEFAULT_HEIGHT = 8;
+const MAKECUT_WHITECUT_WIDTH = 132;
+const MAKECUT_CIRCLECUT_CIRCLEOPENCUT_WIDTH = 20;
+const MAKECUT_CIRCLECUT_CIRCLEOPENCUT_HEIGHT = 20;
+const MAKECUT_CIRCLECUT_CIRCLEOPENCUT_DEFAULT_WIDTH = 20;
+const MAKECUT_CIRCLECUT_CIRCLEOPENCUT_DEFAULT_HEIGHT = 20;
 
 const MouseType = {
   DOWN: 1, // 按下
@@ -95,13 +132,373 @@ function getVsCodeTheme() {
 
 class MainEditor {
   constructor() {
+    this.constructorParam();
+
+    this.constructorMakeCutOne();
+
+    this.constructorMakeCutTwo();
+
+    this.constructorMakeCutThree();
+    this.constructorMakeCutFour();
+    this.constructorMakeCutFive();
+    this.upCut_ = XTexture.gi().makeCut(this.upImg_, 0, 0, 16, 16, 16, 16);
+    this.cutImgDict_.upCut = 'chevron-up.png';
+
+    this.downImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/chevron-down.png'
+    );
+    this.downCut_ = XTexture.gi().makeCut(this.downImg_, 0, 0, 16, 16, 16, 16);
+    this.cutImgDict_.downCut = 'chevron-down.png';
+
+    this.constructorMakeCutSix();
+    this.constructorMakeCutSev();
+
+    XMessage.gi().send('cutImgDict', {
+      data: this.cutImgDict_,
+    });
+    this.modifyPos_ = null;
+    this.isFirstDraw = true;
+    this.lenHierarchy = 0;
+
+    this.searchInput = null;
+    this.historyZ = [];
+    this.historyBase = {};
+    this.historyPushed = false;
+  }
+
+  constructorMakeCutSev() {
+    this.rightSearchFocusCicleCut_ = XTexture.gi().makeCut(
+      this.searchRectFocusCicleImg_,
+      MAKECUT_X,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.searchNoodRectImg = 'search_nood_rect.png';
+
+    this.searchAttrCicleImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/search_attr_rect.png'
+    );
+    this.leftSearchAttrCicleCut_ = XTexture.gi().makeCut(
+      this.searchAttrCicleImg_,
+      0,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.centerSearchAttrCut_ = XTexture.gi().makeCut(
+      this.searchAttrCicleImg_,
+      MAKECUT_CENTERSEARCHATTRCUT_X,
+      0,
+      MAKECUT_CENTERSEARCHATTRCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.rightSearchAttrCicleCut_ = XTexture.gi().makeCut(
+      this.searchAttrCicleImg_,
+      MAKECUT_X,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.searchAttrRectImg = 'search_attr_rect.png';
+  }
+
+  constructorMakeCutSix() {
+    this.closeImg_ = XTexture.gi().loadTextureFromImage('../images/close.png');
+    this.closeCut_ = XTexture.gi().makeCut(
+      this.closeImg_,
+      0,
+      0,
+      MAKECUT_CLOSE_SEARCH_CUT_WIDTH,
+      MAKECUT_CLOSE_SEARCH_CUT_HEIGHT,
+      MAKECUT_CLOSE_SEARCH_CUT_DEFAULT_WIDTH,
+      MAKECUT_CLOSE_SEARCH_CUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.closeCut = 'close.png';
+
+    this.searchImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/search.png'
+    );
+    this.searchCut_ = XTexture.gi().makeCut(
+      this.searchImg_,
+      0,
+      0,
+      MAKECUT_CLOSE_SEARCH_CUT_WIDTH,
+      MAKECUT_CLOSE_SEARCH_CUT_HEIGHT,
+      MAKECUT_CLOSE_SEARCH_CUT_DEFAULT_WIDTH,
+      MAKECUT_CLOSE_SEARCH_CUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.searchCut = 'search.png';
+
+    this.searchRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/search_nood_rect.png'
+    );
+    this.leftSearchFocusCicleCut_ = XTexture.gi().makeCut(
+      this.searchRectFocusCicleImg_,
+      0,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.centerSearchCut_ = XTexture.gi().makeCut(
+      this.searchRectFocusCicleImg_,
+      MAKECUT_CENTERSEARCHCUT_X,
+      0,
+      MAKECUT_CENTERSEARCHCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+  }
+
+  constructorMakeCutFive() {
+    this.rightRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle_focus.png'
+    );
+    this.rightRectFocusCicleCut_ = XTexture.gi().makeCut(
+      this.rightRectFocusCicleImg_,
+      MAKECUT_X,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+
+    this.reloadBgPic();
+
+    RightMenu.popItemFocusImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/pop_item_focus.png'
+    );
+    RightMenu.popItemFocusCut_ = XTexture.gi().makeCut(
+      RightMenu.popItemFocusImg_,
+      0,
+      0,
+      MAKECUT_POPITEMFOCUSCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_POPITEMFOCUSCUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.popItemFocusCut = 'pop_item_focus.png';
+
+    this.searchBgImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/search_bg.png'
+    );
+    this.searchBgCut_ = XTexture.gi().makeCut(
+      this.searchBgImg_,
+      0,
+      0,
+      MAKECUT_SEARCHBGCUT_WIDTH,
+      MAKECUT_SEARCHBGCUT_HEIGHT,
+      MAKECUT_SEARCHBGCUT_DEFAULT_WIDTH,
+      MAKECUT_SEARCHBGCUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.searchBgCut = 'search_bg.png';
+
+    this.upImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/chevron-up.png'
+    );
+  }
+
+  constructorMakeCutFour() {
+    this.centerRectImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle.png'
+    );
+    this.centerRectCut_ = XTexture.gi().makeCut(
+      this.centerRectImg_,
+      MAKECUT_CENTERRECTCUT_X,
+      0,
+      MAKECUT_CENTERRECTCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.rightRectCicleImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle.png'
+    );
+    this.rightRectCicleCut_ = XTexture.gi().makeCut(
+      this.rightRectCicleImg_,
+      MAKECUT_X,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+
+    this.leftRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle_focus.png'
+    );
+    this.leftRectFocusCicleCut_ = XTexture.gi().makeCut(
+      this.leftRectFocusCicleImg_,
+      0,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.centerFocusImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle_focus.png'
+    );
+    this.centerFocusCut_ = XTexture.gi().makeCut(
+      this.centerFocusImg_,
+      MAKECUT_CENTERFOCUSCUT_X,
+      0,
+      MAKECUT_CENTERFOCUSCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+  }
+
+  constructorMakeCutThree() {
+    this.rootIconImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/root_btn.png'
+    );
+    this.rootIconCut_ = XTexture.gi().makeCut(
+      this.rootIconImg_,
+      0,
+      0,
+      MAKECUT_ROOTICONCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.rootIconCut = 'root_btn.png';
+
+    this.rootIconFocusImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/root_btn_focus.png'
+    );
+    this.rootIconFocusCut_ = XTexture.gi().makeCut(
+      this.rootIconFocusImg_,
+      0,
+      0,
+      MAKECUT_ROOTICONFOCUSCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.rootIconFocusCut = 'root_btn_focus.png';
+
+    this.leftRectCicleImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle.png'
+    );
+    this.leftRectCicleCut_ = XTexture.gi().makeCut(
+      this.leftRectCicleImg_,
+      0,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+  }
+
+  constructorMakeCutTwo() {
+    this.rectangleFocusImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle_focus.png'
+    );
+    this.rectangleFocusCut_ = XTexture.gi().makeCut(
+      this.rectangleFocusImg_,
+      0,
+      0,
+      MAKECUT_RECTANGLEFOCUSCUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.rectangleFocusCut = 'rectangle_focus.png';
+
+    this.nodeIconImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/node_icon.png'
+    );
+    this.nodeIconCut_ = XTexture.gi().makeCut(
+      this.nodeIconImg_,
+      0,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_NODE_ATTR_ICONCUT_HEIGHT,
+      MAKECUT_NODE_ATTR_ICONCUT_DEFAULT_WIDTH,
+      MAKECUT_NODE_ATTR_ICONCUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.nodeIconCut = 'node_icon.png';
+
+    this.attrIconImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/attribute_icon.png'
+    );
+    this.attrIconCut_ = XTexture.gi().makeCut(
+      this.attrIconImg_,
+      0,
+      0,
+      MAKECUT_WIDTH,
+      MAKECUT_NODE_ATTR_ICONCUT_HEIGHT,
+      MAKECUT_NODE_ATTR_ICONCUT_DEFAULT_WIDTH,
+      MAKECUT_NODE_ATTR_ICONCUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.attrIconCut = 'attribute_icon.png';
+  }
+
+  constructorMakeCutOne() {
+    this.whiteImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/rectangle.png'
+    );
+    this.whiteCut_ = XTexture.gi().makeCut(
+      this.whiteImg_,
+      0,
+      0,
+      MAKECUT_WHITECUT_WIDTH,
+      MAKECUT_HEIGHT,
+      MAKECUT_DEFAULT_WIDTH,
+      MAKECUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.whiteCut = 'rectangle.png';
+
+    this.cicleImg_ = XTexture.gi().loadTextureFromImage('../images/circle.png');
+    this.circleCut_ = XTexture.gi().makeCut(
+      this.cicleImg_,
+      0,
+      0,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_WIDTH,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_HEIGHT,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_DEFAULT_WIDTH,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.circleCut = 'circle.png';
+
+    this.cicleOpenImg_ = XTexture.gi().loadTextureFromImage(
+      '../images/circle_open.png'
+    );
+    this.circleOpenCut_ = XTexture.gi().makeCut(
+      this.cicleOpenImg_,
+      0,
+      0,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_WIDTH,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_HEIGHT,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_DEFAULT_WIDTH,
+      MAKECUT_CIRCLECUT_CIRCLEOPENCUT_DEFAULT_HEIGHT
+    );
+    this.cutImgDict_.circleOpenCut = 'circle_open.png';
+  }
+
+  constructorParam() {
     this.files_ = {};
     this.nodeCount_ = {};
     this.filePoint_ = null;
     this.rootPoint_ = null;
     this.nodePoint_ = null;
-    this.offX_ = 100;
-    this.offY_ = 100;
+    this.offX_ = CONSTRUCTOR_OFFX;
+    this.offY_ = CONSTRUCTOR_OFFY;
     this.searchKey = null;
     this.touchQueue_ = [];
     this.keyQueue_ = [];
@@ -137,334 +534,6 @@ class MainEditor {
       x: 0,
       y: 0,
     };
-
-    this.whiteImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle.png'
-    );
-    this.whiteCut_ = XTexture.gi().makeCut(
-      this.whiteImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
-    this.cutImgDict_.whiteCut = 'rectangle.png';
-
-    this.cicleImg_ = XTexture.gi().loadTextureFromImage('../images/circle.png');
-    this.circleCut_ = XTexture.gi().makeCut(
-      this.cicleImg_,
-      0,
-      0,
-      20,
-      20,
-      20,
-      20
-    );
-    this.cutImgDict_.circleCut = 'circle.png';
-
-    this.cicleOpenImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/circle_open.png'
-    );
-    this.circleOpenCut_ = XTexture.gi().makeCut(
-      this.cicleOpenImg_,
-      0,
-      0,
-      20,
-      20,
-      20,
-      20
-    );
-    this.cutImgDict_.circleOpenCut = 'circle_open.png';
-
-    this.rectangleFocusImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle_focus.png'
-    );
-    this.rectangleFocusCut_ = XTexture.gi().makeCut(
-      this.rectangleFocusImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
-    this.cutImgDict_['rectangleFocusCut'] = 'rectangle_focus.png';
-
-    this.nodeIconImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/node_icon.png'
-    );
-    this.nodeIconCut_ = XTexture.gi().makeCut(
-      this.nodeIconImg_,
-      0,
-      0,
-      8,
-      8,
-      8,
-      8
-    );
-    this.cutImgDict_['nodeIconCut'] = 'node_icon.png';
-
-    this.attrIconImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/attribute_icon.png'
-    );
-    this.attrIconCut_ = XTexture.gi().makeCut(
-      this.attrIconImg_,
-      0,
-      0,
-      8,
-      8,
-      8,
-      8
-    );
-    this.cutImgDict_['attrIconCut'] = 'attribute_icon.png';
-
-    this.rootIconImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/root_btn.png'
-    );
-    this.rootIconCut_ = XTexture.gi().makeCut(
-      this.rootIconImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
-    this.cutImgDict_['rootIconCut'] = 'root_btn.png';
-
-    this.rootIconFocusImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/root_btn_focus.png'
-    );
-    this.rootIconFocusCut_ = XTexture.gi().makeCut(
-      this.rootIconFocusImg_,
-      0,
-      0,
-      132,
-      32,
-      132,
-      32
-    );
-    this.cutImgDict_['rootIconFocusCut'] = 'root_btn_focus.png';
-
-    this.leftRectCicleImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle.png'
-    );
-    this.leftRectCicleCut_ = XTexture.gi().makeCut(
-      this.leftRectCicleImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerRectImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle.png'
-    );
-    this.centerRectCut_ = XTexture.gi().makeCut(
-      this.centerRectImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightRectCicleImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle.png'
-    );
-    this.rightRectCicleCut_ = XTexture.gi().makeCut(
-      this.rightRectCicleImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-
-    this.leftRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle_focus.png'
-    );
-    this.leftRectFocusCicleCut_ = XTexture.gi().makeCut(
-      this.leftRectFocusCicleImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerFocusImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle_focus.png'
-    );
-    this.centerFocusCut_ = XTexture.gi().makeCut(
-      this.centerFocusImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/rectangle_focus.png'
-    );
-    this.rightRectFocusCicleCut_ = XTexture.gi().makeCut(
-      this.rightRectFocusCicleImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-
-    this.reloadBgPic();
-
-    RightMenu.popItemFocusImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/pop_item_focus.png'
-    );
-    RightMenu.popItemFocusCut_ = XTexture.gi().makeCut(
-      RightMenu.popItemFocusImg_,
-      0,
-      0,
-      148,
-      32,
-      148,
-      32
-    );
-    this.cutImgDict_['popItemFocusCut'] = 'pop_item_focus.png';
-
-    this.searchBgImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/search_bg.png'
-    );
-    this.searchBgCut_ = XTexture.gi().makeCut(
-      this.searchBgImg_,
-      0,
-      0,
-      494,
-      56,
-      494,
-      56
-    );
-    this.cutImgDict_['searchBgCut'] = 'search_bg.png';
-
-    this.upImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/chevron-up.png'
-    );
-    this.upCut_ = XTexture.gi().makeCut(this.upImg_, 0, 0, 16, 16, 16, 16);
-    this.cutImgDict_['upCut'] = 'chevron-up.png';
-
-    this.downImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/chevron-down.png'
-    );
-    this.downCut_ = XTexture.gi().makeCut(this.downImg_, 0, 0, 16, 16, 16, 16);
-    this.cutImgDict_['downCut'] = 'chevron-down.png';
-
-    this.closeImg_ = XTexture.gi().loadTextureFromImage('../images/close.png');
-    this.closeCut_ = XTexture.gi().makeCut(
-      this.closeImg_,
-      0,
-      0,
-      16,
-      16,
-      16,
-      16
-    );
-    this.cutImgDict_['closeCut'] = 'close.png';
-
-    this.searchImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/search.png'
-    );
-    this.searchCut_ = XTexture.gi().makeCut(
-      this.searchImg_,
-      0,
-      0,
-      16,
-      16,
-      16,
-      16
-    );
-    this.cutImgDict_['searchCut'] = 'search.png';
-
-    this.searchRectFocusCicleImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/search_nood_rect.png'
-    );
-    this.leftSearchFocusCicleCut_ = XTexture.gi().makeCut(
-      this.searchRectFocusCicleImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerSearchCut_ = XTexture.gi().makeCut(
-      this.searchRectFocusCicleImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightSearchFocusCicleCut_ = XTexture.gi().makeCut(
-      this.searchRectFocusCicleImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.cutImgDict_['searchNoodRectImg'] = 'search_nood_rect.png';
-
-    this.searchAttrCicleImg_ = XTexture.gi().loadTextureFromImage(
-      '../images/search_attr_rect.png'
-    );
-    this.leftSearchAttrCicleCut_ = XTexture.gi().makeCut(
-      this.searchAttrCicleImg_,
-      0,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.centerSearchAttrCut_ = XTexture.gi().makeCut(
-      this.searchAttrCicleImg_,
-      8,
-      0,
-      116,
-      32,
-      132,
-      32
-    );
-    this.rightSearchAttrCicleCut_ = XTexture.gi().makeCut(
-      this.searchAttrCicleImg_,
-      124,
-      0,
-      8,
-      32,
-      132,
-      32
-    );
-    this.cutImgDict_['searchAttrRectImg'] = 'search_attr_rect.png';
-
-    XMessage.gi().send('cutImgDict', {
-      data: this.cutImgDict_,
-    });
-    this.modifyPos_ = null;
-    this.isFirstDraw = true;
-    this.lenHierarchy = 0;
-
-    this.searchInput = null;
-    this.historyZ = [];
-    this.historyBase = {};
-    this.historyPushed = false;
   }
 
   initMainEditorWithInitValue() {
@@ -1450,24 +1519,7 @@ class MainEditor {
     const DELETE = 7;
     if (this.searchInput) {
       if (XTools.InRect(x, y, ...this.searchInput.pos)) {
-        if (this.searchInput.btnUp.procTouch(msg, x, y)) {
-          if (this.searchInput.btnUp.isClicked()) {
-            this.searchInput.point -= 1;
-            if (this.searchInput.point < 0) {
-              this.searchInput.point = this.searchInput.result.length - 1;
-            }
-            this.locateNode(this.searchInput.result[this.searchInput.point]);
-          }
-        }
-        if (this.searchInput.btnDown.procTouch(msg, x, y)) {
-          if (this.searchInput.btnDown.isClicked()) {
-            this.searchInput.point += 1;
-            if (this.searchInput.point >= this.searchInput.result.length) {
-              this.searchInput.point = 0;
-            }
-            this.locateNode(this.searchInput.result[this.searchInput.point]);
-          }
-        }
+        this.procTouchInRect(msg, x, y);
         return true;
       } else {
         if (msg === MouseType.DOWN) {
@@ -1503,47 +1555,7 @@ class MainEditor {
 
     for (let i = 0; i < this.nodeBtns.length; i++) {
       if (this.nodeBtns[i].procTouch(msg, x, y)) {
-        let nodeBtns = this.nodeBtns[i];
-        if (nodeBtns.isClicked()) {
-          this.buttonClickedProc(nodeBtns);
-        } else if (nodeBtns.isRightClicked()) {
-          this.onAttributeChange('change_current_select', nodeBtns.node_);
-          switch (nodeBtns.node_.type_) {
-            case ADD:
-              RightMenu.Reset(
-                [
-                  RightMenu.Button(null, 'Add Child Node', null, () => {
-                    this.procAddNodeAction();
-                    this.onAttributeChange('writefile');
-                  }),
-                  RightMenu.Button(null, 'Add Sub Property', null, () => {
-                    this.procAddAttAction();
-                    this.onAttributeChange('writefile');
-                  }),
-                  RightMenu.Button(null, 'Delete', null, () => {
-                    this.procDeleteAction();
-                    this.onAttributeChange('writefile');
-                  }),
-                ],
-                nodeBtns.posX_,
-                nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
-              );
-              break;
-            case DELETE:
-              RightMenu.Reset(
-                [
-                  RightMenu.Button(null, 'Delete', null, () => {
-                    this.procDeleteAction();
-                    this.onAttributeChange('writefile');
-                  }),
-                ],
-                nodeBtns.posX_,
-                nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
-              );
-              break;
-          }
-        }
-
+        this.procTouchForNodeBtns(i, ADD, DELETE);
         return true;
       }   
   }
@@ -1571,6 +1583,70 @@ class MainEditor {
       return true;
     }
     return false;
+  }
+
+  procTouchForNodeBtns(i, ADD, DELETE) {
+    let nodeBtns = this.nodeBtns[i];
+    if (nodeBtns.isClicked()) {
+      this.buttonClickedProc(nodeBtns);
+    } else if (nodeBtns.isRightClicked()) {
+      this.onAttributeChange('change_current_select', nodeBtns.node_);
+      switch (nodeBtns.node_.type_) {
+        case ADD:
+          RightMenu.Reset(
+            [
+              RightMenu.Button(null, 'Add Child Node', null, () => {
+                this.procAddNodeAction();
+                this.onAttributeChange('writefile');
+              }),
+              RightMenu.Button(null, 'Add Sub Property', null, () => {
+                this.procAddAttAction();
+                this.onAttributeChange('writefile');
+              }),
+              RightMenu.Button(null, 'Delete', null, () => {
+                this.procDeleteAction();
+                this.onAttributeChange('writefile');
+              }),
+            ],
+            nodeBtns.posX_,
+            nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
+          );
+          break;
+        case DELETE:
+          RightMenu.Reset(
+            [
+              RightMenu.Button(null, 'Delete', null, () => {
+                this.procDeleteAction();
+                this.onAttributeChange('writefile');
+              }),
+            ],
+            nodeBtns.posX_,
+            nodeBtns.posY_ + MainEditor.NODE_RECT_HEIGHT
+          );
+          break;
+      }
+    }
+  }
+
+  procTouchInRect(msg, x, y) {
+    if (this.searchInput.btnUp.procTouch(msg, x, y)) {
+      if (this.searchInput.btnUp.isClicked()) {
+        this.searchInput.point -= 1;
+        if (this.searchInput.point < 0) {
+          this.searchInput.point = this.searchInput.result.length - 1;
+        }
+        this.locateNode(this.searchInput.result[this.searchInput.point]);
+      }
+    }
+    if (this.searchInput.btnDown.procTouch(msg, x, y)) {
+      if (this.searchInput.btnDown.isClicked()) {
+        this.searchInput.point += 1;
+        if (this.searchInput.point >= this.searchInput.result.length) {
+          this.searchInput.point = 0;
+        }
+        this.locateNode(this.searchInput.result[this.searchInput.point]);
+      }
+    }
   }
 
   procAddNodeAction() {
@@ -1882,98 +1958,165 @@ class MainEditor {
       Lexer.FILE_AND_DATA[data.fn] = data.data;
       me.parse(data.fn);
     } else if (type === 'freshfiledata') {
-      me.saveHistory(data.fn, data.data, null, 3);
-      Lexer.FILE_AND_DATA[data.fn] = data.data;
+      this.onReceiveFresh(me, data);
     } else if (type === 'whiteCutImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initCutData(wurl);
+      this.onReceiveWhiteCut(data, me);
     } else if (type === 'circleImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initCicleImgData(wurl);
+      this.onReceiveCircle(data, me);
     } else if (type === 'cicleOpenImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initcicleOpenImgData(wurl);
+      this.onReceiveCicleOpen(data, me);
     } else if (type === 'rectangleFocusImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initRectangleFocusImgData(wurl);
+      this.onReceiveRectangleFocus(data, me);
     } else if (type === 'nodeIconImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initNodeIconImgData(wurl);
+      this.onReceiveNodeIcon(data, me);
     } else if (type === 'attrIconImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initAttrIconImgData(wurl);
+      this.onReceiveAttrIcon(data, me);
     } else if (type === 'rootIconImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initRootIconImgData(wurl);
+      this.onReceiveRootIcon(data, me);
     } else if (type === 'rootIconFocusImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initRootIconFocusImgData(wurl);
+      this.onReceiveRootIconFocus(data, me);
     } else if (type === 'backgroundImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initBackgroundImgData(wurl);
+      this.onReceiveBackground(data, me);
     } else if (type === 'popItemFocusImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initPopItemFocusImgData(wurl);
+      this.onReceivePopItemFocus(data, me);
     } else if (type === 'colorThemeChanged') {
       me.reloadMenuBgPic();
     } else if (type === 'searchBgImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initSearchBgImgData(wurl);
+      this.onReceiveSearchBg(data, me);
     } else if (type === 'upCutImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initUpImgData(wurl);
+      this.onReceiveUpCut(data, me);
     } else if (type === 'downCut') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initDownImgData(wurl);
+      this.onReceiveDownCut(data, me);
     } else if (type === 'closeCutImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initCloseImgData(wurl);
+      this.onReceiveCloseCut(data, me);
     } else if (type === 'searchCutImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initSearchImgData(wurl);
-    } else if (type === 'searchNoodRectImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initSearchNoodRectImgData(wurl);
-    } else if (type === 'searchAttrRectImg') {
-      let u8arr = new Uint8Array(data.data);
-      let imgobj = new Blob([u8arr], { type: 'image/png' });
-      let wurl = window.URL.createObjectURL(imgobj);
-      me.initSearchAttrRectImgData(wurl);
+      this.onReceiveSearchCut(data, me);
+    } else if (type === 'searchNoodRectImg' || type === 'searchAttrRectImg') {
+      this.onReceiveSearchRect(data, type, me);
     } else {
       NapiLog.logError('onReceive is not need');
     }
+  }
+
+  onReceiveSearchRect(data, type, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    if (type === 'searchNoodRectImg') {
+      me.initSearchNoodRectImgData(wurl);
+    } else if (type === 'searchAttrRectImg') {
+      me.initSearchAttrRectImgData(wurl);
+    }
+  }
+
+  onReceiveFresh(me, data) {
+    me.saveHistory(data.fn, data.data, null, 3);
+    Lexer.FILE_AND_DATA[data.fn] = data.data;
+  }
+
+  onReceivePopItemFocus(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initPopItemFocusImgData(wurl);
+  }
+
+  onReceiveSearchCut(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initSearchImgData(wurl);
+  }
+
+  onReceiveCloseCut(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initCloseImgData(wurl);
+  }
+
+  onReceiveDownCut(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initDownImgData(wurl);
+  }
+
+  onReceiveUpCut(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initUpImgData(wurl);
+  }
+
+  onReceiveSearchBg(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initSearchBgImgData(wurl);
+  }
+
+  onReceiveBackground(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initBackgroundImgData(wurl);
+  }
+
+  onReceiveRootIconFocus(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initRootIconFocusImgData(wurl);
+  }
+
+  onReceiveRootIcon(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initRootIconImgData(wurl);
+  }
+
+  onReceiveAttrIcon(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initAttrIconImgData(wurl);
+  }
+
+  onReceiveNodeIcon(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initNodeIconImgData(wurl);
+  }
+
+  onReceiveRectangleFocus(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initRectangleFocusImgData(wurl);
+  }
+
+  onReceiveCicleOpen(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initcicleOpenImgData(wurl);
+  }
+
+  onReceiveCircle(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initCicleImgData(wurl);
+  }
+
+  onReceiveWhiteCut(data, me) {
+    let u8arr = new Uint8Array(data.data);
+    let imgobj = new Blob([u8arr], { type: 'image/png' });
+    let wurl = window.URL.createObjectURL(imgobj);
+    me.initCutData(wurl);
   }
 
   initSearchAttrRectImgData(wurl) {

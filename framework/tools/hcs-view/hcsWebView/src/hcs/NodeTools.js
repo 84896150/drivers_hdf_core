@@ -21,6 +21,7 @@ const MAX_BINARY = 2;
 const MAX_OCTAL = 8;
 const MAX_HEXADECIMAL = 16;
 const STAT_SIZE = 100;
+const INVALID = -1;
 
 const DataType = {
   INT8: 1,
@@ -229,14 +230,7 @@ NodeTools.copyNode = function (node, parent) {
       ret.value_ = node.value_;
       break;
     case DataType.NODE:
-      ret.nodeType_ = node.nodeType_;
-      if ([NodeType.INHERIT, NodeType.COPY, NodeType.REFERENCE].indexOf(node.nodeType_) > -1) {
-        ret.ref_ = node.ref_;
-      } else if (!([NodeType.DATA, NodeType.TEMPLETE, NodeType.DELETE].indexOf(node.nodeType_) > -1)) {
-        NapiLog.logError('unknow node type:' + ret.lineno_);
-      }
-      ret.value_ = [];
-      for (let i in node.value_) { ret.value_.push(NodeTools.copyNode(node.value_[i], ret)); }
+      copyNodeTypeNode(ret, node);
       break;
     case DataType.ATTR:
       ret.value_ = NodeTools.copyNode(node.value_, ret);
@@ -261,6 +255,17 @@ NodeTools.copyNode = function (node, parent) {
   return ret;
 };
 
+function copyNodeTypeNode(ret, node) {
+  ret.nodeType_ = node.nodeType_;
+  if ([NodeType.INHERIT, NodeType.COPY, NodeType.REFERENCE].indexOf(node.nodeType_) > INVALID) {
+    ret.ref_ = node.ref_;
+  } else if (!([NodeType.DATA, NodeType.TEMPLETE, NodeType.DELETE].indexOf(node.nodeType_) > INVALID)) {
+    NapiLog.logError('unknow node type:' + ret.lineno_);
+  }
+  ret.value_ = [];
+  for (let i in node.value_) { ret.value_.push(NodeTools.copyNode(node.value_[i], ret)); }
+}
+
 function makeError(node, errStr) {
   if (node.raw_ !== undefined) {
     node.raw_.errMsg_ = errStr;
@@ -283,14 +288,7 @@ NodeTools.nodeNestCheck = function (node) {
 NodeTools.recursionCopyAndReferenceNodes = function (pn) {
   let ref = NodeTools.lookup(pn);
   if (ref === null) {
-    NapiLog.logError(
-      'reference not exist' + NodeTools.getPathByNode(pn) + ':' + pn.ref_
-    );
-    if (pn.nodeType_ === NodeType.COPY) {
-      makeError(pn, pn.name_ + ' 复制目标没找到!');
-    } else {
-      makeError(pn, pn.name_ + ' 引用目标没找到!');
-    }
+    recursionRefNull(pn);
     return false;
   } else if (ref.nodeType_ === NodeType.TEMPLETE) {
     if (pn.nodeType_ === NodeType.COPY) {
@@ -307,14 +305,7 @@ NodeTools.recursionCopyAndReferenceNodes = function (pn) {
     }
     return false;
   } else if (NodeTools.isElders(pn, ref)) {
-    NapiLog.logError(
-      'circular reference' + NodeTools.getPathByNode(pn) + ':' + pn.ref_
-    );
-    if (pn.nodeType_ === NodeType.COPY) {
-      makeError(pn, pn.name_ + ' 循环复制!');
-    } else {
-      makeError(pn, pn.name_ + ' 循环引用!');
-    }
+    recursionIsElders(pn);
     return false;
   } else if (pn.nodeType_ === NodeType.COPY) {
     if (ref.nodeType_ === NodeType.COPY) {
@@ -616,6 +607,28 @@ NodeTools.stringToArray = function (s) {
   }
   return ret;
 };
+
+function recursionIsElders(pn) {
+  NapiLog.logError(
+    'circular reference' + NodeTools.getPathByNode(pn) + ':' + pn.ref_
+  );
+  if (pn.nodeType_ === NodeType.COPY) {
+    makeError(pn, pn.name_ + ' 循环复制!');
+  } else {
+    makeError(pn, pn.name_ + ' 循环引用!');
+  }
+}
+
+function recursionRefNull(pn) {
+  NapiLog.logError(
+    'reference not exist' + NodeTools.getPathByNode(pn) + ':' + pn.ref_
+  );
+  if (pn.nodeType_ === NodeType.COPY) {
+    makeError(pn, pn.name_ + ' 复制目标没找到!');
+  } else {
+    makeError(pn, pn.name_ + ' 引用目标没找到!');
+  }
+}
 
 function stringToArrayWithQuote(ret, type, arr) {
   for (let i in arr) {

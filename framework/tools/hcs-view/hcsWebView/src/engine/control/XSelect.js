@@ -15,6 +15,7 @@
 
 const { X2DFast } = require('../graphics/X2DFast');
 const HEIGHT = 20;
+const INVALID = -1;
 
 class XSelect {
   constructor(list, default_) {
@@ -49,22 +50,7 @@ class XSelect {
     let model = 3;
 
     this.pm2f_.fillRect(x, y, w, h, this.backgroundColor_);
-    let name = '...';
-    if (this.default_.indexOf('\\') !== -1) {
-      let list = this.default_.split('\\');
-      if (list.length > model) {
-        for (let i = list.length - model; i < list.length; i++) {
-          name += list[i];
-          if (i !== list.length - 1) {
-            name += '\\';
-          }
-        }
-      } else {
-        name = this.default_;
-      }
-    } else {
-      name = this.default_;
-    }
+    let name = this.drawFunc(model);
     this.pm2f_.drawText(name, 16, x, y, 1, 1, 0, -1, -1, this.nameColor_);
     if (this.open_) {
       this.pm2f_.fillRect(x, y + h, w, HEIGHT * this.list_.length, this.backgroundColor_);
@@ -106,6 +92,26 @@ class XSelect {
       }
     }
   }
+  drawFunc(model) {
+    let name = '...';
+    if (this.default_.indexOf('\\') !== INVALID) {
+      let list = this.default_.split('\\');
+      if (list.length > model) {
+        for (let i = list.length - model; i < list.length; i++) {
+          name += list[i];
+          if (i !== list.length - 1) {
+            name += '\\';
+          }
+        }
+      } else {
+        name = this.default_;
+      }
+    } else {
+      name = this.default_;
+    }
+    return name;
+  }
+
   isTouchIn(x, y) {
     if (x < this.posX_) {
       return false;

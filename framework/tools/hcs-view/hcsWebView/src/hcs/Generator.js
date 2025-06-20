@@ -89,14 +89,7 @@ class Generator {
         ret.value_ = this.astToObj(node.child_, ret);
         break;
       case DataType.ARRAY:
-        ret.value_ = [];
-        child = node.child_;
-        while (child !== undefined) {
-          ret.value_.push(this.astToObj(child, ret));
-          child = child.next_;
-        }
-        ret.arraySize_ = node.arraySize_;
-        ret.arrayType_ = node.arrayType_;
+        child = this.astToObjTypeArr(ret, child, node);
         break;
       case DataType.REFERENCE:
         ret.value_ = node.stringValue_;
@@ -105,18 +98,34 @@ class Generator {
         ret.value_ = null;
         break;
       case DataType.BOOL:
-        if (node.integerValue_ === 0) {
-          ret.value_ = false;
-        }
-        else {
-          ret.value_ = true;
-        }
+        this.astToObjTypeBool(node, ret);
         break;
       default:
         NapiLog.logError('unknow type');
         break;
     }
     return ret;
+  }
+
+  astToObjTypeBool(node, ret) {
+    if (node.integerValue_ === 0) {
+      ret.value_ = false;
+    }
+    else {
+      ret.value_ = true;
+    }
+  }
+
+  astToObjTypeArr(ret, child, node) {
+    ret.value_ = [];
+    child = node.child_;
+    while (child !== undefined) {
+      ret.value_.push(this.astToObj(child, ret));
+      child = child.next_;
+    }
+    ret.arraySize_ = node.arraySize_;
+    ret.arrayType_ = node.arrayType_;
+    return child;
   }
 
   mergeObj(files) {

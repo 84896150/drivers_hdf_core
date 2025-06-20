@@ -30,6 +30,7 @@ class Base:
     def find_element(self, locator):
         if not isinstance(locator, tuple):
             print('The type of the locator parameter is tuple')
+            return None
         else:
             ele = WebDriverWait(self.driver, self.timeout, self.t).until(
                 EC.presence_of_element_located(locator))
