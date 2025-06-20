@@ -71,7 +71,11 @@ static int32_t HdfPwmSetConfig(struct PwmDev *pwm, struct PwmConfig *config)
     state.polarity = config->polarity;
     HDF_LOGI("HdfPwmSetConfig: set PwmConfig: number %u, period %u, duty %u, polarity %u, enable %u!",
         config->number, config->period, config->duty, config->polarity, config->status);
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 6, 0)
+    ret = pwm_apply_might_sleep(pwm->priv, &state);
+#else
     ret = pwm_apply_state(pwm->priv, &state);
+#endif
     if (ret < 0) {
         HDF_LOGE("HdfPwmSetConfig: [pwm_apply_state] fail!");
         return HDF_FAILURE;
