@@ -71,6 +71,11 @@ static int32_t ChipDetect(ChipDevice *device)
             HDF_LOGI("%s:TOUCH IC is GT911", __func__);
             break;
         default:
+            if (buf[GT_PROD_ID_1ST] == '5' && buf[GT_PROD_ID_2ND] == '6' && \
+                buf[GT_PROD_ID_3RD] == '8' && buf[GT_PROD_ID_4TH] == '8') {
+                HDF_LOGI("%s:TOUCH IC is GT5688", __func__);
+                break;
+            }
             HDF_LOGE("%s: ID wrong,IC FW version is %d", __func__, version);
     }
 #endif
