@@ -82,8 +82,14 @@ bool MacroGen::Initialize()
     if (outFileName.find(".h") == std::string::npos) {
         outFileName.append(".h");
     }
+    
+    char realpathStr[PATH_MAX] = {'\0'};
+    if (realpath(outFileName, realpathStr) == nullptr) {
+        HDF_LOGE("%{public}s:realpath failed.ret = %{public}s", __func__, strerror(errno));
+        return false;
+    }
 
-    ofs_.open(outFileName, std::ofstream::out | std::ofstream::binary);
+    ofs_.open(realpathStr, std::ofstream::out | std::ofstream::binary);
     if (!ofs_.is_open()) {
         Logger().Error() << "failed to open output file: " << outFileName;
         return false;

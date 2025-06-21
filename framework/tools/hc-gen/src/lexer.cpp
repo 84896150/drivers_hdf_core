@@ -40,7 +40,14 @@ bool Lexer::Initialize(const std::string &sourceName)
     bufferEnd_ = nullptr;
     lineno_ = 1;
     lineLoc_ = 1;
-    src_.open(srcName_->c_str(), std::ifstream::binary);
+
+    char realpathStr[PATH_MAX] = {'\0'};
+    if (realpath(srcName_->c_str(), realpathStr) == nullptr) {
+        HDF_LOGE("%{public}s:realpath failed.ret = %{public}s", __func__, strerror(errno));
+        return false;
+    }
+
+    src_.open(realpathStr, std::ifstream::binary);
     if (!src_.is_open()) {
         Logger().Error() << "Failed to open source file: " << srcName_->data();
         return false;

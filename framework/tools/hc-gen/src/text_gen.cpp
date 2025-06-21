@@ -369,6 +369,9 @@ uint32_t TextGen::ImplementCloseBraceGen(const std::shared_ptr<AstObject> &objec
     if (!object->IsNode() || ConfigNode::CastFrom(object)->GetNodeType() == NODE_INHERIT) {
         return NOERR;
     }
+    if (depth < 0 && depth != -1) {
+        return NOERR;
+    }
     if (object == ast_->GetAstRoot()) {
         ofs_ << "};\n";
     } else {

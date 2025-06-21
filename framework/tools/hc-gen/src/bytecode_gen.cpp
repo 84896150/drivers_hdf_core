@@ -59,7 +59,13 @@ bool ByteCodeGen::Initialize()
         outFileName.append(".hcb");
     }
 
-    ofs_.open(outFileName, std::ofstream::out | std::ofstream::binary);
+    char realpathStr[PATH_MAX] = {'\0'};
+    if (realpath(outFileName, realpathStr) == nullptr) {
+        HDF_LOGE("%{public}s:realpath failed.ret = %{public}s", __func__, strerror(errno));
+        return false;
+    }
+
+    ofs_.open(realpathStr, std::ofstream::out | std::ofstream::binary);
     if (!ofs_.is_open()) {
         Logger().Error() << "failed to open output file: " << outFileName;
         return false;
@@ -267,7 +273,13 @@ bool ByteCodeGen::HexdumpInitialize(FILE *&in, FILE *&out)
         return false;
     }
 
-    out = fopen(hexdumpOutName.data(), "wb");
+    char realpathStr[PATH_MAX] = {'\0'};
+    if (realpath(hexdumpOutName.data(), realpathStr) == nullptr) {
+        HDF_LOGE("%{public}s:realpath failed.ret = %{public}s", __func__, strerror(errno));
+        return false;
+    }
+
+    out = fopen(realpathStr, "wb");
     if (out == nullptr) {
         fclose(in);
         in = nullptr;

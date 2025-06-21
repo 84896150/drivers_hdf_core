@@ -716,7 +716,7 @@ bool ConfigNode::IsBaseNode()
     return true;
 }
 
-ConfigTerm::ConfigTerm(const ConfigTerm &term) : ConfigTerm(term.name_, nullptr)
+ConfigTerm::ConfigTerm(const ConfigTerm &term) : ConfigTerm(term.name_, nullptr), signNum_(0)
 {
     AstObject::AddChild(AstObjectFactory::Build(term.child_));
     src_ = term.src_;
