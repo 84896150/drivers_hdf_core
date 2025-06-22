@@ -12,7 +12,7 @@
 #include "file.h"
 #include "logger.h"
 #include "macro_gen.h"
-
+#define PATH_MAX 128
 using namespace OHOS::Hardware;
 
 constexpr static const char *FILE_HEAD_COMMENT =
