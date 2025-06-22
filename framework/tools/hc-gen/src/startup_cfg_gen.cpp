@@ -13,7 +13,7 @@
 #include "ast.h"
 #include "file.h"
 #include "logger.h"
-
+#define PATH_MAX 128
 using namespace OHOS::Hardware;
 
 static constexpr const char *BOOT_CONFIG_TOP =
