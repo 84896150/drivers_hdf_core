@@ -9,6 +9,9 @@
 #include "startup_cfg_gen.h"
 #include <algorithm>
 #include <string>
+#include <filesystem>
+#include <fstream>
+#include <stdexcept>
 
 #include "ast.h"
 #include "file.h"
@@ -87,7 +90,22 @@ bool StartupCfgGen::Initialize()
     outFileName = Util::File::StripSuffix(outFileName).append(".cfg");
     outFileName_ = Util::File::FileNameBase(outFileName);
 
-    ofs_.open(outFileName, std::ofstream::out | std::ofstream::binary);
+    std::filesystem::path
+    p(outFileName);
+        try {
+            p = std::filesystem::canonical(p);
+        } catch (const std::filesystem::filesystem_error& e) {
+            Logger().Error() << "failed to canonicalize path: " << e.what();
+            return false;
+        }
+        if (!std::filesystem::exists(p.parent_path())) {
+            if(!std::filesystem::create_directories(p.parent_path())){
+                Logger().Error() << "failed to canonicalize create parent directory for: " << p.string();
+                return false;
+            }
+        }
+
+    ofs_.open(p.string(), std::ofstream::out | std::ofstream::binary);
     if (!ofs_.is_open()) {
         Logger().Error() << "failed to open output file: " << outFileName;
         return false;
