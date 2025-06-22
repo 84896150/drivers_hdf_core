@@ -197,7 +197,6 @@ bool MacroGen::GenNodeForeach(int32_t depth, const std::shared_ptr<AstObject> &n
         }
         ofs_ << std::endl;
     }
-
     return true;
 }
 
