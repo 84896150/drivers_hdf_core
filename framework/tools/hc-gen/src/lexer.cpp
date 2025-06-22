@@ -12,7 +12,7 @@
 #include <string>
 
 #include "logger.h"
-
+#define PATH_MAX 128
 using namespace OHOS::Hardware;
 
 static constexpr int BINARY_NUM = 2;
