@@ -177,7 +177,7 @@ void Options::AddSources(const std::string &sourceFile)
 
 std::string Options::CheckOutPutFile(const std::string &sourceFile)
 {
-    std::string realPath = File::AdapterRealPath(sourceFile);
+    std::string realPath = File::AdapterPath(sourceFile);
     if (realPath.empty()) {
         Logger::E(TAG, "invalid idl file path:%s", sourceFile.c_str());
         return "";
