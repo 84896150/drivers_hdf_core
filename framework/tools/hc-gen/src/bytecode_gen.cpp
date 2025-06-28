@@ -267,6 +267,18 @@ bool ByteCodeGen::HexdumpInitialize(FILE *&in, FILE *&out)
         return false;
     }
 
+    char path[PATH_MAX] = {0};
+    char *checkPath = realpath(hexdumpOutName.data(), path);
+    if (checkPath == nullptr) {
+        Logger().Error() << "realpath failed, file path: " << hexdumpOutName;
+        return false;
+    }
+
+    if (!IsValidPath(checkPath)) {
+        Logger().Error() << "Invalid path, file path: " << hexdumpOutName;
+        return false;
+    }
+
     out = fopen(hexdumpOutName.data(), "wb");
     if (out == nullptr) {
         fclose(in);
