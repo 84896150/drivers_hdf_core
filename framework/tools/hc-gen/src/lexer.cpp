@@ -10,7 +10,7 @@
 
 #include <sstream>
 #include <string>
-
+#include "file.h"
 #include "logger.h"
 
 using namespace OHOS::Hardware;
@@ -40,6 +40,24 @@ bool Lexer::Initialize(const std::string &sourceName)
     bufferEnd_ = nullptr;
     lineno_ = 1;
     lineLoc_ = 1;
+
+    if (!srcName_) {
+        Logger().Error() << "srcName_ nullptr";
+        return false;
+    }
+
+    char path[PATH_MAX] = {0};
+    char *checkPath = realpath(srcName_->c_str(), path);
+    if (checkPath == nullptr) {
+        Logger().Error() << "realpath failed, file path: " << *srcName_;
+        return false;
+    }
+
+    if (!IsValidPath(checkPath)) {
+        Logger().Error() << "Invalid path, file path: " << *srcName_;
+        return false;
+    }
+
     src_.open(srcName_->c_str(), std::ifstream::binary);
     if (!src_.is_open()) {
         Logger().Error() << "Failed to open source file: " << srcName_->data();

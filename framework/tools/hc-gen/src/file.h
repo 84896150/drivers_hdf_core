@@ -9,6 +9,8 @@
 #ifndef HC_GEN_FILE_H
 #define HC_GEN_FILE_H
 
+#include <cstring>
+#include <climits>
 #include <string>
 
 namespace OHOS {
@@ -22,6 +24,14 @@ public:
     static std::string FileNameBase(const std::string &path);
 };
 } // namespace Util
+
+
+#define MAX_PATH_LENGTH PATH_MAX
+inline bool IsValidPath(const char *realPath)
+{
+    return !(realPath == nullptr || realPath[0] != '/' || strlen(realPath) > MAX_PATH_LENGTH);
+}
+
 } // namespace Hardware
 } // namespace OHOS
 #endif // HC_GEN_FILE_H

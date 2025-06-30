@@ -83,6 +83,18 @@ bool MacroGen::Initialize()
         outFileName.append(".h");
     }
 
+    char path[PATH_MAX] = {0};
+    char *checkPath = realpath(outFileName.data(), path);
+    if (checkPath == nullptr) {
+        Logger().Error() << "realpath failed, file path: " << outFileName;
+        return false;
+    }
+
+    if (!IsValidPath(checkPath)) {
+        Logger().Error() << "Invalid path, file path: " << outFileName;
+        return false;
+    }
+
     ofs_.open(outFileName, std::ofstream::out | std::ofstream::binary);
     if (!ofs_.is_open()) {
         Logger().Error() << "failed to open output file: " << outFileName;
