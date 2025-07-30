@@ -30,6 +30,7 @@ enum class HdfDeviceManagerInterfaceCode {
     DEVSVC_MANAGER_LIST_SERVICE = 7,
     DEVSVC_MANAGER_REMOVE_SERVICE = 8,
     DEVSVC_MANAGER_LIST_SERVICE_BY_INTERFACEDESC = 9,
+    test
 };
 }  // namespace HdfDeviceManager
 }  // namespace HDI
