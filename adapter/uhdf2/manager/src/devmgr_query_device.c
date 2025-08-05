@@ -46,18 +46,16 @@ int DevFillQueryDeviceInfo(struct IDevmgrService *inst, struct HdfSBuf *data, st
         HDF_LOGD("%{public}s, host:%{public}s %{public}d", __func__, hostClnt->hostName, hostClnt->hostId);
         while (HdfSListIteratorHasNext(&itDeviceInfo)) {
             deviceInfo = (struct HdfDeviceInfo *)HdfSListIteratorNext(&itDeviceInfo);
-            HDF_LOGD("%{public}s %{public}s policy:%{public}d status:%{public}d type:%{public}d", __func__,
-                deviceInfo->svcName, deviceInfo->policy, deviceInfo->status, deviceInfo->deviceType);
             if ((deviceInfo->policy == SERVICE_POLICY_CAPACITY || deviceInfo->policy == SERVICE_POLICY_PUBLIC) &&
                 deviceInfo->status == status) {
                 flag = HdfSbufWriteString(reply, deviceInfo->svcName);
                 if (!flag) {
-                    HDF_LOGE("%{public}s writing string failed %{public}s", __func__, deviceInfo->svcName);
+                    HDF_LOGE("writing string failed");
                     return HDF_FAILURE;
                 }
                 flag = HdfSbufWriteInt32(reply, deviceInfo->deviceType);
                 if (!flag) {
-                    HDF_LOGE("%{public}s writing int32 failed %{public}d", __func__, deviceInfo->deviceType);
+                    HDF_LOGE("writing int32 failed");
                     return HDF_FAILURE;
                 }
             }

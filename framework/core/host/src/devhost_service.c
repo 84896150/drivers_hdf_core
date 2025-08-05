@@ -86,7 +86,7 @@ int DevHostServiceAddDevice(struct IDevHostService *inst, const struct HdfDevice
     }
     driver = driverLoader->GetDriver(deviceInfo->moduleName);
     if (driver == NULL) {
-        HDF_LOGE("failed to add device %{public}s, get driver failed", deviceInfo->moduleName);
+        HDF_LOGE("failed to add device, get driver failed");
         ret = HDF_DEV_ERR_NODATA;
         goto ERROR;
     }
