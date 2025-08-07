@@ -474,6 +474,11 @@ bool HdfRemoteAdapterCheckInterfaceToken(struct HdfRemoteService *service, struc
     return true;
 }
 
+OHOS::sptr<OHOS::IRemoteObject> HdfRemoteGetContextObject(void)
+{
+    return OHOS::IPCSkeleton::GetContextObject();
+}
+
 pid_t HdfRemoteGetCallingPid(void)
 {
     return OHOS::IPCSkeleton::GetCallingPid();
