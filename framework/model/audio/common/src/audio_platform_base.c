@@ -300,7 +300,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     int32_t status;
     uint32_t wPtr;
     int32_t ret;
-
+    AUDIO_DRIVER_LOG_INFO("ENTER.");
     if (card == NULL || txData == NULL || txData->buf == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is null.");
         return HDF_FAILURE;
@@ -325,6 +325,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     }
     // 3. Buffer state checking
     status = AudioDmaBuffStatus(card, AUDIO_RENDER_STREAM);
+    AUDIO_DRIVER_LOG_INFO("ENTER.status:%d", status);
     if (status != ENUM_CIR_BUFF_NORMAL) {
         txData->status = status;
         return HDF_SUCCESS;
@@ -350,7 +351,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     txData->status = ENUM_CIR_BUFF_NORMAL;
     data->renderBufInfo.wptrOffSet = wPtr + data->renderBufInfo.trafBufSize;
     data->renderBufInfo.wbufOffSet += data->renderBufInfo.trafBufSize;
-
+    AUDIO_DRIVER_LOG_INFO("out.");
     return HDF_SUCCESS;
 }
 
