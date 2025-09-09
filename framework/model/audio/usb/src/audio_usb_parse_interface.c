@@ -772,6 +772,10 @@ static int32_t AudioUsbV1SetSampleRate(struct AudioUsbDriver *audioUsbDriver, in
     dev = interface_to_usbdev(audioUsbDriver->usbIf);
 
     inteDesc = AudioUsbGetIfaceDesc(alts);
+    if (inteDesc == NULL) {
+        AUDIO_DRIVER_LOG_ERR("inteDesc is NULL.");
+        return HDF_FAILURE;
+    }
     if (inteDesc->bNumEndpoints < 1) {
         return HDF_ERR_INVALID_PARAM;
     }
