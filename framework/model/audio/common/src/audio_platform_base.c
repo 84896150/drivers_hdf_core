@@ -19,6 +19,7 @@
 #define MAX_PERIOD_SIZE (8 * 1024)
 #define MIN_PERIOD_SIZE (2 * 1024)
 #define SECOND_TO_MILLISECOND  1000
+#define DMA_PCM_STOP_START 0x0F0F0002
 
 const int32_t PERIOD_COUNT = 4;
 const int32_t RENDER_TRAF_BUF_SIZE = 1024;
@@ -300,7 +301,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     int32_t status;
     uint32_t wPtr;
     int32_t ret;
-
+    AUDIO_DRIVER_LOG_INFO("ENTER.");
     if (card == NULL || txData == NULL || txData->buf == NULL) {
         AUDIO_DRIVER_LOG_ERR("input param is null.");
         return HDF_FAILURE;
@@ -311,6 +312,12 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
         AUDIO_DRIVER_LOG_ERR("from PlatformDataFromCard get platformData is NULL.");
         return HDF_FAILURE;
     }
+
+    // if (data->dmaStopped) {
+    //     AUDIO_DRIVER_LOG_WARNING("DMA Already Stopped.");
+    //     txData->status = ENUM_CIR_BUFF_STOP;
+    //     return HDF_SUCCESS;
+    // }
 
     // 1. Computed buffer size
     data->renderBufInfo.trafBufSize = txData->frames * data->renderPcmInfo.frameSize;
@@ -325,8 +332,12 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     }
     // 3. Buffer state checking
     status = AudioDmaBuffStatus(card, AUDIO_RENDER_STREAM);
+    AUDIO_DRIVER_LOG_INFO("ENTER.status:%d", status);
     if (status != ENUM_CIR_BUFF_NORMAL) {
         txData->status = status;
+        if (data->renderBufInfo.runStatus == DMA_PCM_STOP_START) {
+            txData->status = -4;
+        }
         return HDF_SUCCESS;
     }
 
@@ -350,7 +361,7 @@ int32_t AudioPcmWrite(const struct AudioCard *card, struct AudioTxData *txData)
     txData->status = ENUM_CIR_BUFF_NORMAL;
     data->renderBufInfo.wptrOffSet = wPtr + data->renderBufInfo.trafBufSize;
     data->renderBufInfo.wbufOffSet += data->renderBufInfo.trafBufSize;
-
+    AUDIO_DRIVER_LOG_INFO("out.");
     return HDF_SUCCESS;
 }
 
