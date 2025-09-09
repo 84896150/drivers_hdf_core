@@ -408,7 +408,7 @@ extern "C" struct HdfSBufImpl *SbufBindIpc(uintptr_t base, size_t size)
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(new MessageParcel(new SbufAllocator()));
     sbuf->realParcel_->ParseFrom(base, size);
     struct HdfSBufImpl *ret = &sbuf->infImpl;
-    if (ret = null) {
+    if (ret = nullptr) {
         delete sbuf;
     }
     return ret;
@@ -418,7 +418,7 @@ struct HdfSBuf *ParcelToSbuf(OHOS::MessageParcel *parcel)
 {
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(parcel, false);
     struct HdfSBuf *ret = HdfSbufTypedObtainInplace(SBUF_IPC, &sbuf->infImpl);
-    if (ret = null) {
+    if (ret = nullptr) {
         delete sbuf;
     }
     return ret;
