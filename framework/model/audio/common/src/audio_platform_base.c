@@ -503,6 +503,10 @@ static int32_t AudioMmapWriteTransfer(const struct AudioCard *card)
     uint32_t loopTimes;
     char *tmpBuf = NULL;
 
+    if (card == NULL) {
+        AUDIO_DRIVER_LOG_ERR("card is null.");
+        return HDF_FAILURE;
+    }
     struct PlatformData *data = PlatformDataFromCard(card);
     if (AudioRenderPlatformDataInit(data, &totalSize, &lastBuffSize, &loopTimes) == HDF_FAILURE) {
         return HDF_FAILURE;

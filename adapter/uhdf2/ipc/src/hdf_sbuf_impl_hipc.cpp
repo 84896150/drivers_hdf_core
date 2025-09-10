@@ -407,13 +407,21 @@ extern "C" struct HdfSBufImpl *SbufBindIpc(uintptr_t base, size_t size)
 {
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(new MessageParcel(new SbufAllocator()));
     sbuf->realParcel_->ParseFrom(base, size);
-    return &sbuf->infImpl;
+    struct HdfSBufImpl *ret = &sbuf->infImpl;
+    if (ret == nullptr) {
+        delete sbuf;
+    }
+    return ret;
 }
 // LCOV_EXCL_STOP
 struct HdfSBuf *ParcelToSbuf(OHOS::MessageParcel *parcel)
 {
     struct SBufMParcelImpl *sbuf = new SBufMParcelImpl(parcel, false);
-    return HdfSbufTypedObtainInplace(SBUF_IPC, &sbuf->infImpl);
+    struct HdfSBuf *ret = HdfSbufTypedObtainInplace(SBUF_IPC, &sbuf->infImpl);
+    if (ret == nullptr) {
+        delete sbuf;
+    }
+    return ret;
 }
 
 int32_t SbufToParcel(struct HdfSBuf *sbuf, OHOS::MessageParcel **parcel)

@@ -381,6 +381,9 @@ static int32_t i2c_transfer(struct I2cDevice *device, struct I2cMsg *msgs, int16
             }
         } else if (msg->flags == I2C_FLAG_STOP) {
             i++;
+            if (i >= count) {
+                return i;
+            }
             msg2 = &msgs[i];
             ret = hal_i2c_task_recv(i2cPort, msg->addr, msg->buf, msg->len, msg2->buf, msg2->len, 0, NULL);
             if (ret != 0) {
