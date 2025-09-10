@@ -665,8 +665,8 @@ static int32_t StreamHostRenderPrepare(const struct HdfDeviceIoClient *client, s
 static int32_t StreamHostRenderOpen(const struct HdfDeviceIoClient *client, struct HdfSBuf *data,
     struct HdfSBuf *reply)
 {
-    ADM_LOG_INFO("entry.");
     struct AudioCard *audioCard = NULL;
+    ADM_LOG_INFO("entry.");
 
     (void)reply;
     (void)client;
@@ -1181,9 +1181,9 @@ static int32_t StreamHostRenderStop(const struct HdfDeviceIoClient *client, stru
 static int32_t StreamHostRenderClose(const struct HdfDeviceIoClient *client, struct HdfSBuf *data,
     struct HdfSBuf *reply)
 {
-    ADM_LOG_INFO("entry.");
     struct AudioCard *audioCard = NULL;
     int32_t ret;
+    ADM_LOG_INFO("entry.");
 
     if (data == NULL) {
         ADM_LOG_ERR("RenderClose input param is NULL.");
@@ -1264,9 +1264,9 @@ static int32_t StreamHostCaptureStop(const struct HdfDeviceIoClient *client,
 static int32_t StreamHostCaptureClose(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *data, struct HdfSBuf *reply)
 {
-    ADM_LOG_INFO("entry.");
     struct AudioCard *audioCard = NULL;
     int32_t ret;
+    ADM_LOG_INFO("entry.");
 
     if (data == NULL) {
         ADM_LOG_ERR("CaptureClose input param is NULL.");

@@ -106,7 +106,8 @@ static int ChipCleanBuffer(InputI2cClient *i2cClient)
 
 static void ChipVersionDefault(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
 {
-    for (uint8_t i = 0; i < pointNum; i++) {         // chipversion  A:gt911_zsj5p5
+    uint8_t i;
+    for (i = 0; i < pointNum; i++) {         // chipversion  A:gt911_zsj5p5
         frame->fingers[i].trackId = buf[GT_POINT_SIZE * i + GT_TRACK_ID];
 #if defined(CONFIG_ARCH_SPRD)
         int32_t resX = device->driver->boardCfg->attr.resolutionX;
@@ -152,9 +153,10 @@ static void ChipVersionDefault(ChipDevice *device, FrameData *frame, const uint8
 
 static void ChipVersionIsOne(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
 {
+    int8_t i;
     int32_t resX = device->driver->boardCfg->attr.resolutionX;
     int32_t resY = device->driver->boardCfg->attr.resolutionY;
-    for (uint8_t i = 0; i < pointNum; i++) {
+    for (i = 0; i < pointNum; i++) {
         frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |
                               ((buf[GT_POINT_SIZE * i + GT_X_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
@@ -165,9 +167,10 @@ static void ChipVersionIsOne(ChipDevice *device, FrameData *frame, const uint8_t
 
 static void ChipVersionIsExt(ChipDevice *device, FrameData *frame, const uint8_t *buf, uint8_t pointNum)
 {
+    int8_t i;
     int32_t resX = device->driver->boardCfg->attr.resolutionX;
     int32_t resY = device->driver->boardCfg->attr.resolutionY;
-    for (uint8_t i = 0; i < pointNum; i++) {
+    for (i = 0; i < pointNum; i++) {
         frame->fingers[i].x = resX - 1 - ((buf[GT_POINT_SIZE * i + GT_Y_LOW] & ONE_BYTE_MASK) |
                               ((buf[GT_POINT_SIZE * i + GT_Y_HIGH] & ONE_BYTE_MASK) << ONE_BYTE_OFFSET));
         frame->fingers[i].y = resY - 1 - ((buf[GT_POINT_SIZE * i + GT_X_LOW] & ONE_BYTE_MASK) |

@@ -21,6 +21,7 @@
 #include "stdarg.h"
 #include <asm/uaccess.h>
 #include <linux/fs.h>
+#include <linux/version.h>
 
 #define CREATE_TRACE_POINTS
 #include <trace/events/platform_trace_event.h>
@@ -124,14 +125,18 @@ static ssize_t TraceFileWrite(OsalFile *file, const char *string, uint32_t lengt
     }
     fp = (struct file *)file->realFile;
     pos = fp->f_pos;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     org_fs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    org_fs = force_uaccess_begin();
 #endif
 
     ret = vfs_write(fp, string, length, &pos);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(org_fs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(org_fs);
 #endif
     if (ret < 0) {
         HDF_LOGE("TraceFileWrite: write file length %d fail, ret: %d!", length, ret);
@@ -155,15 +160,19 @@ static ssize_t TraceFileRead(OsalFile *file, char *buf, uint32_t length)
         return HDF_ERR_INVALID_PARAM;
     }
     fp = (struct file *)file->realFile;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     org_fs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    org_fs = force_uaccess_begin();
 #endif
     pos = fp->f_pos;
 
     ret = vfs_read(fp, buf, length, &pos);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 6, 0)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(org_fs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(org_fs);
 #endif
     if (ret < 0) {
         HDF_LOGE("TraceFileRead: read file length %d fail, ret: %d!", length, ret);

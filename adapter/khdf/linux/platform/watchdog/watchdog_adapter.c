@@ -39,12 +39,20 @@ static int WdtAdapterIoctlInner(struct file *fp, unsigned cmd, unsigned long arg
     int ret = HDF_FAILURE;
     mm_segment_t oldfs;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
+#endif
     if (fp->f_op->unlocked_ioctl) {
         ret = fp->f_op->unlocked_ioctl(fp, cmd, arg);
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
+#endif
     return ret;
 }
 
@@ -62,19 +70,35 @@ static int32_t WdtOpenFile(struct WatchdogCntlr *wdt)
         HDF_LOGE("WdtOpenFile: sprintf_s fail!");
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
+#endif
     fp = filp_open(name, O_RDWR, 0600); /* 0600 : for open mode */
     if (IS_ERR(fp)) {
         HDF_LOGE("WdtOpenFile: filp_open %s fail!", name);
         if (PTR_ERR(fp) == HDF_ERR_DEVICE_BUSY) {
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
             set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+            force_uaccess_end(oldfs);
+#endif
             return HDF_ERR_DEVICE_BUSY;
         }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
         set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+        force_uaccess_end(oldfs);
+#endif
         return HDF_FAILURE;
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
+#endif
     wdt->priv = fp;
     return HDF_SUCCESS;
 }
@@ -84,12 +108,20 @@ static void WdtAdapterClose(struct WatchdogCntlr *wdt)
     mm_segment_t oldfs;
     struct file *fp = (struct file *)wdt->priv;
 
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    oldfs = force_uaccess_begin();
+#endif
     if (!IS_ERR(fp) && fp) {
         (void)filp_close(fp, NULL);
     }
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,10,0)
     set_fs(oldfs);
+#elif LINUX_VERSION_CODE < KERNEL_VERSION(5,18,0)
+    force_uaccess_end(oldfs);
+#endif
     wdt->priv = NULL;
 }
 

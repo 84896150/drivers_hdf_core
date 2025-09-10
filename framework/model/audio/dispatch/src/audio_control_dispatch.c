@@ -111,8 +111,8 @@ static int32_t ControlHostElemInfoSub(struct HdfSBuf *rspData, const struct Audi
 static int32_t ControlHostElemInfo(const struct HdfDeviceIoClient *client,
     struct HdfSBuf *reqData, struct HdfSBuf *rspData)
 {
-    ADM_LOG_DEBUG("entry.");
     struct AudioCtrlElemId id;
+    ADM_LOG_DEBUG("entry.");
 
     if (reqData == NULL) {
         ADM_LOG_ERR("Input ElemInfo params check error: reqData is NULL.");
