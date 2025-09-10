@@ -213,7 +213,7 @@ int32_t DevmgrServiceLoadLeftDriver(struct DevmgrService *devMgrSvc)
             if (deviceInfo->preload == DEVICE_PRELOAD_ENABLE_STEP2) {
                 ret = hostClnt->hostService->AddDevice(hostClnt->hostService, deviceInfo);
                 if (ret != HDF_SUCCESS) {
-                    HDF_LOGE("%{public}s:failed to load driver %{public}s", __func__, deviceInfo->moduleName);
+                    HDF_LOGE("failed to load driver");
                     continue;
                 }
                 deviceInfo->status = HDF_SERVICE_USABLE;
